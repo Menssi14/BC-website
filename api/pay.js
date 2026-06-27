@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const { sourceId, amountCents } = req.body || {};
+  const { sourceId, amountCents, email, phone } = req.body || {};
 
   // Basic validation — never trust the browser blindly
   if (!sourceId || !Number.isInteger(amountCents) || amountCents < 50) {
@@ -31,6 +31,23 @@ export default async function handler(req, res) {
     ? 'https://connect.squareup.com'
     : 'https://connect.squareupsandbox.com';
 
+  // Build the charge.
+  const payload = {
+    source_id: sourceId,
+    idempotency_key: crypto.randomUUID(),     // prevents accidental double-charges
+    amount_money: { amount: amountCents, currency: 'USD' },
+    location_id: process.env.SQUARE_LOCATION_ID
+  };
+  // If the customer gave an email, Square emails them a receipt.
+  if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    payload.buyer_email_address = email;
+  }
+  // Attach the phone so it shows on the payment in your Square dashboard.
+  if (phone && /^\d{10,15}$/.test(phone)) {
+    payload.buyer_phone_number = '+1' + phone.slice(-10);
+    payload.note = 'Website order — call/text +1' + phone.slice(-10);
+  }
+
   try {
     const response = await fetch(`${BASE}/v2/payments`, {
       method: 'POST',
@@ -39,18 +56,17 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        source_id: sourceId,
-        idempotency_key: crypto.randomUUID(),     // prevents accidental double-charges
-        amount_money: { amount: amountCents, currency: 'USD' },
-        location_id: process.env.SQUARE_LOCATION_ID
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();
 
     if (response.ok && data.payment && data.payment.status === 'COMPLETED') {
-      return res.status(200).json({ ok: true, id: data.payment.id });
+      return res.status(200).json({
+        ok: true,
+        id: data.payment.id,
+        receipt: data.payment.receipt_number || data.payment.id
+      });
     }
     const msg = (data.errors && data.errors[0] && data.errors[0].detail) || 'Payment declined.';
     return res.status(402).json({ ok: false, error: msg });
