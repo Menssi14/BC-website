@@ -216,6 +216,11 @@
   .sq-card-field { margin: 4px 0 14px; min-height: 48px; }
   .sq-demo { padding: 16px; border: 0.5px dashed rgba(31,77,62,0.4); border-radius: 4px; font-family: 'EB Garamond', serif; font-style: italic; font-size: 14px; color: var(--ink-soft); text-align: center; background: rgba(31,77,62,0.03); }
   .sq-status { margin: 12px 0 0; font-size: 14px; color: var(--green); text-align: center; min-height: 18px; }
+  .co-wallets { margin-top: 6px; }
+  .co-or { display: flex; align-items: center; text-align: center; margin: 18px 0 14px; color: var(--ink-soft); }
+  .co-or::before, .co-or::after { content: ''; flex: 1; height: 0.5px; background: rgba(42,37,32,0.2); }
+  .co-or span { padding: 0 12px; font-family: 'Teko','Oswald',sans-serif; text-transform: uppercase; letter-spacing: 0.16em; font-size: 13px; }
+  .wallet-btn { margin-bottom: 10px; min-height: 44px; }
   .dialog-note { text-align:center; color: var(--ink-soft); font-size: 14px; font-style: italic; }
   /* PAYMENT SUCCESS */
   .pay-success { text-align: center; padding: 44px 30px 36px; }
@@ -312,6 +317,11 @@
       <div id="co-card" class="sq-card-field"></div>
       <button id="co-pay-btn" class="dialog-cta" type="button">Pay &rarr;</button>
       <p id="co-status" class="sq-status" role="status" aria-live="polite"></p>
+      <div id="co-wallets" class="co-wallets" hidden>
+        <div class="co-or"><span>or pay with</span></div>
+        <div id="co-applepay" class="wallet-btn" hidden></div>
+        <div id="co-afterpay" class="wallet-btn" hidden></div>
+      </div>
     </div>
     <!-- SUCCESS -->
     <div class="dialog-card pay-success" id="co-success" hidden>
@@ -582,7 +592,7 @@
   }
 
   // ── Square payment (same flow as main site) ─────────────
-  let coCard = null, coInit = false;
+  let coCard = null, coInit = false, coPayments = null;
 
   async function initCheckoutSquare() {
     if (DEMO_MODE) {
@@ -592,15 +602,107 @@
     if (!window.Square || coCard || coInit) return;
     coInit = true;
     try {
-      const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
-      const c = await payments.card();
+      coPayments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+      const c = await coPayments.card();
       await c.attach('#co-card');
       coCard = c;
       console.log('[Square] store card field attached');
+      initWallets();   // Apple Pay + Afterpay (each self-hides if unavailable)
     } catch (e) {
       console.error('[Square] store attach failed:', e);
       $('co-status').textContent = 'Could not load the card form: ' + (e.message || e);
     } finally { coInit = false; }
+  }
+
+  // Build a Square PaymentRequest reflecting the current cart total
+  function buildPaymentRequest() {
+    const t = calcTotals(cartSubtotal());
+    return coPayments.paymentRequest({
+      countryCode: 'US',
+      currencyCode: 'USD',
+      total: { amount: t.total.toFixed(2), label: 'Broch Custom' }
+    });
+  }
+
+  // Shared: take a wallet token and charge it through the same backend
+  async function chargeWalletToken(token) {
+    const phone = ($('co-phone').value || '').replace(/\D/g, '');
+    if (phone.length < 10) {
+      $('co-status').textContent = 'Enter a 10-digit phone number so we can reach you.';
+      $('co-phone').focus();
+      return false;
+    }
+    $('co-status').textContent = 'Processing…';
+    try {
+      const res = await fetch(PAYMENT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceId: token,
+          amountCents: coTotalCents,
+          phone: phone,
+          email: ($('co-email').value || '').trim()
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) { showCheckoutSuccess(coTotalCents, data.receipt || data.id); return true; }
+      throw new Error(data.error || 'Payment did not go through. No charge was made.');
+    } catch (e) {
+      $('co-status').textContent = e.message;
+      return false;
+    }
+  }
+
+  async function initWallets() {
+    if (DEMO_MODE) return;
+    let anyShown = false;
+
+    // ── Apple Pay (Safari on Apple devices, needs domain registered in Square) ──
+    try {
+      const pr = buildPaymentRequest();
+      const applePay = await coPayments.applePay(pr);
+      // Apple Pay has no attach(); it renders on a custom button we wire up
+      const btn = $('co-applepay');
+      btn.hidden = false;
+      btn.style.cssText += 'background:#000;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;height:46px;cursor:pointer;font-family:-apple-system,sans-serif;font-size:17px;font-weight:500;';
+      btn.textContent = '\uF8FF Pay';
+      btn.onclick = async () => {
+        try {
+          const result = await applePay.tokenize();
+          if (result.status === 'OK') await chargeWalletToken(result.token);
+          else $('co-status').textContent = 'Apple Pay was cancelled.';
+        } catch (e) { $('co-status').textContent = 'Apple Pay error. Try another method.'; }
+      };
+      anyShown = true;
+      console.log('[Square] Apple Pay ready');
+    } catch (e) {
+      console.log('[Square] Apple Pay unavailable:', e.message || e);  // not on this device / domain not registered
+    }
+
+    // ── Afterpay (enabled in your Square dashboard, $1–$2000 orders) ──
+    try {
+      const pr = buildPaymentRequest();
+      const afterpay = await coPayments.afterpay(pr);
+      const btn = $('co-afterpay');
+      await afterpay.attach('#co-afterpay', {
+        buttonType: 'pay',
+        sizeClass: 'static'
+      });
+      btn.hidden = false;
+      btn.onclick = async () => {
+        try {
+          const result = await afterpay.tokenize();
+          if (result.status === 'OK') await chargeWalletToken(result.token);
+          else $('co-status').textContent = 'Afterpay was cancelled.';
+        } catch (e) { $('co-status').textContent = 'Afterpay error. Try another method.'; }
+      };
+      anyShown = true;
+      console.log('[Square] Afterpay ready');
+    } catch (e) {
+      console.log('[Square] Afterpay unavailable:', e.message || e);
+    }
+
+    $('co-wallets').hidden = !anyShown;
   }
 
   function loadCheckoutSDK() {
