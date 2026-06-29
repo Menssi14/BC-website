@@ -682,12 +682,9 @@
     // ── Afterpay (enabled in your Square dashboard, $1–$2000 orders) ──
     try {
       const pr = buildPaymentRequest();
-      const afterpay = await coPayments.afterpay(pr);
+      const afterpay = await coPayments.afterpayClearpay(pr);
       const btn = $('co-afterpay');
-      await afterpay.attach('#co-afterpay', {
-        buttonType: 'pay',
-        sizeClass: 'static'
-      });
+      await afterpay.attach('#co-afterpay');
       btn.hidden = false;
       btn.onclick = async () => {
         try {
