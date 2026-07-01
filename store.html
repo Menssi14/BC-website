@@ -247,6 +247,7 @@
     .nav-link { padding: 8px 12px; font-size: 13px; }
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <!-- NAV -->
@@ -275,6 +276,7 @@
     <div>Broch Custom · Edinburg, TX · <a href="tel:+19562255859">(956) 225-5859</a></div>
     <div>&copy; <span id="year"></span> Broch Custom</div>
     <div class="admin-toggle" id="admin-toggle">·</div>
+    <div id="save-badge" hidden style="position:fixed;bottom:16px;right:16px;background:var(--green);color:var(--cream);padding:8px 16px;border-radius:999px;font-family:'Teko',sans-serif;letter-spacing:0.1em;text-transform:uppercase;font-size:14px;z-index:200;">Saved ✓</div>
   </footer>
 
   <!-- CART DIALOG -->
@@ -307,11 +309,11 @@
         <div class="calc-line calc-total"><span>Total to pay</span><strong id="co-total">$0.00</strong></div>
       </div>
       <div class="field">
-        <label for="co-phone">Phone (so we can reach you)</label>
+        <label for="co-phone">Phone</label>
         <input type="tel" id="co-phone" placeholder="(956) 000-0000" autocomplete="tel" inputmode="tel">
       </div>
       <div class="field">
-        <label for="co-email">Email (optional, for your receipt)</label>
+        <label for="co-email">Email</label>
         <input type="email" id="co-email" placeholder="you@email.com" autocomplete="email" inputmode="email">
       </div>
       <div id="co-card" class="sq-card-field"></div>
@@ -417,6 +419,14 @@
   const $ = id => document.getElementById(id);
   const fmt = n => '$' + n.toFixed(2);
 
+  // ── Supabase (same project as the orders app) ───────────
+  const SUPABASE_URL = 'https://ixuxzdaevbytnznxmtal.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4dXh6ZGFldmJ5dG56bnhtdGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzIyNjMsImV4cCI6MjA5MjA0ODI2M30.9FxQ47kbShuIehy2aqRkG11fewLjHxX1RvoPtCYPTIE';
+  const PRODUCTS_BUCKET = 'files';
+  const PRODUCTS_FILE = '_store/products.json';
+  const sb = (window.supabase && window.supabase.createClient)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
   let products = [];
   let cart = [];       // {id, name, price, photo, variant, qty}
   let isAdmin = false;
@@ -424,13 +434,42 @@
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // ── Load products from the JSON file in the repo ────────
+  // ── Load products from Supabase (falls back to the old file) ──
   async function loadProducts() {
+    if (sb) {
+      try {
+        const { data, error } = await sb.storage.from(PRODUCTS_BUCKET).download(PRODUCTS_FILE);
+        if (!error && data) {
+          const text = await data.text();
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed)) { products = parsed; renderProducts(); return; }
+        }
+      } catch (e) { /* fall through to file */ }
+    }
+    // Fallback: old products.json in the repo (first load / if Supabase empty)
     try {
       const res = await fetch('products.json?' + Date.now());
       if (res.ok) products = await res.json();
     } catch (e) { products = []; }
     renderProducts();
+  }
+
+  // ── Save products to Supabase (instant, no push) ────────
+  let saveTimer = null;
+  function saveProductsToCloud() {
+    if (!sb) { alert('Cloud not connected — changes not saved.'); return; }
+    const badge = $('save-badge');
+    if (badge) { badge.textContent = 'Saving…'; badge.hidden = false; }
+    const blob = new Blob([JSON.stringify(products)], { type: 'application/json' });
+    sb.storage.from(PRODUCTS_BUCKET).upload(PRODUCTS_FILE, blob, { upsert: true })
+      .then(r => {
+        if (badge) {
+          badge.textContent = (r && r.error) ? 'Save failed' : 'Saved ✓';
+          setTimeout(() => { badge.hidden = true; }, 2000);
+        }
+        if (r && r.error) console.error('[store] save failed:', r.error);
+      })
+      .catch(e => { if (badge) badge.textContent = 'Save failed'; console.error(e); });
   }
 
   function renderProducts() {
@@ -516,6 +555,14 @@
   }
 
   function cartSubtotal() { return cart.reduce((s, c) => s + c.price * c.qty, 0); }
+
+  // Build a readable line-items summary for the order record
+  function cartItemsText() {
+    return cart.map(c => {
+      const v = c.variant ? ` (${c.variant})` : '';
+      return `${c.qty}× ${c.name}${v} — ${fmt(c.price * c.qty)}`;
+    }).join('\n');
+  }
 
   function calcTotals(sub) {
     const tax = sub * TAX_RATE;
@@ -628,7 +675,7 @@
   async function chargeWalletToken(token) {
     const phone = ($('co-phone').value || '').replace(/\D/g, '');
     if (phone.length < 10) {
-      $('co-status').textContent = 'Enter a 10-digit phone number so we can reach you.';
+      $('co-status').textContent = 'Please enter a valid 10-digit phone number.';
       $('co-phone').focus();
       return false;
     }
@@ -641,7 +688,8 @@
           sourceId: token,
           amountCents: coTotalCents,
           phone: phone,
-          email: ($('co-email').value || '').trim()
+          email: ($('co-email').value || '').trim(),
+          items: cartItemsText()
         })
       });
       const data = await res.json();
@@ -718,7 +766,7 @@
     if (coTotalCents <= 0) return;
     const phone = ($('co-phone').value || '').replace(/\D/g, '');
     if (phone.length < 10) {
-      $('co-status').textContent = 'Enter a 10-digit phone number so we can reach you.';
+      $('co-status').textContent = 'Please enter a valid 10-digit phone number.';
       $('co-phone').focus();
       return;
     }
@@ -743,7 +791,8 @@
           sourceId: result.token,
           amountCents: coTotalCents,
           phone: phone,
-          email: ($('co-email').value || '').trim()
+          email: ($('co-email').value || '').trim(),
+          items: cartItemsText()
         })
       });
       const data = await res.json();
@@ -779,8 +828,7 @@
 
   // ── Admin mode ──────────────────────────────────────────
   $('admin-toggle').addEventListener('click', () => {
-    if (isAdmin) { openExport(); }
-    else $('admin-login-dialog').showModal();
+    if (!isAdmin) $('admin-login-dialog').showModal();
   });
 
   function checkAdmin() {
@@ -789,7 +837,7 @@
       $('admin-login-dialog').close();
       $('admin-pass').value = '';
       $('admin-error').textContent = '';
-      $('admin-toggle').textContent = '⚙ Admin mode — click to save changes';
+      $('admin-toggle').textContent = '⚙ Admin mode on — changes save automatically';
       $('admin-toggle').style.opacity = '0.9';
       renderProducts();
     } else {
@@ -827,6 +875,7 @@
     if (!confirm('Delete this product?')) return;
     products = products.filter(p => p.id !== id);
     renderProducts();
+    saveProductsToCloud();
   }
 
   async function saveProduct() {
@@ -850,6 +899,7 @@
     }
     $('product-dialog').close();
     renderProducts();
+    saveProductsToCloud();
   }
 
   // Compress uploaded image to a small embedded WebP/JPEG
