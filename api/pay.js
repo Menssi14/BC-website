@@ -89,14 +89,28 @@ export default async function handler(req, res) {
           // 2) append the paid order in the app's order shape
           const now = Date.now();
           const phone10 = phone ? phone.slice(-10) : '';
+          const phonePretty = phone10
+            ? '(' + phone10.slice(0,3) + ') ' + phone10.slice(3,6) + '-' + phone10.slice(6)
+            : '';
+          const custEmail = (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ? email : '';
+          // Build a clean, readable note
+          const lines = [];
+          lines.push('🛒 ONLINE ORDER');
+          lines.push('');
+          if (phonePretty) lines.push('📞 ' + phonePretty);
+          if (custEmail)   lines.push('✉️ ' + custEmail);
+          lines.push('');
+          if (items) { lines.push('— Items —'); lines.push(String(items).slice(0, 2000)); lines.push(''); }
+          lines.push('💵 Paid: $' + (amountCents / 100).toFixed(2));
+          if (data.payment.receipt_number) lines.push('🧾 Receipt ' + data.payment.receipt_number);
+          const niceBody = lines.join('\n');
+
           store.orders.push({
             id: 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6),
             type: 'NOTE',
-            title: 'Website order',
+            title: 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
             contact: phone10,
-            body: (items ? String(items).slice(0, 2000) + '\n\n' : '') +
-                  'Paid online: $' + (amountCents / 100).toFixed(2) +
-                  (data.payment.receipt_number ? ' · Receipt ' + data.payment.receipt_number : ''),
+            body: niceBody,
             urgency: 'asap',
             designReady: false,
             items: [],
@@ -107,7 +121,7 @@ export default async function handler(req, res) {
             paidCents: amountCents,
             paymentId: data.payment.id,
             receipt: data.payment.receipt_number || '',
-            customerEmail: (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ? email : '',
+            customerEmail: custEmail,
             createdAt: now, updatedAt: now
           });
 
