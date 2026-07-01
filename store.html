@@ -120,6 +120,11 @@
     color: var(--green); letter-spacing: 0.02em;
   }
   .variant-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .fld-hint { font-weight: 400; font-size: 12px; color: var(--ink-soft); text-transform: none; letter-spacing: 0; }
+  .opt-picker { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+  .opt-chip { font-family: 'Teko','Oswald',sans-serif; text-transform: uppercase; letter-spacing: 0.04em; font-size: 14px; color: var(--ink-soft); background: var(--cream); border: 0.5px solid rgba(42,37,32,0.25); border-radius: 999px; padding: 7px 13px 5px; cursor: pointer; transition: all 0.12s; }
+  .opt-chip:hover { border-color: var(--green); }
+  .opt-chip.on { background: var(--green); color: var(--cream); border-color: var(--green); }
   .variant-row select {
     font-family: 'EB Garamond', serif; font-size: 14px; padding: 6px 10px;
     border: 0.5px solid rgba(42,37,32,0.25); border-radius: 4px; background: var(--cream);
@@ -372,12 +377,12 @@
         <textarea id="prod-desc" placeholder="Embroidered cap, structured fit."></textarea>
       </div>
       <div class="field">
-        <label for="prod-sizes">Sizes (comma separated, optional)</label>
-        <input type="text" id="prod-sizes" placeholder="S, M, L, XL">
+        <label>Sizes offered <span class="fld-hint">(tap the ones this product comes in)</span></label>
+        <div class="opt-picker" id="size-picker"></div>
       </div>
       <div class="field">
-        <label for="prod-colors">Colors (comma separated, optional)</label>
-        <input type="text" id="prod-colors" placeholder="Green, Black, Cream">
+        <label>Colors offered <span class="fld-hint">(tap the ones available)</span></label>
+        <div class="opt-picker" id="color-picker"></div>
       </div>
       <div class="field">
         <label for="prod-photo">Photo</label>
@@ -845,15 +850,39 @@
     }
   }
 
+  // Master option lists (same standardized set as the Orders app)
+  const SIZE_OPTIONS  = ['One Size','Youth S','Youth M','Youth L','Adult S','Adult M','Adult L','Adult XL','Adult 2XL','Adult 3XL'];
+  const COLOR_OPTIONS = ['White','Black','Gray','Charcoal','Navy','Royal','Carolina','Teal','Red','Maroon','Pink','Orange','Gold','Green','Forest','Purple','Brown','Tan','Sand'];
+
+  // Build the tap-to-enable pickers; `selected` is an array of currently-on values
+  function buildPicker(containerId, options, selected) {
+    const box = $(containerId);
+    box.innerHTML = '';
+    options.forEach(opt => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'opt-chip' + (selected.includes(opt) ? ' on' : '');
+      chip.textContent = opt;
+      chip.dataset.val = opt;
+      chip.onclick = () => chip.classList.toggle('on');
+      box.appendChild(chip);
+    });
+  }
+  // Read which chips are enabled, in list order
+  function readPicker(containerId, options) {
+    const on = Array.from($(containerId).querySelectorAll('.opt-chip.on')).map(c => c.dataset.val);
+    return options.filter(o => on.includes(o));  // keep canonical order
+  }
+
   function openProductDialog() {
     editingId = null;
     $('prod-dialog-title').innerHTML = 'Add a <em>product</em>';
     $('prod-name').value = '';
     $('prod-price').value = '';
     $('prod-desc').value = '';
-    $('prod-sizes').value = '';
-    $('prod-colors').value = '';
     $('prod-photo').value = '';
+    buildPicker('size-picker', SIZE_OPTIONS, []);
+    buildPicker('color-picker', COLOR_OPTIONS, []);
     $('product-dialog').showModal();
   }
 
@@ -865,9 +894,9 @@
     $('prod-name').value = p.name;
     $('prod-price').value = p.price;
     $('prod-desc').value = p.desc || '';
-    $('prod-sizes').value = (p.sizes || []).join(', ');
-    $('prod-colors').value = (p.colors || []).join(', ');
     $('prod-photo').value = '';
+    buildPicker('size-picker', SIZE_OPTIONS, p.sizes || []);
+    buildPicker('color-picker', COLOR_OPTIONS, p.colors || []);
     $('product-dialog').showModal();
   }
 
@@ -882,8 +911,8 @@
     const name = $('prod-name').value.trim();
     const price = parseFloat($('prod-price').value);
     if (!name || !(price >= 0)) { alert('Name and a valid price are required.'); return; }
-    const sizes = $('prod-sizes').value.split(',').map(s => s.trim()).filter(Boolean);
-    const colors = $('prod-colors').value.split(',').map(s => s.trim()).filter(Boolean);
+    const sizes = readPicker('size-picker', SIZE_OPTIONS);
+    const colors = readPicker('color-picker', COLOR_OPTIONS);
     const desc = $('prod-desc').value.trim();
 
     let photo = null;
