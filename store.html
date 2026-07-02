@@ -402,16 +402,6 @@
         <input type="file" id="prod-photo" accept="image/*">
       </div>
       <div class="field">
-        <label for="prod-mock3d">3D preview garment</label>
-        <select id="prod-mock3d">
-          <option value="">Auto — guess from the name</option>
-          <option value="shirt">T-Shirt</option>
-          <option value="polo">Polo</option>
-          <option value="cap">Cap</option>
-          <option value="none">Don't show 3D</option>
-        </select>
-      </div>
-      <div class="field">
         <label for="prod-mock3dfile">3D mockup file — build it in the 3D builder, tap Share &rarr; "Make a shareable file", then upload that file here. Locks the design exactly where you placed it.</label>
         <input type="file" id="prod-mock3dfile" accept=".html,text/html">
       </div>
@@ -543,7 +533,7 @@
         <div class="card-price">${fmt(p.price)}</div>
         ${variants}
         <button class="add-btn" onclick="addToCart('${p.id}')">Add to bag</button>
-        ${(p.mock3dState || garmentTypeFor(p)) ? `<button class="btn-3d" id="btn3d-${p.id}" onclick="open3D('${p.id}')">See it in 3D</button>` : ''}
+        ${p.mock3dState ? `<button class="btn-3d" id="btn3d-${p.id}" onclick="open3D('${p.id}')">See it in 3D</button>` : ''}
         ${adminBtns}
       </div>`;
     return card;
@@ -911,7 +901,6 @@
     $('prod-desc').value = '';
     $('prod-photo').value = '';
     $('prod-mock3dfile').value = '';
-    $('prod-mock3d').value = '';
     buildPicker('size-picker', SIZE_OPTIONS, []);
     buildPicker('color-picker', COLOR_OPTIONS, []);
     $('product-dialog').showModal();
@@ -927,7 +916,6 @@
     $('prod-desc').value = p.desc || '';
     $('prod-photo').value = '';
     $('prod-mock3dfile').value = '';
-    $('prod-mock3d').value = p.mock3d || '';
     buildPicker('size-picker', SIZE_OPTIONS, p.sizes || []);
     buildPicker('color-picker', COLOR_OPTIONS, p.colors || []);
     $('product-dialog').showModal();
@@ -959,12 +947,11 @@
       try { mock3dState = await readMockupFile(mfile); }
       catch (e) { alert('That file doesn\'t look like one from the 3D builder\'s "Make a shareable file". Please make it there and upload that exact file.'); return; }
     }
-    const mock3d = $('prod-mock3d').value || null;
 
     if (editingId) {
-      Object.assign(existing, { name, price, desc, sizes, colors, photo, mock3dState, mock3d });
+      Object.assign(existing, { name, price, desc, sizes, colors, photo, mock3dState });
     } else {
-      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, photo, mock3dState, mock3d });
+      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, photo, mock3dState });
     }
     $('product-dialog').close();
     renderProducts();
@@ -1001,16 +988,6 @@
   const MOCKUP_ENGINE = 'https://tools.brochcustom.com/model/';
   const COLOR_HEX = { 'White':'#FFFFFF','Black':'#202024','Gray':'#9AA0A6','Charcoal':'#46474B','Navy':'#1F2C49','Royal':'#2B4C9B','Carolina':'#7BA7D7','Teal':'#2E7F7A','Red':'#B3282D','Maroon':'#6B2734','Pink':'#F4B5B0','Orange':'#E07A3F','Gold':'#D9A441','Green':'#2E8B57','Forest':'#1F4D3E','Purple':'#5B3A7E','Brown':'#5C4433','Tan':'#C9B08A','Sand':'#D9CDB0' };
 
-  function garmentTypeFor(p) {
-    if (p.mock3d === 'none') return null;
-    if (p.mock3d === 'shirt' || p.mock3d === 'polo' || p.mock3d === 'cap') return p.mock3d;
-    const n = (p.name || '') + ' ' + (p.desc || '');
-    if (/\bpolo\b/i.test(n)) return 'polo';
-    if (/\bcap\b|\bhat\b|trucker|snapback/i.test(n)) return 'cap';
-    if (/t-?shirt|\btee\b|\bshirt\b/i.test(n)) return 'shirt';
-    return null;
-  }
-
   const v3d = { frame:null, msgFn:null, sel:null, selFn:null };
 
   function mountViewerFrame(src) {
@@ -1028,15 +1005,11 @@
   // Fullscreen product 3D: shows the exact mockup the admin attached; shopper can spin + pick color only
   function open3D(id) {
     const p = products.find(x => x.id === id); if (!p) return;
-    const saved = p.mock3dState || null;
-    const type = (saved && saved.t) ? saved.t : garmentTypeFor(p);
-    if (!type) return;
+    const saved = p.mock3dState; if (!saved || !saved.t) return;
     $('viewer3d-cap').textContent = 'Drag to spin \u00b7 use the shop\u2019s color menu to change color';
     const f = mountViewerFrame(MOCKUP_ENGINE + '?embed=1');
     function buildState() {
-      let st;
-      if (saved) { st = JSON.parse(JSON.stringify(saved)); }
-      else { st = { t: type, s: 1, r: 0, a: null }; }
+      const st = JSON.parse(JSON.stringify(saved));
       const sel = $('color-' + id);
       const hex = sel ? COLOR_HEX[sel.value] : null;
       if (hex && st.t !== 'cap') st.c = { parts: { garment: hex } };
