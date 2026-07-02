@@ -222,6 +222,12 @@
   .sq-demo { padding: 16px; border: 0.5px dashed rgba(31,77,62,0.4); border-radius: 4px; font-family: 'EB Garamond', serif; font-style: italic; font-size: 14px; color: var(--ink-soft); text-align: center; background: rgba(31,77,62,0.03); }
   .sq-status { margin: 12px 0 0; font-size: 14px; color: var(--green); text-align: center; min-height: 18px; }
   .co-wallets { margin-top: 6px; }
+  .ful-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .ful-btn { flex: 1; background: var(--cream); border: 0.5px solid rgba(42,37,32,0.3); border-radius: 6px; padding: 11px 8px 9px; cursor: pointer; font-family: 'Teko','Oswald',sans-serif; font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); display: flex; flex-direction: column; align-items: center; gap: 1px; transition: all 0.14s; }
+  .ful-btn small { font-family: 'EB Garamond', serif; font-size: 12px; text-transform: none; letter-spacing: 0; font-style: italic; opacity: 0.75; }
+  .ful-btn.on { background: var(--green); color: var(--cream); border-color: var(--green); }
+  .addr-grid { display: grid; grid-template-columns: 2fr 1fr 1.2fr; gap: 10px; }
+  .addr-grid .field { margin-bottom: 14px; }
   .co-or { display: flex; align-items: center; text-align: center; margin: 18px 0 14px; color: var(--ink-soft); }
   .co-or::before, .co-or::after { content: ''; flex: 1; height: 0.5px; background: rgba(42,37,32,0.2); }
   .co-or span { padding: 0 12px; font-family: 'Teko','Oswald',sans-serif; text-transform: uppercase; letter-spacing: 0.16em; font-size: 13px; }
@@ -292,10 +298,8 @@
       <h3 class="dialog-title">Review your <em>order</em></h3>
       <div id="cart-items"></div>
       <div class="cart-totals" id="cart-totals" hidden>
-        <div class="calc-line"><span>Subtotal</span><strong id="ct-sub">$0.00</strong></div>
-        <div class="calc-line"><span>Tax (8.25%)</span><strong id="ct-tax">$0.00</strong></div>
-        <div class="calc-line"><span>Card fee (3% + 30&cent;)</span><strong id="ct-fee">$0.00</strong></div>
-        <div class="calc-line calc-total"><span>Total</span><strong id="ct-total">$0.00</strong></div>
+        <div class="calc-line calc-total"><span>Subtotal</span><strong id="ct-sub">$0.00</strong></div>
+        <p class="dialog-note" style="margin-top:8px;">Tax, card fee &amp; shipping added at checkout.</p>
       </div>
       <button class="dialog-cta" id="checkout-btn" onclick="goToCheckout()">Checkout &rarr;</button>
     </div>
@@ -307,8 +311,24 @@
       <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
       <p class="label">Checkout</p>
       <h3 class="dialog-title">Pay for your <em>order</em></h3>
+      <div class="ful-row" role="group" aria-label="Delivery method">
+        <button type="button" class="ful-btn on" id="ful-pickup">Pickup <small>free &middot; Edinburg</small></button>
+        <button type="button" class="ful-btn" id="ful-ship">Ship to me <small id="ful-ship-hint">rate by weight &middot; free over $75</small></button>
+      </div>
+      <div id="ship-fields" hidden>
+        <div class="field">
+          <label for="co-street">Street address</label>
+          <input type="text" id="co-street" placeholder="123 Main St, Apt 2" autocomplete="street-address">
+        </div>
+        <div class="addr-grid">
+          <div class="field"><label for="co-city">City</label><input type="text" id="co-city" placeholder="Edinburg" autocomplete="address-level2"></div>
+          <div class="field"><label for="co-state">State</label><input type="text" id="co-state" value="TX" autocomplete="address-level1"></div>
+          <div class="field"><label for="co-zip">ZIP</label><input type="text" id="co-zip" placeholder="78539" inputmode="numeric" autocomplete="postal-code"></div>
+        </div>
+      </div>
       <div class="cart-totals">
         <div class="calc-line"><span>Subtotal</span><strong id="co-sub">$0.00</strong></div>
+        <div class="calc-line" id="co-ship-line" hidden><span>Shipping</span><strong id="co-ship">$0.00</strong></div>
         <div class="calc-line"><span>Tax (8.25%)</span><strong id="co-tax">$0.00</strong></div>
         <div class="calc-line"><span>Card fee (3% + 30&cent;)</span><strong id="co-fee">$0.00</strong></div>
         <div class="calc-line calc-total"><span>Total to pay</span><strong id="co-total">$0.00</strong></div>
@@ -385,22 +405,23 @@
         <div class="opt-picker" id="color-picker"></div>
       </div>
       <div class="field">
+        <label>Materials <span class="fld-hint">(optional)</span></label>
+        <div class="opt-picker" id="material-picker"></div>
+      </div>
+      <div class="field">
+        <label>Sleeves <span class="fld-hint">(optional)</span></label>
+        <div class="opt-picker" id="sleeve-picker"></div>
+      </div>
+      <div class="field">
+        <label for="prod-weight">Shipping weight <span class="fld-hint">(pounds — tap a preset or type)</span></label>
+        <input type="number" id="prod-weight" min="0.1" step="0.05" placeholder="1" inputmode="decimal">
+        <div class="opt-picker" id="weight-presets"></div>
+      </div>
+      <div class="field">
         <label for="prod-photo">Photo</label>
         <input type="file" id="prod-photo" accept="image/*">
       </div>
       <button class="dialog-cta" onclick="saveProduct()">Save product</button>
-    </div>
-  </dialog>
-
-  <!-- ADMIN EXPORT DIALOG -->
-  <dialog id="export-dialog">
-    <div class="dialog-card">
-      <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
-      <p class="label">Admin</p>
-      <h3 class="dialog-title">Save your <em>changes</em></h3>
-      <p class="dialog-note" style="margin-bottom:14px;">Download the updated product file and push it to GitHub, the same way you deploy the site. Your store updates once it&rsquo;s live.</p>
-      <button class="dialog-cta" onclick="downloadProducts()">Download products.json</button>
-      <div class="admin-export">After downloading, replace <code>products.json</code> in your repo and push. That&rsquo;s it.</div>
     </div>
   </dialog>
 
@@ -413,6 +434,14 @@
   const CARD_RATE  = 0.03;     // Square online rate 3%
   const CARD_FIXED = 0.30;     // 30 cents
   const TAX_RATE   = 0.0825;   // 8.25% Edinburg/Hidalgo
+  const SHIP_FREE_OVER = 75.00;   // free shipping at/above this subtotal
+  const PACKAGING_LB   = 0.25;    // box + mailer weight added per order
+  const DEFAULT_WEIGHT = 1;       // lb, for products with no weight set
+  // Shipping by total order weight (lb) — modeled on USPS Ground Advantage averages
+  const SHIP_TIERS = [
+    [0.5, 5.99], [1, 7.49], [2, 9.49], [3, 10.99],
+    [5, 12.99], [10, 17.99], [20, 24.99], [70, 39.99]
+  ];
 
   // ── Square (PUBLIC creds — same as main site) ───────────
   const SQUARE_APP_ID      = 'sq0idp-H__K6WmTStJPbJoD6GowAQ';
@@ -496,12 +525,14 @@
       ? `<img class="card-img" src="${p.photo}" alt="${escapeHtml(p.name)}">`
       : `<div class="card-img placeholder">No photo</div>`;
     let variants = '';
-    const sizeOpts = (p.sizes || []).map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-    const colorOpts = (p.colors || []).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-    if (sizeOpts || colorOpts) {
+    const mkOpts = a => (a || []).map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    const sizeOpts = mkOpts(p.sizes), colorOpts = mkOpts(p.colors), matOpts = mkOpts(p.materials), slvOpts = mkOpts(p.sleeves);
+    if (sizeOpts || colorOpts || matOpts || slvOpts) {
       variants = '<div class="variant-row">';
       if (sizeOpts) variants += `<select id="size-${p.id}" aria-label="Size">${sizeOpts}</select>`;
       if (colorOpts) variants += `<select id="color-${p.id}" aria-label="Color">${colorOpts}</select>`;
+      if (slvOpts) variants += `<select id="slv-${p.id}" aria-label="Sleeve">${slvOpts}</select>`;
+      if (matOpts) variants += `<select id="mat-${p.id}" aria-label="Material">${matOpts}</select>`;
       variants += '</div>';
     }
     const adminBtns = isAdmin
@@ -540,11 +571,13 @@
     if (!p) return;
     const size = $('size-' + id) ? $('size-' + id).value : '';
     const color = $('color-' + id) ? $('color-' + id).value : '';
-    const variant = [size, color].filter(Boolean).join(' / ');
+    const sleeve = $('slv-' + id) ? $('slv-' + id).value : '';
+    const material = $('mat-' + id) ? $('mat-' + id).value : '';
+    const variant = [size, color, sleeve, material].filter(Boolean).join(' / ');
     const key = id + '|' + variant;
     const existing = cart.find(c => c.key === key);
     if (existing) existing.qty++;
-    else cart.push({ key, id, name: p.name, price: p.price, photo: p.photo, variant, qty: 1 });
+    else cart.push({ key, id, name: p.name, price: p.price, photo: p.photo, weightLb: p.weightLb || DEFAULT_WEIGHT, variant, qty: 1 });
     updateCartCount();
     flashCart();
   }
@@ -569,13 +602,80 @@
     }).join('\n');
   }
 
-  function calcTotals(sub) {
-    const tax = sub * TAX_RATE;
-    const netGoal = sub + tax;
+  function calcTotals(sub, shipping) {
+    shipping = shipping || 0;
+    const tax = (sub + shipping) * TAX_RATE;   // TX taxes shipping on taxable orders
+    const netGoal = sub + shipping + tax;
     const total = sub > 0 ? (netGoal + CARD_FIXED) / (1 - CARD_RATE) : 0;
     const fee = total - netGoal;
-    return { sub, tax, fee, total };
+    return { sub, shipping, tax, fee, total };
   }
+  function cartWeight() {
+    return cart.reduce((s, c) => s + (c.weightLb || DEFAULT_WEIGHT) * c.qty, 0);
+  }
+  function tierPrice(lb) {
+    for (const [max, price] of SHIP_TIERS) { if (lb <= max) return price; }
+    return SHIP_TIERS[SHIP_TIERS.length - 1][1];
+  }
+  let liveRate = null;        // real carrier rate in dollars (null = not fetched)
+  let liveRateInfo = '';      // e.g. "USPS GroundAdvantage"
+  let rateFetching = false;
+
+  function shipCost() {
+    if (coFulfillment !== 'ship') return 0;
+    if (cartSubtotal() >= SHIP_FREE_OVER) return 0;
+    if (liveRate !== null) return liveRate;
+    return tierPrice(cartWeight() + PACKAGING_LB);   // estimate until the live rate arrives
+  }
+
+  function addressComplete() {
+    return $('co-street').value.trim() && $('co-city').value.trim() &&
+           $('co-state').value.trim() && /^\d{5}$/.test($('co-zip').value.trim());
+  }
+
+  let rateTimer = null;
+  function scheduleRateFetch() {
+    liveRate = null; liveRateInfo = '';
+    recalcCheckout();
+    if (coFulfillment !== 'ship' || !addressComplete()) return;
+    clearTimeout(rateTimer);
+    rateTimer = setTimeout(fetchLiveRate, 500);
+  }
+
+  async function fetchLiveRate() {
+    if (rateFetching || !addressComplete()) return;
+    rateFetching = true;
+    $('co-ship').textContent = 'calculating…';
+    try {
+      const res = await fetch('/api/shipping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          street: $('co-street').value.trim(),
+          city:   $('co-city').value.trim(),
+          state:  $('co-state').value.trim(),
+          zip:    $('co-zip').value.trim(),
+          weightLb: cartWeight() + PACKAGING_LB
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        liveRate = data.amount;
+        liveRateInfo = (data.carrier || '') + (data.service ? ' ' + data.service : '');
+      } else {
+        liveRate = null; liveRateInfo = '';   // fall back to estimate
+      }
+    } catch (e) {
+      liveRate = null; liveRateInfo = '';
+    }
+    rateFetching = false;
+    recalcCheckout();
+  }
+
+  // Refetch the rate as the address is typed
+  ['co-street','co-city','co-state','co-zip'].forEach(id => {
+    document.addEventListener('DOMContentLoaded', () => {});
+  });
 
   function openCart() {
     renderCart();
@@ -595,7 +695,7 @@
     cart.forEach(c => {
       const row = document.createElement('div');
       row.className = 'cart-item';
-      const img = c.photo ? `<img src="${c.photo}" alt="">` : '<div class="cart-item img" style="width:54px;height:54px;background:var(--cream-warm);border-radius:4px;"></div>';
+      const img = c.photo ? `<img src="${c.photo}" alt="">` : '<div style="width:54px;height:54px;background:var(--cream-warm);border-radius:4px;flex:0 0 auto;"></div>';
       row.innerHTML = `
         ${img}
         <div class="cart-item-info">
@@ -610,11 +710,7 @@
         </div>`;
       wrap.appendChild(row);
     });
-    const t = calcTotals(cartSubtotal());
-    $('ct-sub').textContent = fmt(t.sub);
-    $('ct-tax').textContent = fmt(t.tax);
-    $('ct-fee').textContent = fmt(t.fee);
-    $('ct-total').textContent = fmt(t.total);
+    $('ct-sub').textContent = fmt(cartSubtotal());
     $('cart-totals').hidden = false;
   }
 
@@ -629,14 +725,44 @@
 
   // ── Checkout ────────────────────────────────────────────
   let coTotalCents = 0;
-  function goToCheckout() {
-    if (!cart.length) return;
-    const t = calcTotals(cartSubtotal());
+  let coFulfillment = 'pickup';
+
+  function recalcCheckout() {
+    const ship = shipCost();
+    const t = calcTotals(cartSubtotal(), ship);
     coTotalCents = Math.round(t.total * 100);
     $('co-sub').textContent = fmt(t.sub);
+    const shipLine = $('co-ship-line');
+    if (coFulfillment === 'ship') {
+      shipLine.hidden = false;
+      const label = shipLine.querySelector('span');
+      if (ship === 0) { $('co-ship').textContent = 'FREE'; label.textContent = 'Shipping'; }
+      else if (liveRate !== null) { $('co-ship').textContent = fmt(ship); label.textContent = 'Shipping (' + (liveRateInfo || 'USPS') + ')'; }
+      else { $('co-ship').textContent = fmt(ship) + ' est.'; label.textContent = 'Shipping (estimate)'; }
+    } else {
+      shipLine.hidden = true;
+    }
     $('co-tax').textContent = fmt(t.tax);
     $('co-fee').textContent = fmt(t.fee);
     $('co-total').textContent = fmt(t.total);
+  }
+
+  function setFulfillment(mode) {
+    coFulfillment = mode;
+    $('ful-pickup').classList.toggle('on', mode === 'pickup');
+    $('ful-ship').classList.toggle('on', mode === 'ship');
+    $('ship-fields').hidden = (mode !== 'ship');
+    recalcCheckout();
+  }
+  $('ful-pickup').addEventListener('click', () => setFulfillment('pickup'));
+  $('ful-ship').addEventListener('click', () => { setFulfillment('ship'); scheduleRateFetch(); });
+  ['co-street','co-city','co-state','co-zip'].forEach(id => $(id).addEventListener('input', scheduleRateFetch));
+
+  function goToCheckout() {
+    if (!cart.length) return;
+    setFulfillment('pickup');   // fresh default each time
+    liveRate = null; liveRateInfo = '';
+    $('ful-ship-hint').innerHTML = cartSubtotal() >= SHIP_FREE_OVER ? 'FREE for this order' : 'USPS rate at your address &middot; free over $' + SHIP_FREE_OVER.toFixed(0);
     $('cart-dialog').close();
     $('checkout-body').hidden = false;
     $('co-success').hidden = true;
@@ -668,7 +794,7 @@
 
   // Build a Square PaymentRequest reflecting the current cart total
   function buildPaymentRequest() {
-    const t = calcTotals(cartSubtotal());
+    const t = calcTotals(cartSubtotal(), shipCost());
     return coPayments.paymentRequest({
       countryCode: 'US',
       currencyCode: 'USD',
@@ -677,6 +803,32 @@
   }
 
   // Shared: take a wallet token and charge it through the same backend
+  function shipAddressOk() {
+    if (coFulfillment !== 'ship') return true;
+    const street = $('co-street').value.trim(), city = $('co-city').value.trim(),
+          state = $('co-state').value.trim(), zip = $('co-zip').value.trim();
+    if (!street || !city || !state || !/^\d{5}$/.test(zip)) {
+      $('co-status').textContent = 'Please complete the shipping address (5-digit ZIP).';
+      return false;
+    }
+    return true;
+  }
+  function payBody(token, phone) {
+    const body = {
+      sourceId: token,
+      amountCents: coTotalCents,
+      phone: phone,
+      email: ($('co-email').value || '').trim(),
+      items: cartItemsText(),
+      fulfillment: coFulfillment,
+      shippingCents: Math.round(shipCost() * 100)
+    };
+    if (coFulfillment === 'ship') {
+      body.address = $('co-street').value.trim() + ', ' + $('co-city').value.trim() + ', ' + $('co-state').value.trim() + ' ' + $('co-zip').value.trim();
+    }
+    return body;
+  }
+
   async function chargeWalletToken(token) {
     const phone = ($('co-phone').value || '').replace(/\D/g, '');
     if (phone.length < 10) {
@@ -684,18 +836,13 @@
       $('co-phone').focus();
       return false;
     }
+    if (!shipAddressOk()) return false;
     $('co-status').textContent = 'Processing…';
     try {
       const res = await fetch(PAYMENT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceId: token,
-          amountCents: coTotalCents,
-          phone: phone,
-          email: ($('co-email').value || '').trim(),
-          items: cartItemsText()
-        })
+        body: JSON.stringify(payBody(token, phone))
       });
       const data = await res.json();
       if (res.ok && data.ok) { showCheckoutSuccess(coTotalCents, data.receipt || data.id); return true; }
@@ -775,6 +922,7 @@
       $('co-phone').focus();
       return;
     }
+    if (!shipAddressOk()) return;
     const btn = $('co-pay-btn');
     btn.disabled = true;
     $('co-status').textContent = '';
@@ -792,13 +940,7 @@
       const res = await fetch(PAYMENT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceId: result.token,
-          amountCents: coTotalCents,
-          phone: phone,
-          email: ($('co-email').value || '').trim(),
-          items: cartItemsText()
-        })
+        body: JSON.stringify(payBody(result.token, phone))
       });
       const data = await res.json();
       if (res.ok && data.ok) showCheckoutSuccess(coTotalCents, data.receipt || data.id);
@@ -851,7 +993,21 @@
   }
 
   // Master option lists (same standardized set as the Orders app)
-  const SIZE_OPTIONS  = ['One Size','Youth S','Youth M','Youth L','Adult S','Adult M','Adult L','Adult XL','Adult 2XL','Adult 3XL'];
+  const SIZE_OPTIONS  = ['One Size','2T','3T','4T','5T','Youth S','Youth M','Youth L','Adult S','Adult M','Adult L','Adult XL','Adult 2XL','Adult 3XL'];
+  const MATERIAL_OPTIONS = ['Cotton','Polyester','Blend'];
+  const SLEEVE_OPTIONS = ['Short sleeve','Long sleeve'];
+  const WEIGHT_PRESETS = [['Cap',0.5],['Shirt / Polo',0.75],['Hoodie',1.5],['Tumbler',1.25],['Small item',0.3],['Heavy / bulky',3]];
+  function buildWeightPresets() {
+    const box = $('weight-presets');
+    box.innerHTML = '';
+    WEIGHT_PRESETS.forEach(([label, lb]) => {
+      const chip = document.createElement('button');
+      chip.type = 'button'; chip.className = 'opt-chip';
+      chip.textContent = label + ' · ' + lb + ' lb';
+      chip.onclick = () => { $('prod-weight').value = lb; };
+      box.appendChild(chip);
+    });
+  }
   const COLOR_OPTIONS = ['White','Black','Gray','Charcoal','Navy','Royal','Carolina','Teal','Red','Maroon','Pink','Orange','Gold','Green','Forest','Purple','Brown','Tan','Sand'];
 
   // Build the tap-to-enable pickers; `selected` is an array of currently-on values
@@ -883,6 +1039,10 @@
     $('prod-photo').value = '';
     buildPicker('size-picker', SIZE_OPTIONS, []);
     buildPicker('color-picker', COLOR_OPTIONS, []);
+    buildPicker('material-picker', MATERIAL_OPTIONS, []);
+    buildPicker('sleeve-picker', SLEEVE_OPTIONS, []);
+    $('prod-weight').value = '';
+    buildWeightPresets();
     $('product-dialog').showModal();
   }
 
@@ -897,6 +1057,10 @@
     $('prod-photo').value = '';
     buildPicker('size-picker', SIZE_OPTIONS, p.sizes || []);
     buildPicker('color-picker', COLOR_OPTIONS, p.colors || []);
+    buildPicker('material-picker', MATERIAL_OPTIONS, p.materials || []);
+    buildPicker('sleeve-picker', SLEEVE_OPTIONS, p.sleeves || []);
+    $('prod-weight').value = p.weightLb || '';
+    buildWeightPresets();
     $('product-dialog').showModal();
   }
 
@@ -913,6 +1077,9 @@
     if (!name || !(price >= 0)) { alert('Name and a valid price are required.'); return; }
     const sizes = readPicker('size-picker', SIZE_OPTIONS);
     const colors = readPicker('color-picker', COLOR_OPTIONS);
+    const materials = readPicker('material-picker', MATERIAL_OPTIONS);
+    const sleeves = readPicker('sleeve-picker', SLEEVE_OPTIONS);
+    const weightLb = Math.max(0.1, parseFloat($('prod-weight').value) || DEFAULT_WEIGHT);
     const desc = $('prod-desc').value.trim();
 
     let photo = null;
@@ -922,9 +1089,9 @@
     if (file) photo = await compressImage(file);
 
     if (editingId) {
-      Object.assign(existing, { name, price, desc, sizes, colors, photo });
+      Object.assign(existing, { name, price, desc, sizes, colors, materials, sleeves, weightLb, photo });
     } else {
-      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, photo });
+      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, materials, sleeves, weightLb, photo });
     }
     $('product-dialog').close();
     renderProducts();
@@ -955,17 +1122,6 @@
       };
       reader.readAsDataURL(file);
     });
-  }
-
-  function openExport() { $('export-dialog').showModal(); }
-
-  function downloadProducts() {
-    const blob = new Blob([JSON.stringify(products, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'products.json';
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   // ── Go ──────────────────────────────────────────────────
