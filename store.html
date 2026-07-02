@@ -107,6 +107,8 @@
     width: 100%; aspect-ratio: 1/1; object-fit: cover;
     background: var(--cream-warm); display: block;
   }
+  .card-3d { padding: 0; overflow: hidden; }
+  .card-3d iframe { width: 100%; height: 100%; border: 0; display: block; }
   .card-img.placeholder {
     display: flex; align-items: center; justify-content: center;
     color: var(--khaki); font-family: 'Teko',sans-serif;
@@ -412,8 +414,8 @@
         </select>
       </div>
       <div class="field">
-        <label for="prod-design3d">3D design art — the logo/design alone, transparent background (optional; shows on the 3D view)</label>
-        <input type="file" id="prod-design3d" accept="image/png,image/webp,image/svg+xml">
+        <label for="prod-mock3dfile">3D mockup file — build it in the 3D builder, tap Share &rarr; "Make a shareable file", then upload that file here. Locks the design exactly where you placed it.</label>
+        <input type="file" id="prod-mock3dfile" accept=".html,text/html">
       </div>
       <button class="dialog-cta" onclick="saveProduct()">Save product</button>
     </div>
@@ -519,6 +521,7 @@
   function productCard(p) {
     const card = document.createElement('div');
     card.className = 'card';
+    card.id = 'card-' + p.id;
     const img = p.photo
       ? `<img class="card-img" src="${p.photo}" alt="${escapeHtml(p.name)}">`
       : `<div class="card-img placeholder">No photo</div>`;
@@ -542,7 +545,7 @@
         <div class="card-price">${fmt(p.price)}</div>
         ${variants}
         <button class="add-btn" onclick="addToCart('${p.id}')">Add to bag</button>
-        ${garmentTypeFor(p) ? `<button class="btn-3d" onclick="open3D('${p.id}')">See it in 3D</button>` : ''}
+        ${(p.mock3dState || garmentTypeFor(p)) ? `<button class="btn-3d" id="btn3d-${p.id}" onclick="open3D('${p.id}')">See it in 3D</button>` : ''}
         ${adminBtns}
       </div>`;
     return card;
@@ -909,7 +912,7 @@
     $('prod-price').value = '';
     $('prod-desc').value = '';
     $('prod-photo').value = '';
-    $('prod-design3d').value = '';
+    $('prod-mock3dfile').value = '';
     $('prod-mock3d').value = '';
     buildPicker('size-picker', SIZE_OPTIONS, []);
     buildPicker('color-picker', COLOR_OPTIONS, []);
@@ -925,7 +928,7 @@
     $('prod-price').value = p.price;
     $('prod-desc').value = p.desc || '';
     $('prod-photo').value = '';
-    $('prod-design3d').value = '';
+    $('prod-mock3dfile').value = '';
     $('prod-mock3d').value = p.mock3d || '';
     buildPicker('size-picker', SIZE_OPTIONS, p.sizes || []);
     buildPicker('color-picker', COLOR_OPTIONS, p.colors || []);
@@ -948,19 +951,22 @@
     const desc = $('prod-desc').value.trim();
 
     let photo = null;
-    let design3d = null;
+    let mock3dState = null;
     const existing = editingId ? products.find(p => p.id === editingId) : null;
-    if (existing) { photo = existing.photo; design3d = existing.design3d || null; }
+    if (existing) { photo = existing.photo; mock3dState = existing.mock3dState || null; }
     const file = $('prod-photo').files[0];
     if (file) photo = await compressImage(file);
-    const dfile = $('prod-design3d').files[0];
-    if (dfile) design3d = await compressDesignArt(dfile);
+    const mfile = $('prod-mock3dfile').files[0];
+    if (mfile) {
+      try { mock3dState = await readMockupFile(mfile); }
+      catch (e) { alert('That file doesn\'t look like one from the 3D builder\'s "Make a shareable file". Please make it there and upload that exact file.'); return; }
+    }
     const mock3d = $('prod-mock3d').value || null;
 
     if (editingId) {
-      Object.assign(existing, { name, price, desc, sizes, colors, photo, design3d, mock3d });
+      Object.assign(existing, { name, price, desc, sizes, colors, photo, mock3dState, mock3d });
     } else {
-      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, photo, design3d, mock3d });
+      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, photo, mock3dState, mock3d });
     }
     $('product-dialog').close();
     renderProducts();
@@ -1021,17 +1027,21 @@
     return f;
   }
 
+  // Fullscreen product 3D: shows the exact mockup the admin attached; shopper can spin + pick color only
   function open3D(id) {
     const p = products.find(x => x.id === id); if (!p) return;
-    const type = garmentTypeFor(p); if (!type) return;
-    $('viewer3d-cap').textContent = 'Drag to spin · colors are a close preview';
+    const saved = p.mock3dState || null;
+    const type = (saved && saved.t) ? saved.t : garmentTypeFor(p);
+    if (!type) return;
+    $('viewer3d-cap').textContent = 'Drag to spin \u00b7 use the shop\u2019s color menu to change color';
     const f = mountViewerFrame(MOCKUP_ENGINE + '?embed=1');
     function buildState() {
-      const st = { t: type, s: 1, r: 0, a: null };
+      let st;
+      if (saved) { st = JSON.parse(JSON.stringify(saved)); }
+      else { st = { t: type, s: 1, r: 0, a: null }; }
       const sel = $('color-' + id);
       const hex = sel ? COLOR_HEX[sel.value] : null;
-      if (hex && type !== 'cap') st.c = { parts: { garment: hex } };
-      if (p.design3d) st.d = p.design3d;
+      if (hex && st.t !== 'cap') st.c = { parts: { garment: hex } };
       return st;
     }
     let ready = false;
@@ -1059,29 +1069,22 @@
     document.body.style.overflow = '';
   }
 
-  // Compress design art but KEEP transparency (webp or png, never jpeg)
-  function compressDesignArt(file) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const max = 1024;
-          let { width, height } = img;
-          if (width > height && width > max) { height = height * max / width; width = max; }
-          else if (height > max) { width = width * max / height; height = max; }
-          const canvas = document.createElement('canvas');
-          canvas.width = width; canvas.height = height;
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          let out;
-          try { out = canvas.toDataURL('image/webp', 0.85); }
-          catch { out = canvas.toDataURL('image/png'); }
-          if (!out.startsWith('data:image/webp')) out = canvas.toDataURL('image/png');
-          resolve(out);
-        };
-        img.src = e.target.result;
+  // Read the exact mockup setup out of a "Make a shareable file" download
+  function readMockupFile(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = e => {
+        try {
+          const txt = String(e.target.result);
+          const m = txt.match(/var S=(\{[\s\S]*?\});var f=document/);
+          if (!m) return reject(new Error('no state'));
+          const st = JSON.parse(m[1]);
+          if (!st || !st.t) return reject(new Error('bad state'));
+          resolve(st);
+        } catch (err) { reject(err); }
       };
-      reader.readAsDataURL(file);
+      r.onerror = () => reject(new Error('read failed'));
+      r.readAsText(file);
     });
   }
 
