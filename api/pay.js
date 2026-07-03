@@ -14,6 +14,8 @@
 //  3. Deploy. The website's PAYMENT_ENDPOINT ('/api/pay') will reach this.
 // ============================================================
 
+import nodemailer from 'nodemailer';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -62,6 +64,27 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (response.ok && data.payment && data.payment.status === 'COMPLETED') {
+      // Details shared by the order log and the confirmation emails
+      const now = Date.now();
+      const phone10 = phone ? phone.slice(-10) : '';
+      const phonePretty = phone10
+        ? '(' + phone10.slice(0,3) + ') ' + phone10.slice(3,6) + '-' + phone10.slice(6)
+        : '';
+      const custEmail = (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ? email : '';
+      const paidStr = '$' + (amountCents / 100).toFixed(2);
+      const receiptUrl = data.payment.receipt_url || '';
+      // Build a clean, readable note
+      const lines = [];
+      lines.push('🛒 ONLINE ORDER');
+      lines.push('');
+      if (phonePretty) lines.push('📞 ' + phonePretty);
+      if (custEmail)   lines.push('✉️ ' + custEmail);
+      lines.push('');
+      if (items) { lines.push('— Items —'); lines.push(String(items).slice(0, 2000)); lines.push(''); }
+      lines.push('💵 Paid: ' + paidStr);
+      if (data.payment.receipt_number) lines.push('🧾 Receipt ' + data.payment.receipt_number);
+      const niceBody = lines.join('\n');
+
       // ── Drop the paid order into the Orders app ──
       // The orders app stores everything as one JSON file in Supabase
       // storage (bucket "files", path "_orders/orders.json", shape
@@ -85,25 +108,6 @@ export default async function handler(req, res) {
               if (parsed && Array.isArray(parsed.orders)) store = parsed;
             }
           } catch (_) { /* file may not exist yet — start fresh */ }
-
-          // 2) append the paid order in the app's order shape
-          const now = Date.now();
-          const phone10 = phone ? phone.slice(-10) : '';
-          const phonePretty = phone10
-            ? '(' + phone10.slice(0,3) + ') ' + phone10.slice(3,6) + '-' + phone10.slice(6)
-            : '';
-          const custEmail = (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ? email : '';
-          // Build a clean, readable note
-          const lines = [];
-          lines.push('🛒 ONLINE ORDER');
-          lines.push('');
-          if (phonePretty) lines.push('📞 ' + phonePretty);
-          if (custEmail)   lines.push('✉️ ' + custEmail);
-          lines.push('');
-          if (items) { lines.push('— Items —'); lines.push(String(items).slice(0, 2000)); lines.push(''); }
-          lines.push('💵 Paid: $' + (amountCents / 100).toFixed(2));
-          if (data.payment.receipt_number) lines.push('🧾 Receipt ' + data.payment.receipt_number);
-          const niceBody = lines.join('\n');
 
           store.orders.push({
             id: 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6),
@@ -134,6 +138,65 @@ export default async function handler(req, res) {
         }
       } catch (logErr) {
         console.error('[orders] could not log order:', logErr);
+      }
+
+      // ── Email confirmations (never blocks the charge) ──
+      // Sends through the shop's Gmail using an app password.
+      // Needs GMAIL_USER + GMAIL_APP_PASSWORD in Vercel env vars.
+      // If anything here fails, the PAYMENT STILL SUCCEEDS.
+      try {
+        const MAIL_USER = process.env.GMAIL_USER;
+        const MAIL_PASS = process.env.GMAIL_APP_PASSWORD;
+        if (MAIL_USER && MAIL_PASS) {
+          const mailer = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: MAIL_USER, pass: MAIL_PASS }
+          });
+
+          // 1) heads-up to the shop on every paid order
+          await mailer.sendMail({
+            from: `"Broch Custom" <${MAIL_USER}>`,
+            to: MAIL_USER,
+            subject: `🛒 New online order — ${paidStr}`,
+            text: niceBody
+          });
+
+          // 2) confirmation to the buyer, if they gave an email
+          if (custEmail) {
+            const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const itemsBlock = items ? String(items).slice(0, 2000) : '';
+
+            const textLines = ['Thanks for your order with Broch Custom!', ''];
+            if (itemsBlock) { textLines.push('— Items —', itemsBlock, ''); }
+            textLines.push('Paid: ' + paidStr);
+            if (receiptUrl) textLines.push('Receipt: ' + receiptUrl);
+            textLines.push('', "We'll be in touch about pickup or delivery. Reply to this email with any questions.");
+
+            const html =
+              `<div style="font-family:Georgia,'Times New Roman',serif;background:#F2EADD;padding:26px 16px">` +
+                `<div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e3dac6;border-radius:10px;overflow:hidden">` +
+                  `<div style="background:#1F4D3E;color:#F2EADD;padding:16px 22px;font-size:19px;letter-spacing:.08em">BROCH CUSTOM</div>` +
+                  `<div style="padding:22px;color:#2c2620;font-size:15px;line-height:1.5">` +
+                    `<p style="margin:0 0 12px">Thanks for your order! Here's what we got:</p>` +
+                    (itemsBlock ? `<pre style="font-family:inherit;white-space:pre-wrap;background:#f4eede;padding:12px 14px;border-radius:6px;margin:0 0 14px">${esc(itemsBlock)}</pre>` : '') +
+                    `<p style="margin:0 0 6px"><strong>Paid: ${paidStr}</strong></p>` +
+                    (receiptUrl ? `<p style="margin:0 0 14px"><a href="${receiptUrl}" style="color:#1F4D3E">View your Square receipt</a></p>` : '') +
+                    `<p style="margin:0;color:#4A3424">We'll be in touch about pickup or delivery. Reply to this email with any questions.</p>` +
+                  `</div>` +
+                `</div>` +
+              `</div>`;
+
+            await mailer.sendMail({
+              from: `"Broch Custom" <${MAIL_USER}>`,
+              to: custEmail,
+              subject: 'Order confirmed — Broch Custom',
+              text: textLines.join('\n'),
+              html
+            });
+          }
+        }
+      } catch (mailErr) {
+        console.error('[email] could not send confirmation:', mailErr);
       }
 
       return res.status(200).json({
