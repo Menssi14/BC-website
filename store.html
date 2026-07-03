@@ -252,6 +252,23 @@
     .nav-brand { font-size: 19px; }
     .nav-link { padding: 8px 12px; font-size: 13px; }
   }
+  /* ── photo backgrounds, catalog picker, lightbox ── */
+  .card-img:not(.placeholder){cursor:zoom-in}
+  .bg-checker{background:conic-gradient(#e9e2d2 25%,#faf6ec 0 50%,#e9e2d2 0 75%,#faf6ec 0) 0 0/22px 22px;object-fit:contain;padding:10px}
+  .bg-white{background:#fff}
+  .bg-paper{background:linear-gradient(160deg,#f8f2e6,#eee4d0)}
+  .bg-forest{background:linear-gradient(160deg,#27594b,#1F4D3E)}
+  .bg-sand{background:linear-gradient(160deg,#e7dabd,#d8c7a2)}
+  .dp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;max-height:56vh;overflow:auto;margin-top:12px}
+  .dp-item{border:1px solid #e2dac8;border-radius:6px;overflow:hidden;cursor:pointer;background:#fff}
+  .dp-item:hover{border-color:var(--green)}
+  .dp-item img{width:100%;aspect-ratio:1/1;object-fit:contain;display:block;background:conic-gradient(#e9e2d2 25%,#faf6ec 0 50%,#e9e2d2 0 75%,#faf6ec 0) 0 0/16px 16px;padding:6px}
+  .dp-name{font-size:12px;padding:6px 8px;border-top:1px solid #efe9da;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .photo-lb{position:fixed;inset:0;z-index:210;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(42,37,32,.62);cursor:zoom-out}
+  .photo-lb.open{display:flex}
+  .lb-box{max-width:min(880px,94vw);max-height:88vh;border-radius:8px;box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:hidden;background:#fff}
+  .lb-box img{display:block;max-width:100%;max-height:88vh;object-fit:contain}
+
   /* ── 3D viewer (small window) ── */
   .viewer3d{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(42,37,32,.55);padding:16px}
   .viewer3d.open{display:flex}
@@ -402,6 +419,21 @@
         <input type="file" id="prod-photo" accept="image/*">
       </div>
       <div class="field">
+        <button type="button" class="btn-3d" style="margin-top:0" onclick="openDesignPicker()">Pick a design from the catalog</button>
+        <span id="design-pick-note" class="label" style="display:block;margin-top:6px"></span>
+      </div>
+      <div class="field">
+        <label for="prod-photobg">Photo background</label>
+        <select id="prod-photobg">
+          <option value="">Cream (default)</option>
+          <option value="paper">Paper</option>
+          <option value="checker">Checkerboard</option>
+          <option value="white">White</option>
+          <option value="forest">Forest green</option>
+          <option value="sand">Sand</option>
+        </select>
+      </div>
+      <div class="field">
         <label for="prod-mock3dfile">3D mockup file — build it in the 3D builder, tap Share &rarr; "Make a shareable file", then upload that file here. Locks the design exactly where you placed it.</label>
         <input type="file" id="prod-mock3dfile" accept=".html,text/html">
       </div>
@@ -510,9 +542,10 @@
     const card = document.createElement('div');
     card.className = 'card';
     card.id = 'card-' + p.id;
+    const bgCls = p.photoBg ? ' bg-' + p.photoBg : '';
     const img = p.photo
-      ? `<img class="card-img" src="${p.photo}" alt="${escapeHtml(p.name)}">`
-      : `<div class="card-img placeholder">No photo</div>`;
+      ? `<img class="card-img${bgCls}" src="${p.photo}" alt="${escapeHtml(p.name)}" onclick="openPhoto('${p.id}')">`
+      : `<div class="card-img placeholder${bgCls}">No photo</div>`;
     let variants = '';
     const sizeOpts = (p.sizes || []).map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
     const colorOpts = (p.colors || []).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
@@ -901,6 +934,9 @@
     $('prod-desc').value = '';
     $('prod-photo').value = '';
     $('prod-mock3dfile').value = '';
+    $('prod-photobg').value = '';
+    pendingDesignPick = null;
+    $('design-pick-note').textContent = '';
     buildPicker('size-picker', SIZE_OPTIONS, []);
     buildPicker('color-picker', COLOR_OPTIONS, []);
     $('product-dialog').showModal();
@@ -916,6 +952,9 @@
     $('prod-desc').value = p.desc || '';
     $('prod-photo').value = '';
     $('prod-mock3dfile').value = '';
+    $('prod-photobg').value = p.photoBg || '';
+    pendingDesignPick = null;
+    $('design-pick-note').textContent = '';
     buildPicker('size-picker', SIZE_OPTIONS, p.sizes || []);
     buildPicker('color-picker', COLOR_OPTIONS, p.colors || []);
     $('product-dialog').showModal();
@@ -942,6 +981,8 @@
     if (existing) { photo = existing.photo; mock3dState = existing.mock3dState || null; }
     const file = $('prod-photo').files[0];
     if (file) photo = await compressImage(file);
+    if (pendingDesignPick) photo = pendingDesignPick.src;
+    const photoBg = $('prod-photobg').value || null;
     const mfile = $('prod-mock3dfile').files[0];
     if (mfile) {
       try { mock3dState = await readMockupFile(mfile); }
@@ -949,9 +990,9 @@
     }
 
     if (editingId) {
-      Object.assign(existing, { name, price, desc, sizes, colors, photo, mock3dState });
+      Object.assign(existing, { name, price, desc, sizes, colors, photo, photoBg, mock3dState });
     } else {
-      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, photo, mock3dState });
+      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, photo, photoBg, mock3dState });
     }
     $('product-dialog').close();
     renderProducts();
@@ -1036,6 +1077,63 @@
     document.body.style.overflow = '';
   }
 
+  // ── Catalog design picker (sell designs without re-uploading) ──
+  let catalogDesigns = null, pendingDesignPick = null;
+
+  async function fetchCatalogDesigns() {
+    if (catalogDesigns) return catalogDesigns;
+    if (!sb) throw new Error('no cloud');
+    const { data, error } = await sb.storage.from('files').download('_catalog/catalog.json');
+    if (error || !data) throw new Error('no catalog');
+    const saved = JSON.parse(await data.text());
+    catalogDesigns = (saved.designs || []).filter(d => d.png || d.svg);
+    return catalogDesigns;
+  }
+
+  async function openDesignPicker() {
+    const dlg = $('design-pick-dialog'), grid = $('design-pick-grid');
+    dlg.showModal();
+    grid.innerHTML = '<p class="label">Loading designs&hellip;</p>';
+    try {
+      const list = await fetchCatalogDesigns();
+      if (!list.length) { grid.innerHTML = '<p class="label">No designs in the catalog yet.</p>'; return; }
+      grid.innerHTML = '';
+      list.forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'dp-item';
+        const im = document.createElement('img');
+        im.src = d.png || d.svg;
+        const nm = document.createElement('div');
+        nm.className = 'dp-name';
+        nm.textContent = d.name || 'Design';
+        item.appendChild(im); item.appendChild(nm);
+        item.onclick = () => {
+          pendingDesignPick = { src: d.png || d.svg, name: d.name || 'Design' };
+          $('design-pick-note').textContent = 'Design selected: ' + pendingDesignPick.name;
+          if (!$('prod-name').value.trim()) $('prod-name').value = pendingDesignPick.name;
+          if (!$('prod-photobg').value) $('prod-photobg').value = 'checker';
+          dlg.close();
+        };
+        grid.appendChild(item);
+      });
+    } catch (e) {
+      grid.innerHTML = '<p class="label">Couldn\'t load the catalog designs right now.</p>';
+    }
+  }
+
+  // ── Click a product photo to enlarge ──
+  function openPhoto(id) {
+    const p = products.find(x => x.id === id);
+    if (!p || !p.photo) return;
+    $('photo-lb-box').className = 'lb-box' + (p.photoBg ? ' bg-' + p.photoBg : '');
+    $('photo-lb-img').src = p.photo;
+    $('photo-lightbox').classList.add('open');
+  }
+  function closePhoto() {
+    $('photo-lightbox').classList.remove('open');
+    $('photo-lb-img').src = '';
+  }
+
   // Read the exact mockup setup out of a "Make a shareable file" download
   function readMockupFile(file) {
     return new Promise((resolve, reject) => {
@@ -1079,6 +1177,18 @@
       <div class="viewer3d-frame-wrap" id="viewer3d-frame-wrap"></div>
     </div>
   </div>
+  <div class="photo-lb" id="photo-lightbox" onclick="closePhoto()">
+    <div class="lb-box" id="photo-lb-box"><img id="photo-lb-img" alt=""></div>
+  </div>
+
+  <dialog id="design-pick-dialog">
+    <div class="dialog-card">
+      <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
+      <p class="label">Catalog</p>
+      <h3 class="dialog-title">Pick a <em>design</em></h3>
+      <div id="design-pick-grid" class="dp-grid"><p class="label">Loading designs&hellip;</p></div>
+    </div>
+  </dialog>
 
 </body>
 </html>
