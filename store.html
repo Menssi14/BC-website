@@ -252,6 +252,22 @@
     .nav-brand { font-size: 19px; }
     .nav-link { padding: 8px 12px; font-size: 13px; }
   }
+  /* ── pickup / ship & pay method ── */
+  .ful-seg{display:flex;gap:8px;margin:2px 0 14px}
+  .ful-opt{flex:1;padding:10px 6px;background:none;border:1px solid #d8cfb8;border-radius:6px;color:#5a5244;cursor:pointer;font-family:inherit;font-size:14px;line-height:1.25}
+  .ful-opt span{display:block;font-size:11.5px;opacity:.75;margin-top:2px}
+  .ful-opt.on{border-color:var(--green);background:var(--green);color:var(--cream)}
+  .ful-opt.on span{opacity:.9}
+  .addr-row{display:flex;gap:8px}
+  .addr-city{flex:2}.addr-st{flex:0 0 64px}.addr-zip{flex:0 0 84px}
+  .pm-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .pm-chip{padding:8px 12px;background:none;border:1px solid #d8cfb8;border-radius:20px;color:#5a5244;cursor:pointer;font-family:inherit;font-size:13.5px}
+  .pm-chip.on{border-color:var(--green);background:var(--green);color:var(--cream)}
+  #co-ps-extra{margin:10px 0 4px}
+  .ps-pay-num{font-size:22px;font-weight:700;color:var(--green);letter-spacing:.03em;margin:4px 0}
+  .ps-pay-link{display:inline-block;padding:11px 22px;background:var(--green);color:var(--cream);border-radius:6px;text-decoration:none;font-size:15px;margin:4px 0}
+  .ps-pay-note{font-size:13px;color:#6b6353;margin-top:6px}
+
   /* ── photo backgrounds, catalog picker, lightbox ── */
   .card-img:not(.placeholder){cursor:zoom-in}
   .bg-checker{background:conic-gradient(#e9e2d2 25%,#faf6ec 0 50%,#e9e2d2 0 75%,#faf6ec 0) 0 0/22px 22px;object-fit:contain;padding:10px}
@@ -337,10 +353,15 @@
       <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
       <p class="label">Checkout</p>
       <h3 class="dialog-title">Pay for your <em>order</em></h3>
+      <div class="ful-seg" role="group" aria-label="How will you get your order?">
+        <button type="button" class="ful-opt on" id="ful-pickup">&#127970; Local pickup<span>Free &middot; Edinburg</span></button>
+        <button type="button" class="ful-opt" id="ful-ship">&#128230; Ship to me<span>$8 &middot; free over $75</span></button>
+      </div>
       <div class="cart-totals">
         <div class="calc-line"><span>Subtotal</span><strong id="co-sub">$0.00</strong></div>
         <div class="calc-line"><span>Tax (8.25%)</span><strong id="co-tax">$0.00</strong></div>
-        <div class="calc-line"><span>Card fee (3% + 30&cent;)</span><strong id="co-fee">$0.00</strong></div>
+        <div class="calc-line" id="co-ship-line" hidden><span>Shipping</span><strong id="co-ship">$0.00</strong></div>
+        <div class="calc-line" id="co-fee-line"><span>Card fee (3% + 30&cent;)</span><strong id="co-fee">$0.00</strong></div>
         <div class="calc-line calc-total"><span>Total to pay</span><strong id="co-total">$0.00</strong></div>
       </div>
       <div class="field">
@@ -350,6 +371,26 @@
       <div class="field">
         <label for="co-email">Email</label>
         <input type="email" id="co-email" placeholder="you@email.com" autocomplete="email" inputmode="email">
+      </div>
+      <div id="ship-fields" hidden>
+        <div class="field">
+          <label for="co-street">Street address</label>
+          <input type="text" id="co-street" autocomplete="street-address" placeholder="123 Main St">
+        </div>
+        <div class="field addr-row">
+          <div class="addr-city"><label for="co-city">City</label><input type="text" id="co-city" autocomplete="address-level2"></div>
+          <div class="addr-st"><label for="co-state">State</label><input type="text" id="co-state" value="TX" maxlength="2" autocomplete="address-level1"></div>
+          <div class="addr-zip"><label for="co-zip">ZIP</label><input type="text" id="co-zip" inputmode="numeric" maxlength="5" autocomplete="postal-code"></div>
+        </div>
+      </div>
+      <div class="field" id="paymethod-wrap">
+        <label>How will you pay?</label>
+        <div class="pm-chips">
+          <button type="button" class="pm-chip on" data-pm="card">&#128179; Card now</button>
+          <button type="button" class="pm-chip" data-pm="person">&#127970; In person</button>
+          <button type="button" class="pm-chip" data-pm="cashapp">&#128181; Cash App</button>
+          <button type="button" class="pm-chip" data-pm="zelle">&#127974; Zelle</button>
+        </div>
       </div>
       <div id="co-card" class="sq-card-field"></div>
       <button id="co-pay-btn" class="dialog-cta" type="button">Pay &rarr;</button>
@@ -365,9 +406,10 @@
       <div class="pay-success-check" aria-hidden="true">
         <svg viewBox="0 0 52 52"><circle class="ps-ring" cx="26" cy="26" r="24"/><path class="ps-tick" d="M14 27 l8 8 l16 -18"/></svg>
       </div>
-      <h3 class="pay-success-title">Payment received!</h3>
+      <h3 class="pay-success-title" id="co-ps-title">Payment received!</h3>
       <p class="pay-success-amount" id="co-ps-amount">$0.00</p>
-      <p class="pay-success-msg">Thank you. Your receipt is on its way to your email, and we&rsquo;ll be in touch shortly about your order.</p>
+      <p class="pay-success-msg" id="co-ps-msg">Thank you. Your receipt is on its way to your email, and we&rsquo;ll be in touch shortly about your order.</p>
+      <div id="co-ps-extra" hidden></div>
       <p class="pay-success-ref" id="co-ps-ref"></p>
       <button class="dialog-cta" type="button" onclick="finishOrder()">Done</button>
     </div>
@@ -462,6 +504,8 @@
   const CARD_RATE  = 0.03;     // Square online rate 3%
   const CARD_FIXED = 0.30;     // 30 cents
   const TAX_RATE   = 0.0825;   // 8.25% Edinburg/Hidalgo
+  const SHIP_RATE = 8.00;          // flat shipping
+  const SHIP_FREE_OVER = 75.00;    // free shipping threshold
 
   // ── Square (PUBLIC creds — same as main site) ───────────
   const SQUARE_APP_ID      = 'sq0idp-H__K6WmTStJPbJoD6GowAQ';
@@ -681,17 +725,81 @@
 
   // ── Checkout ────────────────────────────────────────────
   let coTotalCents = 0;
-  function goToCheckout() {
-    if (!cart.length) return;
-    const t = calcTotals(cartSubtotal());
+  let walletsAvailable = false;
+  let ful = 'pickup';        // 'pickup' | 'ship'
+  let payMethod = 'card';    // 'card' | 'person' | 'cashapp' | 'zelle'
+
+  function checkoutTotals() {
+    const sub = cartSubtotal();
+    const ship = (ful === 'ship') ? (sub >= SHIP_FREE_OVER ? 0 : SHIP_RATE) : 0;
+    const tax = (sub + ship) * TAX_RATE;
+    const net = sub + ship + tax;
+    let total = net, fee = 0;
+    if (payMethod === 'card') {
+      total = sub > 0 ? (net + CARD_FIXED) / (1 - CARD_RATE) : 0;
+      fee = total - net;
+    }
+    return { sub, ship, tax, fee, total };
+  }
+
+  function refreshCheckout() {
+    const t = checkoutTotals();
     coTotalCents = Math.round(t.total * 100);
     $('co-sub').textContent = fmt(t.sub);
     $('co-tax').textContent = fmt(t.tax);
+    $('co-ship-line').hidden = (ful !== 'ship');
+    $('co-ship').textContent = (ful === 'ship' && t.ship === 0) ? 'FREE' : fmt(t.ship);
+    $('co-fee-line').hidden = (payMethod !== 'card');
     $('co-fee').textContent = fmt(t.fee);
     $('co-total').textContent = fmt(t.total);
+    $('ship-fields').hidden = (ful !== 'ship');
+    $('paymethod-wrap').hidden = (ful !== 'pickup');
+    const cardNow = (payMethod === 'card');
+    $('co-card').style.display = cardNow ? '' : 'none';
+    $('co-wallets').hidden = !cardNow || !walletsAvailable;
+    $('co-pay-btn').textContent = cardNow ? 'Pay \u2192' : 'Place order \u2192';
+  }
+
+  function setFul(which) {
+    ful = which;
+    $('ful-pickup').classList.toggle('on', ful === 'pickup');
+    $('ful-ship').classList.toggle('on', ful === 'ship');
+    if (ful === 'ship') setPayMethod('card', true);
+    else refreshCheckout();
+  }
+
+  function setPayMethod(pm, skipRefresh) {
+    payMethod = pm;
+    document.querySelectorAll('.pm-chip').forEach(c => c.classList.toggle('on', c.dataset.pm === pm));
+    if (!skipRefresh) refreshCheckout(); else refreshCheckout();
+  }
+
+  $('ful-pickup').addEventListener('click', () => setFul('pickup'));
+  $('ful-ship').addEventListener('click', () => setFul('ship'));
+  document.querySelectorAll('.pm-chip').forEach(c => c.addEventListener('click', () => setPayMethod(c.dataset.pm)));
+
+  // Items text plus how the order gets to them (goes into the order + emails)
+  function orderText() {
+    let extra;
+    if (ful === 'ship') {
+      const street = ($('co-street').value || '').trim();
+      const city = ($('co-city').value || '').trim();
+      const st = ($('co-state').value || '').trim().toUpperCase();
+      const zip = ($('co-zip').value || '').trim();
+      extra = '\ud83d\udce6 SHIP TO:\n' + street + '\n' + city + ', ' + st + ' ' + zip;
+    } else {
+      const pmName = { card: 'paid online', person: 'paying in person', cashapp: 'paying by Cash App', zelle: 'paying by Zelle' }[payMethod];
+      extra = '\ud83c\udfec LOCAL PICKUP \u2014 ' + pmName;
+    }
+    return cartItemsText() + '\n\n' + extra;
+  }
+
+  function goToCheckout() {
+    if (!cart.length) return;
     $('cart-dialog').close();
     $('checkout-body').hidden = false;
     $('co-success').hidden = true;
+    refreshCheckout();
     $('checkout-dialog').showModal();
   }
 
@@ -729,6 +837,24 @@
   }
 
   // Shared: take a wallet token and charge it through the same backend
+  function shipInfoOk() {
+    if (ful !== 'ship') return true;
+    const street = ($('co-street').value || '').trim();
+    const city = ($('co-city').value || '').trim();
+    const zip = ($('co-zip').value || '').trim();
+    if (!street || !city) {
+      $('co-status').textContent = 'Please fill in the shipping address.';
+      (!street ? $('co-street') : $('co-city')).focus();
+      return false;
+    }
+    if (!/^\d{5}$/.test(zip)) {
+      $('co-status').textContent = 'Please enter a 5-digit ZIP code.';
+      $('co-zip').focus();
+      return false;
+    }
+    return true;
+  }
+
   async function chargeWalletToken(token) {
     const phone = ($('co-phone').value || '').replace(/\D/g, '');
     if (phone.length < 10) {
@@ -736,6 +862,7 @@
       $('co-phone').focus();
       return false;
     }
+    if (!shipInfoOk()) return false;
     $('co-status').textContent = 'Processing…';
     try {
       const res = await fetch(PAYMENT_ENDPOINT, {
@@ -746,7 +873,7 @@
           amountCents: coTotalCents,
           phone: phone,
           email: ($('co-email').value || '').trim(),
-          items: cartItemsText()
+          items: orderText()
         })
       });
       const data = await res.json();
@@ -804,7 +931,8 @@
       console.log('[Square] Afterpay unavailable:', e.message || e);
     }
 
-    $('co-wallets').hidden = !anyShown;
+    walletsAvailable = anyShown;
+    $('co-wallets').hidden = !anyShown || payMethod !== 'card';
   }
 
   function loadCheckoutSDK() {
@@ -827,6 +955,8 @@
       $('co-phone').focus();
       return;
     }
+    if (!shipInfoOk()) return;
+    if (payMethod !== 'card') { placeUnpaidOrder(phone); return; }
     const btn = $('co-pay-btn');
     btn.disabled = true;
     $('co-status').textContent = '';
@@ -849,7 +979,7 @@
           amountCents: coTotalCents,
           phone: phone,
           email: ($('co-email').value || '').trim(),
-          items: cartItemsText()
+          items: orderText()
         })
       });
       const data = await res.json();
@@ -861,7 +991,105 @@
     }
   });
 
+  async function placeUnpaidOrder(phone) {
+    const btn = $('co-pay-btn');
+    btn.disabled = true;
+    btn.textContent = 'Placing order\u2026';
+    $('co-status').textContent = '';
+    try {
+      if (!sb) throw new Error('no cloud');
+      const now = Date.now();
+      const phone10 = phone.slice(-10);
+      const phonePretty = '(' + phone10.slice(0,3) + ') ' + phone10.slice(3,6) + '-' + phone10.slice(6);
+      const emailVal = ($('co-email').value || '').trim();
+      const custEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailVal) ? emailVal : '';
+      const t = checkoutTotals();
+      const pmName = { person: 'IN PERSON at pickup', cashapp: 'CASH APP', zelle: 'ZELLE' }[payMethod] || payMethod;
+
+      const lines = [];
+      lines.push('\ud83d\uded2 ONLINE ORDER \u2014 \ud83c\udfec PICKUP');
+      lines.push('\u26a0\ufe0f NOT PAID YET \u2014 paying by ' + pmName);
+      lines.push('');
+      if (phonePretty) lines.push('\ud83d\udcde ' + phonePretty);
+      if (custEmail) lines.push('\u2709\ufe0f ' + custEmail);
+      lines.push('');
+      lines.push('\u2014 Items \u2014');
+      lines.push(cartItemsText());
+      lines.push('');
+      lines.push('\ud83d\udcb5 Total due: ' + fmt(t.total));
+
+      // read the orders file, add this order, save it back
+      let store = { v: 10, orders: [] };
+      try {
+        const cur = await sb.storage.from(PRODUCTS_BUCKET).download('_orders/orders.json');
+        if (!cur.error && cur.data) {
+          const parsed = JSON.parse(await cur.data.text());
+          if (parsed && Array.isArray(parsed.orders)) store = parsed;
+        }
+      } catch (_) { /* first order ever — start fresh */ }
+
+      const oid = 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6);
+      store.orders.push({
+        id: oid,
+        type: 'NOTE',
+        title: '\ud83c\udfec Website order' + (phonePretty ? ' \u00b7 ' + phonePretty : ''),
+        contact: phone10,
+        body: lines.join('\n'),
+        urgency: 'asap',
+        designReady: false,
+        items: [],
+        images: [],
+        due: '', duePreset: '',
+        trashed: false, trashedAt: null,
+        source: 'online',
+        paidCents: 0,
+        paymentId: '',
+        receipt: '',
+        customerEmail: custEmail,
+        createdAt: now, updatedAt: now
+      });
+      const blob = new Blob([JSON.stringify(store)], { type: 'application/json' });
+      const up = await sb.storage.from(PRODUCTS_BUCKET).upload('_orders/orders.json', blob, { upsert: true });
+      if (up && up.error) throw up.error;
+
+      showPickupSuccess(coTotalCents, payMethod, oid);
+    } catch (e) {
+      console.error('[pickup order]', e);
+      $('co-status').textContent = 'Couldn\u2019t place the order \u2014 please try again, or call the shop.';
+      btn.disabled = false;
+      refreshCheckout();
+    }
+  }
+
+  function showPickupSuccess(cents, pm, oid) {
+    $('co-ps-title').textContent = 'Order placed!';
+    $('co-ps-amount').textContent = fmt(cents / 100);
+    const msgs = {
+      person: 'Pay when you pick up at the shop \u2014 cash or card. We\u2019ll text you when it\u2019s ready.',
+      cashapp: 'Send your payment on Cash App and we\u2019ll get started. We\u2019ll text you when it\u2019s ready.',
+      zelle: 'Send your payment by Zelle and we\u2019ll get started. We\u2019ll text you when it\u2019s ready.'
+    };
+    $('co-ps-msg').textContent = msgs[pm] || msgs.person;
+    const extra = $('co-ps-extra');
+    if (pm === 'cashapp') {
+      extra.innerHTML = '<a class="ps-pay-link" href="https://cash.app/$BrochCustom" target="_blank" rel="noopener">Open Cash App \u2192 $BrochCustom</a><p class="ps-pay-note">Reference your name when sending.</p>';
+      extra.hidden = false;
+    } else if (pm === 'zelle') {
+      extra.innerHTML = '<p class="ps-pay-note">Zelle to our shop number</p><p class="ps-pay-num">(956) 225-5859</p><p class="ps-pay-note">Reference your name when sending.</p>';
+      extra.hidden = false;
+    } else {
+      extra.innerHTML = '';
+      extra.hidden = true;
+    }
+    $('co-ps-ref').textContent = 'Order ' + oid.toUpperCase();
+    $('checkout-body').hidden = true;
+    $('co-success').hidden = false;
+  }
+
   function showCheckoutSuccess(cents, ref) {
+    $('co-ps-title').textContent = 'Payment received!';
+    $('co-ps-msg').textContent = 'Thank you. Your receipt is on its way to your email, and we\u2019ll be in touch shortly about your order.';
+    $('co-ps-extra').hidden = true;
     $('co-ps-amount').textContent = fmt(cents / 100);
     $('co-ps-ref').textContent = ref ? ('Confirmation: ' + ref) : '';
     $('checkout-body').hidden = true;
@@ -873,6 +1101,11 @@
     updateCartCount();
     $('co-phone').value = '';
     $('co-email').value = '';
+    $('co-street').value = '';
+    $('co-city').value = '';
+    $('co-zip').value = '';
+    setFul('pickup');
+    setPayMethod('card');
     $('co-pay-btn').disabled = false;
     $('co-pay-btn').textContent = 'Pay →';
     $('checkout-dialog').close();
