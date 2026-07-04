@@ -175,7 +175,7 @@ export default async function handler(req, res) {
             const html =
               `<div style="font-family:Georgia,'Times New Roman',serif;background:#F2EADD;padding:26px 16px">` +
                 `<div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e3dac6;border-radius:10px;overflow:hidden">` +
-                  `<div style="background:#1F4D3E;color:#F2EADD;padding:16px 22px;font-size:19px;letter-spacing:.08em">BROCH CUSTOM</div>` +
+                  `<div style="background:#1F4D3E;padding:18px 22px"><img src="https://brochcustom.com/broch-email-logo.png" width="216" alt="BROCH CUSTOM" style="display:block;border:0;height:auto;max-width:72%;color:#F2EADD;font-size:19px;letter-spacing:.08em"></div>` +
                   `<div style="padding:22px;color:#2c2620;font-size:15px;line-height:1.5">` +
                     `<p style="margin:0 0 12px">Thanks for your order! Here's what we got:</p>` +
                     (itemsBlock ? `<pre style="font-family:inherit;white-space:pre-wrap;background:#f4eede;padding:12px 14px;border-radius:6px;margin:0 0 14px">${esc(itemsBlock)}</pre>` : '') +
