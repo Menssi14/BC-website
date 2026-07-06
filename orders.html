@@ -24,7 +24,7 @@
     font-display: swap;
   }
 
-  :root{ --cream:#F2EADD; --note:#FBF7F0; --green:#1F4D3E; --burgundy:#4A3424; --pink:#F4B5B0; --red:#D64545; --amber:#E0A82E; --go:#3C8C5A; --line:rgba(74,52,36,.14); --line-strong:rgba(74,52,36,.28); --shadow:0 1px 2px rgba(74,52,36,.10),0 2px 10px rgba(74,52,36,.06); --shadow-hover:0 4px 8px rgba(74,52,36,.13),0 10px 28px rgba(74,52,36,.12); }
+  :root{ --cream:#F2EADD; --note:#FBF7F0; --green:#1F4D3E; --burgundy:#4A3424; --pink:#F4B5B0; --red:#D64545; --orange:#E8722C; --amber:#E0A82E; --go:#3C8C5A; --line:rgba(74,52,36,.14); --line-strong:rgba(74,52,36,.28); --shadow:0 1px 2px rgba(74,52,36,.10),0 2px 10px rgba(74,52,36,.06); --shadow-hover:0 4px 8px rgba(74,52,36,.13),0 10px 28px rgba(74,52,36,.12); }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{ background:var(--cream); color:var(--burgundy); font-family:'EB Garamond',Georgia,serif; font-size:17px; line-height:1.45; -webkit-font-smoothing:antialiased; min-height:100vh; }
@@ -42,9 +42,9 @@
   .grid{ column-gap:12px; column-width:176px; }
   .section-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.18em; font-size:14px; color:rgba(74,52,36,.5); font-weight:600; margin:4px 4px 12px; }
 
-  .card{ break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:12px; border-radius:12px; background:var(--note); border:1px solid var(--line-strong); border-left-width:4px; box-shadow:var(--shadow); overflow:hidden; cursor:pointer; transition:box-shadow .16s, transform .12s; position:relative; }
+  .card{ break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:12px; border-radius:12px; background:var(--note); border:1px solid var(--line-strong); border-top-width:5px; box-shadow:var(--shadow); overflow:hidden; cursor:pointer; transition:box-shadow .16s, transform .12s; position:relative; }
   .card:hover{ box-shadow:var(--shadow-hover); transform:translateY(-1px); } .card:active{ transform:scale(.99); }
-  .card.u-asap{ border-left-color:var(--red); } .card.u-fcfs{ border-left-color:var(--amber); } .card.u-norush{ border-left-color:var(--go); }
+  .card.u-asap{ border-top-color:var(--red); } .card.u-priority{ border-top-color:var(--orange); } .card.u-fcfs{ border-top-color:var(--amber); } .card.u-norush{ border-top-color:var(--go); }
   .card-imgs{ display:grid; gap:2px; } .card-imgs img{ width:100%; display:block; }
   .card-imgs.n1 img{ height:auto; max-height:230px; object-fit:cover; }
   .card-imgs.n2{ grid-template-columns:1fr 1fr; } .card-imgs.n3{ grid-template-columns:1fr 1fr 1fr; }
@@ -138,15 +138,23 @@
   .field-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.1em; font-size:13px; color:rgba(74,52,36,.55); margin:0 0 8px; display:flex; align-items:center; gap:8px; }
 
   .tl{ display:flex; align-items:center; gap:7px; }
+  .lightbox{ position:fixed; inset:0; background:rgba(20,15,10,.88); display:none; align-items:center; justify-content:center; z-index:400; cursor:zoom-out; }
+  .lightbox.show{ display:flex; }
+  .lightbox img{ max-width:94vw; max-height:90vh; border-radius:10px; box-shadow:0 20px 70px rgba(0,0,0,.6); }
+  #mTL{ display:block; }
+  .uslider{ position:relative; display:flex; height:34px; border-radius:999px; overflow:visible; border:1px solid var(--line-strong); }
+  .useg{ flex:1; opacity:.3; cursor:pointer; transition:opacity .15s; }
+  .useg:first-child{ border-radius:999px 0 0 999px; } .useg:last-child{ border-radius:0 999px 999px 0; }
+  .useg:hover{ opacity:.55; } .useg.on{ opacity:1; }
+  .useg.go{ background:var(--go); } .useg.amber{ background:var(--amber); } .useg.orange{ background:var(--orange); } .useg.red{ background:var(--red); }
+  .uknob{ position:absolute; top:50%; transform:translate(-50%,-50%); width:27px; height:27px; border-radius:50%; border:3px solid var(--note); box-shadow:0 1px 6px rgba(0,0,0,.3); transition:left .2s ease, background .2s ease; pointer-events:none; }
+  .uslider-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:17px; margin-top:8px; text-align:center; }
   .tl .lamp{ width:28px; height:28px; border-radius:50%; cursor:pointer; border:1px solid var(--line-strong); opacity:.3; transition:opacity .14s, box-shadow .14s, transform .1s; }
   .tl .lamp:hover{ transform:scale(1.08); }
   .tl .lamp.on{ opacity:1; box-shadow:0 0 0 2px rgba(242,234,221,.9), 0 0 0 3.5px currentColor; }
   .tl .lamp.go{ background:var(--go); color:var(--go); } .tl .lamp.amber{ background:var(--amber); color:var(--amber); } .tl .lamp.red{ background:var(--red); color:var(--red); }
   .tl .tl-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:16px; color:rgba(74,52,36,.7); min-width:62px; }
   .due-chips{ display:flex; flex-wrap:wrap; gap:8px; }
-  .due-toggle{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:14px; color:var(--green); background:none; border:1px dashed var(--line-strong); border-radius:8px; padding:8px 14px 6px; cursor:pointer; margin-top:12px; transition:border-color .14s,background .14s; }
-  .due-toggle:hover{ border-color:var(--green); background:rgba(31,77,62,.05); }
-  .due-toggle.on{ color:var(--burgundy); }
   .duechip{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-size:15px; font-weight:500; color:var(--burgundy); background:var(--note); border:1px solid var(--line-strong); border-radius:999px; padding:8px 14px 6px; cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
   .duechip.on{ background:var(--green); color:var(--cream); border-color:var(--green); }
 
@@ -159,6 +167,14 @@
   .b-size,.b-surface,.b-material,.b-placement{ font-family:'EB Garamond',serif; font-size:16px; color:var(--burgundy); background:var(--note); border:1px solid var(--line-strong); border-radius:8px; padding:9px 11px; outline:none; }
   .b-size{ flex:1; min-width:70px; } .b-surface{ flex:1.1; min-width:88px; } .b-material{ flex:1; min-width:82px; } .b-placement{ flex:1; min-width:88px; }
   .b-size:focus,.b-surface:focus,.b-material:focus,.b-placement:focus{ border-color:var(--green); }
+  .b-field{ margin-bottom:11px; }
+  .b-inp{ width:100%; font-family:'EB Garamond',serif; font-size:16px; color:var(--burgundy); background:var(--note); border:1px solid var(--line-strong); border-radius:8px; padding:9px 11px; outline:none; }
+  .b-inp:focus{ border-color:var(--green); }
+  .chip-strip{ display:flex; gap:6px; overflow-x:auto; padding:7px 0 2px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .chip-strip::-webkit-scrollbar{ display:none; }
+  .vchip{ flex:0 0 auto; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-size:14px; color:var(--burgundy); background:var(--cream); border:1px solid var(--line-strong); border-radius:999px; padding:6px 13px 4px; cursor:pointer; white-space:nowrap; transition:background .12s,color .12s,border-color .12s; }
+  .vchip:hover{ border-color:var(--green); }
+  .vchip.on{ background:var(--green); color:var(--cream); border-color:var(--green); }
   @media(max-width:560px){
     .b-row{ gap:7px; }
     .b-size,.b-surface,.b-material,.b-placement{ flex:1 1 calc(50% - 4px); min-width:0; font-size:16px; }
@@ -252,6 +268,7 @@
 <div class="wrap"><div id="board"></div></div>
 
 <button class="fab" id="fab" title="New order"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
+<div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
 <div class="overlay" id="chooser">
   <div class="chooser-box" onclick="event.stopPropagation()">
@@ -273,10 +290,8 @@
       <span class="kind-tag" id="kindTag"></span>
       <div id="mBody"></div>
       <div class="urgency-section">
-        <div class="field-label">Priority &amp; due</div>
+        <div class="field-label">Priority</div>
         <div class="tl" id="mTL"></div>
-        <button type="button" class="due-toggle" id="dueToggle">+ Add a due date</button>
-        <div class="due-chips" id="mDue" style="display:none;margin-top:10px;"></div>
         <div class="dr-row" id="drRow" style="margin-top:18px;margin-bottom:0"><span class="dr-label">Design Ready</span><div class="switch" id="drSwitch"><span class="knob"></span></div></div>
       </div>
     </div>
@@ -285,7 +300,7 @@
 </div>
 
 <datalist id="sizeList"><option>One Size</option><option>Youth S</option><option>Youth M</option><option>Youth L</option><option>Adult S</option><option>Adult M</option><option>Adult L</option><option>Adult XL</option><option>Adult 2XL</option><option>Adult 3XL</option></datalist>
-<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
+<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
 <div class="sync" id="sync"><span class="d"></span><span id="syncText">Saved</span></div>
@@ -298,10 +313,9 @@
   var BUCKET='files', ORDERS_FILE='_orders/orders.json';
   var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
   var _loaded=false,_saveTimer=null, TRASH_DAYS=14, DAY=86400000;
-  var URGENCY={ norush:{label:'No Rush',color:'#3C8C5A',cls:'go'}, fcfs:{label:'Quick',color:'#E0A82E',cls:'amber'}, asap:{label:'ASAP',color:'#D64545',cls:'red'} };
-  var URANK={asap:0,fcfs:1,norush:2};
+  var URGENCY={ norush:{label:'No Rush',color:'#3C8C5A',cls:'go'}, fcfs:{label:'Quick',color:'#E0A82E',cls:'amber'}, priority:{label:'Priority',color:'#E8722C',cls:'orange'}, asap:{label:'ASAP',color:'#D64545',cls:'red'} };
+  var URANK={asap:0,priority:1,fcfs:2,norush:3};
   var TYPES=['Embroidery','Printing','Engraving','NOTE'];
-  var DUEPRESETS=[['today','Today'],['tomorrow','Tomorrow'],['eow','End of week'],['nextweek','Next week']];
   var COLORS=[{n:'White',h:'#ffffff'},{n:'Black',h:'#1d1d1d'},{n:'Gray',h:'#9aa0a6'},{n:'Charcoal',h:'#444'},{n:'Navy',h:'#22304f'},{n:'Royal',h:'#2b5fd0'},{n:'Carolina',h:'#7fb2e0'},{n:'Teal',h:'#2a8f8f'},{n:'Red',h:'#c62828'},{n:'Maroon',h:'#6e1f2a'},{n:'Pink',h:'#e58aa6'},{n:'Orange',h:'#e8732a'},{n:'Gold',h:'#e3b53c'},{n:'Green',h:'#3c8c5a'},{n:'Forest',h:'#1F4D3E'},{n:'Purple',h:'#6b4a9e'},{n:'Brown',h:'#6b4a2f'},{n:'Tan',h:'#cBA87e'},{n:'Sand',h:'#e6d2a8'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
   var state={orders:[]}; var ui={view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
@@ -313,9 +327,6 @@
   function pad(n){return (n<10?'0':'')+n;}
   function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
   function isoToday(){var d=new Date();d.setHours(0,0,0,0);return iso(d);}
-  function computeDue(p){ var d=new Date(); d.setHours(0,0,0,0); if(p==='tomorrow')d.setDate(d.getDate()+1); else if(p==='eow')d.setDate(d.getDate()+((5-d.getDay()+7)%7)); else if(p==='nextweek')d.setDate(d.getDate()+7); return iso(d); }
-  function dueLabel(o){ var p=o.duePreset; if(p==='today')return 'Due today'; if(p==='tomorrow')return 'Due tomorrow'; if(p==='eow')return 'Due end of week'; if(p==='nextweek')return 'Due next week'; if(o.due){var d=new Date(o.due+'T00:00:00');return 'Due '+d.toLocaleDateString(undefined,{month:'short',day:'numeric'});} return ''; }
-  function dueShort(o){ var p=o.duePreset; if(p==='today')return 'Today'; if(p==='tomorrow')return 'Tom'; if(p==='eow')return 'EOW'; if(p==='nextweek')return 'Nxt wk'; return ''; }
   function itemHas(it){ return !!(it&&(it.size||it.color||it.surface||it.material||it.placement||(it.name&&it.name.trim()))); }
   function comboText(it){ var b=[]; if(it.size)b.push(it.size); if(it.color)b.push(it.color); if(it.surface)b.push(it.surface); if(it.material)b.push(it.material); if(it.placement)b.push(it.placement); return b.length?b.join(' \u00b7 '):'Item'; }
   function itemCount(o){ return (o.items||[]).filter(itemHas).length; }
@@ -323,7 +334,35 @@
   function persist(){ if(!_loaded)return; syncShow('Saving…'); if(!sb){syncShow('Saved (this device)');return;} clearTimeout(_saveTimer); _saveTimer=setTimeout(saveNow,500); }
   function livePersist(){ if(editing&&!editing.isNew)persist(); }
   function saveNow(){ if(!sb)return; try{ var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'}); sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true}).then(function(r){ syncShow(r&&r.error?'Save failed':'Saved'); }); }catch(e){ syncShow('Save failed'); } }
-  function load(){ if(!sb){_loaded=true; render(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate);}catch(e){} _loaded=true; purgeOld(); render(); }); } else { _loaded=true; render(); } }).catch(function(){_loaded=true; render();}); }
+  function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate);}catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
+  var _refreshTimer=null, _lastRefresh=0;
+  function refresh(force){
+    if(!sb || !_loaded) return;
+    // Never refresh while the editor is open (would discard in-progress typing),
+    // and never right after a local save is pending.
+    if(overlay && overlay.classList.contains('show')) return;
+    if(_saveTimer) return;
+    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
+      if(r&&r.data){ r.data.text().then(function(t){
+        try{ var s=JSON.parse(t);
+          if(s&&Array.isArray(s.orders)){
+            var incoming=JSON.stringify(s.orders);
+            if(incoming!==JSON.stringify(state.orders)){
+              state.orders=s.orders.map(migrate); purgeOld(); render();
+            }
+          }
+        }catch(e){}
+      }); }
+    }).catch(function(){});
+    _lastRefresh=Date.now();
+  }
+  function startAutoRefresh(){
+    clearInterval(_refreshTimer);
+    _refreshTimer=setInterval(function(){ refresh(); }, 15000); // every 15s
+    // Also refresh the moment you return to the tab / wake the phone
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) refresh(true); });
+    window.addEventListener('focus', function(){ refresh(true); });
+  }
   function migrate(o){
     if(o.images===undefined){ o.images=o.image?[o.image]:[]; } delete o.image;
     if(o.type===undefined){ var t=(o.types&&o.types.length)?o.types[0]:'NOTE'; if(t==='Print')t='Printing'; if(t==='Online'){t='NOTE';o.source='online';} o.type=t; } delete o.types;
@@ -350,7 +389,7 @@
   function updateHeader(){ var btn=$('viewToggle'), n=trashCount(); if(ui.view==='trash'){ $('viewTitle').textContent='Trash'; btn.title='Back to orders'; btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>'; } else { $('viewTitle').textContent=''; btn.title='Trash'; btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+(n?'<span class="badge">'+n+'</span>':''); } }
   $('viewToggle').addEventListener('click',function(){ ui.view=(ui.view==='trash')?'board':'trash'; render(); });
 
-  function sortOrders(a,b){ var r=(URANK[a.urgency]==null?9:URANK[a.urgency])-(URANK[b.urgency]==null?9:URANK[b.urgency]); if(r)return r; if(a.due&&b.due){ if(a.due!==b.due)return a.due<b.due?-1:1; } else if(a.due){ return -1; } else if(b.due){ return 1; } return (b.createdAt||0)-(a.createdAt||0); }
+  function sortOrders(a,b){ var r=(URANK[a.urgency]==null?9:URANK[a.urgency])-(URANK[b.urgency]==null?9:URANK[b.urgency]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
 
   function render(){
     updateHeader(); $('fab').classList.toggle('hide', ui.view==='trash');
@@ -408,7 +447,6 @@
     if(o.type&&o.type!=='NOTE') tags+='<span class="tag">'+esc(o.type)+'</span>';
     if(o.source==='online') tags+='<span class="tag online">Online</span>';
     var ic=itemCount(o); if(ic>0) tags+='<span class="tag qty">'+ic+' pcs</span>';
-    if(o.due&&!o.trashed){ var od=o.due<isoToday(); tags+='<span class="tag due'+(od?' overdue':'')+'">'+esc(dueLabel(o))+'</span>'; }
     if(o.trashed) tags+='<span class="tag countdown">Deletes in '+daysLeft(o)+'d</span>';
     h+='<div class="card-tags">'+tags+'</div></div>';
     if(o.trashed){ h+='<div class="card-bar"><span class="lbl" data-act="restore" data-id="'+o.id+'">Restore</span><button class="icon-btn" style="margin-left:auto" data-act="forever" data-id="'+o.id+'" title="Delete forever"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
@@ -435,27 +473,17 @@
 
   function buildMetaControls(){
     var c=$('mTL'); c.innerHTML='';
-    ['norush','fcfs','asap'].forEach(function(k){ var u=URGENCY[k]; var el=document.createElement('div'); el.className='lamp '+u.cls+(editing.urgency===k?' on':''); el.title=u.label; el.onclick=function(){ editing.urgency=k; c.querySelectorAll('.lamp').forEach(function(x){x.classList.remove('on');}); el.classList.add('on'); var lab=c.querySelector('.tl-label'); if(lab)lab.textContent=u.label; livePersist(); }; c.appendChild(el); });
-    var lab=document.createElement('span'); lab.className='tl-label'; lab.textContent=URGENCY[editing.urgency||'fcfs'].label; c.appendChild(lab);
-    var dc=$('mDue'); dc.innerHTML='';
-    DUEPRESETS.forEach(function(p){ var b=document.createElement('button'); b.className='duechip'+(editing.duePreset===p[0]?' on':''); b.textContent=p[1]; b.onclick=function(){ if(editing.duePreset===p[0]){ editing.duePreset=''; editing.due=''; } else { editing.duePreset=p[0]; editing.due=computeDue(p[0]); } dc.querySelectorAll('.duechip').forEach(function(x){x.classList.remove('on');}); if(editing.duePreset)b.classList.add('on'); livePersist(); }; dc.appendChild(b); });
-    // Auto-expand the due section if this order already has a due date
-    var hasDue = !!(editing.duePreset || editing.due);
-    setDueOpen(hasDue);
+    var order=['norush','fcfs','priority','asap'];
+    var track=document.createElement('div'); track.className='uslider';
+    var knob=document.createElement('div'); knob.className='uknob';
+    var lab=document.createElement('div'); lab.className='uslider-label';
+    function place(){ var i=order.indexOf(editing.urgency); if(i<0)i=1; knob.style.left=((i+0.5)*(100/order.length))+'%'; var u=URGENCY[order[i]]; knob.style.background=u.color; lab.textContent=u.label; lab.style.color=u.color; var segs=track.querySelectorAll('.useg'); for(var j=0;j<segs.length;j++){ segs[j].classList.toggle('on', j===i); } }
+    order.forEach(function(k){ var u=URGENCY[k]; var seg=document.createElement('div'); seg.className='useg '+u.cls; seg.title=u.label; seg.onclick=function(){ editing.urgency=k; place(); livePersist(); }; track.appendChild(seg); });
+    track.appendChild(knob);
+    c.appendChild(track); c.appendChild(lab);
+    place();
   }
 
-  function setDueOpen(open){
-    var dc=$('mDue'), tg=$('dueToggle');
-    if(!dc||!tg)return;
-    dc.style.display = open ? 'flex' : 'none';
-    tg.classList.toggle('on', open);
-    tg.textContent = open ? '\u2212 Due date' : '+ Add a due date';
-  }
-  function toggleDue(){
-    var dc=$('mDue');
-    setDueOpen(dc.style.display==='none');
-  }
-  $('dueToggle').addEventListener('click',toggleDue);
 
   function renderImgs(){
     var c=$('mImgs'); c.innerHTML=''; var imgs=editing.images||[];
@@ -475,12 +503,39 @@
     // variant builder
     var bld=document.createElement('div'); bld.className='builder';
     var isEng=(editing.type==='Engraving');
-    var r1=document.createElement('div'); r1.className='b-row';
-    if(!isEng){ var bs=document.createElement('input'); bs.className='b-size'; bs.setAttribute('list','sizeList'); bs.placeholder='Size'; bs.value=builder.size; bs.oninput=function(e){builder.size=e.target.value;}; r1.appendChild(bs); }
-    var bf=document.createElement('input'); bf.className='b-surface'; bf.setAttribute('list',isEng?'engSurfList':'surfList'); bf.placeholder=isEng?'Item':'Garment'; bf.value=builder.surface; bf.oninput=function(e){builder.surface=e.target.value;};
-    var bm=document.createElement('input'); bm.className='b-material'; bm.setAttribute('list',isEng?'engMatList':'matList'); bm.placeholder='Material'; bm.value=builder.material; bm.oninput=function(e){builder.material=e.target.value;};
-    var bp=null; if(!isEng){ bp=document.createElement('input'); bp.className='b-placement'; bp.setAttribute('list','placeList'); bp.placeholder='Placement'; bp.value=builder.placement; bp.oninput=function(e){builder.placement=e.target.value;}; }
-    r1.appendChild(bf); r1.appendChild(bm); if(bp)r1.appendChild(bp); bld.appendChild(r1);
+    // Each field gets: the input (type if you want) + a side-scrolling row of tappable chips
+    function fieldWithChips(cls, listId, ph, getV, setV){
+      var wrap=document.createElement('div'); wrap.className='b-field';
+      var inp=document.createElement('input'); inp.className=cls; inp.setAttribute('list',listId); inp.setAttribute('autocomplete','off'); inp.placeholder=ph; inp.value=getV();
+      inp.oninput=function(e){ setV(e.target.value); syncChips(); };
+      wrap.appendChild(inp);
+      var strip=document.createElement('div'); strip.className='chip-strip';
+      var dl=document.getElementById(listId);
+      var opts = dl ? Array.prototype.map.call(dl.querySelectorAll('option'), function(o){ return o.value||o.textContent; }) : [];
+      function syncChips(){ strip.querySelectorAll('.vchip').forEach(function(ch){ ch.classList.toggle('on', ch.dataset.val===getV()); }); }
+      opts.forEach(function(val){
+        var ch=document.createElement('button'); ch.type='button'; ch.className='vchip'+(getV()===val?' on':''); ch.dataset.val=val; ch.textContent=val;
+        ch.onclick=function(){ var was=(getV()===val); setV(was?'':val); inp.value=was?'':val; syncChips(); };
+        strip.appendChild(ch);
+      });
+      wrap.appendChild(strip);
+      return wrap;
+    }
+    if(!isEng){ bld.appendChild(fieldWithChips('b-inp','sizeList','Size',function(){return builder.size;},function(v){builder.size=v;})); }
+    var placeSlot=null;
+    function placementListId(){ return /cap|beanie|hat|visor/i.test(builder.surface||'') ? 'capPlaceList' : 'placeList'; }
+    function rebuildPlacement(){
+      if(isEng || !placeSlot) return;
+      var want=placementListId();
+      if(placeSlot.dataset.list===want) return;
+      builder.placement='';
+      var fresh=fieldWithChips('b-inp',want,'Placement',function(){return builder.placement;},function(v){builder.placement=v;});
+      fresh.dataset.list=want;
+      placeSlot.replaceWith(fresh); placeSlot=fresh;
+    }
+    bld.appendChild(fieldWithChips('b-inp', isEng?'engSurfList':'surfList', isEng?'Item':'Garment', function(){return builder.surface;}, function(v){builder.surface=v; rebuildPlacement();}));
+    bld.appendChild(fieldWithChips('b-inp', isEng?'engMatList':'matList', 'Material', function(){return builder.material;}, function(v){builder.material=v;}));
+    if(!isEng){ placeSlot=fieldWithChips('b-inp',placementListId(),'Placement',function(){return builder.placement;},function(v){builder.placement=v;}); placeSlot.dataset.list=placementListId(); bld.appendChild(placeSlot); }
     bld.appendChild(colorStrip(function(){return builder.color;}, function(cc){builder.color=cc;}));
     var qa=document.createElement('div'); qa.className='qty-add';
     var step=document.createElement('div'); step.className='stepper';
@@ -607,6 +662,16 @@
       $('histList').innerHTML='<div class="hist-loading">Could not reach the payment service.</div>';
     });
   }
+
+  var lb=$('lightbox'), lbi=$('lightboxImg');
+  function openLightbox(src){ lbi.src=src; lb.classList.add('show'); }
+  lb.addEventListener('click',function(){ lb.classList.remove('show'); lbi.src=''; });
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t && t.tagName==='IMG' && (t.closest('.card-imgs') || t.closest('.imthumb'))){
+      e.stopPropagation(); e.preventDefault(); openLightbox(t.src);
+    }
+  }, true);
 
   load(); checkHash();
 })();
