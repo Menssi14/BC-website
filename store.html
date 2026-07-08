@@ -131,6 +131,7 @@
   .fld-hint { font-weight: 400; font-size: 12px; color: var(--ink-soft); text-transform: none; letter-spacing: 0; }
   .opt-picker { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
   .preset-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 4px 0 2px; }
+  .ct-note { font-size: 12px; color: var(--khaki, #7B6F50); font-style: italic; margin: 8px 0 0; line-height: 1.4; }
   .preset-btn { font-family: 'Teko','Oswald',sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; color: var(--cream); background: var(--green); border: none; border-radius: 999px; padding: 7px 15px 5px; cursor: pointer; transition: opacity 0.12s, transform 0.12s; }
   .preset-btn:hover { opacity: 0.88; transform: translateY(-1px); }
   .preset-btn.clear { background: transparent; color: var(--khaki, #7B6F50); border: 0.5px dashed rgba(42,37,32,0.3); }
@@ -391,8 +392,8 @@
       <div class="cart-totals" id="cart-totals" hidden>
         <div class="calc-line"><span>Subtotal</span><strong id="ct-sub">$0.00</strong></div>
         <div class="calc-line"><span>Tax (8.25%)</span><strong id="ct-tax">$0.00</strong></div>
-        <div class="calc-line"><span>Card fee (3% + 30&cent;)</span><strong id="ct-fee">$0.00</strong></div>
-        <div class="calc-line calc-total"><span>Total</span><strong id="ct-total">$0.00</strong></div>
+        <div class="calc-line calc-total"><span>Estimated total</span><strong id="ct-total">$0.00</strong></div>
+        <p class="ct-note">Shipping &amp; any card fee are added at checkout, based on how you pay.</p>
       </div>
       <button class="dialog-cta" id="checkout-btn" onclick="goToCheckout()">Checkout &rarr;</button>
     </div>
@@ -770,10 +771,8 @@
 
   function calcTotals(sub) {
     const tax = sub * TAX_RATE;
-    const netGoal = sub + tax;
-    const total = sub > 0 ? (netGoal + CARD_FIXED) / (1 - CARD_RATE) : 0;
-    const fee = total - netGoal;
-    return { sub, tax, fee, total };
+    const total = sub + tax;   // no card fee here; fee only for card, added at checkout
+    return { sub, tax, total };
   }
 
   function openCart() {
@@ -812,7 +811,6 @@
     const t = calcTotals(cartSubtotal());
     $('ct-sub').textContent = fmt(t.sub);
     $('ct-tax').textContent = fmt(t.tax);
-    $('ct-fee').textContent = fmt(t.fee);
     $('ct-total').textContent = fmt(t.total);
     $('cart-totals').hidden = false;
   }
