@@ -132,6 +132,18 @@
   .opt-picker { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
   .preset-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 4px 0 2px; }
   .ct-note { font-size: 12px; color: var(--khaki, #7B6F50); font-style: italic; margin: 8px 0 0; line-height: 1.4; }
+  .tpl-section { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 0.5px solid rgba(42,37,32,0.12); }
+  .tpl-label { font-family: 'Teko','Oswald',sans-serif; text-transform: uppercase; letter-spacing: 0.08em; font-size: 15px; color: var(--green); margin-bottom: 7px; }
+  .template-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tpl-hint { font-size: 13px; color: var(--khaki, #7B6F50); font-style: italic; }
+  .tpl-btn { display: inline-flex; align-items: center; gap: 8px; font-family: 'Teko','Oswald',sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 15px; color: var(--cream); background: var(--green); border: none; border-radius: 999px; padding: 8px 8px 6px 15px; cursor: pointer; transition: opacity 0.12s, transform 0.12s; }
+  .tpl-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .tpl-x { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.2); font-size: 15px; line-height: 1; }
+  .tpl-x:hover { background: rgba(255,255,255,0.4); }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-row .dialog-cta { flex: 1; }
+  .dialog-cta.ghost { background: transparent; color: var(--green); border: 0.5px solid var(--green); }
+  .dialog-cta.ghost:hover { background: rgba(31,77,62,0.06); }
   .preset-btn { font-family: 'Teko','Oswald',sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; color: var(--cream); background: var(--green); border: none; border-radius: 999px; padding: 7px 15px 5px; cursor: pointer; transition: opacity 0.12s, transform 0.12s; }
   .preset-btn:hover { opacity: 0.88; transform: translateY(-1px); }
   .preset-btn.clear { background: transparent; color: var(--khaki, #7B6F50); border: 0.5px dashed rgba(42,37,32,0.3); }
@@ -488,6 +500,10 @@
       <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
       <p class="label">Admin</p>
       <h3 class="dialog-title" id="prod-dialog-title">Add a <em>product</em></h3>
+      <div class="tpl-section">
+        <div class="tpl-label">Templates <span class="fld-hint">(tap to fill sizes, colors, material, weight)</span></div>
+        <div class="template-bar" id="template-bar"></div>
+      </div>
       <div class="field">
         <label for="prod-name">Product name</label>
         <input type="text" id="prod-name" placeholder="BC Logo Cap">
@@ -502,7 +518,6 @@
       </div>
       <div class="field">
         <label>Sizes offered <span class="fld-hint">(tap a preset, or pick individually)</span></label>
-        <div class="preset-row" id="size-presets"></div>
         <div class="opt-picker" id="size-picker"></div>
       </div>
       <div class="field">
@@ -545,7 +560,10 @@
         <label for="prod-mock3dfile">3D mockup file — build it in the 3D builder, tap Share &rarr; "Make a shareable file", then upload that file here. Locks the design exactly where you placed it.</label>
         <input type="file" id="prod-mock3dfile" accept=".html,text/html">
       </div>
-      <button class="dialog-cta" onclick="saveProduct()">Save product</button>
+      <div class="btn-row">
+        <button class="dialog-cta ghost" type="button" onclick="saveAsTemplate()">Save as template</button>
+        <button class="dialog-cta" onclick="saveProduct()">Save product</button>
+      </div>
     </div>
   </dialog>
 
@@ -607,6 +625,7 @@
 
   // ── Load products from Supabase (falls back to the old file) ──
   async function loadProducts() {
+    loadTemplates();
     if (sb) {
       try {
         const { data, error } = await sb.storage.from(PRODUCTS_BUCKET).download(PRODUCTS_FILE);
@@ -1283,25 +1302,93 @@
   const SLEEVE_OPTIONS = ['Short sleeve','Long sleeve'];
   const WEIGHT_PRESETS = [['Cap',0.5],['Shirt / Polo',0.75],['Hoodie',1.5],['Tumbler',1.25],['Small item',0.3],['Heavy / bulky',3]];
   // Quick size presets for common products
-  const SIZE_PRESETS = {
-    'Cap (One Size)': ['One Size'],
-    'Shirt (YXS\u2013AXL)': ['Youth XS','Youth S','Youth M','Youth L','Adult S','Adult M','Adult L','Adult XL']
-  };
-  function buildSizePresets() {
-    const box = $('size-presets'); if (!box) return;
+  // ── Product TEMPLATES (owner-created, saved to Supabase) ──
+  // A template saves everything except the design: sizes, colors,
+  // materials, sleeves, weight. Name/description/photo/3D are NOT saved.
+  const TEMPLATES_FILE = '_store/templates.json';
+  let templates = [];   // [{ id, label, sizes, colors, materials, sleeves, weightLb }]
+
+  async function loadTemplates() {
+    if (!sb) return;
+    try {
+      const { data, error } = await sb.storage.from(PRODUCTS_BUCKET).download(TEMPLATES_FILE);
+      if (!error && data) {
+        const parsed = JSON.parse(await data.text());
+        if (Array.isArray(parsed)) templates = parsed;
+      }
+    } catch (e) { /* none yet */ }
+  }
+  function saveTemplatesToCloud() {
+    if (!sb) return;
+    const blob = new Blob([JSON.stringify(templates)], { type: 'application/json' });
+    sb.storage.from(PRODUCTS_BUCKET).upload(TEMPLATES_FILE, blob, { upsert: true })
+      .catch(e => console.error('[templates] save failed:', e));
+  }
+
+  // Fill the editor's option pickers + weight from a template
+  function applyTemplate(t) {
+    buildPicker('size-picker', SIZE_OPTIONS, t.sizes || []);
+    buildPicker('color-picker', COLOR_OPTIONS, t.colors || []);
+    buildPicker('material-picker', MATERIAL_OPTIONS, t.materials || []);
+    buildPicker('sleeve-picker', SLEEVE_OPTIONS, t.sleeves || []);
+    if (t.weightLb) $('prod-weight').value = t.weightLb;
+  }
+
+  // Read the current editor selections into a template object
+  function currentAsTemplate(label) {
+    return {
+      id: 'tpl' + Date.now().toString(36),
+      label: label,
+      sizes: readPicker('size-picker', SIZE_OPTIONS),
+      colors: readPicker('color-picker', COLOR_OPTIONS),
+      materials: readPicker('material-picker', MATERIAL_OPTIONS),
+      sleeves: readPicker('sleeve-picker', SLEEVE_OPTIONS),
+      weightLb: parseFloat($('prod-weight').value) || null
+    };
+  }
+
+  function saveAsTemplate() {
+    const label = prompt('Name this template (e.g. Shirt, Cap):');
+    if (!label || !label.trim()) return;
+    const existing = templates.findIndex(t => t.label.toLowerCase() === label.trim().toLowerCase());
+    const tpl = currentAsTemplate(label.trim());
+    if (existing >= 0) {
+      if (!confirm('A template named "' + label.trim() + '" exists. Replace it?')) return;
+      tpl.id = templates[existing].id;
+      templates[existing] = tpl;
+    } else {
+      templates.push(tpl);
+    }
+    saveTemplatesToCloud();
+    buildTemplateBar();
+    alert('Template "' + label.trim() + '" saved.');
+  }
+
+  function deleteTemplate(id, ev) {
+    if (ev) ev.stopPropagation();
+    const t = templates.find(x => x.id === id);
+    if (!t || !confirm('Delete template "' + t.label + '"?')) return;
+    templates = templates.filter(x => x.id !== id);
+    saveTemplatesToCloud();
+    buildTemplateBar();
+  }
+
+  // Build the row of template buttons at the top of the editor
+  function buildTemplateBar() {
+    const box = $('template-bar'); if (!box) return;
     box.innerHTML = '';
-    Object.entries(SIZE_PRESETS).forEach(([label, sizes]) => {
+    if (!templates.length) {
+      box.innerHTML = '<span class="tpl-hint">No templates yet. Set up a product and tap “Save as template”.</span>';
+      return;
+    }
+    templates.forEach(t => {
       const btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'preset-btn';
-      btn.textContent = label;
-      btn.onclick = () => buildPicker('size-picker', SIZE_OPTIONS, sizes);
+      btn.type = 'button'; btn.className = 'tpl-btn';
+      btn.innerHTML = '<span>' + escapeHtml(t.label) + '</span><span class="tpl-x" title="Delete">&times;</span>';
+      btn.onclick = () => applyTemplate(t);
+      btn.querySelector('.tpl-x').onclick = (e) => deleteTemplate(t.id, e);
       box.appendChild(btn);
     });
-    const clr = document.createElement('button');
-    clr.type = 'button'; clr.className = 'preset-btn clear';
-    clr.textContent = 'Clear';
-    clr.onclick = () => buildPicker('size-picker', SIZE_OPTIONS, []);
-    box.appendChild(clr);
   }
   function buildWeightPresets() {
     const box = $('weight-presets'); if (!box) return;
@@ -1347,7 +1434,7 @@
     $('prod-photobg').value = '';
     pendingDesignPick = null;
     $('design-pick-note').textContent = '';
-    buildSizePresets();
+    buildTemplateBar();
     buildPicker('size-picker', SIZE_OPTIONS, []);
     buildPicker('color-picker', COLOR_OPTIONS, []);
     buildPicker('material-picker', MATERIAL_OPTIONS, []);
@@ -1370,7 +1457,7 @@
     $('prod-photobg').value = p.photoBg || '';
     pendingDesignPick = null;
     $('design-pick-note').textContent = '';
-    buildSizePresets();
+    buildTemplateBar();
     buildPicker('size-picker', SIZE_OPTIONS, p.sizes || []);
     buildPicker('color-picker', COLOR_OPTIONS, p.colors || []);
     buildPicker('material-picker', MATERIAL_OPTIONS, p.materials || []);
