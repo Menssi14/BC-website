@@ -10,6 +10,8 @@
 //        SQUARE_ACCESS_TOKEN   = your secret token (sandbox first)
 //        SQUARE_LOCATION_ID    = your location id (the L... value)
 //        SQUARE_ENV            = sandbox     (change to "production" when live)
+//        GMAIL_USER            = the shop Gmail address (for confirmations)
+//        GMAIL_APP_PASSWORD    = a Gmail app password
 //     NEVER paste the token into any other file.
 //  3. Deploy. The website's PAYMENT_ENDPOINT ('/api/pay') will reach this.
 // ============================================================
@@ -21,7 +23,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const { sourceId, amountCents, email, phone, items } = req.body || {};
+  const { sourceId, amountCents, email, phone, items, fulfillment, shippingCents, address } = req.body || {};
 
   // Basic validation — never trust the browser blindly
   if (!sourceId || !Number.isInteger(amountCents) || amountCents < 50) {
@@ -73,6 +75,7 @@ export default async function handler(req, res) {
       const custEmail = (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ? email : '';
       const paidStr = '$' + (amountCents / 100).toFixed(2);
       const receiptUrl = data.payment.receipt_url || '';
+      const isShip = (fulfillment === 'ship');
       // Build a clean, readable note
       const lines = [];
       lines.push('🛒 ONLINE ORDER');
@@ -81,6 +84,13 @@ export default async function handler(req, res) {
       if (custEmail)   lines.push('✉️ ' + custEmail);
       lines.push('');
       if (items) { lines.push('— Items —'); lines.push(String(items).slice(0, 2000)); lines.push(''); }
+      if (isShip) {
+        lines.push('📦 SHIP TO: ' + String(address || 'address missing').slice(0, 300));
+        lines.push('🚚 Shipping: ' + (shippingCents > 0 ? '$' + (shippingCents / 100).toFixed(2) : 'FREE'));
+      } else {
+        lines.push('🏬 Pickup at shop');
+      }
+      lines.push('');
       lines.push('💵 Paid: ' + paidStr);
       if (data.payment.receipt_number) lines.push('🧾 Receipt ' + data.payment.receipt_number);
       const niceBody = lines.join('\n');
@@ -112,11 +122,19 @@ export default async function handler(req, res) {
           store.orders.push({
             id: 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6),
             type: 'NOTE',
-            title: 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
+            title: (isShip ? '📦 ' : '') + 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
+            custName: 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
+            custPhone: phone10,
+            custEmail: custEmail,
             contact: phone10,
             body: niceBody,
             urgency: 'asap',
             designReady: false,
+            stage: 'New',
+            payStatus: 'paid',
+            payLocked: true,
+            balanceDue: '',
+            fulfillment: fulfillment || 'pickup',
             items: [],
             images: [],
             due: '', duePreset: '',
@@ -168,6 +186,12 @@ export default async function handler(req, res) {
 
             const textLines = ['Thanks for your order with Broch Custom!', ''];
             if (itemsBlock) { textLines.push('— Items —', itemsBlock, ''); }
+            if (isShip) {
+              textLines.push('Shipping to: ' + String(address || '').slice(0, 300));
+              textLines.push('Shipping: ' + (shippingCents > 0 ? '$' + (shippingCents / 100).toFixed(2) : 'FREE'), '');
+            } else {
+              textLines.push('Pickup at the shop.', '');
+            }
             textLines.push('Paid: ' + paidStr);
             if (receiptUrl) textLines.push('Receipt: ' + receiptUrl);
             textLines.push('', "We'll be in touch about pickup or delivery. Reply to this email with any questions.");
@@ -179,6 +203,9 @@ export default async function handler(req, res) {
                   `<div style="padding:22px;color:#2c2620;font-size:15px;line-height:1.5">` +
                     `<p style="margin:0 0 12px">Thanks for your order! Here's what we got:</p>` +
                     (itemsBlock ? `<pre style="font-family:inherit;white-space:pre-wrap;background:#f4eede;padding:12px 14px;border-radius:6px;margin:0 0 14px">${esc(itemsBlock)}</pre>` : '') +
+                    (isShip
+                      ? `<p style="margin:0 0 14px;color:#4A3424">📦 Shipping to: ${esc(String(address || '').slice(0,300))}<br>🚚 ${shippingCents > 0 ? '$' + (shippingCents/100).toFixed(2) : 'FREE'}</p>`
+                      : `<p style="margin:0 0 14px;color:#4A3424">🏬 Pickup at the shop.</p>`) +
                     `<p style="margin:0 0 6px"><strong>Paid: ${paidStr}</strong></p>` +
                     (receiptUrl ? `<p style="margin:0 0 14px"><a href="${receiptUrl}" style="color:#1F4D3E">View your Square receipt</a></p>` : '') +
                     `<p style="margin:0;color:#4A3424">We'll be in touch about pickup or delivery. Reply to this email with any questions.</p>` +
