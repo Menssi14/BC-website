@@ -36,7 +36,7 @@
   html { scroll-behavior: smooth; }
   .pine-bg-fixed { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
   .svg-defs { position: absolute; width: 0; height: 0; }
-  .nav, .store-hero, .grid-wrap, footer, dialog { position: relative; z-index: 1; }
+  .nav, .store-hero, .grid-wrap, footer { position: relative; z-index: 1; }
   body {
     background-color: var(--cream);
     background-image: var(--bg-cream);
@@ -192,8 +192,12 @@
     border: none; border-radius: 8px; padding: 0; max-width: 460px; width: calc(100% - 32px);
     background: var(--cream); color: var(--ink);
     box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    /* Center on screen regardless of page scroll (fixes iOS bottom-placement bug) */
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    margin: 0; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   dialog::backdrop { background: rgba(22,56,41,0.55); backdrop-filter: blur(2px); }
+  body.modal-open { overflow: hidden; }
   .dialog-card { padding: 30px 26px; position: relative; }
   .dialog-close {
     position: absolute; top: 14px; right: 16px; background: none; border: none;
@@ -580,6 +584,22 @@
   </dialog>
 
 <script>
+
+  // Lock background scroll whenever any dialog is open (iOS-safe)
+  (function(){
+    function syncModalLock(){
+      var anyOpen = !!document.querySelector('dialog[open]');
+      document.body.classList.toggle('modal-open', anyOpen);
+    }
+    // Patch showModal/close to keep the lock in sync
+    var _show = HTMLDialogElement.prototype.showModal;
+    var _close = HTMLDialogElement.prototype.close;
+    HTMLDialogElement.prototype.showModal = function(){ _show.apply(this, arguments); syncModalLock(); this.scrollTop = 0; };
+    HTMLDialogElement.prototype.close = function(){ _close.apply(this, arguments); syncModalLock(); };
+    // Also catch backdrop/ESC closes
+    document.addEventListener('close', syncModalLock, true);
+  })();
+
   // ════════════════════════════════════════════════════════
   //  BROCH CUSTOM STORE
   // ════════════════════════════════════════════════════════

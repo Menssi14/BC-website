@@ -126,6 +126,13 @@
   .m-pad{ padding:16px 20px 20px; }
   .m-title{ width:100%; border:none; outline:none; background:none; font-family:'Roboto Slab',Georgia,serif; font-size:22px; font-weight:600; color:var(--burgundy); margin:0 0 8px; }
   .m-title::placeholder{ color:rgba(74,52,36,.34); }
+  .cust-block{ margin:0 0 8px; }
+  .cust-name{ width:100%; border:none; outline:none; background:none; font-family:'Roboto Slab',Georgia,serif; font-size:22px; font-weight:600; color:var(--burgundy); }
+  .cust-name::placeholder{ color:rgba(74,52,36,.34); font-weight:600; }
+  .cust-extra{ display:flex; flex-direction:column; gap:7px; margin-top:9px; }
+  .cust-sub{ border:1px solid var(--line-strong); border-radius:8px; padding:8px 11px; font-family:'EB Garamond',serif; font-size:15px; color:var(--burgundy); background:var(--note); outline:none; }
+  .cust-sub:focus{ border-color:var(--green); }
+  .cust-sub::placeholder{ color:rgba(74,52,36,.4); }
 
   .meta-bar{ display:flex; align-items:center; gap:9px; margin:4px 0 12px; flex-wrap:wrap; }
   .kind-tag{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:14px; font-weight:600; color:var(--green); background:rgba(31,77,62,.09); padding:5px 11px 3px; border-radius:7px; }
@@ -147,8 +154,8 @@
   .useg.first{ border-radius:999px 0 0 999px; } .useg.last{ border-radius:0 999px 999px 0; }
   .useg:hover{ opacity:.55; } .useg.on{ opacity:1; }
   .useg.go{ background:var(--go); } .useg.amber{ background:var(--amber); } .useg.orange{ background:var(--orange); } .useg.red{ background:var(--red); }
-  .uknob{ position:absolute; top:50%; transform:translate(-50%,-50%); width:26px; height:26px; border-radius:50%; border:3px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.35); transition:left .2s ease, background .2s ease; pointer-events:none; }
-  .useg.pay{ background:var(--sc,#9A8F76); }
+  .uslider{ touch-action:none; } .uknob{ cursor:grab;  position:absolute; top:50%; transform:translate(-50%,-50%); width:26px; height:26px; border-radius:50%; border:3px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.35); transition:left .2s ease, background .2s ease; pointer-events:none; }
+  .useg.payseg{ opacity:1; }
   .bal-row{ display:flex; align-items:center; gap:8px; margin-top:14px; }
   .bal-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:14px; color:rgba(74,52,36,.7); }
   .bal-dollar{ font-family:'EB Garamond',serif; color:var(--burgundy); margin-left:auto; }
@@ -291,7 +298,8 @@
     <div class="chooser-title">What kind of order?</div>
     <div class="chooser-grid">
       <button data-type="Embroidery"><span class="nm">Embroidery</span></button>
-      <button data-type="Printing"><span class="nm">Printing</span></button>
+      <button data-type="DTF"><span class="nm">DTF</span></button>
+      <button data-type="Sublimation"><span class="nm">Sublimation</span></button>
       <button data-type="Engraving"><span class="nm">Engraving</span></button>
       <button data-type="NOTE"><span class="nm">Note</span></button>
     </div>
@@ -302,7 +310,14 @@
   <div class="modal" id="modal" onclick="event.stopPropagation()">
     <div class="m-imgs" id="mImgs"></div>
     <div class="m-pad">
-      <input class="m-title" id="mTitle" placeholder="Title">
+      <input class="m-title" id="mTitle" placeholder="Title" style="display:none">
+      <div class="cust-block" id="custBlock">
+        <input class="cust-name" id="mCustName" placeholder="Customer name (optional)" autocomplete="off">
+        <div class="cust-extra" id="custExtra" style="display:none">
+          <input class="cust-sub" id="mCustPhone" placeholder="Phone (optional)" inputmode="tel" autocomplete="off">
+          <input class="cust-sub" id="mCustEmail" placeholder="Email (optional)" inputmode="email" autocomplete="off">
+        </div>
+      </div>
       <span class="kind-tag" id="kindTag"></span>
       <div id="mBody"></div>
       <div class="urgency-section">
@@ -310,7 +325,7 @@
         <div class="tl" id="mTL"></div>
         <div class="field-label" style="margin-top:18px">Payment <span class="opt">optional</span></div>
         <div class="tl" id="mPay"></div>
-        <div class="bal-row" id="balRow">
+        <div class="bal-row" id="balRow" style="display:none">
           <span class="bal-label">Balance due</span>
           <span class="bal-dollar">$</span>
           <input class="bal-input" id="mBalance" type="text" inputmode="decimal" placeholder="0.00">
@@ -321,8 +336,8 @@
   </div>
 </div>
 
-<datalist id="sizeList"><option>One Size</option><option>Youth S</option><option>Youth M</option><option>Youth L</option><option>Adult S</option><option>Adult M</option><option>Adult L</option><option>Adult XL</option><option>Adult 2XL</option><option>Adult 3XL</option></datalist>
-<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
+<datalist id="sizeList"><option>Adult S</option><option>Adult M</option><option>Adult L</option><option>Adult XL</option><option>Adult 2XL</option><option>Adult 3XL</option><option>Youth S</option><option>Youth M</option><option>Youth L</option><option>One Size</option></datalist>
+<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
 <div class="sync" id="sync"><span class="d"></span><span id="syncText">Saved</span></div>
@@ -340,10 +355,11 @@
 
   // Progress stages per order type. Last entry is always the finish (→ trash).
   var STAGES={
-    Printing:  ['New','Design Ready','Printed','Done'],
-    Embroidery:['New','Digitized','Done'],
-    Engraving: ['New','Design Ready','Done'],
-    NOTE:      ['New','Done']
+    DTF:        ['New','Design Ready','Printed','Done'],
+    Sublimation:['New','Design Ready','Done'],
+    Embroidery: ['New','Digitized','Done'],
+    Engraving:  ['New','Design Ready','Done'],
+    NOTE:       ['New','Done']
   };
   function stageList(o){
     var base=(STAGES[o.type]||STAGES.NOTE).slice();
@@ -370,8 +386,8 @@
     if(i>=n-1) return '#3C8C5A';         // Done - green
     return '#E8722C';                     // in-progress - orange
   }
-  var TYPES=['Embroidery','Printing','Engraving','NOTE'];
-  var COLORS=[{n:'White',h:'#ffffff'},{n:'Black',h:'#1d1d1d'},{n:'Gray',h:'#9aa0a6'},{n:'Charcoal',h:'#444'},{n:'Navy',h:'#22304f'},{n:'Royal',h:'#2b5fd0'},{n:'Carolina',h:'#7fb2e0'},{n:'Teal',h:'#2a8f8f'},{n:'Red',h:'#c62828'},{n:'Maroon',h:'#6e1f2a'},{n:'Pink',h:'#e58aa6'},{n:'Orange',h:'#e8732a'},{n:'Gold',h:'#e3b53c'},{n:'Green',h:'#3c8c5a'},{n:'Forest',h:'#1F4D3E'},{n:'Purple',h:'#6b4a9e'},{n:'Brown',h:'#6b4a2f'},{n:'Tan',h:'#cBA87e'},{n:'Sand',h:'#e6d2a8'}];
+  var TYPES=['Embroidery','DTF','Sublimation','Engraving','NOTE'];
+  var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
   var state={orders:[]}; var ui={view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
 
@@ -383,7 +399,30 @@
   function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
   function isoToday(){var d=new Date();d.setHours(0,0,0,0);return iso(d);}
   function itemHas(it){ return !!(it&&(it.size||it.color||it.surface||it.material||it.placement||(it.name&&it.name.trim()))); }
-  function comboText(it){ var b=[]; if(it.size)b.push(it.size); if(it.color)b.push(it.color); if(it.surface)b.push(it.surface); if(it.material)b.push(it.material); if(it.placement)b.push(it.placement); return b.length?b.join(' \u00b7 '):'Item'; }
+  function titleText(it){
+    // Title = color + fabric + garment + placement (NO size; the type tag carries that context)
+    var cfs=[(it.color||''),(it.material||''),(it.surface||'')].filter(Boolean).join(' ').trim();
+    var parts=[];
+    if(cfs)parts.push(cfs);
+    if(it.placement)parts.push(it.placement);
+    return parts.join(' \u00b7 ');
+  }
+  function autoTitle(o){
+    if(o.type==='NOTE') return o.title||'';
+    if(o.custName&&o.custName.trim()) return o.custName.trim();
+    var its=(o.items||[]).filter(itemHas);
+    if(its.length){ var t=titleText(its[0]); if(t) return t; }
+    return '';
+  }
+  function comboText(it){
+    var b=[];
+    if(it.size)b.push(it.size);
+    // color + fabric + surface read as one phrase: "Blue Cotton Polo"
+    var cfs=[(it.color||''),(it.material||''),(it.surface||'')].filter(Boolean).join(' ').trim();
+    if(cfs)b.push(cfs);
+    if(it.placement)b.push(it.placement);
+    return b.length?b.join(' \u00b7 '):'Item';
+  }
   function itemCount(o){ return (o.items||[]).filter(itemHas).length; }
 
   function persist(){ if(!_loaded)return; syncShow('Saving…'); if(!sb){syncShow('Saved (this device)');return;} clearTimeout(_saveTimer); _saveTimer=setTimeout(saveNow,500); }
@@ -420,14 +459,14 @@
   }
   function migrate(o){
     if(o.images===undefined){ o.images=o.image?[o.image]:[]; } delete o.image;
-    if(o.type===undefined){ var t=(o.types&&o.types.length)?o.types[0]:'NOTE'; if(t==='Print')t='Printing'; if(t==='Online'){t='NOTE';o.source='online';} o.type=t; } delete o.types;
+    if(o.type===undefined){ var t=(o.types&&o.types.length)?o.types[0]:'NOTE'; if(t==='Print'||t==='Printing')t='DTF'; if(t==='Online'){t='NOTE';o.source='online';} o.type=t; } delete o.types;
     if(o.type==='N/A')o.type='NOTE'; if(TYPES.indexOf(o.type)<0)o.type='NOTE';
     if(o.items===undefined){ o.items=[]; if(o.sizes&&o.sizes.length){ o.sizes.forEach(function(s){ if(s&&(s.size||s.qty)){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)o.items.push({size:s.size||'',color:o.color||'',surface:'',name:''}); } }); } }
     else if(o.items.length&&o.items[0]&&o.items[0].name===undefined){ var ni=[]; o.items.forEach(function(s){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)ni.push({size:s.size||'',color:s.color||'',surface:s.surface||'',name:''}); }); o.items=ni; }
     delete o.sizes; delete o.names; delete o.color; delete o.amount; delete o.varOrder;
     if(o.body===undefined)o.body=''; if(o.duePreset===undefined)o.duePreset='';
     if(o.urgency===undefined)o.urgency=o.status==='urgent'?'asap':'fcfs';
-    if(o.contact===undefined)o.contact=''; if(o.designReady===undefined)o.designReady=false;
+    if(o.contact===undefined)o.contact=''; if(o.custName===undefined)o.custName=(o.type!=='NOTE'?(o.title||''):''); if(o.custPhone===undefined)o.custPhone=o.contact||''; if(o.custEmail===undefined)o.custEmail=''; if(o.designReady===undefined)o.designReady=false;
     if(o.stage===undefined){ o.stage=o.designReady?'Design Ready':'New'; }
     if(o.payStatus===undefined)o.payStatus='';   // '', 'deposit', 'paid'
     if(o.balanceDue===undefined)o.balanceDue='';
@@ -497,8 +536,8 @@
     var h='<div class="card u-'+(o.urgency||'fcfs')+'" data-card="'+o.id+'">';
     if(imgs.length){ h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">'; imgs.slice(0,3).forEach(function(uu){h+='<img src="'+uu+'" alt="">';}); h+='</div>'; }
     h+='<div class="card-pad">';
-    if(o.title) h+='<h3>'+esc(o.title)+'</h3>';
-    if(o.contact) h+='<a class="contact" href="tel:'+esc(o.contact).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
+    var _t=autoTitle(o); if(_t) h+='<h3>'+esc(_t)+'</h3>';
+    var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     if(o.type==='NOTE'){ if(o.body) h+='<div class="ctext">'+esc(o.body)+'</div>'; }
     else { h+=cardItemsHTML(o); }
     var tags='<span class="tag"><span class="dot" style="background:'+u.color+'"></span>'+u.label+'</span>';
@@ -528,9 +567,23 @@
   chooser.addEventListener('click',function(){ chooser.classList.remove('show'); });
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
-  function openEditorNew(type){ editing={ id:uid(),type:type,title:'',contact:'',body:'',urgency:'fcfs',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true }; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(editing); buildBar(editing); overlay.classList.add('show'); setTimeout(function(){$('mTitle').focus();},60); }
+  function openEditorNew(type){ editing={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'fcfs',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true }; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(editing); buildBar(editing); overlay.classList.add('show'); setTimeout(function(){$('mTitle').focus();},60); }
   function openEditor(id){ var o=getOrder(id); if(!o)return; editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
-  function fillModal(o){ $('mTitle').value=o.title||''; $('kindTag').textContent=o.type; if($('mBalance'))$('mBalance').value=o.balanceDue||''; renderImgs(); renderBody(); }
+  function fillModal(o){
+    var isNote=(o.type==='NOTE');
+    $('mTitle').style.display=isNote?'block':'none';
+    $('custBlock').style.display=isNote?'none':'block';
+    $('mTitle').value=o.title||'';
+    if($('mCustName'))$('mCustName').value=o.custName||'';
+    if($('mCustPhone'))$('mCustPhone').value=o.custPhone||'';
+    if($('mCustEmail'))$('mCustEmail').value=o.custEmail||'';
+    // reveal phone/email only if a name exists
+    var hasName=!!(o.custName&&o.custName.trim());
+    if($('custExtra'))$('custExtra').style.display=hasName?'flex':'none';
+    $('kindTag').textContent=o.type;
+    if($('mBalance'))$('mBalance').value=o.balanceDue||'';
+    renderImgs(); renderBody();
+  }
 
 
   var PAYSTAGES=[
@@ -545,9 +598,18 @@
     var knob=document.createElement('div'); knob.className='uknob';
     var lab=document.createElement('div'); lab.className='uslider-label';
     function idxOf(){ for(var j=0;j<PAYSTAGES.length;j++){ if(PAYSTAGES[j].k===(editing.payStatus||'')) return j; } return 0; }
-    function place(){ var i=idxOf(); knob.style.left=((i+0.5)*(100/PAYSTAGES.length))+'%'; var p=PAYSTAGES[i]; knob.style.background=p.color; lab.textContent=p.label; lab.style.color=p.color; var segs=track.querySelectorAll('.useg'); for(var j=0;j<segs.length;j++){ segs[j].classList.toggle('on', j===i); } }
-    PAYSTAGES.forEach(function(p,ix){ var seg=document.createElement('div'); seg.className='useg pay'+(ix===0?' first':'')+(ix===PAYSTAGES.length-1?' last':''); seg.style.setProperty('--sc',p.color); seg.title=p.label; seg.onclick=function(){ editing.payStatus=p.k; place(); livePersist(); }; track.appendChild(seg); });
+    function syncBalance(){ var i=idxOf(); var show=(PAYSTAGES[i].k==='deposit'||PAYSTAGES[i].k==='paid'); var br=$('balRow'); if(br) br.style.display=show?'flex':'none'; }
+    function place(){ var i=idxOf(); knob.style.left=((i+0.5)*(100/PAYSTAGES.length))+'%'; var p=PAYSTAGES[i]; knob.style.background=p.color; lab.textContent=p.label; lab.style.color=p.color; var segs=track.querySelectorAll('.useg'); for(var j=0;j<segs.length;j++){ segs[j].classList.toggle('on', j===i); } syncBalance(); }
+    function setByIndex(i){ i=Math.max(0,Math.min(PAYSTAGES.length-1,i)); editing.payStatus=PAYSTAGES[i].k; place(); livePersist(); }
+    function idxFromX(clientX){ var r=track.getBoundingClientRect(); var rel=(clientX-r.left)/r.width; return Math.floor(rel*PAYSTAGES.length); }
+    PAYSTAGES.forEach(function(p,ix){ var seg=document.createElement('div'); seg.className='useg payseg'+(ix===0?' first':'')+(ix===PAYSTAGES.length-1?' last':''); seg.style.background=p.color; seg.title=p.label; track.appendChild(seg); });
     track.appendChild(knob);
+    // Drag + tap to slide
+    var dragging=false;
+    function onMove(e){ if(!dragging)return; var x=(e.touches?e.touches[0].clientX:e.clientX); setByIndex(idxFromX(x)); if(e.cancelable)e.preventDefault(); }
+    function onUp(){ dragging=false; document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); }
+    function onDown(e){ dragging=true; var x=(e.touches?e.touches[0].clientX:e.clientX); setByIndex(idxFromX(x)); document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp); }
+    track.addEventListener('mousedown',onDown); track.addEventListener('touchstart',onDown,{passive:true});
     c.appendChild(track); c.appendChild(lab);
     place();
   }
@@ -558,8 +620,15 @@
     var knob=document.createElement('div'); knob.className='uknob';
     var lab=document.createElement('div'); lab.className='uslider-label';
     function place(){ var i=order.indexOf(editing.urgency); if(i<0)i=1; knob.style.left=((i+0.5)*(100/order.length))+'%'; var u=URGENCY[order[i]]; knob.style.background=u.color; lab.textContent=u.label; lab.style.color=u.color; var segs=track.querySelectorAll('.useg'); for(var j=0;j<segs.length;j++){ segs[j].classList.toggle('on', j===i); } }
-    order.forEach(function(k,ix){ var u=URGENCY[k]; var seg=document.createElement('div'); seg.className='useg '+u.cls+(ix===0?' first':'')+(ix===order.length-1?' last':''); seg.title=u.label; seg.onclick=function(){ editing.urgency=k; place(); livePersist(); }; track.appendChild(seg); });
+    order.forEach(function(k,ix){ var u=URGENCY[k]; var seg=document.createElement('div'); seg.className='useg '+u.cls+(ix===0?' first':'')+(ix===order.length-1?' last':''); seg.title=u.label; track.appendChild(seg); });
     track.appendChild(knob);
+    function setByIndex(i){ i=Math.max(0,Math.min(order.length-1,i)); editing.urgency=order[i]; place(); livePersist(); }
+    function idxFromX(clientX){ var r=track.getBoundingClientRect(); var rel=(clientX-r.left)/r.width; return Math.floor(rel*order.length); }
+    var dragging=false;
+    function onMove(e){ if(!dragging)return; var x=(e.touches?e.touches[0].clientX:e.clientX); setByIndex(idxFromX(x)); if(e.cancelable)e.preventDefault(); }
+    function onUp(){ dragging=false; document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); }
+    function onDown(e){ dragging=true; var x=(e.touches?e.touches[0].clientX:e.clientX); setByIndex(idxFromX(x)); document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp); }
+    track.addEventListener('mousedown',onDown); track.addEventListener('touchstart',onDown,{passive:true});
     c.appendChild(track); c.appendChild(lab);
     place();
   }
@@ -583,6 +652,10 @@
     // variant builder
     var bld=document.createElement('div'); bld.className='builder';
     var isEng=(editing.type==='Engraving');
+    var isSub=(editing.type==='Sublimation');
+    var surfListId = isEng?'engSurfList' : (isSub?'subSurfList':'surfList');
+    var matListId  = isEng?'engMatList'  : (isSub?'subMatList':'matList');
+    var noPlacement = isEng || isSub;   // hard goods: single placement area, skip the shirt placement picker
     // Each field gets: the input (type if you want) + a side-scrolling row of tappable chips
     function fieldWithChips(cls, listId, ph, getV, setV){
       var wrap=document.createElement('div'); wrap.className='b-field';
@@ -629,7 +702,7 @@
     var placeSlot=null;
     function placementListId(){ return /cap|beanie|hat|visor/i.test(builder.surface||'') ? 'capPlaceList' : 'placeList'; }
     function rebuildPlacement(){
-      if(isEng || !placeSlot) return;
+      if(noPlacement || !placeSlot) return;
       var want=placementListId();
       if(placeSlot.dataset.list===want) return;
       builder.placement='';
@@ -637,10 +710,10 @@
       fresh.dataset.list=want;
       placeSlot.replaceWith(fresh); placeSlot=fresh;
     }
-    bld.appendChild(fieldWithChips('b-inp', isEng?'engSurfList':'surfList', isEng?'Item':'Garment', function(){return builder.surface;}, function(v){builder.surface=v; rebuildPlacement();}));
-    bld.appendChild(fieldWithChips('b-inp', isEng?'engMatList':'matList', 'Material', function(){return builder.material;}, function(v){builder.material=v;}));
-    if(!isEng){ placeSlot=multiChipsField(placementListId(),'Placement (pick any)',function(){return builder.placement;},function(v){builder.placement=v;}); placeSlot.dataset.list=placementListId(); bld.appendChild(placeSlot); }
-    bld.appendChild(colorStrip(function(){return builder.color;}, function(cc){builder.color=cc;}));
+    bld.appendChild(fieldWithChips('b-inp', surfListId, (isEng||isSub)?'Item':'Garment', function(){return builder.surface;}, function(v){builder.surface=v; rebuildPlacement();}));
+    bld.appendChild(fieldWithChips('b-inp', matListId, 'Material', function(){return builder.material;}, function(v){builder.material=v;}));
+    if(!noPlacement){ placeSlot=multiChipsField(placementListId(),'Placement (pick any)',function(){return builder.placement;},function(v){builder.placement=v;}); placeSlot.dataset.list=placementListId(); bld.appendChild(placeSlot); }
+    if(!isSub){ bld.appendChild(colorStrip(function(){return builder.color;}, function(cc){builder.color=cc;})); }
     var qa=document.createElement('div'); qa.className='qty-add';
     var step=document.createElement('div'); step.className='stepper';
     var minus=document.createElement('button'); minus.type='button'; minus.textContent='\u2212';
@@ -701,7 +774,10 @@
     });
   }
 
-  $('mTitle').addEventListener('input',function(e){editing.title=e.target.value;livePersist();});
+  $('mTitle').addEventListener('input',function(e){ if(!editing)return; editing.title=e.target.value; livePersist(); });
+  if($('mCustName'))$('mCustName').addEventListener('input',function(e){ if(!editing)return; editing.custName=e.target.value; var has=!!e.target.value.trim(); $('custExtra').style.display=has?'flex':'none'; livePersist(); });
+  if($('mCustPhone'))$('mCustPhone').addEventListener('input',function(e){ if(!editing)return; editing.custPhone=e.target.value; editing.contact=e.target.value; livePersist(); });
+  if($('mCustEmail'))$('mCustEmail').addEventListener('input',function(e){ if(!editing)return; editing.custEmail=e.target.value; livePersist(); });
   if($('mBalance'))$('mBalance').addEventListener('input',function(e){ if(!editing)return; editing.balanceDue=e.target.value.replace(/[^0-9.]/g,''); livePersist(); });
 
   function buildBar(o){
@@ -715,6 +791,7 @@
   function commitOrClose(){
     if(!editing){ overlay.classList.remove('show'); return; }
     editing.items=(editing.items||[]).filter(itemHas);
+    if(editing.type!=='NOTE'){ editing.title=autoTitle(editing); }
     if(editing.isNew){
       var hasText=(editing.title||'').trim()||(editing.body||'').trim()||(editing.images&&editing.images.length)||editing.items.length||editing.due;
       if(!hasText){ discard(); return; }
@@ -730,7 +807,7 @@
   window.addEventListener('message',function(e){ var d=e.data; if(!d||typeof d!=='object')return; if(d.type==='BROCH_ORDER'&&d.order)ingest(d.order); else if(d.type==='BROCH_DESIGN'&&d.image)ingest({image:d.image,title:d.title||'',body:d.body||''}); });
   try{ if(window.parent&&window.parent!==window)window.parent.postMessage({type:'BROCH_ORDERS_READY'},'*'); }catch(_){}
   function ingest(src){
-    var type=src.type||(Array.isArray(src.types)&&src.types[0])||'NOTE'; if(type==='Print')type='Printing'; if(type==='N/A')type='NOTE'; if(TYPES.indexOf(type)<0)type='NOTE';
+    var type=src.type||(Array.isArray(src.types)&&src.types[0])||'NOTE'; if(type==='Print'||type==='Printing')type='DTF'; if(type==='N/A')type='NOTE'; if(TYPES.indexOf(type)<0)type='NOTE';
     var images=[]; if(src.image)images.push(src.image); if(Array.isArray(src.images))src.images.forEach(function(uu){if(images.length<3)images.push(uu);}); images=images.slice(0,3);
     var dueP=src.duePreset||''; var due=src.due||(dueP?computeDue(dueP):'');
     var o={ id:uid(),type:type,title:src.title||src.customer||'',contact:src.contact||src.phone||'',body:src.body||src.details||src.notes||'',urgency:src.urgency||'asap',designReady:!!src.designReady,stage:'New',payStatus:'',balanceDue:'',items:Array.isArray(src.items)?src.items:[],images:images,due:due,duePreset:dueP,trashed:false,trashedAt:null,source:'online',createdAt:Date.now(),updatedAt:Date.now() };
