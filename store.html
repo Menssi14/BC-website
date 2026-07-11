@@ -56,12 +56,12 @@
     padding: 14px 22px;
     border-bottom: 0.5px solid rgba(242,234,221,0.15);
   }
-  .nav-brand { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
-    font-family: 'Schadow', 'EB Garamond', serif;
-    color: var(--cream);
-    font-size: 22px; letter-spacing: 0.02em;
-    text-decoration: none;
-  }
+  .nav-brand{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase; font-weight:900;
+    font-size:27px; letter-spacing:.02em; line-height:.92; color:var(--cream); white-space:nowrap;
+    display:flex; flex-direction:column; text-decoration:none;
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  .nav-brand:hover{ color:#fff; opacity:1; }
+  .nav-brand small{ font-family:'Teko',sans-serif; font-size:12px; letter-spacing:.34em; font-weight:700; color:var(--pink); margin-top:0; }
   .nav-right { display: flex; align-items: center; gap: 10px; }
   .nav-link {
     background: transparent; border: 0.5px solid rgba(242,234,221,0.45);
@@ -180,18 +180,19 @@
   }
   .empty h2 { font-family: 'EB Garamond', serif; font-style: italic; font-size: 26px; color: var(--green); margin-bottom: 8px; font-weight: 500; }
   /* ── FOOTER ──────────────────────────────────────── */
-  .store-foot {
-    background: var(--green-dark); color: rgba(242,234,221,0.8);
-    text-align: center; padding: 28px 20px; font-size: 14px;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .store-foot a { color: var(--pink); text-decoration: none; }
+  /* ── shared footer (same in the shop, the orders app and the tools app) ── */
+  .bc-foot{ background:#163829; color:rgba(242,234,221,.82); text-align:center;
+    padding:28px 20px; margin-top:50px; display:flex; flex-direction:column; align-items:center; gap:6px;
+    font-family:'EB Garamond',Georgia,serif; font-size:14px; }
+  .bc-foot a{ color:#F4B5B0; text-decoration:none; }
+  .bc-foot a:hover{ color:#F2EADD; }
+  .bc-foot .bc-fine{ font-style:italic; font-size:12px; opacity:.6; }
   .admin-toggle { margin-top: 12px; cursor: pointer; user-select: none;
     font-family: 'Teko','Oswald',sans-serif; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase;
-    background: transparent; color: var(--green); border: 1px solid rgba(31,77,62,0.35);
+    background: transparent; color: var(--cream); border: 1px solid rgba(242,234,221,0.4);
     border-radius: 999px; padding: 6px 18px; transition: 0.15s; }
-  .admin-toggle:hover { background: var(--green); border-color: var(--green); color: var(--cream); }
-  .admin-toggle.on { background: var(--green); border-color: var(--green); color: var(--cream); }
+  .admin-toggle:hover { background: var(--cream); border-color: var(--cream); color: var(--green); }
+  .admin-toggle.on { background: var(--cream); border-color: var(--cream); color: var(--green); }
   /* ── DIALOGS ─────────────────────────────────────── */
   dialog {
     border: none; border-radius: 8px; padding: 0; max-width: 460px; width: calc(100% - 32px);
@@ -285,7 +286,6 @@
     .ps-ring, .ps-tick { animation: none !important; stroke-dashoffset: 0 !important; }
   }
   @media (max-width: 600px) {
-    .nav-brand { font-size: 19px; }
     .nav-link { padding: 8px 12px; font-size: 13px; }
   }
   /* ── pickup / ship & pay method ── */
@@ -438,7 +438,7 @@
 <svg class="pine-bg-fixed" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pf-khaki)"/></svg>
   <!-- NAV -->
   <nav class="nav">
-    <a href="/" class="nav-brand">Broch Custom</a>
+    <a href="/" class="nav-brand">Broch Custom<small>Shop</small></a>
     <div class="nav-right">
       <button class="nav-cart" onclick="openCart()" aria-label="Cart" title="Cart">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -463,9 +463,9 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="store-foot">
-    <div>Broch Custom · Edinburg, TX · <a href="tel:+19562255859">(956) 225-5859</a></div>
-    <div>&copy; <span id="year"></span> Broch Custom</div>
+  <footer class="bc-foot">
+    <div>Broch Custom &middot; Edinburg, TX &middot; <a href="tel:+19562255859">(956) 225-5859</a></div>
+    <div class="bc-fine">&copy; <span class="bc-year"></span> Broch Custom</div>
     <button type="button" class="admin-toggle" id="admin-toggle" hidden>✎ Editing — tap to exit</button>
     <div id="save-badge" hidden style="position:fixed;bottom:16px;right:16px;background:var(--green);color:var(--cream);padding:8px 16px;border-radius:999px;font-family:'Teko',sans-serif;letter-spacing:0.1em;text-transform:uppercase;font-size:14px;z-index:200;">Saved ✓</div>
   </footer>
@@ -717,7 +717,7 @@
   // moment and the password box appears. Shoppers never see a door.
   let editingId = null;
 
-  document.getElementById('year').textContent = new Date().getFullYear();
+  document.querySelectorAll('.bc-year').forEach(function(e){ e.textContent = new Date().getFullYear(); });
 
   // ── Load products from Supabase (falls back to the old file) ──
   loadShirtCfg();
@@ -1446,7 +1446,7 @@
     const brand = document.querySelector('.nav-brand');
     if (!brand) return;
     let timer = null, fired = false;
-    const start = () => { fired = false; clearTimeout(timer); timer = setTimeout(() => { fired = true; if (!isAdmin) $('admin-login-dialog').showModal(); }, 700); };
+    const start = () => { fired = false; clearTimeout(timer); timer = setTimeout(() => { fired = true; if (!isAdmin) $('admin-login-dialog').showModal(); }, 2000); };
     const cancel = () => clearTimeout(timer);
     brand.addEventListener('pointerdown', start);
     ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => brand.addEventListener(ev, cancel));
