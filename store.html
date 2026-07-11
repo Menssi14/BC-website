@@ -710,6 +710,30 @@
 
   let products = [];
   let cart = [];       // {id, name, price, photo, variant, qty}
+
+  // ── The cart survives a page reload (phones reload background tabs constantly).
+  const CART_KEY = 'bc-cart-v1';
+  function saveCart() {
+    try {
+      const slim = cart.map(c => {
+        const o = Object.assign({}, c);
+        // built-shirt mockups are big data images — don't let one overflow storage
+        if (o.photo && o.photo.length > 150000) o.photo = '';
+        return o;
+      });
+      localStorage.setItem(CART_KEY, JSON.stringify(slim));
+    } catch (_) {}
+  }
+  function loadCart() {
+    try {
+      const raw = localStorage.getItem(CART_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (Array.isArray(saved)) cart = saved.filter(c => c && c.key && c.qty > 0);
+    } catch (_) {}
+  }
+  loadCart();
+  document.addEventListener('DOMContentLoaded', updateCartCount);
   let isAdmin = false;
 
   // ── Editing access ──────────────────────────────────────
@@ -918,6 +942,7 @@
   function updateCartCount() {
     const n = cart.reduce((s, c) => s + c.qty, 0);
     $('cart-count').textContent = n;
+    saveCart();   // every cart change is also persisted
   }
   function flashCart() {
     const btn = document.querySelector('.nav-cart');
@@ -1421,6 +1446,7 @@
 
   function finishOrder() {
     cart = [];
+    try { localStorage.removeItem(CART_KEY); } catch (_) {}
     updateCartCount();
     $('co-phone').value = '';
     $('co-email').value = '';

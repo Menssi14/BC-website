@@ -313,7 +313,7 @@
       <button class="icon-btn" id="linksClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="edit-opts">
-      <a class="edit-opt" href="/store">
+      <a class="edit-opt" href="https://brochcustom.com/store">
         <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMUY0RDNFIi8+PHBhdGggZD0iTTM4IDQyIHYtNSBhMTIgMTIgMCAwIDEgMjQgMCB2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjJFQUREIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjI3IiB5PSI0MCIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjM2IiByeD0iNyIgZmlsbD0iI0YyRUFERCIvPjwvc3ZnPg==" alt="">
         <span class="eo-t">The shop</span>
       </a>
@@ -512,7 +512,46 @@
 
   function persist(){ if(!_loaded)return; syncShow('Saving…'); if(!sb){syncShow('Saved (this device)');return;} clearTimeout(_saveTimer); _saveTimer=setTimeout(saveNow,500); }
   function livePersist(){ if(editing&&!editing.isNew)persist(); }
-  function saveNow(){ if(!sb)return; try{ var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'}); sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true}).then(function(r){ syncShow(r&&r.error?'Save failed':'Saved'); }); }catch(e){ syncShow('Save failed'); } }
+  var _deletedIds = {};   // orders hard-deleted on THIS device — a merge must not resurrect them
+  function _freshness(o){ return Math.max(o.updatedAt||0, o.trashedAt||0, o.createdAt||0); }
+
+  // MERGE-THEN-SAVE. Never blind-overwrite the cloud file:
+  // a paid online order (or another device's edit) may have landed since we loaded.
+  // 1) re-download the cloud copy   2) keep anything we don't have
+  // 3) per order, keep whichever side was touched most recently   4) upload the union
+  function saveNow(){
+    if(!sb) return;
+    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
+      var cloud = [];
+      if(r && r.data) return r.data.text().then(function(t){
+        try{ var s=JSON.parse(t); if(s && Array.isArray(s.orders)) cloud=s.orders; }catch(e){}
+        _mergeAndUpload(cloud);
+      });
+      _mergeAndUpload(cloud);   // no cloud file yet — just write ours
+    }).catch(function(){ _mergeAndUpload(null); });
+  }
+  function _mergeAndUpload(cloud){
+    try{
+      if(Array.isArray(cloud)){
+        var mine = {};
+        state.orders.forEach(function(o){ mine[o.id]=o; });
+        cloud.forEach(function(c){
+          if(!c || !c.id) return;
+          if(_deletedIds[c.id]) return;                       // we deleted it on purpose
+          var m = mine[c.id];
+          if(!m){ state.orders.push(migrate(c)); return; }    // new to us (e.g. online order) — keep it
+          if(_freshness(c) > _freshness(m)){                  // theirs is newer — take theirs
+            var i = state.orders.indexOf(m);
+            state.orders[i] = migrate(c);
+          }
+        });
+        state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+        render();
+      }
+      var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
+      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true}).then(function(r){ syncShow(r&&r.error?'Save failed':'Saved'); });
+    }catch(e){ syncShow('Save failed'); }
+  }
   function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate);}catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
   var _refreshTimer=null, _lastRefresh=0;
   function refresh(force){
@@ -644,9 +683,9 @@
 
   function wireCards(){ var board=$('board'); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); }); }); }
 
-  function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; render(); persist(); }); }
-  function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; render(); persist(); toast('Restored to your board'); }
-  function forever(id){ var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);render();persist();}); }
+  function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
+  function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
+  function forever(id){ var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); _deletedIds[id]=true; render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);delete _deletedIds[id];render();persist();}); }
 
   /* ===== chooser + editor ===== */
   var chooser=$('chooser'), overlay=$('overlay');
