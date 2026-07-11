@@ -33,9 +33,10 @@
   .wordmark{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase; font-weight:900; font-size:27px; letter-spacing:.02em; line-height:.92; color:var(--cream); white-space:nowrap; display:flex; flex-direction:column; text-decoration:none; }
   .wordmark:hover{ color:#fff; }
   .wordmark small{ font-family:'Teko',sans-serif; font-size:12px; letter-spacing:.34em; font-weight:700; color:var(--pink); margin-top:0; }
-  .view-title{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:20px; color:var(--pink); }
-  .hbtn{ margin-left:auto; position:relative; cursor:pointer; border:none; background:rgba(242,234,221,.14); color:var(--cream); width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+  .view-title{ flex:1; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:20px; color:var(--pink); }
+  .hbtn{ margin-left:0; position:relative; cursor:pointer; border:none; background:rgba(242,234,221,.14); color:var(--cream); width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; transition:background .15s; }
   .hbtn:hover{ background:rgba(242,234,221,.26); }
+  @media(max-width:560px){ header{ gap:8px; padding:12px 13px; } .hbtn{ width:38px; height:38px; border-radius:11px; } }
   .hbtn .badge{ position:absolute; top:-4px; right:-4px; background:var(--pink); color:var(--green); font-family:'Teko',sans-serif; font-weight:600; font-size:13px; min-width:18px; height:18px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 4px; }
 
   .wrap{ max-width:1120px; margin:0 auto; padding:18px 12px 130px; }
@@ -102,6 +103,25 @@
   .fab{ position:fixed; right:18px; bottom:22px; z-index:60; width:62px; height:62px; border-radius:20px; background:var(--green); color:var(--cream); border:none; box-shadow:0 8px 24px rgba(31,77,62,.4); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .12s, filter .15s, box-shadow .15s; }
   .fab:hover{ filter:brightness(1.12); box-shadow:0 10px 28px rgba(31,77,62,.46); } .fab:active{ transform:scale(.93); } .fab.hide{ display:none; }
 
+  .edit-opts{ padding:12px 14px 18px; display:flex; flex-direction:column; gap:10px; }
+  .edit-opt{ display:flex; align-items:center; gap:13px; text-decoration:none; padding:12px 14px;
+    border:1px solid var(--line-strong); border-radius:12px; background:rgba(31,77,62,.04); transition:.15s; }
+  .edit-opt:hover{ background:rgba(31,77,62,.1); border-color:var(--green); }
+  .edit-opt img{ width:38px; height:38px; border-radius:10px; display:block; flex:0 0 auto; }
+  .edit-opt{ width:100%; text-align:left; cursor:pointer; font:inherit; }
+  .eo-ico{ width:38px; height:38px; border-radius:10px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    background:var(--green); color:var(--cream); }
+  .eo-t{ display:block; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:20px; color:var(--green); line-height:1.1; }
+  .eo-s{ display:block; font-family:'EB Garamond',Georgia,serif; font-style:italic; font-size:13px; color:var(--muted); }
+  .dtf-scroll{ overflow-y:auto; padding:6px 14px 16px; }
+  .dtf-tbl{ width:100%; border-collapse:collapse; }
+  .dtf-tbl th{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.1em; font-size:14px; color:var(--green);
+    text-align:right; padding:9px 8px 7px; border-bottom:1px solid var(--line-strong); position:sticky; top:0; background:var(--note); }
+  .dtf-tbl th:first-child{ text-align:left; }
+  .dtf-tbl td{ font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.03em; color:var(--ink); text-align:right; padding:7px 8px; border-bottom:1px solid var(--line); }
+  .dtf-tbl td:first-child{ text-align:left; text-transform:uppercase; letter-spacing:.07em; font-size:17px; color:var(--green); }
+  .dtf-tbl tr.grp td{ border-top:2px solid var(--line-strong); }
+  .dtf-note{ font-family:'EB Garamond',Georgia,serif; font-style:italic; font-size:13px; color:var(--muted); margin:12px 2px 0; }
   .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; }
   .overlay.show{ display:flex; }
   @media(max-width:560px){ .overlay{ padding:12px 10px; } }
@@ -281,9 +301,68 @@
 <header>
   <a class="wordmark" href="/" title="Broch Custom home">BROCH CUSTOM<small>ORDERS</small></a>
   <span class="view-title" id="viewTitle"></span>
-  <button class="hbtn hist-btn" id="histBtn" title="Payment history" aria-label="Payment history"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></button>
+  <button class="hbtn" id="linksBtn" title="Links" aria-label="Links"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9.5 14.5a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14.5 9.5a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+  <button class="hbtn" id="dtfBtn" title="DTF print sizes" aria-label="DTF print sizes"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M7 8v3M12 8v4M17 8v3"/></svg></button>
   <button class="hbtn" id="viewToggle" title="Trash"></button>
 </header>
+
+<!-- LINKS -->
+<div class="overlay" id="linksOverlay">
+  <div class="hist-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Links</span>
+      <button class="icon-btn" id="linksClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="edit-opts">
+      <a class="edit-opt" href="/store">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMUY0RDNFIi8+PHBhdGggZD0iTTM4IDQyIHYtNSBhMTIgMTIgMCAwIDEgMjQgMCB2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjJFQUREIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjI3IiB5PSI0MCIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjM2IiByeD0iNyIgZmlsbD0iI0YyRUFERCIvPjwvc3ZnPg==" alt="">
+        <span><span class="eo-t">The shop</span><span class="eo-s">brochcustom.com/store</span></span>
+      </a>
+      <a class="edit-opt" href="https://tools.brochcustom.com/">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMUY0RDNFIi8+PGcgZmlsbD0iI0YyRUFERCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIj48cmVjdCB4PSItNyIgeT0iLTM0IiB3aWR0aD0iMTQiIGhlaWdodD0iMTUiIHJ4PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgwKSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDQ1KSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDkwKSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDEzNSkiLz48cmVjdCB4PSItNyIgeT0iLTM0IiB3aWR0aD0iMTQiIGhlaWdodD0iMTUiIHJ4PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgxODApIi8+PHJlY3QgeD0iLTciIHk9Ii0zNCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE1IiByeD0iMyIgdHJhbnNmb3JtPSJyb3RhdGUoMjI1KSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDI3MCkiLz48cmVjdCB4PSItNyIgeT0iLTM0IiB3aWR0aD0iMTQiIGhlaWdodD0iMTUiIHJ4PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgzMTUpIi8+PGNpcmNsZSByPSIyNCIvPjwvZz48L2c+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iMTEiIGZpbGw9IiMxRjREM0UiLz48L3N2Zz4=" alt="">
+        <span><span class="eo-t">The catalog</span><span class="eo-s">tools.brochcustom.com</span></span>
+      </a>
+      <button class="edit-opt" id="histOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <span><span class="eo-t">Payment history</span><span class="eo-s">What came in, and when</span></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DTF PRINT SIZE GUIDE -->
+<div class="overlay" id="dtfOverlay">
+  <div class="hist-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">DTF Print Sizes</span>
+      <button class="icon-btn" id="dtfClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="dtf-scroll">
+      <table class="dtf-tbl">
+        <thead><tr><th>Size</th><th>Left chest</th><th>Front</th><th>Back</th></tr></thead>
+        <tbody>
+          <tr><td>1T</td><td>2.5&Prime;</td><td>5&Prime;</td><td>5&Prime;</td></tr>
+          <tr><td>2T</td><td>2.5&Prime;</td><td>5.5&Prime;</td><td>5.5&Prime;</td></tr>
+          <tr><td>3T</td><td>3&Prime;</td><td>6&Prime;</td><td>6&Prime;</td></tr>
+          <tr><td>4T</td><td>3&Prime;</td><td>6.5&Prime;</td><td>6.5&Prime;</td></tr>
+          <tr><td>5T</td><td>3&Prime;</td><td>7&Prime;</td><td>7&Prime;</td></tr>
+          <tr class="grp"><td>Youth S</td><td>3&Prime;</td><td>8&Prime;</td><td>8&Prime;</td></tr>
+          <tr><td>Youth M</td><td>3.5&Prime;</td><td>9&Prime;</td><td>9&Prime;</td></tr>
+          <tr><td>Youth L</td><td>3.5&Prime;</td><td>10&Prime;</td><td>10&Prime;</td></tr>
+          <tr class="grp"><td>Adult S</td><td>4&Prime;</td><td>10&Prime;</td><td>10&Prime;</td></tr>
+          <tr><td>Adult M</td><td>4&Prime;</td><td>11&Prime;</td><td>11&Prime;</td></tr>
+          <tr><td>Adult L</td><td>4&Prime;</td><td>11.5&Prime;</td><td>11.5&Prime;</td></tr>
+          <tr><td>Adult XL</td><td>4&Prime;</td><td>12&Prime;</td><td>12&Prime;</td></tr>
+          <tr><td>Adult 2XL</td><td>4&Prime;</td><td>13&Prime;</td><td>13&Prime;</td></tr>
+          <tr><td>Adult 3XL</td><td>4&Prime;</td><td>14&Prime;</td><td>14&Prime;</td></tr>
+          <tr><td>Adult 4XL</td><td>4&Prime;</td><td>14&Prime;</td><td>14&Prime;</td></tr>
+          <tr><td>Adult 5XL</td><td>4&Prime;</td><td>14&Prime;</td><td>14&Prime;</td></tr>
+        </tbody>
+      </table>
+      <p class="dtf-note">Widths. Height follows the artwork.</p>
+    </div>
+  </div>
+</div>
 
 <!-- PAYMENT HISTORY OVERLAY -->
 <div class="overlay" id="histOverlay">
@@ -848,7 +927,17 @@
     if(!_histLoaded){ loadHist(); }
   }
   function closeHist(){ $('histOverlay').classList.remove('show'); }
-  $('histBtn').addEventListener('click',openHist);
+  // ── Links (shop, catalog, payment history) ──
+  $('linksBtn').addEventListener('click',function(){ $('linksOverlay').classList.add('show'); });
+  $('linksClose').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); });
+  $('linksOverlay').addEventListener('click',function(e){ if(e.target===$('linksOverlay')) $('linksOverlay').classList.remove('show'); });
+  $('histOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); openHist(); });
+
+  // ── DTF print size guide ──
+  $('dtfBtn').addEventListener('click',function(){ $('dtfOverlay').classList.add('show'); });
+  $('dtfClose').addEventListener('click',function(){ $('dtfOverlay').classList.remove('show'); });
+  $('dtfOverlay').addEventListener('click',function(e){ if(e.target===$('dtfOverlay')) $('dtfOverlay').classList.remove('show'); });
+
   $('histClose').addEventListener('click',closeHist);
   $('histOverlay').addEventListener('click',function(e){ if(e.target===$('histOverlay'))closeHist(); });
 
