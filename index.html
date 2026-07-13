@@ -145,11 +145,14 @@
   .overline::before, .overline::after { content: ""; width: 32px; height: 1px; background: currentColor; opacity: 0.4; }
   h1 { font-family: 'EB Garamond', Garamond, serif; font-size: 58px; color: var(--ink); line-height: 1.05; margin: 0 0 26px; font-weight: 500; letter-spacing: -0.005em; max-width: 760px; margin-left: auto; margin-right: auto; }
   .cta-row { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; align-items: center; }
-  .btn-solid { background: var(--green); color: var(--cream); padding: 15px 32px; font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; box-shadow: 0 2px 10px rgba(31,77,62,0.22); }
+  .btn-solid { background: var(--green); color: var(--cream); padding: 15px 34px; border-radius: 999px; font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; box-shadow: 0 2px 10px rgba(31,77,62,0.22); }
   .btn-solid:hover { background: var(--burgundy); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(74,52,36,0.28); }
   .btn-solid:active { transform: translateY(0); }
-  .btn-link { color: var(--burgundy); padding: 15px 4px; font-family: 'EB Garamond', Garamond, serif; font-size: 17px; font-style: italic; border-bottom: 1px solid var(--burgundy); transition: color 0.2s, border-color 0.2s, transform 0.15s; }
-  .btn-link:hover { color: var(--green); border-color: var(--green); transform: translateX(4px); }
+  .btn-link { display: inline-block; color: var(--burgundy); padding: 13.5px 34px; border: 1.5px solid var(--burgundy); border-radius: 999px;
+    font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500;
+    text-decoration: none; transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s; }
+  .btn-link:hover { background: var(--burgundy); color: var(--cream); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(74,52,36,0.28); }
+  .btn-link:active { transform: translateY(0); }
 
   /* SERVICES */
   .services { background: transparent; padding: 78px 6vw; }
@@ -671,7 +674,7 @@
     <button type="button" class="lang-toggle" onclick="toggleLang()" style="display:inline-flex;align-items:center;background:rgba(244,181,176,0.16);border:0.5px solid rgba(244,181,176,0.7);color:#F4B5B0;padding:9px 18px;border-radius:999px;font-family:'Teko','Oswald',sans-serif;font-size:14px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;cursor:pointer;"><span class="lang-label">Español</span></button>
     <a class="nav-pay" data-es="Tienda" href="/store.html" style="background:transparent;border:0.5px solid rgba(242,234,221,0.45);color:#F2EADD;padding:10px 18px;border-radius:999px;font-family:'Teko','Oswald',sans-serif;font-size:14px;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;">Shop</a>
     <button class="nav-pay" style="background:transparent;border:0.5px solid rgba(242,234,221,0.45);color:#F2EADD;padding:10px 18px;border-radius:999px;font-family:'Teko','Oswald',sans-serif;font-size:14px;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;" data-es="Pagar" onclick="document.getElementById('pay-dialog').showModal()">Pay</button>
-    <button class="nav-cta" style="background:#F4B5B0;color:#1F4D3E;padding:10px 20px;border:none;border-radius:999px;font-family:'Teko','Oswald',sans-serif;font-size:14px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;cursor:pointer;" data-es="Cotización" onclick="document.getElementById('quote-dialog').showModal()">Get a quote</button>
+    <button class="nav-cta" style="background:#F4B5B0;color:#1F4D3E;padding:10px 20px;border:none;border-radius:999px;font-family:'Teko','Oswald',sans-serif;font-size:14px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;cursor:pointer;" data-es="Cotización" onclick="document.getElementById('quote-dialog').showModal()">Get quote</button>
   </div>
 </nav>
 
@@ -680,7 +683,7 @@
   <p class="overline">Edinburg &middot; Texas</p>
   <h1 data-es="Bordado personalizado, estampado en ropa y artículos de marca &mdash; <em>hecho a la orden</em> en el Valle del Río Grande.">Custom embroidery, printing on apparel, and branded items &mdash; <em>made to order</em> in the RGV.</h1>
   <div class="cta-row">
-    <button class="btn-solid" data-es="Contáctanos" onclick="document.getElementById('quote-dialog').showModal()">Contact us</button>
+    <button class="btn-solid" data-es="Contáctanos" onclick="document.getElementById('contact-dialog').showModal()">Contact us</button>
     <a class="btn-link" href="https://www.facebook.com/BrochCustom" target="_blank" rel="noopener" onclick="return openFacebookFeed(event)" data-es="Ve nuestro trabajo &rarr;">See our work &rarr;</a>
   </div>
 </section>
@@ -973,7 +976,14 @@
       <button type="submit" class="btn-solid qf-send" data-es="Enviar">Send it</button>
       <p class="qf-note" id="qf-note"></p>
     </form>
-    <p class="qr-divider" data-es="O comunícate directo">Or reach us directly</p>
+  </div>
+</dialog>
+
+<dialog id="contact-dialog">
+  <div class="dialog-card">
+    <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
+    <p class="label" data-es="Contáctanos">Get in touch</p>
+    <h3 class="dialog-title" data-es="Comunícate <em>como gustes</em>">Reach us <em>any way</em></h3>
     <div class="dialog-opts">
       <a class="dialog-opt" href="https://www.google.com/maps/search/?api=1&amp;query=Broch%20Custom%20Edinburg%20TX" target="_blank" rel="noopener">
         <i class="ti ti-map-pin" aria-hidden="true"></i>
