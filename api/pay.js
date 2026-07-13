@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const { sourceId, amountCents, email, phone, items, fulfillment, shippingCents, address } = req.body || {};
+  const { sourceId, amountCents, email, phone, items, fulfillment, shippingCents, address, mockups } = req.body || {};
 
   // Basic validation — never trust the browser blindly
   if (!sourceId || !Number.isInteger(amountCents) || amountCents < 50) {
@@ -136,7 +136,7 @@ export default async function handler(req, res) {
             balanceDue: '',
             fulfillment: fulfillment || 'pickup',
             items: [],
-            images: [],
+            images: Array.isArray(mockups) ? mockups.slice(0, 3) : [],   // shirt-builder mockups → the order card
             due: '', duePreset: '',
             trashed: false, trashedAt: null,
             source: 'online',
