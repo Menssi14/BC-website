@@ -632,7 +632,8 @@
   $('toastAction').addEventListener('click',function(){ if(toastUndo){toastUndo(); $('toast').classList.remove('show');} });
 
   function daysLeft(o){ if(!o.trashedAt)return TRASH_DAYS; var d=TRASH_DAYS-Math.floor((Date.now()-o.trashedAt)/DAY); return d<0?0:d; }
-  function trashCount(){ var n=0; state.orders.forEach(function(o){if(o.trashed)n++;}); return n; }
+  function trashCount(){ var n=0; state.orders.forEach(function(o){if(o.trashed&&!o.isQuote)n++;}); return n; }
+  function qTrashCount(){ var n=0; state.orders.forEach(function(o){if(o.trashed&&o.isQuote)n++;}); return n; }
 
   function processImage(file,cb){ var rd=new FileReader(); rd.onload=function(e){ var img=new Image(); img.onload=function(){ var max=760,w=img.width,h=img.height; if(w>max||h>max){var r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);} var cv=document.createElement('canvas');cv.width=w;cv.height=h; var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,w,h);cx.drawImage(img,0,0,w,h); var out;try{out=cv.toDataURL('image/webp',.82);}catch(_){out=cv.toDataURL('image/jpeg',.85);} if(out.indexOf('image/webp')<0)out=cv.toDataURL('image/jpeg',.85); cb(out); }; img.onerror=function(){cb(null);}; img.src=e.target.result; }; rd.readAsDataURL(file); }
 
@@ -640,13 +641,25 @@
     var qn=state.orders.filter(function(o){return o.isQuote && !o.trashed;}).length;
     var qb=$('quoteBadge'); if(qb){ qb.style.display=qn?'':'none'; qb.textContent=qn; }
     if(ui.view==='quotes'){ $('viewTitle').textContent='Quotes'; }
-    if(ui.view==='trash'){ $('viewTitle').textContent='Trash'; btn.title='Back to orders'; btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>'; } else { if(ui.view!=='quotes') $('viewTitle').textContent=''; btn.title='Trash'; btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+(n?'<span class="badge">'+n+'</span>':''); } }
-  $('viewToggle').addEventListener('click',function(){ ui.view=(ui.view==='trash')?'board':'trash'; render(); });
+    if(ui.view==='qtrash'){ $('viewTitle').textContent='Quote trash'; btn.title='Back to quotes'; btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>'; }
+    else if(ui.view==='trash'){ $('viewTitle').textContent='Trash'; btn.title='Back to orders'; btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>'; }
+    else {
+      if(ui.view!=='quotes') $('viewTitle').textContent='';
+      var tn=(ui.view==='quotes')?qTrashCount():n;
+      btn.title=(ui.view==='quotes')?'Quote trash':'Trash';
+      btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+(tn?'<span class="badge">'+tn+'</span>':'');
+    } }
+  $('viewToggle').addEventListener('click',function(){
+    if(ui.view==='quotes'){ ui.view='qtrash'; }
+    else if(ui.view==='qtrash'){ ui.view='quotes'; }
+    else { ui.view=(ui.view==='trash')?'board':'trash'; }
+    render();
+  });
 
   function sortOrders(a,b){ var r=(URANK[a.urgency]==null?9:URANK[a.urgency])-(URANK[b.urgency]==null?9:URANK[b.urgency]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
 
   function render(){
-    updateHeader(); $('fab').classList.toggle('hide', ui.view==='trash');
+    updateHeader(); $('fab').classList.toggle('hide', ui.view==='trash'||ui.view==='qtrash');
     var fab=$('fab'), isQ=(ui.view==='quotes');
     fab.title = isQ ? 'Email a customer' : 'New order';
     fab.innerHTML = isQ
@@ -654,8 +667,13 @@
       : '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>';
     var board=$('board');
     if(ui.view==='trash'){
-      var tl=state.orders.filter(function(o){return o.trashed;}).sort(function(a,b){return (b.trashedAt||0)-(a.trashedAt||0);});
+      var tl=state.orders.filter(function(o){return o.trashed && !o.isQuote;}).sort(function(a,b){return (b.trashedAt||0)-(a.trashedAt||0);});
       board.innerHTML=tl.length?'<div class="section-label">Clears automatically after 14 days</div><div class="grid">'+tl.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">Trash is empty</div><p>Done and deleted orders rest here for two weeks, then clear out on their own.</p></div>';
+      wireCards(); return;
+    }
+    if(ui.view==='qtrash'){
+      var qt=state.orders.filter(function(o){return o.trashed && o.isQuote;}).sort(function(a,b){return (b.trashedAt||0)-(a.trashedAt||0);});
+      board.innerHTML=qt.length?'<div class="section-label">Clears automatically after 14 days</div><div class="grid">'+qt.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">Quote trash is empty</div><p>Deleted quotes rest here for two weeks, then clear out on their own.</p></div>';
       wireCards(); return;
     }
     if(ui.view==='quotes'){
@@ -737,7 +755,7 @@
   chooser.addEventListener('click',function(){ chooser.classList.remove('show'); });
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
-  function openEditorNew(type){ editing={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'fcfs',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true }; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(editing); buildBar(editing); overlay.classList.add('show'); setTimeout(function(){$('mTitle').focus();},60); }
+  function openEditorNew(type){ editing={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true }; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(editing); buildBar(editing); overlay.classList.add('show'); setTimeout(function(){$('mTitle').focus();},60); }
   function openEditor(id){ var o=getOrder(id); if(!o)return; editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
   function fillModal(o){
     var isNote=(o.type==='NOTE');
@@ -823,6 +841,11 @@
 
   function renderBody(){
     buildMetaControls(); buildPayControls();
+    // quotes aren't orders yet — no urgency, no payment, no balance in their editor
+    var _q=!!editing.isQuote;
+    if($('mTL')) $('mTL').style.display=_q?'none':'';
+    if($('mPay')) $('mPay').style.display=_q?'none':'';
+    if(_q && $('balRow')) $('balRow').style.display='none';
     var c=$('mBody'); c.innerHTML='';
     if(editing.type==='NOTE'){
       var ta=document.createElement('textarea'); ta.className='note-body'; ta.placeholder='Write your note…'; ta.value=editing.body||''; ta.oninput=function(e){editing.body=e.target.value;autoGrow(e.target,130);livePersist();}; c.appendChild(ta); setTimeout(function(){autoGrow(ta,130);},0);
