@@ -37,6 +37,7 @@
   .pine-bg-fixed { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
   .svg-defs { position: absolute; width: 0; height: 0; }
   .nav, .store-hero, .grid-wrap, footer { position: relative; z-index: 1; }
+  .grid-wrap { width: 100%; }
   body {
     background-color: var(--cream);
     background-image: var(--bg-cream);
@@ -47,6 +48,7 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+      display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh;
   }
   /* ── NAV ─────────────────────────────────────────── */
   .nav {
@@ -182,7 +184,7 @@
   /* ── FOOTER ──────────────────────────────────────── */
   /* ── shared footer (same in the shop, the orders app and the tools app) ── */
   .bc-foot{ background:#163829; color:rgba(242,234,221,.82); text-align:center;
-    padding:28px 20px; margin-top:50px; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:28px 20px; margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:6px;
     font-family:'EB Garamond',Georgia,serif; font-size:14px; }
   .bc-foot a{ color:#F4B5B0; text-decoration:none; }
   .bc-foot a:hover{ color:#F2EADD; }
@@ -368,6 +370,11 @@
   .dpf-txt{position:relative;display:block}
   .dpf-name{display:block;font-family:'Teko','Oswald',sans-serif;font-size:19px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);line-height:1.1}
   .dpf-meta{display:block;font-family:'EB Garamond',serif;font-style:italic;font-size:12.5px;color:rgba(74,52,36,.6);margin-top:1px}
+  .qf-in{font-family:'EB Garamond',Garamond,serif;font-size:16px;color:var(--ink);background:#fffdf8;border:1px solid #ddd3bd;border-radius:8px;padding:11px 13px;width:100%}
+  .qf-in:focus{outline:none;border-color:var(--green)}
+  textarea.qf-in{resize:vertical;min-height:56px}
+  .dp-upload{border-style:dashed;border-color:var(--green);background:rgba(31,77,62,.05)}
+  .dp-upload .dpf-name{color:var(--green)}
   .dp-back{border:1px solid #d9cfb8;background:#fffdf8;border-radius:999px;padding:5px 13px;font-family:'Teko','Oswald',sans-serif;font-size:14px;letter-spacing:.07em;text-transform:uppercase;color:#4A3424;cursor:pointer;flex:0 0 auto}
   .dp-back:hover{border-color:var(--green)}
   .dp-here{font-family:'Teko','Oswald',sans-serif;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);align-self:center;flex:0 0 auto}
@@ -1958,9 +1965,16 @@
       sel.appendChild(o);
     });
     renderBuilderPreview();
+    const custom = !!(bldDesign && bldDesign.custom);
     const price = builtPrice();
-    $('sb-price').innerHTML = (price != null ? fmt(price) : '&mdash;') + '<small>each</small>';
-    $('sb-add').disabled = !(bldColor && bldSize && bldDesign);
+    // Their own artwork isn't priced on the spot — it goes through as a quote.
+    $('sb-price').innerHTML = custom
+      ? '<small style="font-size:14px">we\u2019ll quote it</small>'
+      : (price != null ? fmt(price) : '&mdash;') + '<small>each</small>';
+    const addBtn = $('sb-add');
+    addBtn.textContent = custom ? 'Request a quote' : 'Add to cart';
+    addBtn.onclick = custom ? requestArtQuote : addBuiltToCart;
+    addBtn.disabled = !(bldColor && bldSize && bldDesign);
     const s = sizeObj(bldSize);
     $('sb-scale').textContent = (s && bldDesign)
       ? `${bldDesign.name} — printed about ${s.in}" wide, front center.`
@@ -2031,6 +2045,7 @@
   }
 
   async function addBuiltToCart() {
+    if (bldDesign && bldDesign.custom) { requestArtQuote(); return; }   // customer art is quoted, never sold blind
     if (!(bldColor && bldSize && bldDesign)) return;
     const btn = $('sb-add');
     btn.disabled = true; btn.textContent = 'Adding…';
@@ -2052,6 +2067,51 @@
     updateCartCount(); flashCart();
     btn.disabled = false; btn.textContent = 'Add to cart';
     $('shirt-dialog').close();
+  }
+
+  // ── Customer artwork → quote (not a purchase) ──
+  // Sends: their contact info, what they built (size/color), a small preview
+  // for the order card, and the ORIGINAL file — which lands in the File tab
+  // of the Tools app at full quality.
+  function requestArtQuote() {
+    $('art-quote-note').textContent = '';
+    $('art-quote-dialog').showModal();
+  }
+  async function submitArtQuote() {
+    const name = $('aq-name').value.trim();
+    const phone = $('aq-phone').value.replace(/\D/g, '');
+    const email = $('aq-email').value.trim();
+    const note = $('art-quote-note');
+    note.style.color = '#B4453B';
+    if (phone.length < 10 && !email) { note.textContent = 'Leave a phone number or email so we can reach you.'; return; }
+    const btn = $('aq-send'); btn.disabled = true; btn.textContent = 'Sending\u2026';
+    try {
+      const col = SHIRT.colors[bldColor] || {};
+      const details = 'Custom shirt \u2014 ' + [bldSize, col.label, col.material].filter(Boolean).join(' / ') +
+        '\nDesign: ' + (bldDesign.fileName || bldDesign.name) + ' (customer\u2019s own artwork)';
+      const preview = await buildMockup();          // small shirt mockup for the order card
+      const r = await fetch('/api/quote', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'store', name, phone, email,
+          message: $('aq-msg').value.trim(),
+          details,
+          preview,
+          artwork: { filename: bldDesign.fileName || (bldDesign.name + '.png'), dataUrl: bldDesign.src }
+        })
+      });
+      const d = await r.json();
+      if (d && d.ok) {
+        note.style.color = 'var(--green)';
+        note.textContent = "Got it! We\u2019ll be in touch with your quote soon.";
+        setTimeout(() => { $('art-quote-dialog').close(); $('shirt-dialog').close(); }, 1600);
+      } else {
+        note.textContent = (d && d.error) || "Couldn\u2019t send \u2014 call or text us at (956) 225-5859.";
+      }
+    } catch (e) {
+      note.textContent = 'No connection \u2014 call or text us at (956) 225-5859.';
+    }
+    btn.disabled = false; btn.textContent = 'Send for a quote';
   }
 
   // Mockups ride along to the orders app so the shop sees what was built.
@@ -2120,8 +2180,8 @@
     grid.innerHTML = '<p class="label">Loading designs&hellip;</p>';
     let list;
     try { list = await fetchCatalogDesigns(); }
-    catch (e) { grid.innerHTML = '<p class="label">Couldn\'t load the catalog.</p>'; return; }
-    if (!list.length) { grid.innerHTML = '<p class="label">No designs in the catalog yet.</p>'; return; }
+    catch (e) { list = []; }
+    if (!list.length && !forBuilder) { grid.innerHTML = '<p class="label">No designs in the catalog yet.</p>'; return; }
 
     // Same order as the catalog app — not alphabetical. "Other" (no category) last.
     const present = new Set(list.map(designCat));
@@ -2160,6 +2220,39 @@
       grid.innerHTML = '';
       const wrap = document.createElement('div');
       wrap.className = 'dp-folders';
+      if (forBuilder) {
+        // Their art, not ours → it goes through as a QUOTE, not a purchase.
+        const up = document.createElement('button');
+        up.type = 'button';
+        up.className = 'dp-folder dp-upload';
+        up.innerHTML = '<span class="dpf-emoji">\uD83C\uDFA8</span><span class="dpf-txt"><span class="dpf-name">Your own artwork</span>' +
+          '<span class="dpf-meta">Upload it \u2014 we quote it</span></span>';
+        up.onclick = () => {
+          const inp = document.createElement('input');
+          inp.type = 'file'; inp.accept = 'image/*';
+          inp.onchange = () => {
+            const f = inp.files && inp.files[0];
+            if (!f) return;
+            if (f.size > 3 * 1024 * 1024) { alert('That file is over 3 MB \u2014 too big to send through the site. Text it to us at (956) 225-5859 and we\u2019ll quote it just the same!'); return; }
+            const r = new FileReader();
+            r.onload = e => {
+              bldDesign = { src: String(e.target.result), name: f.name.replace(/\.[^.]+$/, ''), custom: true, fileName: f.name };
+              dlg.close(); renderBuilder();
+            };
+            r.readAsDataURL(f);
+          };
+          inp.click();
+        };
+        wrap.appendChild(up);
+      }
+      if (!list.length) {   // catalog empty or unreachable — the upload card still works
+        grid.appendChild(wrap);
+        const p = document.createElement('p');
+        p.className = 'label'; p.style.marginTop = '10px';
+        p.textContent = 'Our design catalog couldn\u2019t load right now.';
+        grid.appendChild(p);
+        return;
+      }
       groups.forEach(g => {
         const n = list.filter(d => designCat(d) === g).length;
         const f = folderOf(g);
@@ -2291,7 +2384,7 @@
 
         <div class="sb-foot">
           <div class="sb-price" id="sb-price">&mdash;<small>each</small></div>
-          <button class="dialog-cta" style="margin:0" id="sb-add" onclick="addBuiltToCart()">Add to cart</button>
+          <button class="dialog-cta" style="margin:0" id="sb-add">Add to cart</button>
         </div>
       </div>
     </div>
@@ -2320,6 +2413,23 @@
       </div>
       <button class="dialog-cta" onclick="saveShirtCfg()">Save</button>
       <span class="label" id="ss-status" style="display:block;margin-top:8px"></span>
+    </div>
+  </dialog>
+
+  <dialog id="art-quote-dialog">
+    <div class="dialog-card">
+      <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
+      <p class="label">Your artwork</p>
+      <h3 class="dialog-title">We&rsquo;ll <em>quote it</em></h3>
+      <p style="font-family:'EB Garamond',serif;font-size:15px;margin:0 0 12px;color:#4A3424">Custom artwork is priced by hand &mdash; leave your info and we&rsquo;ll get back to you with a price.</p>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <input class="qf-in" id="aq-name" type="text" autocomplete="name" placeholder="Your name">
+        <input class="qf-in" id="aq-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Phone (call or text)">
+        <input class="qf-in" id="aq-email" type="email" autocomplete="email" placeholder="Email (optional)">
+        <textarea class="qf-in" id="aq-msg" rows="2" placeholder="How many shirts? Anything else we should know?"></textarea>
+        <button class="dialog-cta" style="margin:0" id="aq-send" onclick="submitArtQuote()">Send for a quote</button>
+        <p id="art-quote-note" style="font-family:'EB Garamond',serif;font-style:italic;font-size:14px;text-align:center;margin:0;min-height:1em"></p>
+      </div>
     </div>
   </dialog>
 

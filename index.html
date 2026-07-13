@@ -947,11 +947,33 @@
   </div>
 </dialog>
 
+<style>
+  #quote-form{ display:flex; flex-direction:column; gap:9px; margin-bottom:16px; }
+  .qf-in{ font-family:'EB Garamond',Garamond,serif; font-size:16px; color:var(--ink);
+    background:#fffdf8; border:1px solid #ddd3bd; border-radius:8px; padding:11px 13px; width:100%; }
+  .qf-in:focus{ outline:none; border-color:var(--green); }
+  textarea.qf-in{ resize:vertical; min-height:70px; }
+  .qf-send{ margin-top:2px; }
+  .qf-send[disabled]{ opacity:.6; cursor:default; }
+  .qf-note{ font-family:'EB Garamond',serif; font-style:italic; font-size:14px; text-align:center; margin:2px 0 0; min-height:1em; }
+  .qf-note.ok{ color:var(--green); } .qf-note.err{ color:#B4453B; }
+  .qr-divider{ font-family:'Teko','Oswald',sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:13px;
+    color:#9a8d72; text-align:center; margin:0 0 10px; }
+</style>
 <dialog id="quote-dialog">
   <div class="dialog-card">
     <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
-    <p class="label" data-es="Contáctanos">Get in touch</p>
-    <h3 class="dialog-title" data-es="Comunícate <em>como gustes</em>">Reach us <em>any way</em></h3>
+    <p class="label" data-es="Cotización">Get a quote</p>
+    <h3 class="dialog-title" data-es="Cuéntanos <em>tu idea</em>">Tell us <em>your idea</em></h3>
+    <form id="quote-form" novalidate>
+      <input class="qf-in" id="qf-name" type="text" autocomplete="name" placeholder="Your name" data-es-ph="Tu nombre">
+      <input class="qf-in" id="qf-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Phone (call or text)" data-es-ph="Teléfono">
+      <input class="qf-in" id="qf-email" type="email" autocomplete="email" placeholder="Email (optional)" data-es-ph="Correo (opcional)">
+      <textarea class="qf-in" id="qf-msg" rows="3" placeholder="What do you need? Shirts, caps, embroidery, how many…" data-es-ph="¿Qué necesitas? Playeras, gorras, bordado, cuántas…"></textarea>
+      <button type="submit" class="btn-solid qf-send" data-es="Enviar">Send it</button>
+      <p class="qf-note" id="qf-note"></p>
+    </form>
+    <p class="qr-divider" data-es="O comunícate directo">Or reach us directly</p>
     <div class="dialog-opts">
       <a class="dialog-opt" href="https://www.google.com/maps/search/?api=1&amp;query=Broch%20Custom%20Edinburg%20TX" target="_blank" rel="noopener">
         <i class="ti ti-map-pin" aria-hidden="true"></i>
@@ -1466,7 +1488,52 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     });
     document.documentElement.lang = toES ? 'es' : 'en';
     document.querySelectorAll('.lang-toggle .lang-label').forEach(function(s){ s.textContent = toES ? 'English' : 'Español'; });
+    document.querySelectorAll('[data-es-ph]').forEach(function(el) {
+      if (!el.hasAttribute('data-en-ph')) el.setAttribute('data-en-ph', el.placeholder);
+      el.placeholder = toES ? el.getAttribute('data-es-ph') : el.getAttribute('data-en-ph');
+    });
   }
+</script>
+<script>
+  // ── Quote form → /api/quote ──
+  // Lands on the Orders app (💬 button) and emails the shop. No page reload.
+  (function () {
+    var form = document.getElementById('quote-form');
+    if (!form) return;
+    var note = document.getElementById('qf-note');
+    var es = function(){ return document.documentElement.lang === 'es'; };
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = document.getElementById('qf-name').value.trim();
+      var phone = document.getElementById('qf-phone').value.replace(/\D/g, '');
+      var email = document.getElementById('qf-email').value.trim();
+      var msg = document.getElementById('qf-msg').value.trim();
+      note.className = 'qf-note';
+      if (!msg) { note.textContent = es() ? 'Cuéntanos qué necesitas.' : 'Tell us what you need.'; note.classList.add('err'); return; }
+      if (phone.length < 10 && !email) { note.textContent = es() ? 'Deja un teléfono o correo para contactarte.' : 'Leave a phone number or email so we can reach you.'; note.classList.add('err'); return; }
+      var btn = form.querySelector('.qf-send');
+      btn.disabled = true;
+      note.textContent = es() ? 'Enviando…' : 'Sending…';
+      fetch('/api/quote', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'homepage', name: name, phone: phone, email: email, message: msg })
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false;
+        if (d && d.ok) {
+          note.textContent = es() ? '¡Recibido! Te contactamos pronto.' : "Got it! We'll be in touch soon.";
+          note.classList.add('ok');
+          form.reset();
+        } else {
+          note.textContent = (d && d.error) || (es() ? 'No se pudo enviar — llámanos al (956) 225-5859.' : "Couldn't send — call or text us at (956) 225-5859.");
+          note.classList.add('err');
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        note.textContent = es() ? 'Sin conexión — llámanos al (956) 225-5859.' : 'No connection — call or text us at (956) 225-5859.';
+        note.classList.add('err');
+      });
+    });
+  })();
 </script>
 </body>
 </html>
