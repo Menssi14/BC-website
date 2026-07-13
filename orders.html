@@ -109,6 +109,16 @@
   .fab:hover{ filter:brightness(1.12); box-shadow:0 10px 28px rgba(31,77,62,.46); } .fab:active{ transform:scale(.93); } .fab.hide{ display:none; }
 
   .edit-opts{ padding:12px 14px 18px; display:flex; flex-direction:column; gap:10px; }
+  .health-list{ padding:10px 16px 20px; display:flex; flex-direction:column; gap:10px; max-height:62vh; overflow-y:auto; }
+  .health-group{ font-family:'Teko',sans-serif; font-size:13px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:8px; border-bottom:1px solid var(--line); padding-bottom:3px; }
+  .health-row{ display:flex; align-items:center; gap:12px; font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink); }
+  .health-dot{ width:13px; height:13px; border-radius:50%; flex:0 0 auto; }
+  .health-dot.ok{ background:#3C8C5A; box-shadow:0 0 0 3px rgba(60,140,90,.18); }
+  .health-dot.fail{ background:#D64545; box-shadow:0 0 0 3px rgba(214,69,69,.18); }
+  .health-dot.off{ background:#c9bda2; }
+  .health-dot.wait{ background:#D9B96A; animation:hpulse 1s infinite; }
+  @keyframes hpulse{ 50%{ opacity:.35; } }
+  .health-sub{ font-family:'EB Garamond',serif; font-style:italic; font-size:13px; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:auto; }
   .email-to{ font-family:'EB Garamond',Georgia,serif; font-size:16px; color:var(--ink); background:#fffdf8;
     border:1px solid var(--line-strong); border-radius:10px; padding:11px 13px; width:100%; }
   .email-to:focus{ outline:none; border-color:var(--green); }
@@ -337,7 +347,22 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M7 8v3M12 8v4M17 8v3"/></svg></span>
         <span class="eo-t">Sizes</span>
       </button>
+      <button class="edit-opt" id="healthOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></svg></span>
+        <span class="eo-t">Health check</span>
+      </button>
     </div>
+  </div>
+</div>
+
+<!-- HEALTH CHECK -->
+<div class="overlay" id="healthOverlay">
+  <div class="hist-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Health check</span>
+      <button class="icon-btn" id="healthClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="health-list" id="healthList"></div>
   </div>
 </div>
 
@@ -1039,6 +1064,40 @@
   $('linksOverlay').addEventListener('click',function(e){ if(e.target===$('linksOverlay')) $('linksOverlay').classList.remove('show'); });
   $('histOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); openHist(); });
   $('sizesOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('dtfOverlay').classList.add('show'); });
+
+  // ── Health check: read-only pokes at every service ──
+  var HEALTH_GROUPS=[
+    ['Services', [['payments','Payments \u00b7 Square'],['email','Email \u00b7 Gmail'],['shipping_key','Shipping \u00b7 EasyPost']]],
+    ['Cloud storage', [['sb_orders','Orders & quotes'],['sb_catalog','Design catalog'],['sb_files','File sharing']]],
+    ['Backends', [['fn_pay','Checkout'],['fn_quote','Quote intake'],['fn_notify','Customer emails'],['fn_shipping','Shipping rates']]],
+    ['Pages', [['page_shop','The shop'],['page_tools','The tools app']]]
+  ];
+  var HEALTH_SUBS={ ok:'working', fail:'PROBLEM', off:'not set up', wait:'checking\u2026' };
+  function _allFail(){ var o={}; HEALTH_GROUPS.forEach(function(g){ g[1].forEach(function(p){ o[p[0]]='fail'; }); }); return o; }
+  function paintHealth(state){
+    var h='';
+    HEALTH_GROUPS.forEach(function(g){
+      h+='<div class="health-group">'+g[0]+'</div>';
+      g[1].forEach(function(pair){
+        var v=(state&&state[pair[0]])||'wait';
+        h+='<div class="health-row"><span class="health-dot '+v+'"></span>'+pair[1]+'<span class="health-sub">'+HEALTH_SUBS[v]+'</span></div>';
+      });
+    });
+    $('healthList').innerHTML=h;
+  }
+  $('healthOpen').addEventListener('click',function(){
+    $('linksOverlay').classList.remove('show');
+    $('healthOverlay').classList.add('show');
+    paintHealth(null);
+    fetch('/api/health').then(function(r){ return r.json(); }).then(function(d){
+      paintHealth((d&&d.services)||_allFail());
+    }).catch(function(){
+      paintHealth(_allFail());
+      toast('Could not reach the health check \u2014 is api/health.js deployed?');
+    });
+  });
+  $('healthClose').addEventListener('click',function(){ $('healthOverlay').classList.remove('show'); });
+  $('healthOverlay').addEventListener('click',function(e){ if(e.target===$('healthOverlay')) $('healthOverlay').classList.remove('show'); });
 
   // ── Customer emails: pick "order ready" or "payment received" ──
   var _emailOrderId=null;
