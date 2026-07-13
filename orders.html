@@ -431,7 +431,7 @@
       </div>
       <span class="kind-tag" id="kindTag"></span>
       <div id="mBody"></div>
-      <div class="urgency-section">
+      <div class="urgency-section" id="urgencySection">
         <div class="field-label">Priority</div>
         <div class="tl" id="mTL"></div>
         <div class="field-label" style="margin-top:18px">Payment <span class="opt">optional</span></div>
@@ -841,11 +841,8 @@
 
   function renderBody(){
     buildMetaControls(); buildPayControls();
-    // quotes aren't orders yet — no urgency, no payment, no balance in their editor
-    var _q=!!editing.isQuote;
-    if($('mTL')) $('mTL').style.display=_q?'none':'';
-    if($('mPay')) $('mPay').style.display=_q?'none':'';
-    if(_q && $('balRow')) $('balRow').style.display='none';
+    // quotes aren't orders yet — the whole Priority/Payment section hides
+    if($('urgencySection')) $('urgencySection').style.display=editing.isQuote?'none':'';
     var c=$('mBody'); c.innerHTML='';
     if(editing.type==='NOTE'){
       var ta=document.createElement('textarea'); ta.className='note-body'; ta.placeholder='Write your note…'; ta.value=editing.body||''; ta.oninput=function(e){editing.body=e.target.value;autoGrow(e.target,130);livePersist();}; c.appendChild(ta); setTimeout(function(){autoGrow(ta,130);},0);
