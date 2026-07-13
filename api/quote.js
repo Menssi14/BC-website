@@ -129,7 +129,7 @@ export default async function handler(req, res) {
         custEmail: email,
         contact: phone,
         body: body2,
-        urgency: '',
+        urgency: 'norush',   // must be a real urgency key — blank crashed older card code
         designReady: false,
         stage: 'New',
         payStatus: '',

@@ -23,6 +23,7 @@ export default async function handler(req, res) {
   const b = req.body || {};
   const email = (b.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)) ? String(b.email).slice(0, 200) : '';
   const name  = String(b.name || '').slice(0, 120).trim();
+  const kind  = (b.kind === 'paid') ? 'paid' : 'ready';   // only two fixed messages exist
 
   if (!email) return res.status(400).json({ ok: false, error: 'No customer email on this order.' });
 
@@ -35,14 +36,19 @@ export default async function handler(req, res) {
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const hi = name ? 'Hi ' + name + ',' : 'Hi,';
 
+  const headline = kind === 'paid'
+    ? 'We received your payment — thank you!'
+    : 'Good news — your order is ready for pickup at Broch Custom!';
+  const closing = kind === 'paid'
+    ? "We're getting started on your order and will let you know when it's ready."
+    : 'See you soon!';
+
   const text = [
     hi, '',
-    'Good news — your order is ready for pickup at Broch Custom!',
-    '',
+    headline, '',
     'Broch Custom · Edinburg, TX',
     'Call or text: (956) 225-5859',
-    '',
-    'See you soon!'
+    '', closing
   ].join('\n');
 
   const html =
@@ -51,10 +57,10 @@ export default async function handler(req, res) {
         `<div style="background:#1F4D3E;padding:18px 22px"><img src="https://brochcustom.com/broch-email-logo.png" width="216" alt="BROCH CUSTOM" style="display:block;border:0;height:auto;max-width:72%;color:#F2EADD;font-size:19px;letter-spacing:.08em"></div>` +
         `<div style="padding:22px;color:#2c2620;font-size:15px;line-height:1.55">` +
           `<p style="margin:0 0 12px">${esc(hi)}</p>` +
-          `<p style="margin:0 0 14px;font-size:17px"><strong>Good news &mdash; your order is ready for pickup!</strong></p>` +
+          `<p style="margin:0 0 14px;font-size:17px"><strong>${kind === 'paid' ? 'We received your payment &mdash; thank you!' : 'Good news &mdash; your order is ready for pickup!'}</strong></p>` +
           `<p style="margin:0 0 6px;color:#4A3424">🏬 Broch Custom &middot; Edinburg, TX</p>` +
           `<p style="margin:0 0 14px;color:#4A3424">📞 Call or text <a href="tel:9562255859" style="color:#1F4D3E">(956) 225-5859</a></p>` +
-          `<p style="margin:0;color:#4A3424">See you soon! Reply to this email with any questions.</p>` +
+          `<p style="margin:0;color:#4A3424">${kind === 'paid' ? "We're getting started on your order and will let you know when it's ready." : 'See you soon!'} Reply to this email with any questions.</p>` +
         `</div>` +
       `</div>` +
     `</div>`;
@@ -67,7 +73,7 @@ export default async function handler(req, res) {
     await mailer.sendMail({
       from: `"Broch Custom" <${MAIL_USER}>`,
       to: email,
-      subject: 'Your order is ready for pickup — Broch Custom',
+      subject: kind === 'paid' ? 'Payment received — Broch Custom' : 'Your order is ready for pickup — Broch Custom',
       text, html
     });
     return res.status(200).json({ ok: true });
