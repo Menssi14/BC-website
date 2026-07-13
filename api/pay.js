@@ -88,7 +88,7 @@ export default async function handler(req, res) {
         lines.push('📦 SHIP TO: ' + String(address || 'address missing').slice(0, 300));
         lines.push('🚚 Shipping: ' + (shippingCents > 0 ? '$' + (shippingCents / 100).toFixed(2) : 'FREE'));
       } else {
-        lines.push('🏬 Pickup at shop');
+        lines.push('🌲 Pickup at shop');
       }
       lines.push('');
       lines.push('💵 Paid: ' + paidStr);
@@ -205,7 +205,7 @@ export default async function handler(req, res) {
                     (itemsBlock ? `<pre style="font-family:inherit;white-space:pre-wrap;background:#f4eede;padding:12px 14px;border-radius:6px;margin:0 0 14px">${esc(itemsBlock)}</pre>` : '') +
                     (isShip
                       ? `<p style="margin:0 0 14px;color:#4A3424">📦 Shipping to: ${esc(String(address || '').slice(0,300))}<br>🚚 ${shippingCents > 0 ? '$' + (shippingCents/100).toFixed(2) : 'FREE'}</p>`
-                      : `<p style="margin:0 0 14px;color:#4A3424">🏬 Pickup at the shop.</p>`) +
+                      : `<p style="margin:0 0 14px;color:#4A3424">🌲 Pickup at the shop.</p>`) +
                     `<p style="margin:0 0 6px"><strong>Paid: ${paidStr}</strong></p>` +
                     (receiptUrl ? `<p style="margin:0 0 14px"><a href="${receiptUrl}" style="color:#1F4D3E">View your Square receipt</a></p>` : '') +
                     `<p style="margin:0;color:#4A3424">We'll be in touch about pickup or delivery. Reply to this email with any questions.</p>` +

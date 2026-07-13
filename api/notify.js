@@ -58,7 +58,7 @@ export default async function handler(req, res) {
         `<div style="padding:22px;color:#2c2620;font-size:15px;line-height:1.55">` +
           `<p style="margin:0 0 12px">${esc(hi)}</p>` +
           `<p style="margin:0 0 14px;font-size:17px"><strong>${kind === 'paid' ? 'We received your payment &mdash; thank you!' : 'Good news &mdash; your order is ready for pickup!'}</strong></p>` +
-          `<p style="margin:0 0 6px;color:#4A3424">🏬 Broch Custom &middot; Edinburg, TX</p>` +
+          `<p style="margin:0 0 6px;color:#4A3424">🌲 Broch Custom &middot; Edinburg, TX</p>` +
           `<p style="margin:0 0 14px;color:#4A3424">📞 Call or text <a href="tel:9562255859" style="color:#1F4D3E">(956) 225-5859</a></p>` +
           `<p style="margin:0;color:#4A3424">${kind === 'paid' ? "We're getting started on your order and will let you know when it's ready." : 'See you soon!'} Reply to this email with any questions.</p>` +
         `</div>` +
