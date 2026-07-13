@@ -331,6 +331,26 @@
   </div>
 </div>
 
+<!-- CUSTOMER EMAIL CHOOSER -->
+<div class="overlay" id="emailOverlay">
+  <div class="hist-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Email <span id="emailWho" style="text-transform:none;letter-spacing:0;font-size:14px;opacity:.75"></span></span>
+      <button class="icon-btn" id="emailClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="edit-opts">
+      <button class="edit-opt" id="emailReady" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M20 6L9 17l-5-5"/></svg></span>
+        <span class="eo-t">Order ready</span>
+      </button>
+      <button class="edit-opt" id="emailPaid" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
+        <span class="eo-t">Payment received</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- SIZE REFERENCE -->
 <div class="overlay" id="dtfOverlay">
   <div class="hist-box" onclick="event.stopPropagation()">
@@ -669,8 +689,8 @@
     h+='</div>'; return h;
   }
   function cardHTML(o){
-    var u=URGENCY[o.urgency]||URGENCY.fcfs; var imgs=o.images||[];
-    var h='<div class="card u-'+(o.urgency||'fcfs')+'" data-card="'+o.id+'">';
+    var u=URGENCY[o.urgency]||URGENCY.norush; var imgs=o.images||[];
+    var h='<div class="card u-'+(URGENCY[o.urgency]?o.urgency:'norush')+'" data-card="'+o.id+'">';
     if(imgs.length){ h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">'; imgs.slice(0,3).forEach(function(uu){h+='<img src="'+uu+'" alt="">';}); h+='</div>'; }
     h+='<div class="card-pad">';
     var _t=autoTitle(o); if(_t) h+='<h3>'+esc(_t)+'</h3>';
@@ -688,7 +708,7 @@
     if(o.trashed) tags+='<span class="tag countdown">Deletes in '+daysLeft(o)+'d</span>';
     h+='<div class="card-tags">'+tags+'</div></div>';
     if(o.trashed){ h+='<div class="card-bar"><span class="lbl" data-act="restore" data-id="'+o.id+'">Restore</span><button class="icon-btn" style="margin-left:auto" data-act="forever" data-id="'+o.id+'" title="Delete forever"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
-    else { var nxt=nextStageLabel(o); var isDone=(nxt==='Done'); h+='<div class="card-bar">'+(o.custEmail?('<button class="icon-btn'+(o.readyEmailedAt?' sent':'')+'" data-act="ready" data-id="'+o.id+'" title="'+(o.readyEmailedAt?'Ready email sent':'Email: order is ready')+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>'):'')+'<button class="done-btn'+(isDone?'':' stage-adv')+'" data-act="advance" data-id="'+o.id+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="'+(isDone?'M5 12l5 5L20 6':'M5 12h14M13 6l6 6-6 6')+'"/></svg>'+esc(nxt)+'</button><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
+    else { var nxt=nextStageLabel(o); var isDone=(nxt==='Done'); h+='<div class="card-bar">'+(o.custEmail?('<button class="icon-btn'+((o.readyEmailedAt||o.paidEmailedAt)?' sent':'')+'" data-act="ready" data-id="'+o.id+'" title="Email the customer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>'):'')+'<button class="done-btn'+(isDone?'':' stage-adv')+'" data-act="advance" data-id="'+o.id+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="'+(isDone?'M5 12l5 5L20 6':'M5 12h14M13 6l6 6-6 6')+'"/></svg>'+esc(nxt)+'</button><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
     h+='</div>'; return h;
   }
 
@@ -979,20 +999,33 @@
   $('linksOverlay').addEventListener('click',function(e){ if(e.target===$('linksOverlay')) $('linksOverlay').classList.remove('show'); });
   $('histOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); openHist(); });
 
-  // ── "Your order is ready" email ──
-  function sendReadyEmail(id){
+  // ── Customer emails: pick "order ready" or "payment received" ──
+  var _emailOrderId=null;
+  function sendReadyEmail(id){        // (kept name — the card button calls this)
     var o=getOrder(id); if(!o||!o.custEmail) return;
-    var again = o.readyEmailedAt ? '\n\n(Already sent once — this sends it again.)' : '';
-    if(!confirm('Email '+o.custEmail+' that this order is ready for pickup?'+again)) return;
+    _emailOrderId=id;
+    $('emailWho').textContent=o.custEmail;
+    $('emailOverlay').classList.add('show');
+  }
+  function _sendCustEmail(kind){
+    var o=getOrder(_emailOrderId); if(!o||!o.custEmail) return;
+    $('emailOverlay').classList.remove('show');
     toast('Sending…');
     fetch('/api/notify',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ email:o.custEmail, name:o.custName||'' })
+      body:JSON.stringify({ email:o.custEmail, name:o.custName||'', kind:kind })
     }).then(function(r){ return r.json(); }).then(function(d){
-      if(d && d.ok){ o.readyEmailedAt=Date.now(); o.updatedAt=Date.now(); render(); persist(); toast('Ready email sent to '+o.custEmail); }
-      else toast((d&&d.error)||'Could not send');
+      if(d && d.ok){
+        if(kind==='paid') o.paidEmailedAt=Date.now(); else o.readyEmailedAt=Date.now();
+        o.updatedAt=Date.now(); render(); persist();
+        toast((kind==='paid'?'Payment-received':'Ready')+' email sent to '+o.custEmail);
+      } else toast((d&&d.error)||'Could not send');
     }).catch(function(){ toast('Could not send — check your connection'); });
   }
+  $('emailReady').addEventListener('click',function(){ _sendCustEmail('ready'); });
+  $('emailPaid').addEventListener('click',function(){ _sendCustEmail('paid'); });
+  $('emailClose').addEventListener('click',function(){ $('emailOverlay').classList.remove('show'); });
+  $('emailOverlay').addEventListener('click',function(e){ if(e.target===$('emailOverlay')) $('emailOverlay').classList.remove('show'); });
 
   // ── Quotes view ──
   $('quotesBtn').addEventListener('click',function(){ ui.view=(ui.view==='quotes')?'board':'quotes'; render(); });
