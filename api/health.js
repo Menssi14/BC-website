@@ -79,7 +79,7 @@ export default async function handler(req, res) {
     fn_quote:    deployed('/api/quote'),
     fn_notify:   deployed('/api/notify'),
     fn_shipping: deployed('/api/shipping'),
-    page_shop:   pageUp(self + '/store'),
+    page_shop:   pageUp(self + '/store.html'),   // the real address — /store (no .html) doesn't exist on this site
     page_tools:  pageUp('https://tools.brochcustom.com/')
   };
 
