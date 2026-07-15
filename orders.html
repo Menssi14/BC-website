@@ -38,7 +38,7 @@
   .hbtn:hover{ filter:brightness(1.18); }
   @media(max-width:560px){ header{ gap:8px; padding:12px 13px; } .hbtn{ width:38px; height:38px; border-radius:11px; }
     .grid{ column-width:auto; column-count:2; column-gap:9px; }
-    .card .ctext{ font-size:13px; }
+    .card .ctext{ font-size:15px; line-height:1.5; }
   }
   .hbtn .badge{ position:absolute; top:-4px; right:-4px; background:var(--red); color:#fff; font-family:'Teko',sans-serif; font-weight:600; font-size:13px; min-width:18px; height:18px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 4px; }
 
@@ -47,17 +47,19 @@
   .grid{ column-gap:12px; column-width:176px; }
   .section-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.18em; font-size:14px; color:rgba(74,52,36,.5); font-weight:600; margin:4px 4px 12px; }
 
-  .card{ break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:12px; border-radius:12px; background:var(--note); border:1px solid var(--line-strong); border-top-width:5px; box-shadow:var(--shadow); overflow:hidden; cursor:pointer; transition:box-shadow .16s, transform .12s; position:relative; }
+  .card{ break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:12px; border-radius:12px; background:var(--note); border:1px solid var(--line-strong); box-shadow:var(--shadow); overflow:hidden; cursor:pointer; transition:box-shadow .16s, transform .12s; position:relative; }
   .card:hover{ box-shadow:var(--shadow-hover); transform:translateY(-1px); } .card:active{ transform:scale(.99); }
-  .card.u-asap{ border-top-color:var(--red); } .card.u-priority{ border-top-color:var(--orange); } .card.u-fcfs{ border-top-color:var(--amber); } .card.u-norush{ border-top-color:var(--go); }
   .card-imgs{ display:grid; gap:2px; } .card-imgs img{ width:100%; display:block; }
   .card-imgs.n1 img{ height:auto; max-height:230px; object-fit:cover; }
   .card-imgs.n2{ grid-template-columns:1fr 1fr; } .card-imgs.n3{ grid-template-columns:1fr 1fr 1fr; }
   .card-imgs.n2 img,.card-imgs.n3 img{ aspect-ratio:1; object-fit:cover; }
   .card-pad{ padding:11px 13px 11px; }
   .card h3{ margin:0 0 3px; font-family:'Roboto Slab',Georgia,serif; font-size:15px; font-weight:600; line-height:1.24; word-break:break-word; }
+  /* the title carries the urgency color — a full-width band, edge to edge */
+  .card h3.tinted{ padding:8px 13px 7px; border-radius:0; color:#2C2620;
+    margin:-11px -13px 9px; }
   .card .contact{ display:inline-flex; align-items:center; gap:5px; font-size:13px; color:var(--green); text-decoration:none; margin:1px 0 5px; }
-  .card .ctext{ font-size:14px; line-height:1.42; white-space:pre-wrap; word-break:break-word; overflow-wrap:anywhere; color:rgba(74,52,36,.92); }
+  .card .ctext{ font-size:15.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; overflow-wrap:anywhere; color:rgba(74,52,36,.95); }
   .card-block{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); }
   .card-block .bl{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:12px; color:rgba(74,52,36,.5); margin-bottom:4px; }
   .it-line{ font-size:14px; line-height:1.5; color:rgba(74,52,36,.92); display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
@@ -65,7 +67,7 @@
   .cdot{ width:11px; height:11px; border-radius:50%; border:1px solid rgba(74,52,36,.3); flex:none; display:inline-block; }
 
   .card-tags{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:9px; }
-  .tag{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-size:13px; font-weight:500; line-height:1; padding:3px 8px 2px; border-radius:6px; background:rgba(74,52,36,.08); color:var(--burgundy); display:flex; align-items:center; gap:5px; }
+  .tag{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:14.5px; font-weight:500; line-height:1; padding:5px 10px 4px; border-radius:999px; background:#fffdf8; border:1px solid var(--line-strong); color:var(--ink); display:flex; align-items:center; gap:6px; }
   .tag .dot{ width:8px; height:8px; border-radius:50%; }
   .tag.qty{ background:rgba(31,77,62,.10); color:var(--green); }
   .tag.due{ background:rgba(214,69,69,.13); color:#a33; } .tag.due.overdue{ background:var(--red); color:#fff; }
@@ -74,7 +76,7 @@
 
   .card-bar{ display:flex; align-items:center; gap:2px; padding:4px 6px; border-top:1px solid var(--line); opacity:0; transition:opacity .15s; }
   .card:hover .card-bar{ opacity:1; } @media(hover:none){ .card-bar{ opacity:1; } }
-  .card-bar .done-btn{ display:flex; align-items:center; gap:6px; cursor:pointer; border:none; background:none; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:14px; color:var(--green); padding:5px 8px; border-radius:7px; }
+  .card-bar .done-btn{ display:flex; align-items:center; gap:6px; cursor:pointer; border:none; background:none; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:15px; color:var(--green); padding:8px 12px; border-radius:999px; }
   .card-bar .done-btn:hover{ background:rgba(60,140,90,.12); }
   .icon-btn{ cursor:pointer; border:none; background:none; color:var(--burgundy); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .15s; }
   .icon-btn.sent{ color:var(--green); opacity:.55; }
@@ -203,6 +205,11 @@
   .useg.payseg{ opacity:1; }
   .uknob.clockknob{ display:flex; align-items:center; justify-content:center; width:32px; height:32px; background:#EDE4D3 !important; color:#4A3424; border:2px solid #fff !important; box-shadow:0 1px 5px rgba(0,0,0,.3) !important; }
   .uknob.paydollar{ display:flex; align-items:center; justify-content:center; font-family:'Teko','Oswald',sans-serif; font-weight:600; font-size:24px; line-height:1; padding-top:2px; width:32px; height:32px; background:#EDE4D3 !important; color:#fff; border:2px solid #fff !important; box-shadow:0 1px 5px rgba(0,0,0,.3) !important; text-shadow:none; }
+  .sec-toggle{ display:block; width:100%; text-align:left; margin-top:16px; cursor:pointer;
+    background:rgba(31,77,62,.05); border:1px dashed rgba(31,77,62,.35); border-radius:11px; padding:11px 14px;
+    font-family:'Teko',sans-serif; font-size:16px; letter-spacing:.09em; text-transform:uppercase; color:var(--green); }
+  .sec-toggle:hover{ background:rgba(31,77,62,.1); }
+  .sec-toggle .mt-plus{ display:inline-block; width:14px; }
   .bal-row{ display:flex; align-items:center; gap:8px; margin-top:14px; }
   .bal-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:14px; color:rgba(74,52,36,.7); }
   .bal-dollar{ font-family:'EB Garamond',serif; color:var(--burgundy); margin-left:auto; }
@@ -297,19 +304,19 @@
   .switch.on{ background:var(--go); }
   .switch .knob{ position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.28); transition:left .18s; }
   .switch.on .knob{ left:24px; }
-  .tag.stage{ font-weight:600; }
-  .tag.pay-dep{ background:rgba(232,114,44,.15); color:#B85618; }
-  .tag.pay-paid{ background:rgba(60,140,90,.15); color:#2E7048; }
-  .tag.pay-bal{ background:rgba(74,52,36,.1); color:#4A3424; }
-  .done-btn.stage-adv{ background:#E8722C; }
-  .done-btn.stage-adv:hover{ background:#d0631f; }
-  .tag.ready{ background:rgba(60,140,90,.16); color:var(--go); }
+  .tag.stage{ font-weight:600; border-color:transparent; }
+  .tag.pay-dep{ border-color:rgba(232,114,44,.5); color:#B85618; }
+  .tag.pay-paid{ background:var(--green); border-color:var(--green); color:var(--cream); }
+  .tag.pay-bal{ border-color:rgba(74,52,36,.4); }
+  .done-btn.stage-adv{ background:var(--green); color:var(--cream); padding:8px 16px; border-radius:999px; font-size:15px; }
+  .done-btn.stage-adv:hover{ background:#173D31; }
+  .tag.ready{ border-color:var(--go); color:var(--go); }
 
   .it-row{ margin-top:10px; } .it-row:first-of-type{ margin-top:2px; }
-  .it-main{ display:flex; align-items:baseline; gap:7px; font-size:17px; line-height:1.28; flex-wrap:wrap; }
-  .it-main .q{ font-family:'Teko',sans-serif; font-weight:600; font-size:20px; color:var(--green); }
+  .it-main{ display:flex; align-items:baseline; gap:7px; font-size:18px; line-height:1.3; }
+  .it-main .q{ font-family:'Teko',sans-serif; font-weight:600; font-size:20px; color:var(--green); margin-left:auto; }
   .it-main .sz{ font-weight:600; color:var(--burgundy); }
-  .it-sub{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:15px; line-height:1.4; color:rgba(74,52,36,.82); margin-top:2px; }
+  .it-sub{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:16px; line-height:1.45; color:rgba(74,52,36,.85); margin-top:2px; }
   .it-sub .cdot{ width:11px; height:11px; }
 </style>
 </head>
@@ -463,6 +470,7 @@
       </div>
       <span class="kind-tag" id="kindTag"></span>
       <div id="mBody"></div>
+      <button type="button" class="sec-toggle" id="metaToggle" style="display:none"></button>
       <div class="urgency-section" id="urgencySection">
         <div class="field-label">Priority</div>
         <div class="tl" id="mTL"></div>
@@ -728,9 +736,9 @@
     if(material && used!=='material') rest.push(esc(material));
     if(it.placement) rest.push(esc(it.placement));
     var dot = color?('<span class="cdot" style="background:'+colorHex(color)+'"></span>'):'';
-    var main='<div class="it-main"><span class="q">'+count+'\u00d7</span>';
+    var main='<div class="it-main">';
     if(used==='color' && dot) main+=dot;
-    main+='<span class="sz">'+esc(primary)+'</span></div>';
+    main+='<span class="sz">'+esc(primary)+'</span><span class="q">'+count+'\u00d7</span></div>';
     var sub='', showDot=(dot && used!=='color');
     if(rest.length || showDot || name){
       var txt=rest.join(' \u00b7 '); if(name) txt = txt?(txt+' \u2014 '+esc(name)):esc(name);
@@ -752,18 +760,17 @@
     var h='<div class="card u-'+(URGENCY[o.urgency]?o.urgency:'norush')+'" data-card="'+o.id+'">';
     if(imgs.length){ h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">'; imgs.slice(0,3).forEach(function(uu){h+='<img src="'+uu+'" alt="">';}); h+='</div>'; }
     h+='<div class="card-pad">';
-    var _t=autoTitle(o); if(_t) h+='<h3>'+esc(_t)+'</h3>';
+    var _t=autoTitle(o); if(_t) h+= o.isQuote ? '<h3>'+esc(_t)+'</h3>' : '<h3 class="tinted" style="background:'+u.color+'" title="'+u.label+'">'+esc(_t)+'</h3>';
     var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     if(o.type==='NOTE'){ if(o.body) h+='<div class="ctext">'+esc(o.body)+'</div>'; }
     else { h+=cardItemsHTML(o); }
-    var tags = o.isQuote ? '' : '<span class="tag"><span class="dot" style="background:'+u.color+'"></span>'+u.label+'</span>';
+    var tags = '';
     if(!o.trashed && !o.isQuote && o.stage && o.stage!=='New') tags+='<span class="tag stage" style="background:'+stageColor(o)+'22;color:'+stageColor(o)+'">'+esc(o.stage)+'</span>';
     if(!o.trashed && !o.isQuote && o.payStatus==='deposit') tags+='<span class="tag pay-dep">Deposit</span>';
     if(!o.trashed && !o.isQuote && o.payStatus==='paid') tags+='<span class="tag pay-paid">Paid</span>';
     if(!o.trashed && !o.isQuote && o.balanceDue) tags+='<span class="tag pay-bal">Bal $'+esc(o.balanceDue)+'</span>';
     if(o.type&&o.type!=='NOTE') tags+='<span class="tag">'+esc(o.type)+'</span>';
     if(o.source==='online') tags+='<span class="tag online">Online</span>';
-    var ic=itemCount(o); if(ic>0) tags+='<span class="tag qty">'+ic+' pcs</span>';
     if(o.trashed) tags+='<span class="tag countdown">Deletes in '+daysLeft(o)+'d</span>';
     h+= tags ? '<div class="card-tags">'+tags+'</div></div>' : '</div>';
     if(o.trashed){ h+='<div class="card-bar"><span class="lbl" data-act="restore" data-id="'+o.id+'">Restore</span><button class="icon-btn" style="margin-left:auto" data-act="forever" data-id="'+o.id+'" title="Delete forever"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
@@ -874,7 +881,33 @@
   function renderBody(){
     buildMetaControls(); buildPayControls();
     // quotes aren't orders yet — the whole Priority/Payment section hides
-    if($('urgencySection')) $('urgencySection').style.display=editing.isQuote?'none':'';
+    var us=$('urgencySection'), mt=$('metaToggle');
+    if(us && mt){
+      if(editing.isQuote){ us.style.display='none'; mt.style.display='none'; }
+      else{
+        // existing orders: fold the pickers into a one-line summary
+        var open = !!editing.isNew;
+        us.style.display = open ? '' : 'none';
+        mt.style.display = '';
+        function metaSummary(){
+          var bits=[];
+          var u=URGENCY[editing.urgency]; bits.push(u?u.label:'No rush');
+          if(editing.payStatus==='paid') bits.push('Paid');
+          else if(editing.payStatus==='deposit') bits.push('Deposit');
+          if(editing.balanceDue) bits.push('Bal $'+editing.balanceDue);
+          return bits.join(' \u00b7 ');
+        }
+        function paintMeta(){
+          mt.innerHTML = (us.style.display==='none')
+            ? '<span class="mt-plus">+</span> ' + metaSummary()
+            : '<span class="mt-plus">\u2212</span> Priority & payment';
+        }
+        mt.onclick=function(){ us.style.display=(us.style.display==='none')?'':'none'; paintMeta(); };
+        paintMeta();
+        // picker taps refresh the summary line
+        us.addEventListener('click', function(){ setTimeout(paintMeta, 30); });
+      }
+    }
     var c=$('mBody'); c.innerHTML='';
     if(editing.type==='NOTE'){
       var ta=document.createElement('textarea'); ta.className='note-body'; ta.placeholder='Write your note…'; ta.value=editing.body||''; ta.oninput=function(e){editing.body=e.target.value;autoGrow(e.target,130);livePersist();}; c.appendChild(ta); setTimeout(function(){autoGrow(ta,130);},0);
@@ -959,7 +992,14 @@
     qa.appendChild(step); qa.appendChild(addB); bld.appendChild(qa);
     var list=document.createElement('div'); fillGen(list); c.appendChild(list);
     c.appendChild(nt); setTimeout(function(){autoGrow(nt,66);},0);
-    var albl=document.createElement('div'); albl.className='desc-label'; albl.textContent='Add item'; c.appendChild(albl);
+    // Existing orders open for READING — the builder machinery folds away.
+    // New orders still open ready to build.
+    var albl=document.createElement('button'); albl.type='button'; albl.className='sec-toggle';
+    var startOpen = !!editing.isNew;
+    function paintAlbl(){ albl.innerHTML = (bld.style.display==='none' ? '+ Add item' : '\u2212 Add item'); }
+    bld.style.display = startOpen ? '' : 'none';
+    albl.onclick = function(){ bld.style.display = (bld.style.display==='none') ? '' : 'none'; paintAlbl(); };
+    c.appendChild(albl); paintAlbl();
     c.appendChild(bld);
     addB.onclick=function(){ var n=Math.max(1,builder.qty||1); for(var i=0;i<n;i++)editing.items.push({size:builder.size,color:builder.color,surface:builder.surface,material:builder.material,placement:builder.placement,name:''}); fillGen(list); livePersist(); toast('Added '+n+(n>1?' items':' item')); };
   }
