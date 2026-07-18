@@ -228,6 +228,16 @@
 
   .note-body{ width:100%; border:1px solid var(--line-strong); outline:none; background:var(--cream); resize:none; font-family:'EB Garamond',serif; font-size:18px; line-height:1.6; color:var(--burgundy); min-height:130px; border-radius:11px; padding:12px 14px; }
   .note-body:focus{ border-color:var(--green); }
+  .note-wrap{ position:relative; display:flex; flex-direction:column; }
+  .mic-btn{ position:absolute; right:9px; bottom:26px; width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--line-strong); background:var(--note); color:var(--green);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .mic-btn:hover{ border-color:var(--green); }
+  .mic-btn.rec{ background:#C0554A; border-color:#C0554A; color:#fff; animation:micpulse 1.1s infinite; }
+  @keyframes micpulse{ 50%{ opacity:.55; } }
+  .note-stamp{ font-family:'EB Garamond',serif; font-style:italic; font-size:12.5px; color:rgba(74,52,36,.45);
+    margin-top:5px; padding-right:46px; text-align:right; opacity:0; transition:opacity .25s; pointer-events:none; }
+  .note-stamp.show{ opacity:1; }
   .note-body::placeholder{ color:rgba(74,52,36,.34); }
 
   .builder{ background:rgba(242,234,221,.55); border:1px solid var(--line); border-radius:11px; padding:12px; }
@@ -914,12 +924,66 @@
       }
     }
     var c=$('mBody'); c.innerHTML='';
+    // Dictation + "last edited" stamp, shared by both note fields.
+    function noteExtras(ta, min){
+      var wrap=document.createElement('div'); wrap.className='note-wrap';
+      ta.parentNode && ta.parentNode.removeChild(ta);
+      wrap.appendChild(ta);
+
+      // tap the note to see when it was last touched
+      var stamp=document.createElement('div'); stamp.className='note-stamp show';
+      function stampText(){
+        var t=editing.createdAt;
+        if(!t) return 'New order';
+        var d=new Date(t), now=new Date();
+        var sameDay=d.toDateString()===now.toDateString();
+        var time=d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+        var year=(d.getFullYear()!==now.getFullYear()) ? (', '+d.getFullYear()) : '';
+        return sameDay ? ('Started today at '+time)
+                       : ('Started '+d.toLocaleDateString([], {month:'short', day:'numeric'})+year+' at '+time);
+      }
+      stamp.textContent=stampText();   // the created date never changes — set it once
+
+      // 🎤 dictation — speak instead of type
+      var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(SR){
+        var mic=document.createElement('button'); mic.type='button'; mic.className='mic-btn'; mic.title='Dictate a note';
+        mic.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
+        var rec=null, listening=false;
+        mic.onclick=function(){
+          if(listening && rec){ rec.stop(); return; }
+          try{
+            rec=new SR(); rec.lang='en-US'; rec.interimResults=true; rec.continuous=true;
+            var startLen=(ta.value||'').length, finalAdd='';
+            rec.onstart=function(){ listening=true; mic.classList.add('rec'); };
+            rec.onresult=function(ev){
+              var interim='';
+              for(var i=ev.resultIndex;i<ev.results.length;i++){
+                var t=ev.results[i][0].transcript;
+                if(ev.results[i].isFinal) finalAdd+=t; else interim+=t;
+              }
+              var base=(ta.value||'').slice(0,startLen);
+              var sep=(base && !/\s$/.test(base))?' ':'';
+              ta.value=base+sep+finalAdd+interim;
+              editing.body=ta.value; autoGrow(ta,min); livePersist();
+            };
+            rec.onerror=function(e){ toast(e.error==='not-allowed'?'Microphone blocked — allow it in your browser':'Could not hear that'); };
+            rec.onend=function(){ listening=false; mic.classList.remove('rec'); };
+            rec.start();
+            toast('Listening… tap the mic again to stop');
+          }catch(e){ toast('Dictation is not available on this browser'); }
+        };
+        wrap.appendChild(mic);
+      }
+      wrap.appendChild(stamp);
+      return wrap;
+    }
     if(editing.type==='NOTE'){
-      var ta=document.createElement('textarea'); ta.className='note-body'; ta.placeholder='Write your note…'; ta.value=editing.body||''; ta.oninput=function(e){editing.body=e.target.value;autoGrow(e.target,130);livePersist();}; c.appendChild(ta); setTimeout(function(){autoGrow(ta,130);},0);
+      var ta=document.createElement('textarea'); ta.className='note-body'; ta.placeholder='Write your note…'; ta.value=editing.body||''; ta.oninput=function(e){editing.body=e.target.value;autoGrow(e.target,130);livePersist();}; c.appendChild(noteExtras(ta,130)); setTimeout(function(){autoGrow(ta,130);},0);
       return;
     }
     // optional notes (placed below the items)
-    var nt=document.createElement('textarea'); nt.className='notes-body'; nt.placeholder='Notes (optional)…'; nt.value=editing.body||''; nt.oninput=function(e){editing.body=e.target.value;autoGrow(e.target,66);livePersist();}; nt.style.marginTop='6px';
+    var nt=document.createElement('textarea'); nt.className='notes-body'; nt.placeholder='Notes (optional)…'; nt.value=editing.body||''; nt.oninput=function(e){editing.body=e.target.value;autoGrow(e.target,66);livePersist();}; nt.style.marginTop='6px'; var ntWrap=null; setTimeout(function(){ if(nt.parentNode && !ntWrap){ var holder=nt.parentNode, next=nt.nextSibling; ntWrap=noteExtras(nt,66); holder.insertBefore(ntWrap,next); } },0);
     // variant builder
     var bld=document.createElement('div'); bld.className='builder';
     var isEng=(editing.type==='Engraving');
