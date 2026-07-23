@@ -45,6 +45,19 @@
   .wrap{ max-width:1120px; margin:0 auto; padding:18px 12px 130px; overflow-x:clip; }
   .card{ overflow-wrap:anywhere; }
   .grid{ column-gap:12px; column-width:176px; }
+  .tfilter{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:0 0 12px; }
+  .tf-toggle{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:12.5px;
+    padding:4px 12px 3px; border-radius:999px; cursor:pointer;
+    border:1px solid var(--line-strong); background:none; color:rgba(74,52,36,.55); }
+  .tf-toggle:hover{ border-color:var(--green); color:var(--green); }
+  .tf-toggle.open{ border-color:var(--green); color:var(--green); }
+  .tf-toggle.active{ background:var(--pink); border-color:var(--pink); color:var(--burgundy); }
+  .tf-opts{ display:inline-flex; gap:6px; flex-wrap:wrap; }
+  .tf{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:12.5px;
+    padding:4px 11px 3px; border-radius:999px; cursor:pointer;
+    border:1px solid var(--line-strong); background:none; color:rgba(74,52,36,.6); }
+  .tf:hover{ border-color:var(--green); color:var(--green); }
+  .tf.on{ background:var(--green); border-color:var(--green); color:var(--cream); }
   .section-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.18em; font-size:14px; color:rgba(74,52,36,.5); font-weight:600; margin:4px 4px 12px; }
 
   .card{ break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:12px; border-radius:12px; background:var(--note); border:1px solid var(--line-strong); box-shadow:var(--shadow); overflow:hidden; cursor:pointer; transition:box-shadow .16s, transform .12s; position:relative; }
@@ -552,7 +565,7 @@
   var TYPES=['Embroidery','DTF','Sublimation','Engraving','NOTE'];
   var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
-  var state={orders:[]}; var ui={view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
+  var state={orders:[]}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
 
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
@@ -710,6 +723,10 @@
 
   function sortOrders(a,b){ var r=(URANK[a.urgency]==null?9:URANK[a.urgency])-(URANK[b.urgency]==null?9:URANK[b.urgency]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
 
+  // tiny type filter — '' means show everything
+  function typeCounts(list){
+    var c={}; list.forEach(function(o){ c[o.type]=(c[o.type]||0)+1; }); return c;
+  }
   function render(){
     updateHeader(); $('fab').classList.toggle('hide', ui.view==='trash'||ui.view==='qtrash');
     var fab=$('fab'), isQ=(ui.view==='quotes');
@@ -733,9 +750,53 @@
       board.innerHTML=ql.length?'<div class="grid">'+ql.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">No quotes right now</div><p>Quote requests from the website and customer artwork from the shop land here on their own.</p></div>';
       wireCards(); return;
     }
-    var list=state.orders.filter(function(o){return !o.trashed && !o.isQuote;}).sort(sortOrders);
-    if(list.length===0){ board.innerHTML='<div class="empty-state"><div class="big">No orders yet</div><p>Tap the + button to add one. Online orders arrive here on their own.</p></div>'; return; }
-    board.innerHTML='<div class="grid">'+list.map(cardHTML).join('')+'</div>'; wireCards();
+    var all=state.orders.filter(function(o){return !o.trashed && !o.isQuote;}).sort(sortOrders);
+    if(all.length===0){ board.innerHTML='<div class="empty-state"><div class="big">No orders yet</div><p>Tap the + button to add one. Online orders arrive here on their own.</p></div>'; return; }
+
+    // build the filter menu from what's actually on the board
+    // always the same four choices, whether or not the board has any right now
+    var kinds=[
+      {k:'Embroidery', label:'Embroidery', test:function(o){ return o.type==='Embroidery'; }},
+      {k:'DTF',        label:'DTF',        test:function(o){ return o.type==='DTF'; }},
+      {k:'Engraving',  label:'Engraving',  test:function(o){ return o.type==='Engraving'; }},
+      {k:'@online',    label:'Online',     test:function(o){ return o.source==='online'; }}
+    ];
+
+    var active=null;
+    kinds.forEach(function(f){ if(f.k===ui.typeFilter) active=f; });
+    if(ui.typeFilter && !active) ui.typeFilter='';
+    var bar='';
+    {
+      var openCls=ui.filterOpen?' open':'';
+      bar='<div class="tfilter">'+
+        '<button class="tf-toggle'+(active?' active':'')+openCls+'" data-tfopen="1">'+
+          (active?esc(active.label):'Filter')+
+        '</button>'+
+        (ui.filterOpen
+          ? '<span class="tf-opts">'+
+              '<button class="tf'+(ui.typeFilter?'':' on')+'" data-tf="">All</button>'+
+              kinds.map(function(f){
+                return '<button class="tf'+(ui.typeFilter===f.k?' on':'')+'" data-tf="'+esc(f.k)+'">'+esc(f.label)+'</button>';
+              }).join('')+
+            '</span>'
+          : '')+
+        '</div>';
+    }
+
+    var list=active ? all.filter(active.test) : all;
+    board.innerHTML=bar+(list.length
+      ? '<div class="grid">'+list.map(cardHTML).join('')+'</div>'
+      : '<div class="empty-state"><div class="big">Nothing here</div><p>No '+esc(active?active.label:'')+' orders on the board right now.</p></div>');
+    var tog=board.querySelector('[data-tfopen]');
+    if(tog) tog.addEventListener('click',function(){ ui.filterOpen=!ui.filterOpen; render(); });
+    board.querySelectorAll('.tf').forEach(function(b){
+      b.addEventListener('click',function(){
+        ui.typeFilter=b.getAttribute('data-tf');
+        ui.filterOpen=false;          // pick one and it tucks away again
+        render();
+      });
+    });
+    wireCards();
   }
 
   function itemLineHTML(it,count){
