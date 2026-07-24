@@ -187,6 +187,11 @@
     padding:9px 12px; cursor:pointer; font-family:'EB Garamond',serif; font-size:14px; color:var(--burgundy); }
   .lbl-pick .pk:hover{ border-color:var(--green); border-style:solid; }
   .lbl-pick .pk b{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:15px; }
+  .lbl-verify{ font-family:'EB Garamond',serif; font-size:13.5px; min-height:0; }
+  .lbl-verify.ok{ color:var(--go); }
+  .lbl-verify.warn{ color:#B85618; }
+  .lbl-verify.bad{ color:#C0554A; }
+  .lbl-verify.busy{ color:rgba(var(--ink-rgb),.55); font-style:italic; }
   .lbl-note{ font-family:'EB Garamond',serif; font-style:italic; font-size:13px; color:rgba(var(--ink-rgb),.6); }
   .btn-wide{ width:100%; background:var(--green); color:var(--cream); border:none; border-radius:999px;
     font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:17px;
@@ -513,6 +518,7 @@
         <p><b>Lost the label?</b> Every label you buy is saved in your EasyPost dashboard with its tracking number &mdash; reprint from there instead of buying another.</p>
       </div>
       <div class="lbl-pick" id="lbPick"></div>
+      <div class="lbl-verify" id="lbVerify"></div>
       <div class="lbl-note">Weight is required. A shirt in a poly mailer is usually 6&ndash;10&nbsp;oz.</div>
       <button class="btn-wide" id="lbRate">Check prices</button>
       <div id="lbRates"></div>
@@ -1459,9 +1465,40 @@
     $('lbRates').innerHTML=''; $('lbResult').innerHTML='';
     $('lbRate').disabled=false; $('lbRate').textContent='Check prices';
     $('lbHelp').classList.remove('show');
+    lbSetVerify('','');
     buildLabelPicker();
     $('labelOverlay').classList.add('show');
   });
+  // ── Address check: confirms it's real and fills in city/state from the ZIP ──
+  var _lbVerifyTimer=null;
+  function lbSetVerify(cls, msg){
+    var el=$('lbVerify'); el.className='lbl-verify '+(cls||''); el.textContent=msg||'';
+  }
+  function lbVerifyAddress(){
+    var zip=lbVal('lbZip'), street=lbVal('lbStreet'), city=lbVal('lbCity');
+    if(!/^\d{5}$/.test(zip) && !(street && city)) { lbSetVerify('',''); return; }
+    lbSetVerify('busy','Checking address\u2026');
+    fetch('/api/label',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ action:'verify', to:{ street:street, city:city, state:lbVal('lbState'), zip:zip } })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(!d || !d.ok){ lbSetVerify('bad', (d&&d.error)||'Address not found'); return; }
+      var a=d.address||{};
+      // fill in what USPS knows — city and state come free from the ZIP
+      if(a.city)  $('lbCity').value=a.city;
+      if(a.state) $('lbState').value=a.state;
+      if(a.zip)   $('lbZip').value=a.zip;
+      if(a.street && street) $('lbStreet').value=a.street;   // corrected spelling/abbreviations
+      if(d.warning) lbSetVerify('warn','\u26A0 '+d.warning);
+      else lbSetVerify('ok','\u2713 Address confirmed \u2014 '+[a.city,a.state,a.zip].filter(Boolean).join(', '));
+    }).catch(function(){ lbSetVerify('bad','Could not check that address'); });
+  }
+  function lbVerifySoon(){ clearTimeout(_lbVerifyTimer); _lbVerifyTimer=setTimeout(lbVerifyAddress, 500); }
+  ['lbZip','lbStreet','lbCity','lbState'].forEach(function(id){
+    $(id).addEventListener('blur', lbVerifyAddress);
+    $(id).addEventListener('input', function(){ if(id==='lbZip' && lbVal('lbZip').length===5) lbVerifySoon(); });
+  });
+
   $('lbHelpBtn').addEventListener('click',function(){ $('lbHelp').classList.toggle('show'); });
   $('labelClose').addEventListener('click',function(){ $('labelOverlay').classList.remove('show'); });
   $('labelOverlay').addEventListener('click',function(e){ if(e.target===$('labelOverlay')) $('labelOverlay').classList.remove('show'); });
