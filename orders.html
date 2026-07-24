@@ -27,7 +27,7 @@
     font-display: swap;
   }
 
-  :root{ --ink-rgb:74,52,36; --cream:#F2EADD; --note:#FBF7F0; --green:#1F4D3E; --burgundy:#4A3424; --pink:#F4B5B0; --red:#D64545; --orange:#E8722C; --amber:#E0A82E; --go:#3C8C5A; --line:rgba(var(--ink-rgb),.14); --line-strong:rgba(var(--ink-rgb),.28); --shadow:0 1px 2px rgba(var(--ink-rgb),.10),0 2px 10px rgba(var(--ink-rgb),.06); --shadow-hover:0 4px 8px rgba(var(--ink-rgb),.13),0 10px 28px rgba(var(--ink-rgb),.12); }
+  :root{ --ink-rgb:74,52,36; --tag-bg:#fffdf8; --cream:#F2EADD; --note:#FBF7F0; --green:#1F4D3E; --burgundy:#4A3424; --pink:#F4B5B0; --red:#D64545; --orange:#E8722C; --amber:#E0A82E; --go:#3C8C5A; --line:rgba(var(--ink-rgb),.14); --line-strong:rgba(var(--ink-rgb),.28); --shadow:0 1px 2px rgba(var(--ink-rgb),.10),0 2px 10px rgba(var(--ink-rgb),.06); --shadow-hover:0 4px 8px rgba(var(--ink-rgb),.13),0 10px 28px rgba(var(--ink-rgb),.12); }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   /* ── Dark mode: the Broch palette after sundown ──
@@ -35,6 +35,7 @@
      data-theme so YOU choose it, not the phone. */
   html[data-theme="dark"]{
     --ink-rgb:239,230,212;    /* all the soft text follows the theme now */
+    --tag-bg:#1C3A31;         /* tag pills sit on forest, not white */
     --cream:#0E1F19;              /* page — deep forest */
     --note:#16302A;               /* cards & sheets — a shade lifted */
     --green:#EFE6D4;              /* accent + fills = warm cream */
@@ -68,6 +69,7 @@
   html[data-theme="dark"] .bal-input,
   html[data-theme="dark"] .cust-name,
   html[data-theme="dark"] .email-to{ background:#112A23; color:var(--burgundy); }
+  html[data-theme="dark"] .kind-tag{ color:var(--burgundy); background:rgba(239,230,212,.10); }
   html[data-theme="dark"] .note-stamp{ color:rgba(239,230,212,.45); }
   html[data-theme="dark"] .empty-state{ color:rgba(239,230,212,.6); }
 
@@ -125,7 +127,7 @@
   .cdot{ width:11px; height:11px; border-radius:50%; border:1px solid rgba(var(--ink-rgb),.3); flex:none; display:inline-block; }
 
   .card-tags{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:9px; }
-  .tag{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:14.5px; font-weight:500; line-height:1; padding:5px 10px 4px; border-radius:999px; background:#fffdf8; border:1px solid var(--line-strong); color:var(--ink); display:flex; align-items:center; gap:6px; }
+  .tag{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:14.5px; font-weight:500; line-height:1; padding:5px 10px 4px; border-radius:999px; background:var(--tag-bg); border:1px solid var(--line-strong); color:var(--burgundy); display:flex; align-items:center; gap:6px; }
   .tag .dot{ width:8px; height:8px; border-radius:50%; }
   .tag.qty{ background:rgba(31,77,62,.10); color:var(--green); }
   .tag.due{ background:rgba(214,69,69,.13); color:#a33; } .tag.due.overdue{ background:var(--red); color:#fff; }
@@ -171,7 +173,7 @@
   .edit-opts{ padding:12px 14px 18px; display:flex; flex-direction:column; gap:10px; }
   .health-list{ padding:10px 16px 20px; display:flex; flex-direction:column; gap:10px; max-height:62vh; overflow-y:auto; }
   .health-group{ font-family:'Teko',sans-serif; font-size:13px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:8px; border-bottom:1px solid var(--line); padding-bottom:3px; }
-  .health-row{ display:flex; align-items:center; gap:12px; font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink); }
+  .health-row{ display:flex; align-items:center; gap:12px; font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.05em; text-transform:uppercase; color:var(--burgundy); }
   .health-dot{ width:13px; height:13px; border-radius:50%; flex:0 0 auto; }
   .health-dot.ok{ background:#3C8C5A; box-shadow:0 0 0 3px rgba(60,140,90,.18); }
   .health-dot.fail{ background:#D64545; box-shadow:0 0 0 3px rgba(214,69,69,.18); }
@@ -179,7 +181,7 @@
   .health-dot.wait{ background:#D9B96A; animation:hpulse 1s infinite; }
   @keyframes hpulse{ 50%{ opacity:.35; } }
   .health-sub{ font-family:'EB Garamond',serif; font-style:italic; font-size:13px; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:auto; }
-  .email-to{ font-family:'EB Garamond',Georgia,serif; font-size:16px; color:var(--ink); background:#fffdf8;
+  .email-to{ font-family:'EB Garamond',Georgia,serif; font-size:16px; color:var(--burgundy); background:#fffdf8;
     border:1px solid var(--line-strong); border-radius:10px; padding:11px 13px; width:100%; }
   .email-to:focus{ outline:none; border-color:var(--green); }
   .edit-opt{ display:flex; align-items:center; gap:13px; text-decoration:none; padding:12px 14px;
