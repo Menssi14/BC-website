@@ -93,6 +93,40 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, shipmentId: data.id, rates });
     }
 
+    // ── TYPE-AHEAD: real address suggestions as you type (Geoapify) ──
+    //  Add GEOAPIFY_KEY in Vercel. Free tier, no card needed.
+    //  Geoapify returns the split-out address with each suggestion, so
+    //  picking one needs no second lookup.
+    if (body.action === 'suggest') {
+      const GKEY = process.env.GEOAPIFY_KEY;
+      if (!GKEY) return res.status(200).json({ ok: true, suggestions: [], disabled: true });
+      const q = String(body.q || '').trim();
+      if (q.length < 4) return res.status(200).json({ ok: true, suggestions: [] });
+      const url = 'https://api.geoapify.com/v1/geocode/autocomplete'
+        + '?text=' + encodeURIComponent(q)
+        + '&filter=countrycode:us'
+        + '&format=json&limit=5&apiKey=' + GKEY;
+      const r = await timed(fetch(url), 8000);
+      const d = await r.json();
+      const rows = (d && d.results) || [];
+      if (!rows.length) return res.status(200).json({ ok: true, suggestions: [] });
+      return res.status(200).json({
+        ok: true,
+        suggestions: rows.map(p => {
+          const street = [p.housenumber, p.street].filter(Boolean).join(' ');
+          return {
+            text: p.formatted || [street, p.city, p.state_code, p.postcode].filter(Boolean).join(', '),
+            address: {
+              street,
+              city: p.city || p.town || p.village || '',
+              state: p.state_code || '',
+              zip: (p.postcode || '').slice(0, 5)
+            }
+          };
+        }).filter(x => x.address.zip)      // no ZIP, no label — skip it
+      });
+    }
+
     // ── ADDRESS CHECK: is this a real, deliverable address? ──
     //  Send whatever the user typed; USPS's database fills in the rest
     //  (city and state come back from the ZIP) and corrects the street.
