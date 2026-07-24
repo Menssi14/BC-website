@@ -187,6 +187,17 @@
     padding:9px 12px; cursor:pointer; font-family:'EB Garamond',serif; font-size:14px; color:var(--burgundy); }
   .lbl-pick .pk:hover{ border-color:var(--green); border-style:solid; }
   .lbl-pick .pk b{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:15px; }
+  .lbl-ac{ position:relative; }
+  .lbl-ac .email-to{ width:100%; }
+  .ac-list{ display:none; position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:40;
+    background:var(--note); border:1px solid var(--line-strong); border-radius:12px; overflow:hidden;
+    box-shadow:var(--shadow-hover); }
+  .ac-list.show{ display:block; }
+  .ac-item{ display:block; width:100%; text-align:left; background:none; border:none; cursor:pointer;
+    padding:11px 13px; font-family:'EB Garamond',serif; font-size:14.5px; color:var(--burgundy);
+    border-bottom:1px solid var(--line); }
+  .ac-item:last-child{ border-bottom:none; }
+  .ac-item:hover, .ac-item.on{ background:rgba(31,77,62,.10); }
   .lbl-verify{ font-family:'EB Garamond',serif; font-size:13.5px; min-height:0; }
   .lbl-verify.ok{ color:var(--go); }
   .lbl-verify.warn{ color:#B85618; }
@@ -494,7 +505,10 @@
       <div class="lbl-grid">
         <input class="email-to" id="lbName" placeholder="Customer name" autocomplete="name">
         <input class="email-to" id="lbPhone" placeholder="Phone (optional)" inputmode="tel" autocomplete="tel">
-        <input class="email-to lbl-wide" id="lbStreet" placeholder="Street address" autocomplete="street-address">
+        <div class="lbl-ac lbl-wide">
+          <input class="email-to" id="lbStreet" placeholder="Start typing the address…" autocomplete="off">
+          <div class="ac-list" id="lbAcList"></div>
+        </div>
         <input class="email-to" id="lbCity" placeholder="City" autocomplete="address-level2">
         <div class="lbl-row2">
           <input class="email-to" id="lbState" placeholder="TX" maxlength="2" autocomplete="address-level1">
@@ -1469,6 +1483,44 @@
     buildLabelPicker();
     $('labelOverlay').classList.add('show');
   });
+  // ── Type-ahead: real addresses appear as you type; tap one to fill everything ──
+  var _acTimer=null, _acOn=false;
+  function acHide(){ $('lbAcList').classList.remove('show'); }
+  function acShow(items){
+    var box=$('lbAcList');
+    if(!items.length){ acHide(); return; }
+    box.innerHTML=items.map(function(it,i){
+      return '<button type="button" class="ac-item" data-i="'+i+'">'+esc(it.text)+'</button>';
+    }).join('');
+    box.classList.add('show');
+    box.querySelectorAll('.ac-item').forEach(function(b){
+      b.addEventListener('click',function(){
+        acHide();
+        var a=(items[+b.getAttribute('data-i')]||{}).address||{};
+        $('lbStreet').value=a.street||'';
+        $('lbCity').value=a.city||'';
+        $('lbState').value=a.state||'';
+        $('lbZip').value=(a.zip||'').slice(0,5);
+        lbVerifyAddress();            // confirm it's deliverable too
+        $('lbOz').focus();
+      });
+    });
+  }
+  $('lbStreet').addEventListener('input',function(){
+    var q=lbVal('lbStreet');
+    clearTimeout(_acTimer);
+    if(q.length<4){ acHide(); return; }
+    _acTimer=setTimeout(function(){
+      fetch('/api/label',{ method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ action:'suggest', q:q })
+      }).then(function(r){return r.json();}).then(function(d){
+        if(d && d.disabled){ _acOn=false; acHide(); return; }   // no key set — silent fallback
+        _acOn=true; acShow((d&&d.suggestions)||[]);
+      }).catch(acHide);
+    }, 260);
+  });
+  $('lbStreet').addEventListener('blur',function(){ setTimeout(acHide,180); });
+
   // ── Address check: confirms it's real and fills in city/state from the ZIP ──
   var _lbVerifyTimer=null;
   function lbSetVerify(cls, msg){
@@ -1495,7 +1547,7 @@
   }
   function lbVerifySoon(){ clearTimeout(_lbVerifyTimer); _lbVerifyTimer=setTimeout(lbVerifyAddress, 500); }
   ['lbZip','lbStreet','lbCity','lbState'].forEach(function(id){
-    $(id).addEventListener('blur', lbVerifyAddress);
+    $(id).addEventListener('blur', function(){ if(!(id==='lbStreet' && _acOn)) lbVerifyAddress(); });
     $(id).addEventListener('input', function(){ if(id==='lbZip' && lbVal('lbZip').length===5) lbVerifySoon(); });
   });
 
