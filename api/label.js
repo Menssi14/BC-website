@@ -93,6 +93,53 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, shipmentId: data.id, rates });
     }
 
+    // ── ADDRESS CHECK: is this a real, deliverable address? ──
+    //  Send whatever the user typed; USPS's database fills in the rest
+    //  (city and state come back from the ZIP) and corrects the street.
+    if (body.action === 'verify') {
+      const t = body.to || {};
+      if (!t.zip && !t.city) {
+        return res.status(400).json({ ok: false, error: 'Enter a ZIP or a city first.' });
+      }
+      const r = await timed(fetch('https://api.easypost.com/v2/addresses/create_and_verify', {
+        method: 'POST', headers,
+        body: JSON.stringify({
+          address: {
+            street1: String(t.street || '').slice(0, 100),
+            street2: String(t.street2 || '').slice(0, 100),
+            city: String(t.city || '').slice(0, 50),
+            state: String(t.state || '').slice(0, 20),
+            zip: String(t.zip || '').slice(0, 10),
+            country: 'US'
+          }
+        })
+      }));
+      const data = await r.json();
+      const a = data && (data.address || data);
+      if (!r.ok || !a || !a.zip) {
+        const msg = (data && data.error && data.error.message) || 'That address could not be found.';
+        return res.status(422).json({ ok: false, error: msg });
+      }
+      // EasyPost reports problems here even when it returns something
+      let warning = '';
+      try {
+        const v = a.verifications && a.verifications.delivery;
+        if (v && v.success === false) warning = (v.errors && v.errors[0] && v.errors[0].message) || 'Address may not be deliverable.';
+        else if (v && v.details && v.details.dpv_confirmation === 'D') warning = 'Missing apartment or unit number.';
+      } catch (_) {}
+      return res.status(200).json({
+        ok: true,
+        warning,
+        address: {
+          street: a.street1 || '',
+          street2: a.street2 || '',
+          city: a.city || '',
+          state: a.state || '',
+          zip: (a.zip || '').slice(0, 5)
+        }
+      });
+    }
+
     // ── STEP 2: buy the chosen rate and return the printable label ──
     if (body.action === 'buy') {
       const sid = String(body.shipmentId || '');
