@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1F4D3E">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -689,7 +692,7 @@
         render();
       }
       var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
-      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true}).then(function(r){ syncShow(r&&r.error?'Save failed':'Saved'); });
+      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ syncShow(r&&r.error?'Save failed':'Saved'); });
     }catch(e){ syncShow('Save failed'); }
   }
   function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate);}catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
@@ -1283,9 +1286,9 @@
   $('linksOverlay').addEventListener('click',function(e){ if(e.target===$('linksOverlay')) $('linksOverlay').classList.remove('show'); });
   $('histOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); openHist(); });
   // ── Appearance: Auto / Light / Dark ──
-  var THEMES=['auto','light','dark'];
+  var THEMES=['light','dark','auto'];   // Light is the default
   function applyTheme(){
-    var t=localStorage.getItem('bc-theme')||'auto';
+    var t=localStorage.getItem('bc-theme')||'light';
     var dark = (t==='dark') || (t==='auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.setAttribute('data-theme', dark?'dark':'light');
     var lbl=$('themeNow'); if(lbl) lbl.textContent='· '+t.charAt(0).toUpperCase()+t.slice(1);
@@ -1294,7 +1297,7 @@
   if(window.matchMedia) try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); }catch(e){}
   var _themeBtn=$('themeOpen');
   if(_themeBtn) _themeBtn.addEventListener('click',function(){
-    var t=localStorage.getItem('bc-theme')||'auto';
+    var t=localStorage.getItem('bc-theme')||'light';
     var next=THEMES[(THEMES.indexOf(t)+1)%THEMES.length];
     localStorage.setItem('bc-theme', next);
     applyTheme();
