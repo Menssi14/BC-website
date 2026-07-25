@@ -431,6 +431,19 @@
   .byo-pills{ display:flex; gap:8px; flex-wrap:wrap; }
   .byo-pill{ padding:8px 14px; border-radius:999px; border:1px solid rgba(74,52,36,.28); background:#fffdf8; color:#4A3424; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-size:14px; cursor:pointer; }
   .byo-pill.on{ background:#1F4D3E; color:#F2EADD; border-color:#1F4D3E; }
+  .ss-cols{ display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; }
+  .ss-chk{ display:flex; align-items:center; gap:7px; font-size:14px; color:#4A3424; }
+  .ss-dot{ width:15px; height:15px; border-radius:50%; border:1px solid rgba(0,0,0,.18); display:inline-block; }
+  .byo-hint{ font-family:'EB Garamond',serif; font-style:italic; text-transform:none; letter-spacing:0; font-size:12.5px; color:#8a7f6d; }
+  .byo-sidecards{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .byo-side{ border:1.5px solid rgba(74,52,36,.22); border-radius:12px; padding:10px; background:#fffdf8; cursor:pointer; text-align:center; transition:.15s; }
+  .byo-side.on{ border-color:#1F4D3E; box-shadow:0 0 0 2px rgba(31,77,62,.18); background:#fff; }
+  .byo-side-h{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:15px; color:#1F4D3E; }
+  .byo-side-h i{ font-style:normal; font-size:11px; color:#8a7f6d; margin-left:5px; }
+  .byo-side img{ width:100%; height:74px; object-fit:contain; display:block; margin:6px 0; }
+  .byo-side-e{ height:74px; display:flex; align-items:center; justify-content:center; margin:6px 0; font-size:12.5px; color:#a99f8d; border:1px dashed rgba(74,52,36,.2); border-radius:8px; }
+  .byo-side-f{ font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:#8a7f6d; min-height:16px; }
+  .byo-side-f button{ border:none; background:none; color:#B4453B; font:inherit; text-transform:uppercase; letter-spacing:.05em; cursor:pointer; padding:0; }
   .byo-designbtns{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .byo-designbtns button{ border:1.5px dashed #1F4D3E; background:rgba(31,77,62,.05); border-radius:12px; padding:12px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:15px; color:#1F4D3E; cursor:pointer; }
   .byo-slot{ display:flex; align-items:center; gap:10px; padding:9px 11px; border:1px solid rgba(74,52,36,.2); border-radius:10px; margin-top:8px; background:#fffdf8; }
@@ -1227,7 +1240,8 @@
           fulfillment: ful,
           shippingCents: coShipCents(),
           address: coAddressText(),
-          mockups: builtMockups()
+          mockups: builtMockups(),
+          artwork: builtOriginals()
         })
       });
       const data = await res.json();
@@ -1337,7 +1351,8 @@
           fulfillment: ful,
           shippingCents: coShipCents(),
           address: coAddressText(),
-          mockups: builtMockups()
+          mockups: builtMockups(),
+          artwork: builtOriginals()
         })
       });
       const data = await res.json();
@@ -1404,7 +1419,8 @@
         balanceDue: (t.total).toFixed(2),
         fulfillment: ful,
         items: [],
-        images: builtMockups(),
+        images: builtMockups().concat(builtOriginals().map(o=>o.dataUrl)),
+        artwork: builtOriginals(),
         due: '', duePreset: '',
         trashed: false, trashedAt: null,
         source: 'online',
@@ -1821,6 +1837,7 @@
       black: { on: true, label: 'Black',             material: 'Cotton'    },
       poly:  { on: true, label: 'Black',             material: 'Polyester' }
     },
+    stock: {},   // builder colors in stock, keyed like BYO_COLORS (empty = all in stock)
     sizes: [
       { k:'1T', in:5,    on:true }, { k:'2T', in:5.5, on:true }, { k:'3T', in:6,  on:true },
       { k:'4T', in:6.5,  on:true }, { k:'5T', in:7,   on:true },
@@ -1835,7 +1852,7 @@
   let bldColor = '', bldSize = '', bldMat = '', bldDesign = null;
   let bldSide='front', bldFront=null, bldBack=null;
   const BACK_FEE=5;
-  const BYO_COLORS=[{k:'black',hex:'#141414',label:'Black'},{k:'grey',hex:'#77797c',label:'Grey'},{k:'lightgrey',hex:'#c7cac9',label:'Light Grey'},{k:'white',hex:'#f4f4f2',label:'White'},{k:'purple',hex:'#552a80',label:'Purple'},{k:'navy',hex:'#1e2f4d',label:'Navy Blue'},{k:'royal',hex:'#274ba0',label:'Royal'},{k:'powder',hex:'#9ec7e8',label:'Powder Blue'},{k:'darkgreen',hex:'#123f2d',label:'Dark Green'},{k:'green',hex:'#2f8f4e',label:'Green'},{k:'yellow',hex:'#f0b81c',label:'Yellow'},{k:'orange',hex:'#cf4e1c',label:'Orange'},{k:'red',hex:'#b52a2d',label:'Red'},{k:'maroon',hex:'#6e2822',label:'Maroon'},{k:'pink',hex:'#e79bb6',label:'Pink'}];
+  const BYO_COLORS=[{k:'black',hex:'#141414',label:'Black'},{k:'grey',hex:'#77797c',label:'Grey'},{k:'lightgrey',hex:'#c7cac9',label:'Light Grey'},{k:'white',hex:'#f4f4f2',label:'White'},{k:'purple',hex:'#552a80',label:'Purple'},{k:'navy',hex:'#1e2f4d',label:'Navy Blue'},{k:'royal',hex:'#274ba0',label:'Royal'},{k:'powder',hex:'#9ec7e8',label:'Powder Blue'},{k:'darkgreen',hex:'#123f2d',label:'Dark Green'},{k:'green',hex:'#2f8f4e',label:'Green'},{k:'yellow',hex:'#f0b81c',label:'Yellow'},{k:'orange',hex:'#cf4e1c',label:'Orange'},{k:'red',hex:'#b52a2d',label:'Red'},{k:'maroon',hex:'#6e2822',label:'Maroon'},{k:'brown',hex:'#5b3a29',label:'Brown'},{k:'khaki',hex:'#b39a6d',label:'Khaki'},{k:'pink',hex:'#e79bb6',label:'Pink'}];
   const BYO_FABRICS=[{k:'Cotton',up:0},{k:'Polyester',up:2}];
 
   async function loadShirtCfg() {
@@ -1848,16 +1865,10 @@
     } catch (_) { /* first run — defaults */ }
   }
   async function saveShirtCfg() {
-    SHIRT.on = $('ss-on').checked;
-    SHIRT.basePrice = parseFloat($('ss-price').value) || 0;
-    Object.keys(SHIRT.colors).forEach(k => {
-      const cb = $('ssc-' + k); if (cb) SHIRT.colors[k].on = cb.checked;
-    });
-    SHIRT.sizes.forEach((s, i) => {
-      const cb = $('sss-' + i), num = $('ssi-' + i);
-      if (cb) s.on = cb.checked;
-      if (num) s.in = parseFloat(num.value) || s.in;
-    });
+    SHIRT.basePrice = parseFloat($('ss-price').value) || SHIRT.basePrice;
+    SHIRT.stock = SHIRT.stock || {};
+    BYO_COLORS.forEach(c => { const cb = $('ssc-' + c.k); if (cb) SHIRT.stock[c.k] = cb.checked; });
+    SHIRT.sizes.forEach((s, i) => { const cb = $('sss-' + i); if (cb) s.on = cb.checked; });
     $('ss-status').textContent = 'Saving…';
     try {
       const blob = new Blob([JSON.stringify(SHIRT)], { type: 'application/json' });
@@ -1869,23 +1880,21 @@
     } catch (e) { $('ss-status').textContent = "Couldn't save — try again."; }
   }
   function openShirtAdmin() {
-    $('ss-on').checked = !!SHIRT.on;
     $('ss-price').value = SHIRT.basePrice;
     const cw = $('ss-colors'); cw.innerHTML = '';
-    Object.entries(SHIRT.colors).forEach(([k, c]) => {
+    BYO_COLORS.forEach(c => {
       const l = document.createElement('label');
-      l.style.cssText = 'display:block;margin:4px 0';
-      l.innerHTML = `<input type="checkbox" id="ssc-${k}" ${c.on ? 'checked' : ''}> ${escapeHtml(c.label)} <span class="label">(${escapeHtml(c.material)})</span>`;
+      l.className = 'ss-chk';
+      l.innerHTML = '<input type="checkbox" id="ssc-' + c.k + '"' + (colorInStock(c.k) ? ' checked' : '') +
+                    '><span class="ss-dot" style="background:' + c.hex + '"></span>' + escapeHtml(c.label);
       cw.appendChild(l);
     });
     const sw = $('ss-sizes'); sw.innerHTML = '';
     SHIRT.sizes.forEach((s, i) => {
-      const k = document.createElement('div'); k.className = 'k'; k.textContent = s.k;
-      const c = document.createElement('div');
-      c.innerHTML = `<input type="checkbox" id="sss-${i}" ${s.on ? 'checked' : ''}>`;
-      const n = document.createElement('div');
-      n.innerHTML = `<input type="number" id="ssi-${i}" value="${s.in}" min="1" max="20" step="0.5">"`;
-      sw.appendChild(k); sw.appendChild(c); sw.appendChild(n);
+      const l = document.createElement('label');
+      l.className = 'ss-chk';
+      l.innerHTML = '<input type="checkbox" id="sss-' + i + '"' + (s.on ? ' checked' : '') + '>' + escapeHtml(s.k);
+      sw.appendChild(l);
     });
     $('ss-status').textContent = '';
     $('shirt-admin-dialog').showModal();
@@ -1893,6 +1902,8 @@
 
   // Shirt photos live in their own file so the store stays light — loaded on first use.
   function sizeObj(k) { return SHIRT.sizes.find(s => s.k === k) || null; }
+  function colorInStock(k){ const s=SHIRT.stock||{}; return s[k]===undefined ? true : !!s[k]; }
+  function stockColors(){ return BYO_COLORS.filter(c=>colorInStock(c.k)); }
   function shirtMaterials() {
     const set = new Set();
     Object.values(SHIRT.colors).forEach(c => { if (c.on) set.add(c.material); });
@@ -1904,7 +1915,8 @@
 
   async function openShirtBuilder() {
     if (!bldMat) bldMat = 'Cotton';
-    if (!BYO_COLORS.find(c => c.k === bldColor)) bldColor = 'white';
+    const inStock = stockColors();
+    if (!inStock.find(c => c.k === bldColor)) bldColor = inStock.length ? inStock[0].k : '';
     bldSide = 'front';
     const onSizes = SHIRT.sizes.filter(s => s.on);
     // Start on Adult M — the size most people want. Fall back only if it's switched off.
@@ -1918,13 +1930,11 @@
 
   function renderBuilder() {
     const cw=$('sb-cols'); if(cw){ cw.innerHTML='';
-      BYO_COLORS.forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-sw'+(c.k===bldColor?' on':''); b.style.background=c.hex; b.title=c.label; b.onclick=()=>{ bldColor=c.k; renderBuilder(); }; cw.appendChild(b); }); }
+      stockColors().forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-sw'+(c.k===bldColor?' on':''); b.style.background=c.hex; b.title=c.label; b.onclick=()=>{ bldColor=c.k; renderBuilder(); }; cw.appendChild(b); }); }
     const cn=$('byo-colname'); if(cn){ const c=BYO_COLORS.find(x=>x.k===bldColor); cn.textContent=c?c.label:''; }
     const mw=$('sb-mats'); if(mw){ mw.innerHTML='';
       BYO_FABRICS.forEach(f=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-pill'+(f.k===bldMat?' on':''); b.textContent=f.k+(f.up?' +$'+f.up:''); b.onclick=()=>{ bldMat=f.k; renderBuilder(); }; mw.appendChild(b); }); }
-    const bf=$('byo-front'), bb=$('byo-back'); if(bf)bf.className=(bldSide==='front'?'on':''); if(bb)bb.className=(bldSide==='back'?'on':'');
-    const sh=$('byo-sidehint'); if(sh) sh.textContent=bldSide;
-    renderBuildSlot('front', bldFront); renderBuildSlot('back', bldBack);
+    renderSideCard('front'); renderSideCard('back');
     const sel=$('sb-size'); if(sel){ sel.innerHTML=''; SHIRT.sizes.filter(s=>s.on).forEach(s=>{ const o=document.createElement('option'); o.value=s.k; o.textContent=s.k; if(s.k===bldSize)o.selected=true; sel.appendChild(o); }); }
     renderBuilderPreview();
     const price=builtPrice();
@@ -2043,7 +2053,7 @@
         const tex=new THREE.Texture(im); tex.encoding=THREE.sRGBEncoding; tex.wrapS=THREE.RepeatWrapping; tex.repeat.x=-1; tex.offset.x=1; tex.needsUpdate=true;
         const sz=SHIRT3D.size, grp=SHIRT3D.group, front=(side==='front');
         const savedRot=grp.rotation.y; grp.rotation.y=0; grp.updateMatrixWorld(true);
-        const yl=front? sz.y*0.05 : sz.y*0.09, zs=front? sz.z*4 : -sz.z*4, dir=front? new THREE.Vector3(0,0,-1):new THREE.Vector3(0,0,1);
+        const yl=front? sz.y*0.085 : sz.y*0.09, zs=front? sz.z*4 : -sz.z*4, dir=front? new THREE.Vector3(0,0,-1):new THREE.Vector3(0,0,1);
         const ray=new THREE.Raycaster(new THREE.Vector3(0,yl,zs), dir);
         const hits=ray.intersectObjects(SHIRT3D.meshes,true);
         if(hits.length){
@@ -2092,10 +2102,18 @@
   function uploadBuildDesign(){ const el=$('byo-upl'); if(el) el.click(); }
   function onBuildUpload(e){ const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=function(){ const d={name:f.name.replace(/\.[^.]+$/,''), src:rd.result, custom:true}; if(bldSide==='back') bldBack=d; else bldFront=d; renderBuilder(); }; rd.readAsDataURL(f); e.target.value=''; }
   function clearBuildDesign(side){ if(side==='back') bldBack=null; else bldFront=null; renderBuilder(); }
-  function renderBuildSlot(side, d){
-    const el=$('byo-slot-'+side); if(!el) return;
-    if(d){ el.className='byo-slot'; el.innerHTML='<img src="'+d.src+'"><span>'+side+': '+((d.name||'design'))+'</span><button type="button" onclick="clearBuildDesign(\''+side+'\')">&times;</button>'; }
-    else { el.className='byo-slot empty'; el.innerHTML='<span>No '+side+' design yet</span>'; }
+  function renderSideCard(side){
+    const el=$('byo-side-'+side); if(!el) return;
+    const d = side==='back'? bldBack : bldFront;
+    const on = (bldSide===side);
+    el.className='byo-side'+(on?' on':'')+(d?' has':'');
+    const fee = (side==='back') ? '<i>+$'+BACK_FEE+'</i>' : '';
+    el.innerHTML =
+      '<div class="byo-side-h">'+(side==='front'?'Front':'Back')+fee+'</div>'+
+      (d ? '<img src="'+d.src+'" alt="">'
+         : '<div class="byo-side-e">No design</div>')+
+      '<div class="byo-side-f">'+(d ? '<button type="button" onclick="event.stopPropagation();clearBuildDesign(\''+side+'\')">Remove</button>'
+                                     : (on?'Pick one below':'Tap to add'))+'</div>';
   }
   function renderBuilderPreview(){
     const wrap=$('sb-preview');
@@ -2128,7 +2146,6 @@
   }
 
   async function addBuiltToCart() {
-    if ((bldFront&&bldFront.custom)||(bldBack&&bldBack.custom)) { bldDesign = (bldFront&&bldFront.custom)?bldFront:bldBack; requestArtQuote(); return; }
     if (!(bldColor && bldSize && (bldFront || bldBack))) return;
     const btn = $('sb-add'); btn.disabled = true; btn.textContent = 'Adding\u2026';
     const col = BYO_COLORS.find(c => c.k === bldColor);
@@ -2143,7 +2160,10 @@
     else {
       const mocks = builtBothMockups();
       const nm = 'Custom shirt \u2014 ' + (((bldFront&&bldFront.name)) || ((bldBack&&bldBack.name)) || 'design');
-      cart.push({ key, id:'shirt-builder', name:nm, price, photo:mocks[0]||'', mockups:mocks, variant, qty:1, weightLb:DEFAULT_WEIGHT, built:true });
+      const origs=[];
+      if(bldFront&&bldFront.custom) origs.push({ side:'Front', filename:(bldFront.fileName||((bldFront.name||'front')+'.png')), dataUrl:bldFront.src });
+      if(bldBack&&bldBack.custom)  origs.push({ side:'Back',  filename:(bldBack.fileName ||((bldBack.name ||'back') +'.png')), dataUrl:bldBack.src });
+      cart.push({ key, id:'shirt-builder', name:nm, price, photo:mocks[0]||'', mockups:mocks, originals:origs, variant, qty:1, weightLb:DEFAULT_WEIGHT, built:true });
     }
     updateCartCount(); flashCart();
     btn.disabled = false; btn.textContent = 'Add to cart';
@@ -2193,6 +2213,11 @@
   }
 
   // Mockups ride along to the orders app so the shop sees what was built.
+  function builtOriginals() {
+    const out=[];
+    cart.filter(c=>c.built && Array.isArray(c.originals)).forEach(c=>c.originals.forEach(o=>{ if(o&&o.dataUrl) out.push(o); }));
+    return out.slice(0,4);
+  }
   function builtMockups() {
     const out=[];
     cart.filter(c=>c.built).forEach(c=>{ if(Array.isArray(c.mockups)) c.mockups.forEach(m=>{ if(m) out.push(m); }); else if(c.photo) out.push(c.photo); });
@@ -2450,17 +2475,18 @@
         <div class="byo-grid">
           <div class="byo-stagewrap">
             <div class="sb-preview" id="sb-preview"></div>
-            <div class="byo-sides"><button type="button" id="byo-front" class="on" onclick="setBuildSide('front')">Front</button><button type="button" id="byo-back" onclick="setBuildSide('back')">Back</button></div>
           </div>
           <div class="byo-controls">
             <div class="byo-lbl">Color <span id="byo-colname"></span></div>
             <div class="byo-swatches" id="sb-cols"></div>
             <div class="byo-lbl">Fabric</div>
             <div class="byo-pills" id="sb-mats"></div>
-            <div class="byo-lbl">Your design <span id="byo-sidehint">front</span></div>
+            <div class="byo-lbl">Design <span class="byo-hint">tap a side to see it</span></div>
+            <div class="byo-sidecards">
+              <div class="byo-side" id="byo-side-front" onclick="setBuildSide('front')"></div>
+              <div class="byo-side" id="byo-side-back" onclick="setBuildSide('back')"></div>
+            </div>
             <div class="byo-designbtns"><button type="button" onclick="openDesignPicker('builder')">Our Designs</button><button type="button" onclick="uploadBuildDesign()">Upload Yours</button></div>
-            <div class="byo-slot empty" id="byo-slot-front"><span>No front design yet</span></div>
-            <div class="byo-slot empty" id="byo-slot-back"><span>No back design yet</span></div>
             <div class="byo-lbl">Size</div>
             <select id="sb-size" class="sb-select" onchange="bldSize=this.value;renderBuilder()"></select>
             <div class="sb-foot"><div class="sb-price" id="sb-price">&mdash;<small>each</small></div><button class="dialog-cta" style="margin:0" id="sb-add">Add to cart</button></div>
@@ -2477,20 +2503,17 @@
       <p class="label">Admin</p>
       <h3 class="dialog-title">Shirt <em>builder</em></h3>
       <div class="field">
-        <label><input type="checkbox" id="ss-on"> Show the shirt builder in the store</label>
-      </div>
-      <div class="field">
         <label for="ss-price">Base price (Cotton, up to XL)</label>
         <input type="number" id="ss-price" min="0" step="0.01" inputmode="decimal">
-        <span class="label" style="display:block;margin-top:5px">Polyester adds $2. Each X past XL adds $1.</span>
+        <span class="label" style="display:block;margin-top:5px">Polyester adds $2. Each X past XL adds $1. Back design adds $5.</span>
       </div>
       <div class="field">
         <p class="sb-lbl">Colors in stock</p>
-        <div id="ss-colors"></div>
+        <div class="ss-cols" id="ss-colors"></div>
       </div>
       <div class="field">
-        <p class="sb-lbl">Sizes in stock &mdash; and print width (inches)</p>
-        <div class="ss-grid" id="ss-sizes"></div>
+        <p class="sb-lbl">Sizes in stock</p>
+        <div class="ss-cols" id="ss-sizes"></div>
       </div>
       <button class="dialog-cta" onclick="saveShirtCfg()">Save</button>
       <span class="label" id="ss-status" style="display:block;margin-top:8px"></span>
