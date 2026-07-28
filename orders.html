@@ -117,6 +117,8 @@
   /* the title carries the urgency color — a full-width band, edge to edge */
   .card h3.tinted{ padding:9px 13px 8px; border-radius:0; color:#2C2620;
     margin:-11px -13px 9px; }
+  /* note names: bolder + larger so they read clearly at a glance */
+  .card h3.note-name{ font-weight:800; font-size:20px; line-height:1.28; }
   .card .contact{ display:inline-flex; align-items:center; gap:5px; font-size:13px; color:var(--green); text-decoration:none; margin:1px 0 5px; }
   .card .cnotes{ margin-top:9px; padding-top:8px; border-top:1px dashed var(--line); }
   .card .ctext{ font-size:15.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; overflow-wrap:anywhere; color:rgba(var(--ink-rgb),.95); }
@@ -669,7 +671,7 @@
   var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4dXh6ZGFldmJ5dG56bnhtdGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzIyNjMsImV4cCI6MjA5MjA0ODI2M30.9FxQ47kbShuIehy2aqRkG11fewLjHxX1RvoPtCYPTIE';
   var BUCKET='files', ORDERS_FILE='_orders/orders.json';
   var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
-  var _loaded=false,_saveTimer=null, TRASH_DAYS=14, DAY=86400000;
+  var _loaded=false,_saveTimer=null, _saving=false, _needsSave=false, TRASH_DAYS=10, DAY=86400000;
   var URGENCY={ norush:{label:'No Rush',color:'#D9B96A',cls:'amber'}, priority:{label:'Priority',color:'#D98E5A',cls:'orange'}, asap:{label:'ASAP',color:'#C77A72',cls:'red'} };
   var URANK={asap:0,priority:1,norush:2};
 
@@ -760,6 +762,8 @@
   // 3) per order, keep whichever side was touched most recently   4) upload the union
   function saveNow(){
     if(!sb) return;
+    _saveTimer=null;   // the debounce window is over — clear the flag so refreshes aren't blocked forever
+    _saving=true;      // a real save is now in flight; pause cloud pulls until it finishes
     sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
       var cloud = [];
       if(r && r.data) return r.data.text().then(function(t){
@@ -788,8 +792,8 @@
         render();
       }
       var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
-      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ syncShow(r&&r.error?'Save failed':'Saved'); });
-    }catch(e){ syncShow('Save failed'); }
+      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ _saving=false; if(r&&r.error){ _needsSave=true; syncShow('Save failed — will retry'); } else { _needsSave=false; syncShow('Saved'); } }).catch(function(){ _saving=false; _needsSave=true; syncShow('Save failed — will retry'); });
+    }catch(e){ _saving=false; _needsSave=true; syncShow('Save failed — will retry'); }
   }
   function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate);}catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
   var _refreshTimer=null, _lastRefresh=0;
@@ -798,7 +802,7 @@
     // Never refresh while the editor is open (would discard in-progress typing),
     // and never right after a local save is pending.
     if(overlay && overlay.classList.contains('show')) return;
-    if(_saveTimer) return;
+    if(_saveTimer || _saving) return;
     sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
       if(r&&r.data){ r.data.text().then(function(t){
         try{ var s=JSON.parse(t);
@@ -815,7 +819,7 @@
   }
   function startAutoRefresh(){
     clearInterval(_refreshTimer);
-    _refreshTimer=setInterval(function(){ refresh(); }, 15000); // every 15s
+    _refreshTimer=setInterval(function(){ if(_needsSave && !_saving && !_saveTimer){ persist(); } refresh(); }, 15000); // every 15s: retry any failed save, then pull others' updates
     // Also refresh the moment you return to the tab / wake the phone
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) refresh(true); });
     window.addEventListener('focus', function(){ refresh(true); });
@@ -837,7 +841,7 @@
     if(o.balanceDue===undefined)o.balanceDue='';
     delete o.isNew; return o;
   }
-  function purgeOld(){ var now=Date.now(),b=state.orders.length; state.orders=state.orders.filter(function(o){return !(o.trashed&&o.trashedAt&&(now-o.trashedAt)>TRASH_DAYS*DAY);}); if(state.orders.length!==b)persist(); }
+  function purgeOld(){ var now=Date.now(),b=state.orders.length; state.orders=state.orders.filter(function(o){ var kill=(o.trashed&&o.trashedAt&&(now-o.trashedAt)>TRASH_DAYS*DAY); if(kill)_deletedIds[o.id]=true; return !kill; }); if(state.orders.length!==b)persist(); }
 
   function syncShow(t){ var el=$('sync'); $('syncText').textContent=t; el.classList.add('show'); clearTimeout(syncShow._t); syncShow._t=setTimeout(function(){el.classList.remove('show');},1600); }
   var toastUndo=null;
@@ -886,12 +890,12 @@
     var board=$('board');
     if(ui.view==='trash'){
       var tl=state.orders.filter(function(o){return o.trashed && !o.isQuote;}).sort(function(a,b){return (b.trashedAt||0)-(a.trashedAt||0);});
-      board.innerHTML=tl.length?'<div class="section-label">Clears automatically after 14 days</div><div class="grid">'+tl.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">Trash is empty</div><p>Done and deleted orders rest here for two weeks, then clear out on their own.</p></div>';
+      board.innerHTML=tl.length?'<div class="section-label">Clears automatically after 10 days</div><div class="grid">'+tl.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">Trash is empty</div><p>Done and deleted orders rest here for 10 days, then clear out on their own.</p></div>';
       wireCards(); return;
     }
     if(ui.view==='qtrash'){
       var qt=state.orders.filter(function(o){return o.trashed && o.isQuote;}).sort(function(a,b){return (b.trashedAt||0)-(a.trashedAt||0);});
-      board.innerHTML=qt.length?'<div class="section-label">Clears automatically after 14 days</div><div class="grid">'+qt.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">Quote trash is empty</div><p>Deleted quotes rest here for two weeks, then clear out on their own.</p></div>';
+      board.innerHTML=qt.length?'<div class="section-label">Clears automatically after 10 days</div><div class="grid">'+qt.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">Quote trash is empty</div><p>Deleted quotes rest here for 10 days, then clear out on their own.</p></div>';
       wireCards(); return;
     }
     if(ui.view==='quotes'){
@@ -982,7 +986,7 @@
     var h='<div class="card u-'+(URGENCY[o.urgency]?o.urgency:'norush')+'" data-card="'+o.id+'">';
     if(imgs.length){ h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">'; imgs.slice(0,3).forEach(function(uu){h+='<img src="'+uu+'" alt="">';}); h+='</div>'; }
     h+='<div class="card-pad">';
-    var _t=autoTitle(o); if(_t) h+= o.isQuote ? '<h3>'+esc(_t)+'</h3>' : '<h3 class="tinted" style="background:'+u.color+'" title="'+u.label+'">'+esc(_t)+'</h3>';
+    var _t=autoTitle(o); if(_t){ var _nn=(o.type==='NOTE'?' note-name':''); h+= o.isQuote ? ('<h3'+(_nn?' class="'+_nn.trim()+'"':'')+'>'+esc(_t)+'</h3>') : ('<h3 class="tinted'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+esc(_t)+'</h3>'); }
     var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     if(o.type==='NOTE'){ if(o.body) h+='<div class="ctext">'+esc(o.body)+'</div>'; }
     else {
