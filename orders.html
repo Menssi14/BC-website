@@ -228,6 +228,9 @@
   .health-dot.wait{ background:#D9B96A; animation:hpulse 1s infinite; }
   @keyframes hpulse{ 50%{ opacity:.35; } }
   .health-sub{ font-family:'EB Garamond',serif; font-style:italic; font-size:13px; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:auto; }
+  .sync-status{ margin:12px 16px 0; padding:13px 15px; border-radius:12px; border:1px solid var(--line-strong); background:var(--note); display:flex; align-items:center; gap:12px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:20px; color:var(--burgundy); }
+  .sync-status .ss-txt{ display:flex; flex-direction:column; gap:1px; line-height:1.1; }
+  .sync-status .ss-sub{ font-family:'EB Garamond',serif; font-style:italic; text-transform:none; letter-spacing:0; font-size:13.5px; color:var(--muted); }
   .email-to{ font-family:'EB Garamond',Georgia,serif; font-size:16px; color:var(--burgundy); background:#fffdf8;
     border:1px solid var(--line-strong); border-radius:10px; padding:11px 13px; width:100%; }
   .email-to:focus{ outline:none; border-color:var(--green); }
@@ -434,6 +437,7 @@
   .it-main{ display:flex; align-items:baseline; gap:7px; font-size:18px; line-height:1.3; }
   .it-main .q{ font-family:'Teko',sans-serif; font-weight:600; font-size:20px; color:var(--green); margin-left:auto; }
   .it-main .sz{ font-weight:600; color:var(--burgundy); }
+  .it-main .it-name{ font-weight:800; color:var(--burgundy); }
   .it-sub{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:16px; line-height:1.45; color:rgba(var(--ink-rgb),.85); margin-top:2px; }
   .it-sub .cdot{ width:11px; height:11px; }
 </style>
@@ -491,6 +495,7 @@
       <span class="hist-title">Health check</span>
       <button class="icon-btn" id="healthClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
+    <div class="sync-status" id="syncStatus"></div>
     <div class="health-list" id="healthList"></div>
   </div>
 </div>
@@ -964,10 +969,12 @@
     var dot = color?('<span class="cdot" style="background:'+colorHex(color)+'"></span>'):'';
     var main='<div class="it-main">';
     if(used==='color' && dot) main+=dot;
-    main+='<span class="sz">'+esc(primary)+'</span><span class="q">'+count+'\u00d7</span></div>';
+    main+='<span class="sz">'+esc(primary)+'</span>';
+    if(name) main+='<span class="it-name">'+esc(name)+'</span>';   // name shown bold, right beside the size
+    main+='<span class="q">'+count+'\u00d7</span></div>';
     var sub='', showDot=(dot && used!=='color');
-    if(rest.length || showDot || name){
-      var txt=rest.join(' \u00b7 '); if(name) txt = txt?(txt+' \u2014 '+esc(name)):esc(name);
+    if(rest.length || showDot){
+      var txt=rest.join(' \u00b7 ');
       sub='<div class="it-sub">'+(showDot?dot:'')+'<span>'+txt+'</span></div>';
     }
     return '<div class="it-row">'+main+sub+'</div>';
@@ -1427,9 +1434,45 @@
     });
     $('healthList').innerHTML=h;
   }
+  // ── "Are we up to date?" — a real two-way sync you can trigger from the health check.
+  // Pulls in anything this device is missing AND pushes up anything only this device has
+  // (this is what rescues orders that got stranded on one phone), then confirms.
+  var _lastSync=0;
+  function paintSync(dotClass, main, sub){
+    var el=$('syncStatus'); if(!el) return;
+    el.innerHTML='<span class="health-dot '+dotClass+'"></span><span class="ss-txt"><span>'+main+'</span>'+(sub?'<span class="ss-sub">'+sub+'</span>':'')+'</span>';
+  }
+  function reconcileNow(cb){
+    if(!sb){ cb&&cb('off',state.orders.length,0); return; }
+    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
+      var cloud=[];
+      var finish=function(){
+        var mine={}; state.orders.forEach(function(o){ mine[o.id]=o; });
+        var pulled=0;
+        cloud.forEach(function(c){ if(!c||!c.id||_deletedIds[c.id])return; var m=mine[c.id]; if(!m){ state.orders.push(migrate(c)); pulled++; } else if(_freshness(c)>_freshness(m)){ state.orders[state.orders.indexOf(m)]=migrate(c); } });
+        state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+        render();
+        var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
+        sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(u){ _lastSync=Date.now(); cb&&cb(u&&u.error?'fail':'ok', state.orders.length, pulled); }).catch(function(){ cb&&cb('fail', state.orders.length, pulled); });
+      };
+      if(r&&r.data) return r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))cloud=s.orders;}catch(e){} finish(); });
+      finish();
+    }).catch(function(){ cb&&cb('fail', state.orders.length, 0); });
+  }
+  function runSyncCheck(){
+    paintSync('wait','Checking this device\u2026','making sure you\u2019re seeing every order');
+    reconcileNow(function(status, total, pulled){
+      if(status==='off'){ paintSync('off','Working offline','can\u2019t reach the cloud right now'); return; }
+      if(status==='fail'){ paintSync('fail','Couldn\u2019t confirm','check your internet, then reopen this'); return; }
+      var when=new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+      if(pulled>0) paintSync('ok','Now up to date','pulled in '+pulled+' order'+(pulled===1?'':'s')+' \u00b7 '+total+' total \u00b7 '+when);
+      else paintSync('ok','You\u2019re up to date','all '+total+' orders showing \u00b7 checked '+when);
+    });
+  }
   $('healthOpen').addEventListener('click',function(){
     $('linksOverlay').classList.remove('show');
     $('healthOverlay').classList.add('show');
+    runSyncCheck();
     paintHealth(null);
     fetch('/api/health').then(function(r){ return r.json(); }).then(function(d){
       paintHealth((d&&d.services)||_allFail());
