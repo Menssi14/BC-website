@@ -420,9 +420,6 @@
   .byo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
   @media(max-width:760px){ .byo-grid{ grid-template-columns:1fr; } }
   .byo-stagewrap .sb-preview{ max-width:none; width:100%; }
-  .byo-sides{ display:flex; gap:8px; margin-top:10px; }
-  .byo-sides button{ flex:1; padding:10px; border-radius:999px; border:1px solid rgba(74,52,36,.28); background:#F2EADD; color:#4A3424; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:15px; cursor:pointer; }
-  .byo-sides button.on{ background:#1F4D3E; color:#F2EADD; border-color:#1F4D3E; }
   .byo-lbl{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:13px; color:#5A4E3F; margin:16px 0 8px; display:flex; justify-content:space-between; align-items:baseline; }
   .byo-lbl span{ color:#4A3424; }
   .byo-swatches{ display:flex; flex-wrap:wrap; gap:9px; }
@@ -434,18 +431,25 @@
   .ss-cols{ display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; }
   .ss-chk{ display:flex; align-items:center; gap:7px; font-size:14px; color:#4A3424; }
   .ss-dot{ width:15px; height:15px; border-radius:50%; border:1px solid rgba(0,0,0,.18); display:inline-block; }
+  .byo-step{ display:flex; align-items:center; gap:9px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:17px; color:#1F4D3E; margin:18px 0 4px; }
+  .byo-step:first-child{ margin-top:0; }
+  .byo-step b{ width:22px; height:22px; border-radius:50%; background:#1F4D3E; color:#F2EADD; font-size:14px; display:flex; align-items:center; justify-content:center; }
+  .byo-two{ display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+  .byo-add{ width:100%; border:1.5px dashed #1F4D3E; background:rgba(31,77,62,.05); border-radius:12px; padding:16px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:17px; color:#1F4D3E; cursor:pointer; margin-top:8px; }
+  .byo-add i{ font-style:normal; font-size:13px; color:#7B6F50; }
+  .byo-dcard{ display:flex; align-items:center; gap:11px; border:1.5px solid rgba(74,52,36,.2); border-radius:12px; padding:10px; background:#fffdf8; margin-top:8px; cursor:pointer; }
+  .byo-dcard.on{ border-color:#1F4D3E; box-shadow:0 0 0 2px rgba(31,77,62,.15); background:#fff; }
+  .byo-dcard img{ width:52px; height:52px; object-fit:contain; flex:none; }
+  .byo-dmeta{ flex:1; display:flex; flex-direction:column; gap:2px; }
+  .byo-dmeta b{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:15px; color:#1F4D3E; }
+  .byo-dmeta b i{ font-style:normal; font-size:11px; color:#8a7f6d; }
+  .byo-dmeta span{ font-size:12px; color:#8a7f6d; }
+  .byo-drm{ border:none; background:none; color:#B4453B; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; cursor:pointer; }
+  .byo-choose{ display:grid; gap:10px; margin-top:6px; }
+  .byo-choose button{ text-align:left; border:1.5px solid rgba(74,52,36,.22); background:#fffdf8; border-radius:12px; padding:14px 16px; cursor:pointer; display:flex; flex-direction:column; gap:3px; }
+  .byo-choose button b{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:18px; color:#1F4D3E; }
+  .byo-choose button span{ font-size:13px; color:#6d6252; }
   .byo-hint{ font-family:'EB Garamond',serif; font-style:italic; text-transform:none; letter-spacing:0; font-size:12.5px; color:#8a7f6d; }
-  .byo-sidecards{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-  .byo-side{ border:1.5px solid rgba(74,52,36,.22); border-radius:12px; padding:10px; background:#fffdf8; cursor:pointer; text-align:center; transition:.15s; }
-  .byo-side.on{ border-color:#1F4D3E; box-shadow:0 0 0 2px rgba(31,77,62,.18); background:#fff; }
-  .byo-side-h{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:15px; color:#1F4D3E; }
-  .byo-side-h i{ font-style:normal; font-size:11px; color:#8a7f6d; margin-left:5px; }
-  .byo-side img{ width:100%; height:74px; object-fit:contain; display:block; margin:6px 0; }
-  .byo-side-e{ height:74px; display:flex; align-items:center; justify-content:center; margin:6px 0; font-size:12.5px; color:#a99f8d; border:1px dashed rgba(74,52,36,.2); border-radius:8px; }
-  .byo-side-f{ font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:#8a7f6d; min-height:16px; }
-  .byo-side-f button{ border:none; background:none; color:#B4453B; font:inherit; text-transform:uppercase; letter-spacing:.05em; cursor:pointer; padding:0; }
-  .byo-designbtns{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .byo-designbtns button{ border:1.5px dashed #1F4D3E; background:rgba(31,77,62,.05); border-radius:12px; padding:12px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:15px; color:#1F4D3E; cursor:pointer; }
   .byo-slot{ display:flex; align-items:center; gap:10px; padding:9px 11px; border:1px solid rgba(74,52,36,.2); border-radius:10px; margin-top:8px; background:#fffdf8; }
   .byo-slot img{ width:38px; height:38px; object-fit:contain; border-radius:6px; flex:none; }
   .byo-slot span{ flex:1; font-size:13px; text-transform:uppercase; letter-spacing:.03em; color:#4A3424; }
@@ -1852,7 +1856,7 @@
   let bldColor = '', bldSize = '', bldMat = '', bldDesign = null;
   let bldSide='front', bldFront=null, bldBack=null;
   const BACK_FEE=5;
-  const BYO_COLORS=[{k:'black',hex:'#141414',label:'Black'},{k:'grey',hex:'#77797c',label:'Grey'},{k:'lightgrey',hex:'#c7cac9',label:'Light Grey'},{k:'white',hex:'#f4f4f2',label:'White'},{k:'purple',hex:'#552a80',label:'Purple'},{k:'navy',hex:'#1e2f4d',label:'Navy Blue'},{k:'royal',hex:'#274ba0',label:'Royal'},{k:'powder',hex:'#9ec7e8',label:'Powder Blue'},{k:'darkgreen',hex:'#123f2d',label:'Dark Green'},{k:'green',hex:'#2f8f4e',label:'Green'},{k:'yellow',hex:'#f0b81c',label:'Yellow'},{k:'orange',hex:'#cf4e1c',label:'Orange'},{k:'red',hex:'#b52a2d',label:'Red'},{k:'maroon',hex:'#6e2822',label:'Maroon'},{k:'brown',hex:'#5b3a29',label:'Brown'},{k:'khaki',hex:'#b39a6d',label:'Khaki'},{k:'pink',hex:'#e79bb6',label:'Pink'}];
+  const BYO_COLORS=[{k:'black',hex:'#141414',label:'Black'},{k:'grey',hex:'#77797c',label:'Grey'},{k:'lightgrey',hex:'#c7cac9',label:'Light Grey'},{k:'white',hex:'#f4f4f2',label:'White'},{k:'purple',hex:'#552a80',label:'Purple'},{k:'navy',hex:'#172a55',label:'Navy Blue'},{k:'royal',hex:'#274ba0',label:'Royal'},{k:'powder',hex:'#9ec7e8',label:'Powder Blue'},{k:'darkgreen',hex:'#123f2d',label:'Dark Green'},{k:'green',hex:'#2f8f4e',label:'Green'},{k:'yellow',hex:'#f0b81c',label:'Yellow'},{k:'orange',hex:'#cf4e1c',label:'Orange'},{k:'red',hex:'#b52a2d',label:'Red'},{k:'maroon',hex:'#6e2822',label:'Maroon'},{k:'brown',hex:'#5b3a29',label:'Brown'},{k:'khaki',hex:'#b39a6d',label:'Khaki'},{k:'pink',hex:'#e79bb6',label:'Pink'}];
   const BYO_FABRICS=[{k:'Cotton',up:0},{k:'Polyester',up:2}];
 
   async function loadShirtCfg() {
@@ -1934,7 +1938,7 @@
     const cn=$('byo-colname'); if(cn){ const c=BYO_COLORS.find(x=>x.k===bldColor); cn.textContent=c?c.label:''; }
     const mw=$('sb-mats'); if(mw){ mw.innerHTML='';
       BYO_FABRICS.forEach(f=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-pill'+(f.k===bldMat?' on':''); b.textContent=f.k+(f.up?' +$'+f.up:''); b.onclick=()=>{ bldMat=f.k; renderBuilder(); }; mw.appendChild(b); }); }
-    renderSideCard('front'); renderSideCard('back');
+    renderDesigns();
     const sel=$('sb-size'); if(sel){ sel.innerHTML=''; SHIRT.sizes.filter(s=>s.on).forEach(s=>{ const o=document.createElement('option'); o.value=s.k; o.textContent=s.k; if(s.k===bldSize)o.selected=true; sel.appendChild(o); }); }
     renderBuilderPreview();
     const price=builtPrice();
@@ -2030,12 +2034,15 @@
     const poly=(bldMat==='Polyester');
     const c=new THREE.Color(shirtHex());
     const hsl={}; c.getHSL(hsl);
-    hsl.s = Math.min(1, hsl.s*(poly?1.6:1.35) + (poly?0.10:0.05));
-    if(hsl.l < 0.55) hsl.l = hsl.l*(0.78 + hsl.l*0.38);
+    hsl.s = Math.min(1, hsl.s*(poly?1.9:1.65) + (poly?0.12:0.08));
+    if(hsl.l < 0.55)      hsl.l = hsl.l*(0.76 + hsl.l*0.36);
+    else if(hsl.l < 0.85) hsl.l = hsl.l*0.95;
     c.setHSL(hsl.h, hsl.s, hsl.l);
-    SHIRT3D.mats.forEach(m=>{ m.color.copy(c);
-      if(poly){ m.roughness=0.58; m.metalness=0.0; m.envMapIntensity=0.04; }
-      else    { m.roughness=0.90; m.metalness=0.0; m.envMapIntensity=0.04; }
+    // the darker the shirt, the broader + dimmer the sheen (a tight shine on near-black reads as plastic)
+    const dk = Math.max(0, Math.min(1, (0.38 - hsl.l)/0.38));
+    SHIRT3D.mats.forEach(m=>{ m.color.copy(c); m.metalness=0.0;
+      if(poly){ m.roughness=0.58 + dk*0.20; m.envMapIntensity=0.04 - dk*0.025; }
+      else    { m.roughness=0.90 + dk*0.05; m.envMapIntensity=0.04 - dk*0.015; }
       m.needsUpdate=true; });
     render3D();
   }
@@ -2053,7 +2060,12 @@
         const tex=new THREE.Texture(im); tex.encoding=THREE.sRGBEncoding; tex.wrapS=THREE.RepeatWrapping; tex.repeat.x=-1; tex.offset.x=1; tex.needsUpdate=true;
         const sz=SHIRT3D.size, grp=SHIRT3D.group, front=(side==='front');
         const savedRot=grp.rotation.y; grp.rotation.y=0; grp.updateMatrixWorld(true);
-        const yl=front? sz.y*0.085 : sz.y*0.09, zs=front? sz.z*4 : -sz.z*4, dir=front? new THREE.Vector3(0,0,-1):new THREE.Vector3(0,0,1);
+        const asp=(im.width&&im.height)?im.width/im.height:1;
+        const BASE=front?0.295:0.32;
+        let dw,dh; if(asp>=1){dw=BASE;dh=BASE/asp;}else{dh=BASE;dw=BASE*asp;}
+        const inch=sz.y/28;                                   // shirt body reads as ~28 in tall
+        const yl=front? sz.y*0.105 : (sz.y*0.5 - 4*inch - dh/2);   // back: top of print sits 4 in below the collar
+        const zs=front? sz.z*4 : -sz.z*4, dir=front? new THREE.Vector3(0,0,-1):new THREE.Vector3(0,0,1);
         const ray=new THREE.Raycaster(new THREE.Vector3(0,yl,zs), dir);
         const hits=ray.intersectObjects(SHIRT3D.meshes,true);
         if(hits.length){
@@ -2063,7 +2075,7 @@
           const Xc=new THREE.Vector3().crossVectors(upv,Zc).normalize();
           const Yc=new THREE.Vector3().crossVectors(Zc,Xc).normalize();
           const orient=new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(Xc,Yc,Zc));
-          const a=(im.width&&im.height)?im.width/im.height:1, BASE=0.26; let w,hh; if(a>=1){w=BASE;hh=BASE/a;}else{hh=BASE;w=BASE*a;}
+          const w=dw, hh=dh;
           const depth=Math.min(0.35,Math.max(0.18,BASE*1.2));
           const geo=new THREE.DecalGeometry(SHIRT3D.mergedMesh||hit.object, wp, orient, new THREE.Vector3(w,hh,depth));
           const mat=new THREE.MeshStandardMaterial({ map:tex, transparent:true, depthTest:true, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-6, polygonOffsetUnits:-10, side:THREE.FrontSide, roughness:0.92, metalness:0.0, envMapIntensity:0.12, emissive:0xffffff, emissiveMap:tex, emissiveIntensity:0.10 });
@@ -2102,18 +2114,33 @@
   function uploadBuildDesign(){ const el=$('byo-upl'); if(el) el.click(); }
   function onBuildUpload(e){ const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=function(){ const d={name:f.name.replace(/\.[^.]+$/,''), src:rd.result, custom:true}; if(bldSide==='back') bldBack=d; else bldFront=d; renderBuilder(); }; rd.readAsDataURL(f); e.target.value=''; }
   function clearBuildDesign(side){ if(side==='back') bldBack=null; else bldFront=null; renderBuilder(); }
-  function renderSideCard(side){
-    const el=$('byo-side-'+side); if(!el) return;
+  function openDesignChooser(side){
+    bldSide = side;
+    const t=$('dc-title'); if(t) t.textContent = (side==='back' ? 'Add a back design' : 'Add your design');
+    renderBuilder();
+    $('design-choose').showModal();
+  }
+  function chooseCatalog(){ $('design-choose').close(); openDesignPicker('builder'); }
+  function chooseUpload(){ $('design-choose').close(); uploadBuildDesign(); }
+  function designCard(side){
     const d = side==='back'? bldBack : bldFront;
     const on = (bldSide===side);
-    el.className='byo-side'+(on?' on':'')+(d?' has':'');
-    const fee = (side==='back') ? '<i>+$'+BACK_FEE+'</i>' : '';
-    el.innerHTML =
-      '<div class="byo-side-h">'+(side==='front'?'Front':'Back')+fee+'</div>'+
-      (d ? '<img src="'+d.src+'" alt="">'
-         : '<div class="byo-side-e">No design</div>')+
-      '<div class="byo-side-f">'+(d ? '<button type="button" onclick="event.stopPropagation();clearBuildDesign(\''+side+'\')">Remove</button>'
-                                     : (on?'Pick one below':'Tap to add'))+'</div>';
+    return '<div class="byo-dcard'+(on?' on':'')+'" onclick="setBuildSide(\''+side+'\')">'+
+             '<img src="'+d.src+'" alt="">'+
+             '<div class="byo-dmeta"><b>'+(side==='front'?'Front':'Back')+(side==='back'?' <i>+$'+BACK_FEE+'</i>':'')+'</b>'+
+               '<span>'+(on?'Showing on the shirt':'Tap to see this side')+'</span></div>'+
+             '<button type="button" class="byo-drm" onclick="event.stopPropagation();clearBuildDesign(\''+side+'\')">Remove</button>'+
+           '</div>';
+  }
+  function addDesignBtn(side,label){ return '<button type="button" class="byo-add" onclick="openDesignChooser(\''+side+'\')">'+label+'</button>'; }
+  function renderDesigns(){
+    const el=$('byo-designs'); if(!el) return;
+    const out=[];
+    if(bldFront) out.push(designCard('front'));
+    if(bldBack)  out.push(designCard('back'));
+    if(!bldFront) out.push(addDesignBtn('front', bldBack ? '+ Add front design' : '+ Add design'));
+    else if(!bldBack) out.push(addDesignBtn('back', '+ Add back design &nbsp;<i>+$'+BACK_FEE+'</i>'));
+    el.innerHTML=out.join('');
   }
   function renderBuilderPreview(){
     const wrap=$('sb-preview');
@@ -2168,6 +2195,7 @@
     updateCartCount(); flashCart();
     btn.disabled = false; btn.textContent = 'Add to cart';
     $('shirt-dialog').close();
+    openCart();
   }
 
   function requestArtQuote() {
@@ -2477,22 +2505,36 @@
             <div class="sb-preview" id="sb-preview"></div>
           </div>
           <div class="byo-controls">
+            <div class="byo-step"><b>1</b> Pick your shirt</div>
             <div class="byo-lbl">Color <span id="byo-colname"></span></div>
             <div class="byo-swatches" id="sb-cols"></div>
-            <div class="byo-lbl">Fabric</div>
-            <div class="byo-pills" id="sb-mats"></div>
-            <div class="byo-lbl">Design <span class="byo-hint">tap a side to see it</span></div>
-            <div class="byo-sidecards">
-              <div class="byo-side" id="byo-side-front" onclick="setBuildSide('front')"></div>
-              <div class="byo-side" id="byo-side-back" onclick="setBuildSide('back')"></div>
+            <div class="byo-two">
+              <div>
+                <div class="byo-lbl">Size</div>
+                <select id="sb-size" class="sb-select" onchange="bldSize=this.value;renderBuilder()"></select>
+              </div>
+              <div>
+                <div class="byo-lbl">Fabric</div>
+                <div class="byo-pills" id="sb-mats"></div>
+              </div>
             </div>
-            <div class="byo-designbtns"><button type="button" onclick="openDesignPicker('builder')">Our Designs</button><button type="button" onclick="uploadBuildDesign()">Upload Yours</button></div>
-            <div class="byo-lbl">Size</div>
-            <select id="sb-size" class="sb-select" onchange="bldSize=this.value;renderBuilder()"></select>
+            <div class="byo-step"><b>2</b> Add your design</div>
+            <div id="byo-designs"></div>
             <div class="sb-foot"><div class="sb-price" id="sb-price">&mdash;<small>each</small></div><button class="dialog-cta" style="margin:0" id="sb-add">Add to cart</button></div>
           </div>
         </div>
         <input type="file" id="byo-upl" accept="image/*" style="display:none" onchange="onBuildUpload(event)">
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="design-choose">
+    <div class="dialog-card" style="max-width:430px">
+      <button class="dialog-close" type="button" onclick="$('design-choose').close()">&times;</button>
+      <p class="label" id="dc-title">Add your design</p>
+      <div class="byo-choose">
+        <button type="button" onclick="chooseCatalog()"><b>Our Designs</b><span>Pick from the shop catalog</span></button>
+        <button type="button" onclick="chooseUpload()"><b>Upload Yours</b><span>Use your own artwork</span></button>
       </div>
     </div>
   </dialog>
