@@ -1,16 +1,22 @@
 // ============================================================
-//  Broch Custom — "Order ready" email (Vercel Function)
-//  This file lives at  api/notify.js  — a NEW file. It does NOT
-//  touch api/pay.js or anything about payments.
+//  Broch Custom — customer notification emails (Vercel Function)
+//  Lives at  api/notify.js  — does NOT touch pay.js / payments.
 //
-//  The Orders app calls this when you tap ✉ Ready on an order
-//  that has a customer email. It sends one fixed, friendly
-//  "your order is ready for pickup" email — nothing else can
-//  be sent through it, so it can't be abused to send arbitrary
-//  messages from your Gmail.
+//  The Orders app calls this with a customer email + a "kind":
+//    paid      → Payment received
+//    pending   → Payment pending
+//    ready     → Order ready for pickup
+//    delivery  → Order out for delivery
+//    custom    → a blank/custom message you type yourself
+//                (pass: subject, heading, message)
 //
-//  Uses the SAME environment variables pay.js already uses:
-//    GMAIL_USER, GMAIL_APP_PASSWORD
+//  Fixed kinds send set wording. "custom" lets you send your own
+//  text in the same design. All text is escaped, so nothing can be
+//  injected. If you expose the endpoint, you can require a secret:
+//  set env NOTIFY_SECRET and have the app send { secret } with
+//  custom sends (only enforced when NOTIFY_SECRET is set).
+//
+//  Uses the SAME env vars pay.js uses: GMAIL_USER, GMAIL_APP_PASSWORD
 // ============================================================
 
 import nodemailer from 'nodemailer';
@@ -23,7 +29,9 @@ export default async function handler(req, res) {
   const b = req.body || {};
   const email = (b.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)) ? String(b.email).slice(0, 200) : '';
   const name  = String(b.name || '').slice(0, 120).trim();
-  const kind  = (b.kind === 'paid') ? 'paid' : 'ready';   // only two fixed messages exist
+
+  const VALID = ['paid', 'pending', 'ready', 'delivery', 'custom'];
+  const kind  = VALID.includes(b.kind) ? b.kind : 'ready';
 
   if (!email) return res.status(400).json({ ok: false, error: 'No customer email on this order.' });
 
@@ -33,34 +41,50 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false, error: 'Email is not configured.' });
   }
 
-  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const hi = name ? 'Hi ' + name + ',' : 'Hi,';
+  // Optional protection for the custom sender (only enforced if you set NOTIFY_SECRET)
+  const SECRET = process.env.NOTIFY_SECRET || '';
+  if (kind === 'custom' && SECRET && String(b.secret || '') !== SECRET) {
+    return res.status(403).json({ ok: false, error: 'Not authorized to send a custom message.' });
+  }
 
-  const headline = kind === 'paid'
-    ? 'We received your payment — thank you!'
-    : 'Good news — your order is ready for pickup at Broch Custom!';
-  const headlineHtml = kind === 'paid'
-    ? 'We received your payment &mdash; thank you!'
-    : 'Good news &mdash; your order is ready for pickup!';
-  const closing = kind === 'paid'
-    ? "We're getting started on your order and will let you know when it's ready."
-    : 'See you soon!';
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const hi  = name ? 'Hi ' + name + ',' : 'Hi,';
+
+  // Fixed messages
+  const M = {
+    paid:     { subject: 'Payment received — Broch Custom',              heading: 'We received your payment — thank you!', body: "We're getting started on your order." },
+    pending:  { subject: 'Payment pending — Broch Custom',               heading: 'Your payment is pending',               body: "We'll email you as soon as it clears." },
+    ready:    { subject: 'Your order is ready for pickup — Broch Custom', heading: 'Your order is ready for pickup!',        body: 'See you soon!' },
+    delivery: { subject: 'Your order is out for delivery — Broch Custom', heading: 'Your order is out for delivery!',        body: "It's on the way to you." }
+  };
+
+  let subject, headingText, bodyText;
+  if (kind === 'custom') {
+    subject     = String(b.subject || '').slice(0, 160).trim() || 'A message from Broch Custom';
+    headingText = String(b.heading || '').slice(0, 160).trim();
+    bodyText    = String(b.message || '').slice(0, 2000);
+    if (!headingText && !bodyText.trim()) {
+      return res.status(400).json({ ok: false, error: 'Nothing to send — add a subject line or a message.' });
+    }
+  } else {
+    const m = M[kind];
+    subject = m.subject; headingText = m.heading; bodyText = m.body;
+  }
+
+  const headlineHtml = headingText ? esc(headingText) : '';
+  const bodyHtml     = bodyText    ? esc(bodyText).replace(/\n/g, '<br>') : '';
 
   const text = [
-    hi, '',
-    headline, '',
-    'Broch Custom · Embroidery · Printing · Engraving',
-    'Edinburg, TX',
+    hi, '', headingText, '', bodyText, '',
+    'Broch Custom · Edinburg, TX',
     'Call or text: (956) 225-5859',
     'Email: brochcustom@gmail.com',
-    '', closing,
-    'Reply to this email with any questions.',
     '', 'brochcustom.com'
   ].join('\n');
 
   // Brand fonts (EB Garamond + Teko) load in clients that support web fonts (e.g. Apple Mail);
-  // everywhere else these stacks fall back to Georgia / Arial. The Schadow logo is an image so it
-  // shows exactly right wherever images are allowed (with a styled text fallback if they're blocked).
+  // elsewhere they fall back to Georgia / Arial. The Schadow logo is an image (with a styled
+  // text fallback if images are blocked).
   const SERIF = "'EB Garamond', Georgia, 'Times New Roman', serif";
   const LABEL = "'Teko', 'Arial Narrow', Arial, sans-serif";
 
@@ -71,36 +95,35 @@ export default async function handler(req, res) {
     `<style>@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Teko:wght@400;500&display=swap');body{margin:0;padding:0}</style>` +
     `</head>` +
     `<body style="margin:0;padding:0;background:#F2EADD">` +
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F2EADD" style="background:#F2EADD;margin:0;padding:30px 12px">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F2EADD" style="background:#F2EADD;margin:0;padding:18px 12px">` +
      `<tr><td align="center">` +
-      `<table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="width:520px;max-width:520px;background:#fffdf8;border:1px solid #e3dac6;border-radius:16px;overflow:hidden">` +
-        // masthead — Schadow name on cream, thin rule, three services (the business-card look)
-        `<tr><td align="center" style="padding:34px 30px 4px">` +
-          `<img src="https://brochcustom.com/broch-email-logo.png" width="262" alt="BROCH CUSTOM" style="display:block;margin:0 auto;border:0;outline:none;height:auto;width:262px;max-width:78%;color:#1F4D3E;font-family:Georgia,serif;font-size:24px;font-weight:bold;letter-spacing:.1em">` +
-          `<div style="width:120px;border-top:1px solid #cdbfa6;margin:16px auto 13px;font-size:0;line-height:0">&nbsp;</div>` +
-          `<div style="font-family:${LABEL};font-size:13px;letter-spacing:.24em;color:#4A3424;text-transform:uppercase">Embroidery &middot; Printing &middot; Engraving</div>` +
+      `<table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="width:520px;max-width:520px;background:#fffdf8;border:1px solid #e3dac6;border-radius:14px;overflow:hidden">` +
+        // masthead — Schadow name on cream + thin rule (compact)
+        `<tr><td align="center" style="padding:22px 26px 0">` +
+          `<img src="https://brochcustom.com/broch-email-logo.png" width="204" alt="BROCH CUSTOM" style="display:block;margin:0 auto;border:0;outline:none;height:auto;width:204px;max-width:62%;color:#1F4D3E;font-family:Georgia,serif;font-size:20px;font-weight:bold;letter-spacing:.08em">` +
+          `<div style="width:110px;border-top:1px solid #cdbfa6;margin:14px auto 0;font-size:0;line-height:0">&nbsp;</div>` +
         `</td></tr>` +
-        // message
-        `<tr><td style="padding:24px 34px 4px;font-family:${SERIF};color:#2c2620;font-size:16px;line-height:1.6">` +
-          `<p style="margin:0 0 12px">${esc(hi)}</p>` +
-          `<p style="margin:0 0 16px;font-family:${SERIF};font-size:24px;line-height:1.28;color:#1F4D3E;font-weight:600">${headlineHtml}</p>` +
-          `<p style="margin:0 0 22px;color:#2c2620">${closing} Reply to this email with any questions.</p>` +
+        // message (compact)
+        `<tr><td style="padding:16px 28px 4px;font-family:${SERIF};color:#2c2620;font-size:15px;line-height:1.5">` +
+          `<p style="margin:0 0 8px">${esc(hi)}</p>` +
+          (headlineHtml ? `<p style="margin:0 0 ${bodyHtml ? '10px' : '0'};font-family:${SERIF};font-size:22px;line-height:1.22;color:#1F4D3E;font-weight:600">${headlineHtml}</p>` : '') +
+          (bodyHtml ? `<p style="margin:0;color:#2c2620">${bodyHtml}</p>` : '') +
         `</td></tr>` +
-        // contact panel (off-white, echoes the card)
-        `<tr><td style="padding:0 34px 32px">` +
-          `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF6EE;border:1px solid #e8dfcd;border-radius:12px">` +
-            `<tr><td style="padding:17px 20px;font-family:${SERIF};font-size:15px;line-height:1.75;color:#2c2620">` +
-              `<div style="font-family:${LABEL};font-size:12px;letter-spacing:.2em;color:#4A3424;text-transform:uppercase;margin:0 0 8px">Get in touch</div>` +
+        // contact panel (compact)
+        `<tr><td style="padding:14px 28px 22px">` +
+          `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF6EE;border:1px solid #e8dfcd;border-radius:10px">` +
+            `<tr><td style="padding:12px 16px;font-family:${SERIF};font-size:14px;line-height:1.55;color:#2c2620">` +
+              `<div style="font-family:${LABEL};font-size:11px;letter-spacing:.18em;color:#4A3424;text-transform:uppercase;margin:0 0 5px">Get in touch</div>` +
               `<div>Call or text <a href="tel:9562255859" style="color:#1F4D3E;text-decoration:none">(956) 225-5859</a></div>` +
               `<div>Email <a href="mailto:brochcustom@gmail.com" style="color:#1F4D3E;text-decoration:none">brochcustom@gmail.com</a></div>` +
-              `<div style="color:#4A3424">Broch Custom &middot; Edinburg, TX</div>` +
+              `<div style="color:#4A3424">Edinburg, TX</div>` +
             `</td></tr>` +
           `</table>` +
         `</td></tr>` +
       `</table>` +
-      // subtle brand footer under the card
+      // subtle brand footer
       `<table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="width:520px;max-width:520px">` +
-        `<tr><td style="padding:15px 8px 0;text-align:center;font-family:${LABEL};font-size:12px;letter-spacing:.18em;color:#9a8f78">` +
+        `<tr><td style="padding:12px 8px 0;text-align:center;font-family:${LABEL};font-size:12px;letter-spacing:.18em;color:#9a8f78">` +
           `<a href="https://brochcustom.com" style="color:#9a8f78;text-decoration:none">BROCHCUSTOM.COM</a>` +
         `</td></tr>` +
       `</table>` +
@@ -116,7 +139,7 @@ export default async function handler(req, res) {
     await mailer.sendMail({
       from: `"Broch Custom" <${MAIL_USER}>`,
       to: email,
-      subject: kind === 'paid' ? 'Payment received — Broch Custom' : 'Your order is ready for pickup — Broch Custom',
+      subject,
       text, html
     });
     return res.status(200).json({ ok: true });
