@@ -39,31 +39,60 @@ export default async function handler(req, res) {
   const headline = kind === 'paid'
     ? 'We received your payment — thank you!'
     : 'Good news — your order is ready for pickup at Broch Custom!';
+  const headlineHtml = kind === 'paid'
+    ? 'We received your payment &mdash; thank you!'
+    : 'Your order is ready for pickup!';
   const closing = kind === 'paid'
     ? "We're getting started on your order and will let you know when it's ready."
     : 'See you soon!';
+  const calloutLabel = kind === 'paid' ? 'QUESTIONS? CONTACT US' : 'PICK UP AT';
 
   const text = [
     hi, '',
     headline, '',
     'Broch Custom · Edinburg, TX',
     'Call or text: (956) 225-5859',
-    '', closing
+    '', closing,
+    'Reply to this email with any questions.',
+    '', 'brochcustom.com'
   ].join('\n');
 
   const html =
-    `<div style="font-family:Georgia,'Times New Roman',serif;background:#F2EADD;padding:26px 16px">` +
-      `<div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e3dac6;border-radius:10px;overflow:hidden">` +
-        `<div style="background:#1F4D3E;padding:18px 22px"><img src="https://brochcustom.com/broch-email-logo.png" width="216" alt="BROCH CUSTOM" style="display:block;border:0;height:auto;max-width:72%;color:#F2EADD;font-size:19px;letter-spacing:.08em"></div>` +
-        `<div style="padding:22px;color:#2c2620;font-size:15px;line-height:1.55">` +
-          `<p style="margin:0 0 12px">${esc(hi)}</p>` +
-          `<p style="margin:0 0 14px;font-size:17px"><strong>${kind === 'paid' ? 'We received your payment &mdash; thank you!' : 'Good news &mdash; your order is ready for pickup!'}</strong></p>` +
-          `<p style="margin:0 0 6px;color:#4A3424">🌲 Broch Custom &middot; Edinburg, TX</p>` +
-          `<p style="margin:0 0 14px;color:#4A3424">📞 Call or text <a href="tel:9562255859" style="color:#1F4D3E">(956) 225-5859</a></p>` +
-          `<p style="margin:0;color:#4A3424">${kind === 'paid' ? "We're getting started on your order and will let you know when it's ready." : 'See you soon!'} Reply to this email with any questions.</p>` +
-        `</div>` +
-      `</div>` +
-    `</div>`;
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F2EADD" style="background:#F2EADD;margin:0;padding:24px 12px;font-family:Georgia,'Times New Roman',serif">` +
+     `<tr><td align="center">` +
+      `<table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="width:520px;max-width:520px;background:#fffdf8;border:1px solid #e3dac6;border-radius:12px;overflow:hidden">` +
+        // header wordmark (text, so it never breaks and is never blocked)
+        `<tr><td bgcolor="#1F4D3E" style="background:#1F4D3E;padding:22px 26px">` +
+          `<div style="font-family:Georgia,'Times New Roman',serif;color:#F2EADD;font-size:23px;font-weight:bold;letter-spacing:.14em;line-height:1">BROCH CUSTOM</div>` +
+          `<div style="font-family:Arial,Helvetica,sans-serif;color:#E9B9B4;font-size:11px;letter-spacing:.22em;margin-top:6px">CUSTOM APPAREL &middot; EDINBURG, TX</div>` +
+        `</td></tr>` +
+        // greeting + headline
+        `<tr><td style="padding:26px 26px 6px;color:#2c2620;font-size:15px;line-height:1.6">` +
+          `<p style="margin:0 0 14px">${esc(hi)}</p>` +
+          `<p style="margin:0;font-size:21px;line-height:1.3;color:#1F4D3E"><strong>${headlineHtml}</strong></p>` +
+        `</td></tr>` +
+        // callout card
+        `<tr><td style="padding:18px 26px 6px">` +
+          `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f5f1;border:1px solid #d8e2d8;border-radius:10px">` +
+            `<tr><td style="padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#2c2620">` +
+              `<div style="font-size:11px;letter-spacing:.16em;color:#6a7d6f;margin-bottom:7px">${calloutLabel}</div>` +
+              `<div style="font-size:16px;color:#1F4D3E;font-weight:bold">Broch Custom</div>` +
+              `<div style="color:#4A3424">Edinburg, TX</div>` +
+              `<div style="margin-top:9px">Call or text <a href="tel:9562255859" style="color:#1F4D3E;text-decoration:none;font-weight:bold">(956) 225-5859</a></div>` +
+            `</td></tr>` +
+          `</table>` +
+        `</td></tr>` +
+        // closing
+        `<tr><td style="padding:16px 26px 24px;color:#2c2620;font-size:15px;line-height:1.6">` +
+          `<p style="margin:0">${closing} Reply to this email with any questions.</p>` +
+        `</td></tr>` +
+        // footer
+        `<tr><td bgcolor="#1F4D3E" style="background:#1F4D3E;padding:15px 26px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#cfe0d6;text-align:center">` +
+          `Broch Custom &middot; Edinburg, TX &middot; <a href="https://brochcustom.com" style="color:#E9B9B4;text-decoration:none">brochcustom.com</a>` +
+        `</td></tr>` +
+      `</table>` +
+     `</td></tr>` +
+    `</table>`;
 
   try {
     const mailer = nodemailer.createTransport({
