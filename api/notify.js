@@ -41,58 +41,72 @@ export default async function handler(req, res) {
     : 'Good news — your order is ready for pickup at Broch Custom!';
   const headlineHtml = kind === 'paid'
     ? 'We received your payment &mdash; thank you!'
-    : 'Your order is ready for pickup!';
+    : 'Good news &mdash; your order is ready for pickup!';
   const closing = kind === 'paid'
     ? "We're getting started on your order and will let you know when it's ready."
     : 'See you soon!';
-  const calloutLabel = kind === 'paid' ? 'QUESTIONS? CONTACT US' : 'PICK UP AT';
 
   const text = [
     hi, '',
     headline, '',
-    'Broch Custom · Edinburg, TX',
+    'Broch Custom · Embroidery · Printing · Engraving',
+    'Edinburg, TX',
     'Call or text: (956) 225-5859',
+    'Email: brochcustom@gmail.com',
     '', closing,
     'Reply to this email with any questions.',
     '', 'brochcustom.com'
   ].join('\n');
 
+  // Brand fonts (EB Garamond + Teko) load in clients that support web fonts (e.g. Apple Mail);
+  // everywhere else these stacks fall back to Georgia / Arial. The Schadow logo is an image so it
+  // shows exactly right wherever images are allowed (with a styled text fallback if they're blocked).
+  const SERIF = "'EB Garamond', Georgia, 'Times New Roman', serif";
+  const LABEL = "'Teko', 'Arial Narrow', Arial, sans-serif";
+
   const html =
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F2EADD" style="background:#F2EADD;margin:0;padding:24px 12px;font-family:Georgia,'Times New Roman',serif">` +
+    `<!doctype html><html lang="en"><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+    `<meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">` +
+    `<style>@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Teko:wght@400;500&display=swap');body{margin:0;padding:0}</style>` +
+    `</head>` +
+    `<body style="margin:0;padding:0;background:#F2EADD">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F2EADD" style="background:#F2EADD;margin:0;padding:30px 12px">` +
      `<tr><td align="center">` +
-      `<table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="width:520px;max-width:520px;background:#fffdf8;border:1px solid #e3dac6;border-radius:12px;overflow:hidden">` +
-        // header wordmark (text, so it never breaks and is never blocked)
-        `<tr><td bgcolor="#1F4D3E" style="background:#1F4D3E;padding:22px 26px">` +
-          `<div style="font-family:Georgia,'Times New Roman',serif;color:#F2EADD;font-size:23px;font-weight:bold;letter-spacing:.14em;line-height:1">BROCH CUSTOM</div>` +
-          `<div style="font-family:Arial,Helvetica,sans-serif;color:#E9B9B4;font-size:11px;letter-spacing:.22em;margin-top:6px">CUSTOM APPAREL &middot; EDINBURG, TX</div>` +
+      `<table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="width:520px;max-width:520px;background:#fffdf8;border:1px solid #e3dac6;border-radius:16px;overflow:hidden">` +
+        // masthead — Schadow name on cream, thin rule, three services (the business-card look)
+        `<tr><td align="center" style="padding:34px 30px 4px">` +
+          `<img src="https://brochcustom.com/broch-email-logo.png" width="262" alt="BROCH CUSTOM" style="display:block;margin:0 auto;border:0;outline:none;height:auto;width:262px;max-width:78%;color:#1F4D3E;font-family:Georgia,serif;font-size:24px;font-weight:bold;letter-spacing:.1em">` +
+          `<div style="width:120px;border-top:1px solid #cdbfa6;margin:16px auto 13px;font-size:0;line-height:0">&nbsp;</div>` +
+          `<div style="font-family:${LABEL};font-size:13px;letter-spacing:.24em;color:#4A3424;text-transform:uppercase">Embroidery &middot; Printing &middot; Engraving</div>` +
         `</td></tr>` +
-        // greeting + headline
-        `<tr><td style="padding:26px 26px 6px;color:#2c2620;font-size:15px;line-height:1.6">` +
-          `<p style="margin:0 0 14px">${esc(hi)}</p>` +
-          `<p style="margin:0;font-size:21px;line-height:1.3;color:#1F4D3E"><strong>${headlineHtml}</strong></p>` +
+        // message
+        `<tr><td style="padding:24px 34px 4px;font-family:${SERIF};color:#2c2620;font-size:16px;line-height:1.6">` +
+          `<p style="margin:0 0 12px">${esc(hi)}</p>` +
+          `<p style="margin:0 0 16px;font-family:${SERIF};font-size:24px;line-height:1.28;color:#1F4D3E;font-weight:600">${headlineHtml}</p>` +
+          `<p style="margin:0 0 22px;color:#2c2620">${closing} Reply to this email with any questions.</p>` +
         `</td></tr>` +
-        // callout card
-        `<tr><td style="padding:18px 26px 6px">` +
-          `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f5f1;border:1px solid #d8e2d8;border-radius:10px">` +
-            `<tr><td style="padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#2c2620">` +
-              `<div style="font-size:11px;letter-spacing:.16em;color:#6a7d6f;margin-bottom:7px">${calloutLabel}</div>` +
-              `<div style="font-size:16px;color:#1F4D3E;font-weight:bold">Broch Custom</div>` +
-              `<div style="color:#4A3424">Edinburg, TX</div>` +
-              `<div style="margin-top:9px">Call or text <a href="tel:9562255859" style="color:#1F4D3E;text-decoration:none;font-weight:bold">(956) 225-5859</a></div>` +
+        // contact panel (off-white, echoes the card)
+        `<tr><td style="padding:0 34px 32px">` +
+          `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF6EE;border:1px solid #e8dfcd;border-radius:12px">` +
+            `<tr><td style="padding:17px 20px;font-family:${SERIF};font-size:15px;line-height:1.75;color:#2c2620">` +
+              `<div style="font-family:${LABEL};font-size:12px;letter-spacing:.2em;color:#4A3424;text-transform:uppercase;margin:0 0 8px">Get in touch</div>` +
+              `<div>Call or text <a href="tel:9562255859" style="color:#1F4D3E;text-decoration:none">(956) 225-5859</a></div>` +
+              `<div>Email <a href="mailto:brochcustom@gmail.com" style="color:#1F4D3E;text-decoration:none">brochcustom@gmail.com</a></div>` +
+              `<div style="color:#4A3424">Broch Custom &middot; Edinburg, TX</div>` +
             `</td></tr>` +
           `</table>` +
         `</td></tr>` +
-        // closing
-        `<tr><td style="padding:16px 26px 24px;color:#2c2620;font-size:15px;line-height:1.6">` +
-          `<p style="margin:0">${closing} Reply to this email with any questions.</p>` +
-        `</td></tr>` +
-        // footer
-        `<tr><td bgcolor="#1F4D3E" style="background:#1F4D3E;padding:15px 26px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#cfe0d6;text-align:center">` +
-          `Broch Custom &middot; Edinburg, TX &middot; <a href="https://brochcustom.com" style="color:#E9B9B4;text-decoration:none">brochcustom.com</a>` +
+      `</table>` +
+      // subtle brand footer under the card
+      `<table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="width:520px;max-width:520px">` +
+        `<tr><td style="padding:15px 8px 0;text-align:center;font-family:${LABEL};font-size:12px;letter-spacing:.18em;color:#9a8f78">` +
+          `<a href="https://brochcustom.com" style="color:#9a8f78;text-decoration:none">BROCHCUSTOM.COM</a>` +
         `</td></tr>` +
       `</table>` +
      `</td></tr>` +
-    `</table>`;
+    `</table>` +
+    `</body></html>`;
 
   try {
     const mailer = nodemailer.createTransport({
