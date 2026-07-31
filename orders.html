@@ -175,6 +175,7 @@
 
   .edit-opts{ padding:12px 14px 18px; display:flex; flex-direction:column; gap:10px; }
   #linksOverlay .edit-opts{ display:grid; grid-template-columns:1fr 1fr; align-items:stretch; }
+  #emailOverlay .edit-opts{ overflow-y:auto; min-height:0; }
   #linksOverlay .edit-opt{ align-items:flex-start; }
   .lbl-body{ padding:14px 16px 20px; display:flex; flex-direction:column; gap:10px; max-height:74vh; overflow-y:auto; }
   .lbl-grid{ display:flex; flex-direction:column; gap:9px; }
@@ -236,6 +237,12 @@
   .email-to{ font-family:'EB Garamond',Georgia,serif; font-size:16px; color:var(--burgundy); background:#fffdf8;
     border:1px solid var(--line-strong); border-radius:10px; padding:11px 13px; width:100%; }
   .email-to:focus{ outline:none; border-color:var(--green); }
+  .email-msg{ min-height:96px; line-height:1.5; resize:vertical; }
+  .email-or{ text-align:center; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:14px; color:var(--burgundy); opacity:.6; margin:6px 0 0; }
+  .edit-opt.email-send{ background:var(--green); border-color:var(--green); }
+  .edit-opt.email-send:hover{ background:#163829; border-color:#163829; }
+  .email-send .eo-t{ color:var(--cream); }
+  .email-send .eo-ico{ background:var(--cream); color:var(--green); }
   .edit-opt{ display:flex; align-items:center; gap:13px; text-decoration:none; padding:12px 14px;
     border:1px solid var(--line-strong); border-radius:12px; background:rgba(31,77,62,.04); transition:.15s; }
   .edit-opt:hover{ background:rgba(31,77,62,.1); border-color:var(--green); }
@@ -573,6 +580,22 @@
       <button class="edit-opt" id="emailPaid" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
         <span class="eo-t">Payment received</span>
+      </button>
+      <button class="edit-opt" id="emailPending" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg></span>
+        <span class="eo-t">Payment pending</span>
+      </button>
+      <button class="edit-opt" id="emailDelivery" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2.5 6.5h11v8h-11z"/><path d="M13.5 9h4l3 3v2.5h-7z"/><circle cx="6.5" cy="17.5" r="1.7"/><circle cx="16.5" cy="17.5" r="1.7"/></svg></span>
+        <span class="eo-t">Out for delivery</span>
+      </button>
+      <div class="email-or">or write your own</div>
+      <input class="email-to" id="emailSubject" type="text" autocomplete="off" placeholder="Subject line">
+      <input class="email-to" id="emailHeading" type="text" autocomplete="off" placeholder="Headline (the big green line)">
+      <textarea class="email-to email-msg" id="emailMessage" rows="4" placeholder="Your message…"></textarea>
+      <button class="edit-opt email-send" id="emailCustomSend" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></span>
+        <span class="eo-t">Send custom email</span>
       </button>
     </div>
   </div>
@@ -1655,6 +1678,7 @@
     var o=getOrder(id); if(!o||!o.custEmail) return;
     _emailOrderId=id;
     $('emailTo').value=o.custEmail;
+    $('emailSubject').value=''; $('emailHeading').value=''; $('emailMessage').value='';
     $('emailOverlay').classList.add('show');
   }
   function _sendCustEmail(kind){
@@ -1669,20 +1693,40 @@
     }).then(function(r){ return r.json(); }).then(function(d){
       if(d && d.ok){
         if(o && o.custEmail===to){                    // stamp only if it went to that order's customer
-          if(kind==='paid') o.paidEmailedAt=Date.now(); else o.readyEmailedAt=Date.now();
+          if(kind==='paid') o.paidEmailedAt=Date.now(); else if(kind==='ready') o.readyEmailedAt=Date.now();
           o.updatedAt=Date.now(); render(); persist();
         }
-        toast((kind==='paid'?'Payment-received':'Ready')+' email sent to '+to);
+        var LBL={ready:'Ready',paid:'Payment-received',pending:'Payment-pending',delivery:'Out-for-delivery'};
+        toast((LBL[kind]||'Email')+' email sent to '+to);
       } else toast((d&&d.error)||'Could not send');
+    }).catch(function(){ toast('Could not send — check your connection'); });
+  }
+  function _sendCustomEmail(){
+    var to=$('emailTo').value.trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){ $('emailTo').focus(); toast('Type the customer\u2019s email first'); return; }
+    var subject=$('emailSubject').value.trim(), heading=$('emailHeading').value.trim(), message=$('emailMessage').value;
+    if(!heading && !message.trim()){ $('emailMessage').focus(); toast('Add a headline or a message'); return; }
+    var o=getOrder(_emailOrderId);
+    $('emailOverlay').classList.remove('show');
+    toast('Sending…');
+    fetch('/api/notify',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ email:to, name:(o&&o.custEmail===to?(o.custName||''):''), kind:'custom', subject:subject, heading:heading, message:message })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(d && d.ok){ toast('Email sent to '+to); $('emailSubject').value=''; $('emailHeading').value=''; $('emailMessage').value=''; }
+      else toast((d&&d.error)||'Could not send');
     }).catch(function(){ toast('Could not send — check your connection'); });
   }
   $('emailReady').addEventListener('click',function(){ _sendCustEmail('ready'); });
   $('emailPaid').addEventListener('click',function(){ _sendCustEmail('paid'); });
+  $('emailPending').addEventListener('click',function(){ _sendCustEmail('pending'); });
+  $('emailDelivery').addEventListener('click',function(){ _sendCustEmail('delivery'); });
+  $('emailCustomSend').addEventListener('click',_sendCustomEmail);
   $('emailClose').addEventListener('click',function(){ $('emailOverlay').classList.remove('show'); });
   $('emailOverlay').addEventListener('click',function(e){ if(e.target===$('emailOverlay')) $('emailOverlay').classList.remove('show'); });
 
   // ── Quotes view ──
-  $('linkEmail').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); _emailOrderId=null; $('emailTo').value=''; $('emailOverlay').classList.add('show'); setTimeout(function(){$('emailTo').focus();},60); });
+  $('linkEmail').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); _emailOrderId=null; $('emailTo').value=''; $('emailSubject').value=''; $('emailHeading').value=''; $('emailMessage').value=''; $('emailOverlay').classList.add('show'); setTimeout(function(){$('emailTo').focus();},60); });
 
   // ── Size reference ──
   $('dtfClose').addEventListener('click',function(){ $('dtfOverlay').classList.remove('show'); });
