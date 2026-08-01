@@ -805,7 +805,7 @@
     sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
       var cloud = [];
       if(r && r.data) return r.data.text().then(function(t){
-        try{ var s=JSON.parse(t); if(s && Array.isArray(s.orders)) cloud=s.orders; }catch(e){}
+        try{ var s=JSON.parse(t); if(s && Array.isArray(s.orders)) cloud=s.orders; _loadOk=true; }catch(e){}
         _mergeAndUpload(cloud);
       });
       _mergeAndUpload(cloud);   // no cloud file yet — just write ours
@@ -813,7 +813,11 @@
   }
   function _mergeAndUpload(cloud){
     try{
+      // SAFETY: if we couldn't read the cloud file (download errored) AND we've never
+      // successfully read it this session, do NOT upload — we might wipe good cloud data.
+      if(cloud===null && !_loadOk){ _saving=false; _needsSave=true; syncShow('Not synced yet — will retry'); return; }
       if(Array.isArray(cloud)){
+        _loadOk=true;
         var mine = {};
         state.orders.forEach(function(o){ mine[o.id]=o; });
         cloud.forEach(function(c){
@@ -833,31 +837,41 @@
       sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ _saving=false; if(r&&r.error){ _needsSave=true; syncShow('Save failed — will retry'); } else { _needsSave=false; syncShow('Saved'); } }).catch(function(){ _saving=false; _needsSave=true; syncShow('Save failed — will retry'); });
     }catch(e){ _saving=false; _needsSave=true; syncShow('Save failed — will retry'); }
   }
-  function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate);}catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
-  var _refreshTimer=null, _lastRefresh=0;
+  function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate); _loadOk=true; }catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
+  var _refreshTimer=null, _lastRefresh=0, _remoteTag=null, _loadOk=false;
   function refresh(force){
     if(!sb || !_loaded) return;
     // Never refresh while the editor is open (would discard in-progress typing),
     // and never right after a local save is pending.
     if(overlay && overlay.classList.contains('show')) return;
     if(_saveTimer || _saving) return;
+    // Cheap metadata check FIRST — only download the whole orders file if it actually changed.
+    // This is what keeps Supabase bandwidth usage tiny while the board sits idle.
+    sb.storage.from(BUCKET).list('_orders', { limit: 100 }).then(function(res){
+      var tag = null;
+      if(res && res.data){ for(var i=0;i<res.data.length;i++){ var f=res.data[i]; if(f && f.name==='orders.json'){ tag=(f.updated_at||'')+'|'+((f.metadata&&(f.metadata.eTag||f.metadata.size))||''); break; } } }
+      if(tag && _remoteTag && tag===_remoteTag && !force){ _lastRefresh=Date.now(); return; }  // unchanged → skip the big download
+      _pullFull(tag);
+    }).catch(function(){ _pullFull(null); });   // metadata check unavailable → fall back to a full download (never worse than before)
+  }
+  function _pullFull(tag){
     sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
       if(r&&r.data){ r.data.text().then(function(t){
         try{ var s=JSON.parse(t);
           if(s&&Array.isArray(s.orders)){
+            _loadOk=true;
             var incoming=JSON.stringify(s.orders);
-            if(incoming!==JSON.stringify(state.orders)){
-              state.orders=s.orders.map(migrate); purgeOld(); render();
-            }
+            if(incoming!==JSON.stringify(state.orders)){ state.orders=s.orders.map(migrate); purgeOld(); render(); }
           }
         }catch(e){}
+        if(tag) _remoteTag=tag;
       }); }
     }).catch(function(){});
     _lastRefresh=Date.now();
   }
   function startAutoRefresh(){
     clearInterval(_refreshTimer);
-    _refreshTimer=setInterval(function(){ if(_needsSave && !_saving && !_saveTimer){ persist(); } refresh(); }, 15000); // every 15s: retry any failed save, then pull others' updates
+    _refreshTimer=setInterval(function(){ if(_needsSave && !_saving && !_saveTimer){ persist(); } if(!document.hidden) refresh(); }, 20000); // every 20s WHILE VISIBLE: retry any failed save, then cheap-check for others' updates
     // Also refresh the moment you return to the tab / wake the phone
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) refresh(true); });
     window.addEventListener('focus', function(){ refresh(true); });
