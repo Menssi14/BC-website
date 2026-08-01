@@ -419,6 +419,16 @@
   .toast button{ background:none; border:none; color:var(--pink); cursor:pointer; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:16px; font-weight:600; }
   .sync{ position:fixed; bottom:10px; left:12px; z-index:50; font-size:13px; color:rgba(var(--ink-rgb),.45); font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.1em; display:flex; align-items:center; gap:6px; opacity:0; transition:opacity .3s; }
   .sync.show{ opacity:1; } .sync .d{ width:7px; height:7px; border-radius:50%; background:var(--go); }
+  .sync.sync-ok{ color:#1F7A4D; opacity:1; } .sync.sync-ok .d{ background:#1F7A4D; }
+  .sync.sync-fail{ color:#C0392B; opacity:1; } .sync.sync-fail .d{ background:#C0392B; }
+  .sync.sync-save{ color:#9c6b12; } .sync.sync-save .d{ background:#E0A72E; animation:spulse 1s ease-in-out infinite; }
+  @keyframes spulse{ 0%,100%{opacity:1} 50%{opacity:.25} }
+  .save-pill{ display:inline-flex; align-items:center; gap:6px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.07em; font-size:12.5px; line-height:1; padding:3px 9px 2px; border-radius:20px; margin-bottom:8px; background:rgba(224,167,46,.16); color:#9c6b12; }
+  .save-pill .sp-dot{ width:7px; height:7px; border-radius:50%; background:#E0A72E; animation:spulse 1s ease-in-out infinite; }
+  .save-pill.fail{ background:rgba(214,69,69,.14); color:#C0392B; }
+  .save-pill.fail .sp-dot{ background:#D64545; animation:none; }
+  .card.saving{ box-shadow:0 0 0 1.5px rgba(224,167,46,.55); }
+  .card.unsaved{ box-shadow:0 0 0 1.5px rgba(214,69,69,.6); }
 
   .kind-tag{ display:inline-block; margin:0 0 14px; }
   .urgency-section{ border-top:1px solid var(--line); margin-top:18px; padding-top:16px; }
@@ -738,7 +748,7 @@
     o.stage=s[i+1]; o.updatedAt=Date.now();
     // keep designReady flag in sync for the tag
     o.designReady=(s.indexOf('Design Ready')>=0 && (i+1)>=s.indexOf('Design Ready')) || (s.indexOf('Digitized')>=0 && (i+1)>=s.indexOf('Digitized'));
-    render(); persist();
+    render(); persist(o.id);
   }
   function stageColor(o){
     // A ramp you can read at a glance: the further along, the greener.
@@ -789,9 +799,10 @@
   }
   function itemCount(o){ return (o.items||[]).filter(itemHas).length; }
 
-  function persist(){ if(!_loaded)return; syncShow('Saving…'); if(!sb){syncShow('Saved (this device)');return;} clearTimeout(_saveTimer); _saveTimer=setTimeout(saveNow,500); }
-  function livePersist(){ if(editing&&!editing.isNew){ editing.updatedAt=Date.now(); persist(); } }
-  var _deletedIds = {};   // orders hard-deleted on THIS device — a merge must not resurrect them
+  function persist(id){ if(!_loaded)return; if(id){ _pendingIds[id]=true; _saveFailed=false; render(); } syncShow('Saving your order\u2026','save'); if(!sb){ if(id)delete _pendingIds[id]; syncShow('Saved on this device','ok'); render(); return; } clearTimeout(_saveTimer); _saveTimer=setTimeout(saveNow,500); }
+  function livePersist(){ if(editing&&!editing.isNew){ editing.updatedAt=Date.now(); persist(editing.id); } }
+  var _deletedIds = {};
+  var _pendingIds = {}, _saveFailed = false;   // orders whose latest change isn't confirmed-uploaded yet   // orders hard-deleted on THIS device — a merge must not resurrect them
   function _freshness(o){ return Math.max(o.updatedAt||0, o.trashedAt||0, o.createdAt||0); }
 
   // MERGE-THEN-SAVE. Never blind-overwrite the cloud file:
@@ -815,7 +826,7 @@
     try{
       // SAFETY: if we couldn't read the cloud file (download errored) AND we've never
       // successfully read it this session, do NOT upload — we might wipe good cloud data.
-      if(cloud===null && !_loadOk){ _saving=false; _needsSave=true; syncShow('Not synced yet — will retry'); return; }
+      if(cloud===null && !_loadOk){ _saving=false; _needsSave=true; _saveFailed=true; syncShow('\u26a0 Not saved \u2014 will retry','fail'); render(); return; }
       if(Array.isArray(cloud)){
         _loadOk=true;
         var mine = {};
@@ -834,8 +845,8 @@
         render();
       }
       var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
-      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ _saving=false; if(r&&r.error){ _needsSave=true; syncShow('Save failed — will retry'); } else { _needsSave=false; syncShow('Saved'); } }).catch(function(){ _saving=false; _needsSave=true; syncShow('Save failed — will retry'); });
-    }catch(e){ _saving=false; _needsSave=true; syncShow('Save failed — will retry'); }
+      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ _saving=false; if(r&&r.error){ _needsSave=true; _saveFailed=true; syncShow('\u26a0 Not saved \u2014 retrying','fail'); render(); } else { _needsSave=false; _saveFailed=false; _pendingIds={}; syncShow('\u2713 Order saved','ok'); render(); } }).catch(function(){ _saving=false; _needsSave=true; _saveFailed=true; syncShow('\u26a0 Not saved \u2014 retrying','fail'); render(); });
+    }catch(e){ _saving=false; _needsSave=true; _saveFailed=true; syncShow('\u26a0 Not saved \u2014 retrying','fail'); render(); }
   }
   function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate); _loadOk=true; }catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
   var _refreshTimer=null, _lastRefresh=0, _remoteTag=null, _loadOk=false;
@@ -895,7 +906,7 @@
   }
   function purgeOld(){ var now=Date.now(),b=state.orders.length; state.orders=state.orders.filter(function(o){ var kill=(o.trashed&&o.trashedAt&&(now-o.trashedAt)>TRASH_DAYS*DAY); if(kill)_deletedIds[o.id]=true; return !kill; }); if(state.orders.length!==b)persist(); }
 
-  function syncShow(t){ var el=$('sync'); $('syncText').textContent=t; el.classList.add('show'); clearTimeout(syncShow._t); syncShow._t=setTimeout(function(){el.classList.remove('show');},1600); }
+  function syncShow(t, kind){ var el=$('sync'); $('syncText').textContent=t; el.classList.remove('sync-ok','sync-fail','sync-save'); if(kind==='ok')el.classList.add('sync-ok'); else if(kind==='fail')el.classList.add('sync-fail'); else if(kind==='save')el.classList.add('sync-save'); el.classList.add('show'); clearTimeout(syncShow._t); if(kind!=='save' && kind!=='fail'){ syncShow._t=setTimeout(function(){el.classList.remove('show');}, kind==='ok'?2400:1600); } }
   var toastUndo=null;
   function toast(msg,undoFn){ var el=$('toast'); $('toastMsg').textContent=msg; var b=$('toastAction'); if(undoFn){b.style.display='block';b.textContent='Undo';toastUndo=undoFn;}else{b.style.display='none';toastUndo=null;} el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){el.classList.remove('show');},4500); }
   $('toastAction').addEventListener('click',function(){ if(toastUndo){toastUndo(); $('toast').classList.remove('show');} });
@@ -1017,9 +1028,11 @@
   }
   function cardHTML(o){
     var u=URGENCY[o.urgency]||URGENCY.norush; var imgs=o.images||[];
-    var h='<div class="card u-'+(URGENCY[o.urgency]?o.urgency:'norush')+'" data-card="'+o.id+'">';
+    var _pend=_pendingIds[o.id];
+    var h='<div class="card u-'+(URGENCY[o.urgency]?o.urgency:'norush')+(_pend?(_saveFailed?' unsaved':' saving'):'')+'" data-card="'+o.id+'">';
     if(imgs.length){ h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">'; imgs.slice(0,3).forEach(function(uu){h+='<img src="'+uu+'" alt="">';}); h+='</div>'; }
     h+='<div class="card-pad">';
+    if(_pend){ h+='<div class="save-pill'+(_saveFailed?' fail':'')+'"><span class="sp-dot"></span>'+(_saveFailed?'Not saved':'Saving\u2026')+'</div>'; }
     var _t=autoTitle(o); if(_t){ var _nn=(o.type==='NOTE'?' note-name':''); h+= o.isQuote ? ('<h3'+(_nn?' class="'+_nn.trim()+'"':'')+'>'+esc(_t)+'</h3>') : ('<h3 class="tinted'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+esc(_t)+'</h3>'); }
     var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     if(o.type==='NOTE'){ if(o.body) h+='<div class="ctext">'+esc(o.body)+'</div>'; }
@@ -1044,8 +1057,8 @@
 
   function wireCards(){ var board=$('board'); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); }); }); }
 
-  function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
-  function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
+  function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(o.id); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(o.id); }); }
+  function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(o.id); toast('Restored to your board'); }
   function forever(id){ var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); _deletedIds[id]=true; render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);delete _deletedIds[id];render();persist();}); }
 
   /* ===== chooser + editor ===== */
@@ -1384,7 +1397,7 @@
     if(editing.isNew){
       var hasText=(editing.title||'').trim()||(editing.body||'').trim()||(editing.images&&editing.images.length)||editing.items.length||editing.due;
       if(!hasText){ discard(); return; }
-      delete editing.isNew; editing.updatedAt=Date.now(); state.orders.unshift(editing); hideOverlay(); persist(); render(); return;
+      delete editing.isNew; editing.updatedAt=Date.now(); state.orders.unshift(editing); var _nid=editing.id; hideOverlay(); persist(_nid); render(); return;
     }
     editing.updatedAt=Date.now(); hideOverlay(); render();
   }
