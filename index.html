@@ -74,7 +74,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Teko:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
 <style>
   @font-face {
@@ -100,7 +100,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
-  body { font-family: 'EB Garamond', Garamond, 'Times New Roman', serif; background-color: var(--cream); background-image: var(--bg-cream); background-size: 600px 600px; background-repeat: repeat; color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.5; overflow-x: hidden; max-width: 100%; position: relative; }
+  body { font-family: 'Schadow', 'Teko', sans-serif; background-color: var(--cream); background-image: var(--bg-cream); background-size: 600px 600px; background-repeat: repeat; color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.5; overflow-x: hidden; max-width: 100%; position: relative; }
   /* belt-and-suspenders: clip any stray horizontal overrun inside content sections (nav is outside these, so its sticky behavior is unaffected) */
   .hero, .services, .visit, .footer { overflow-x: hidden; }
   a { color: inherit; text-decoration: none; }
@@ -123,7 +123,7 @@
   .splash-pines { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.6; }
   .splash-inner { position: relative; z-index: 2; text-align: center; }
   .splash-logo { width: 170px; height: 170px; margin: 0 auto 26px; border-radius: 6px; box-shadow: 0 14px 38px rgba(0,0,0,0.4); animation: splash-logo 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-  .splash-name { font-family: 'Schadow', 'EB Garamond', Garamond, serif; color: var(--cream); font-size: 50px; letter-spacing: 0.04em; font-weight: normal; margin-bottom: 8px; opacity: 0; animation: fadeup 0.7s ease-out 0.55s forwards; }
+  .splash-name { font-family: 'Schadow', 'Teko', sans-serif; color: var(--cream); font-size: 50px; letter-spacing: 0.04em; font-weight: normal; margin-bottom: 8px; opacity: 0; animation: fadeup 0.7s ease-out 0.55s forwards; }
   .splash-tag { font-family: 'Teko', 'Oswald', Impact, sans-serif; color: var(--pink); font-size: 14px; letter-spacing: 0.36em; text-transform: uppercase; font-weight: 400; opacity: 0; animation: fadeup 0.7s ease-out 0.75s forwards; }
 
   /* NAV */
@@ -131,7 +131,7 @@
   .nav-brand { font-family: 'Schadow', 'Teko', sans-serif; color: var(--cream); font-size: 27px; letter-spacing: 0.02em; font-weight: 900; text-transform: uppercase; line-height: 0.92; }
   .nav-right { display: flex; align-items: center; gap: 28px; }
   .nav-mid { display: flex; gap: 28px; }
-  .nav-mid a { color: var(--pink); font-family: 'EB Garamond', Garamond, serif; font-size: 17px; font-style: italic; font-weight: 500; transition: color 0.2s; }
+  .nav-mid a { color: var(--pink); font-family: 'Schadow', 'Teko', sans-serif; font-size: 17px; font-style: italic; font-weight: 500; transition: color 0.2s; }
   .nav-mid a:hover { color: var(--cream); }
   .nav-cta { background: var(--pink); color: var(--green); padding: 10px 20px; font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s; border-radius: 999px; }
   .nav-cta:hover { background: var(--cream) !important; transform: translateY(-1px); }
@@ -145,7 +145,7 @@
   .hero-logo { width: 230px; height: 230px; margin: 0 auto 32px; border-radius: 6px; box-shadow: 0 12px 36px rgba(0,0,0,0.18); }
   .overline { font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 14px; color: var(--burgundy); letter-spacing: 0.36em; margin: 0 0 22px; text-transform: uppercase; font-weight: 500; display: inline-flex; align-items: center; gap: 16px; }
   .overline::before, .overline::after { content: ""; width: 32px; height: 1px; background: currentColor; opacity: 0.4; }
-  h1 { font-family: 'EB Garamond', Garamond, serif; font-size: 58px; color: var(--ink); line-height: 1.05; margin: 0 0 26px; font-weight: 500; letter-spacing: -0.005em; max-width: 760px; margin-left: auto; margin-right: auto; overflow-wrap: break-word; }
+  h1 { font-family: 'Schadow', 'Teko', sans-serif; font-size: 58px; color: var(--ink); line-height: 1.05; margin: 0 0 26px; font-weight: 500; letter-spacing: -0.005em; max-width: 760px; margin-left: auto; margin-right: auto; overflow-wrap: break-word; }
   .cta-row { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; align-items: center; }
   .btn-solid { background: var(--green); color: var(--cream); padding: 15px 34px; border-radius: 999px; font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; box-shadow: 0 2px 10px rgba(31,77,62,0.22); }
   .btn-solid:hover { background: var(--burgundy); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(74,52,36,0.28); }
@@ -161,36 +161,36 @@
   .section-head { text-align: center; margin-bottom: 48px; }
   .label { font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 14px; color: var(--burgundy); letter-spacing: 0.36em; text-transform: uppercase; margin: 0 0 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 14px; }
   .label::before, .label::after { content: ""; width: 26px; height: 1px; background: currentColor; opacity: 0.4; }
-  h2 { font-family: 'EB Garamond', Garamond, serif; font-size: 44px; color: var(--ink); margin: 0; font-weight: 500; letter-spacing: -0.005em; }
+  h2 { font-family: 'Schadow', 'Teko', sans-serif; font-size: 44px; color: var(--ink); margin: 0; font-weight: 500; letter-spacing: -0.005em; }
   .svc-list { max-width: 720px; margin: 0 auto; }
   .svc-item { display: grid; grid-template-columns: 120px 1fr; gap: 28px; padding: 24px 0; border-top: 0.5px solid rgba(74,52,36,0.25); align-items: center; transition: padding-left 0.3s, background 0.2s; width: 100%; background: transparent; border-left: none; border-right: none; text-align: left; cursor: pointer; font-family: inherit; }
   .svc-item:hover { padding-left: 12px; }
   .svc-item:last-child { border-bottom: 0.5px solid rgba(74,52,36,0.25); }
   .svc-num { font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 15px; color: var(--burgundy); letter-spacing: 0.16em; padding-top: 8px; font-weight: 500; text-transform: uppercase; opacity: 0.7; }
-  .svc-name { font-family: 'EB Garamond', Garamond, serif; font-size: 30px; color: var(--ink); margin: 0 0 6px; font-weight: 500; font-style: italic; transition: color 0.2s; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
-  .svc-arrow { font-family: 'EB Garamond', Garamond, serif; font-style: normal; font-size: 26px; color: var(--green); transition: transform 0.25s; flex-shrink: 0; opacity: 0.7; }
+  .svc-name { font-family: 'Schadow', 'Teko', sans-serif; font-size: 30px; color: var(--ink); margin: 0 0 6px; font-weight: 500; font-style: italic; transition: color 0.2s; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .svc-arrow { font-family: 'Schadow', 'Teko', sans-serif; font-style: normal; font-size: 26px; color: var(--green); transition: transform 0.25s; flex-shrink: 0; opacity: 0.7; }
   .svc-item:hover .svc-name { color: var(--green); }
   .svc-item:hover .svc-arrow { transform: translateX(6px); opacity: 1; }
-  .svc-desc { font-family: 'EB Garamond', Garamond, serif; font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
+  .svc-desc { font-family: 'Schadow', 'Teko', sans-serif; font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
 
   /* SERVICE DETAIL DIALOG CONTENT */
   dialog.svc-dialog { max-width: 500px; }
   .svc-detail-section { margin: 22px 0 0; text-align: left; }
   .svc-detail-h { font-family: 'Teko', 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--green); margin: 0 0 12px; font-weight: 500; }
   .svc-detail-list { margin: 0; padding: 0; list-style: none; }
-  .svc-detail-list li { font-family: 'EB Garamond', Garamond, serif; font-size: 16px; line-height: 1.55; color: var(--ink); padding: 5px 0; }
+  .svc-detail-list li { font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; line-height: 1.55; color: var(--ink); padding: 5px 0; }
 
-  .svc-byo { font-family: 'EB Garamond', Garamond, serif; font-size: 14px; font-style: italic; color: var(--ink-soft); margin: 10px 0 0; line-height: 1.5; }
+  .svc-byo { font-family: 'Schadow', 'Teko', sans-serif; font-size: 14px; font-style: italic; color: var(--ink-soft); margin: 10px 0 0; line-height: 1.5; }
   .svc-detail-list li strong { font-family: 'Teko', 'Oswald', sans-serif; font-size: 14px; letter-spacing: 0.06em; color: var(--burgundy); font-weight: 500; margin-right: 6px; text-transform: uppercase; }
   .svc-detail-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
-  .svc-detail-steps li { counter-increment: step; font-family: 'EB Garamond', Garamond, serif; font-size: 16px; line-height: 1.5; color: var(--ink); padding: 8px 0 8px 42px; position: relative; }
+  .svc-detail-steps li { counter-increment: step; font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; line-height: 1.5; color: var(--ink); padding: 8px 0 8px 42px; position: relative; }
   .svc-detail-steps li::before { content: counter(step, decimal-leading-zero); position: absolute; left: 0; top: 8px; font-family: 'Teko', 'Oswald', sans-serif; font-size: 16px; color: var(--green); font-weight: 500; letter-spacing: 0.06em; }
-  .svc-detail-aside { margin: 22px 0 0; padding: 14px 18px; background: rgba(31,77,62,0.07); border-left: 2px solid var(--green); font-family: 'EB Garamond', Garamond, serif; font-size: 14px; line-height: 1.55; color: var(--ink-soft); text-align: left; }
+  .svc-detail-aside { margin: 22px 0 0; padding: 14px 18px; background: rgba(31,77,62,0.07); border-left: 2px solid var(--green); font-family: 'Schadow', 'Teko', sans-serif; font-size: 14px; line-height: 1.55; color: var(--ink-soft); text-align: left; }
   .svc-detail-aside strong { color: var(--green); font-weight: 500; }
   .design-callout { max-width: 720px; margin: 48px auto 0; padding: 26px 30px; background: rgba(31,77,62,0.08); border-left: 2px solid var(--green); }
-  .design-callout h4 { font-family: 'EB Garamond', Garamond, serif; font-size: 26px; color: var(--green); margin: 0 0 8px; font-style: italic; font-weight: 500; }
+  .design-callout h4 { font-family: 'Schadow', 'Teko', sans-serif; font-size: 26px; color: var(--green); margin: 0 0 8px; font-style: italic; font-weight: 500; }
   .design-callout h4 small { font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 13px; color: var(--burgundy); letter-spacing: 0.24em; margin-left: 12px; vertical-align: 3px; font-style: normal; font-weight: 500; text-transform: uppercase; opacity: 0.75; }
-  .design-callout p { font-family: 'EB Garamond', Garamond, serif; font-size: 17px; line-height: 1.65; color: var(--ink-soft); margin: 0; }
+  .design-callout p { font-family: 'Schadow', 'Teko', sans-serif; font-size: 17px; line-height: 1.65; color: var(--ink-soft); margin: 0; }
 
   /* VISIT */
   .visit .label { color: rgba(244, 181, 176, 0.85); }
@@ -201,11 +201,11 @@
 
   /* FOOTER */
   .footer { background: var(--green-dark); padding: 24px 6vw 22px; text-align: center; color: var(--cream); }
-  .footer-text { font-family: 'EB Garamond', Garamond, serif; font-size: 15px; opacity: 0.85; letter-spacing: 0.04em; margin: 0 0 10px; }
+  .footer-text { font-family: 'Schadow', 'Teko', sans-serif; font-size: 15px; opacity: 0.85; letter-spacing: 0.04em; margin: 0 0 10px; }
   .footer-social { margin: 0 0 12px; display: flex; justify-content: center; gap: 18px; }
   .footer-social a, .footer-social button { color: var(--cream); font-size: 26px; opacity: 0.85; display: inline-flex; align-items: center; background: transparent; border: none; cursor: pointer; padding: 0; transition: opacity 0.2s, transform 0.2s, color 0.2s; }
   .footer-social a:hover, .footer-social button:hover { opacity: 1; transform: translateY(-2px); color: var(--pink); }
-  .footer-fine { font-family: 'EB Garamond', Garamond, serif; font-size: 12px; font-style: italic; opacity: 0.55; line-height: 1.7; margin: 0; }
+  .footer-fine { font-family: 'Schadow', 'Teko', sans-serif; font-size: 12px; font-style: italic; opacity: 0.55; line-height: 1.7; margin: 0; }
   .footer-fine a { color: rgba(242,234,221,0.78); border-bottom: 0.5px solid rgba(242,234,221,0.4); transition: color 0.2s, border-color 0.2s; }
   .footer-fine a:hover { color: var(--pink); border-color: var(--pink); }
   .footer-fileshare { display: inline-flex; align-items: center; gap: 12px; margin: 0 0 16px; color: var(--cream); }
@@ -226,7 +226,7 @@
   .dialog-close { position: absolute; top: 12px; right: 14px; background: transparent; border: none; font-size: 24px; color: var(--burgundy); cursor: pointer; line-height: 1; padding: 6px 10px; transition: color 0.2s, transform 0.2s; }
   .dialog-close:hover { color: var(--green); transform: rotate(90deg); }
   dialog .label { text-align: center; }
-  .dialog-title { font-family: 'EB Garamond', Garamond, serif; font-size: 28px; color: var(--ink); margin: 0 0 22px; font-weight: 500; text-align: center; font-style: italic; }
+  .dialog-title { font-family: 'Schadow', 'Teko', sans-serif; font-size: 28px; color: var(--ink); margin: 0 0 22px; font-weight: 500; text-align: center; font-style: italic; }
   .dialog-title em { color: var(--green); }
   .dialog-opts { display: flex; flex-direction: column; gap: 12px; }
   .dialog-opt { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: #fff; border: 0.5px solid rgba(31,77,62,0.2); color: var(--ink); transition: background 0.2s, border-color 0.2s, transform 0.15s; }
@@ -234,24 +234,24 @@
   .dialog-opt i { font-size: 28px; color: var(--green); transition: color 0.2s; flex-shrink: 0; }
   .dialog-opt:hover i { color: var(--pink); }
   .dialog-opt-text { display: flex; flex-direction: column; }
-  .dialog-opt-label { font-family: 'EB Garamond', Garamond, serif; font-size: 16px; font-style: italic; }
+  .dialog-opt-label { font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; font-style: italic; }
   .dialog-opt-sub { font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 19px; letter-spacing: 0.04em; color: var(--burgundy); margin-top: 2px; transition: color 0.2s; }
   .dialog-opt:hover .dialog-opt-sub { color: var(--pink); }
   .dialog-info { background: #fff; padding: 22px; border: 0.5px solid rgba(31,77,62,0.2); border-radius: 10px; margin-top: 8px; text-align: center; }
   .dialog-info-label { font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.16em; text-transform: uppercase; margin: 0 0 8px; }
   .dialog-info-value { font-family: 'Teko', 'Oswald', Impact, sans-serif; font-size: 24px; color: var(--green); letter-spacing: 0.02em; font-weight: 500; margin: 0; overflow-wrap: anywhere; }
-  .dialog-note { font-family: 'EB Garamond', Garamond, serif; font-size: 16px; color: var(--ink-soft); margin: 18px 0 0; line-height: 1.6; text-align: center; }
+  .dialog-note { font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; color: var(--ink-soft); margin: 18px 0 0; line-height: 1.6; text-align: center; }
 
   /* CARD CALCULATOR */
   .calc-input-row { margin: 6px 0 4px; }
   .calc-input-row label { display: block; font-family: 'Teko', 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
   .calc-input-wrap { position: relative; display: flex; align-items: center; }
-  .calc-currency { position: absolute; left: 16px; font-family: 'EB Garamond', Garamond, serif; font-size: 22px; color: var(--ink-soft); pointer-events: none; }
-  .calc-input-wrap input { width: 100%; padding: 12px 16px 12px 34px; font-family: 'EB Garamond', Garamond, serif; font-size: 22px; border: 0.5px solid rgba(31,77,62,0.3); background: #fff; color: var(--ink); border-radius: 4px; outline: none; transition: border-color 0.2s; }
+  .calc-currency { position: absolute; left: 16px; font-family: 'Schadow', 'Teko', sans-serif; font-size: 22px; color: var(--ink-soft); pointer-events: none; }
+  .calc-input-wrap input { width: 100%; padding: 12px 16px 12px 34px; font-family: 'Schadow', 'Teko', sans-serif; font-size: 22px; border: 0.5px solid rgba(31,77,62,0.3); background: #fff; color: var(--ink); border-radius: 4px; outline: none; transition: border-color 0.2s; }
   .calc-input-wrap input:focus { border-color: var(--green); }
   .calc-input-wrap input::placeholder { color: rgba(42,37,32,0.35); }
   .calc-results { margin: 18px 0 22px; padding: 14px 18px; background: rgba(31,77,62,0.05); border-radius: 4px; }
-  .calc-line { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; font-family: 'EB Garamond', Garamond, serif; font-size: 15px; color: var(--ink-soft); }
+  .calc-line { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; font-family: 'Schadow', 'Teko', sans-serif; font-size: 15px; color: var(--ink-soft); }
   .calc-line strong { font-family: 'Teko', 'Oswald', sans-serif; font-size: 17px; font-weight: 500; color: var(--ink); letter-spacing: 0.04em; }
   .calc-line.calc-total { padding-top: 10px; margin-top: 4px; border-top: 0.5px solid rgba(31,77,62,0.2); color: var(--ink); }
   .calc-line.calc-total strong { font-size: 22px; color: var(--green); }
@@ -259,8 +259,8 @@
   .dialog-cta:hover { background: #163829; transform: translateY(-1px); }
   .dialog-cta:disabled { opacity: 0.6; cursor: default; transform: none; }
   .sq-card-field { margin: 4px 0 14px; min-height: 48px; }
-  .sq-demo { padding: 16px; border: 0.5px dashed rgba(31,77,62,0.4); border-radius: 4px; font-family: 'EB Garamond', Garamond, serif; font-style: italic; font-size: 14px; color: var(--ink-soft); text-align: center; background: rgba(31,77,62,0.03); }
-  .sq-status { margin: 12px 0 0; font-family: 'EB Garamond', Garamond, serif; font-size: 14px; color: var(--green); text-align: center; min-height: 18px; }
+  .sq-demo { padding: 16px; border: 0.5px dashed rgba(31,77,62,0.4); border-radius: 4px; font-family: 'Schadow', 'Teko', sans-serif; font-style: italic; font-size: 14px; color: var(--ink-soft); text-align: center; background: rgba(31,77,62,0.03); }
+  .sq-status { margin: 12px 0 0; font-family: 'Schadow', 'Teko', sans-serif; font-size: 14px; color: var(--green); text-align: center; min-height: 18px; }
 
   /* PAYMENT SUCCESS SCREEN */
   .pay-success { text-align: center; padding: 48px 36px 38px; }
@@ -270,9 +270,9 @@
   .ps-tick { fill: none; stroke: var(--green); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 44; stroke-dashoffset: 0; animation: psTick 0.4s 0.45s ease-out backwards; }
   @keyframes psRing { from { stroke-dashoffset: 151; } to { stroke-dashoffset: 0; } }
   @keyframes psTick { from { stroke-dashoffset: 44; } to { stroke-dashoffset: 0; } }
-  .pay-success-title { font-family: 'EB Garamond', Garamond, serif; font-size: 34px; font-weight: 600; color: var(--green); margin: 0 0 6px; line-height: 1.1; }
+  .pay-success-title { font-family: 'Schadow', 'Teko', sans-serif; font-size: 34px; font-weight: 600; color: var(--green); margin: 0 0 6px; line-height: 1.1; }
   .pay-success-amount { font-family: 'Teko', 'Oswald', sans-serif; font-size: 44px; font-weight: 500; color: var(--ink); letter-spacing: 0.02em; margin: 0 0 14px; }
-  .pay-success-msg { font-family: 'EB Garamond', Garamond, serif; font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto 8px; max-width: 320px; }
+  .pay-success-msg { font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto 8px; max-width: 320px; }
   .pay-success-ref { font-family: 'Teko', 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 26px; min-height: 16px; }
   .pay-success .dialog-cta { max-width: 200px; margin: 0 auto; }
   @media (prefers-reduced-motion: reduce) {
@@ -297,11 +297,11 @@
   .fb-bar { background: var(--green); color: var(--cream); padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; box-shadow: 0 2px 14px rgba(0,0,0,0.12); position: relative; z-index: 2; border-radius: 10px 10px 0 0; }
   .fb-bar::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='fbn'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='1' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 0.04 0 0 0 0 0.1 0 0 0 0 0.07 0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23fbn)'/></svg>"); background-size: 120px 120px; opacity: 0.5; border-radius: 10px 10px 0 0; }
   .fb-bar > * { position: relative; z-index: 1; }
-  .fb-back { background: transparent; border: none; color: var(--pink); font-family: 'EB Garamond', Garamond, serif; font-size: 16px; font-style: italic; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; transition: color 0.2s; }
+  .fb-back { background: transparent; border: none; color: var(--pink); font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; font-style: italic; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; transition: color 0.2s; }
   .fb-back:hover { color: var(--cream); }
   .fb-back i { font-size: 22px; transition: transform 0.2s; }
   .fb-back:hover i { transform: translateX(-4px); }
-  .fb-bar-title { font-family: 'EB Garamond', Garamond, serif; font-size: 15px; font-style: italic; color: var(--cream); opacity: 0.9; letter-spacing: 0.02em; }
+  .fb-bar-title { font-family: 'Schadow', 'Teko', sans-serif; font-size: 15px; font-style: italic; color: var(--cream); opacity: 0.9; letter-spacing: 0.02em; }
   .fb-close-x { background: transparent; border: none; color: var(--pink); font-size: 22px; cursor: pointer; padding: 6px 10px; line-height: 1; display: inline-flex; align-items: center; transition: color 0.2s, transform 0.2s; }
   .fb-close-x:hover { color: var(--cream); transform: rotate(90deg); }
   .fb-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; display: flex; justify-content: center; padding: 16px 12px 24px; }
@@ -349,7 +349,7 @@
   .pay-tile:hover:not(.pay-tile-info) .pay-tile-name { color: var(--cream); }
   .pay-tile:hover:not(.pay-tile-info) .pay-tile-note { color: rgba(242,234,221,0.7); }
   .pay-tile-name { font-family: 'Teko', 'Oswald', sans-serif; font-size: 18px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); font-weight: 500; margin-bottom: 3px; transition: color 0.2s; }
-  .pay-tile-note { font-family: 'EB Garamond', Garamond, serif; font-size: 13px; color: var(--ink-soft); line-height: 1.3; transition: color 0.2s; }
+  .pay-tile-note { font-family: 'Schadow', 'Teko', sans-serif; font-size: 13px; color: var(--ink-soft); line-height: 1.3; transition: color 0.2s; }
   .pay-tile.pay-tile-info { background: rgba(74,52,36,0.04); border-style: dashed; cursor: default; }
   .pay-tile.pay-tile-info .pay-tile-name { color: var(--ink-soft); }
 
@@ -366,7 +366,7 @@
     .nav-brand { font-size: 20px; }
   }
 
-  .contact-row { display: flex; align-items: center; gap: 14px; padding: 9px 0; font-family: 'EB Garamond', Garamond, serif; font-size: 16px; color: var(--ink); }
+  .contact-row { display: flex; align-items: center; gap: 14px; padding: 9px 0; font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; color: var(--ink); }
   .contact-row i { color: var(--green); font-size: 24px; flex-shrink: 0; width: 28px; text-align: center; }
   .contact-row a { color: var(--ink); text-decoration: none; transition: color 0.2s; border-bottom: 0.5px solid transparent; }
   .contact-row a:hover { color: var(--green); border-bottom-color: var(--green); }
@@ -621,7 +621,284 @@
   .dl-card:active { transform:translateY(1px); }
   .dl-card:disabled { opacity:0.7; cursor:default; }
   .dl-card i { font-size:20px; }
+
+
+  /* ── SCHADOW + TEKO BALANCE / MOBILE SPANISH SAFETY ────────────── */
+  /* Keep Schadow for brand/display moments; use lighter Teko for supporting copy. */
+  .svc-desc,
+  .design-callout p {
+    font-family: 'Teko', 'Oswald', Impact, sans-serif;
+    font-size: 19px;
+    line-height: 1.5;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+
+  /* Long Spanish copy must be allowed to shrink/wrap inside flex/grid children. */
+  .nav > *, .nav-right, .nav-right > *, .svc-item > *, .svc-name,
+  .dialog-opt-text, .footer-main > *, .cta-row > *, .contact-row > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  h1, h2, .svc-name, .dialog-title, .design-callout h4,
+  .dialog-opt-label, .dialog-opt-sub, .footer-text, .footer-fine,
+  .contact-row span, .contact-row a {
+    overflow-wrap: break-word;
+    word-break: normal;
+    max-width: 100%;
+  }
+
+  /* Dialogs remain usable when Spanish copy is taller than English. */
+  dialog {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+  .dialog-card {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+
+  @media (max-width: 720px) {
+    .nav {
+      padding: 12px 4vw;
+      gap: 9px;
+      align-items: flex-start;
+    }
+    .nav-brand {
+      flex: 1 1 100%;
+      width: 100%;
+      text-align: center;
+      font-size: clamp(18px, 6vw, 21px);
+      line-height: 1;
+    }
+    .nav-right {
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 7px !important;
+    }
+    .nav-tools span {
+      font-size: 16px;
+      letter-spacing: 0.09em;
+    }
+    .nav-pay, .nav-cta, .lang-toggle {
+      padding: 7px 10px !important;
+      font-size: 11px !important;
+      letter-spacing: 0.08em !important;
+      line-height: 1.1;
+    }
+
+    h1 {
+      font-size: clamp(30px, 9.2vw, 38px);
+      line-height: 1.06;
+      letter-spacing: 0;
+      width: 100%;
+    }
+    h2 {
+      font-size: clamp(27px, 8vw, 32px);
+      line-height: 1.08;
+      width: 100%;
+    }
+    .overline, .label {
+      max-width: 100%;
+      letter-spacing: 0.22em;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      line-height: 1.25;
+    }
+    .overline::before, .overline::after,
+    .label::before, .label::after {
+      width: 20px;
+      flex: 0 0 20px;
+    }
+
+    .svc-item {
+      width: 100%;
+      overflow: visible;
+    }
+    .svc-name {
+      font-size: clamp(25px, 7.4vw, 30px);
+      line-height: 1.08;
+      align-items: flex-start;
+    }
+    .svc-arrow {
+      flex: 0 0 auto;
+      line-height: 1;
+    }
+    .svc-desc {
+      font-size: 20px;
+      line-height: 1.42;
+    }
+
+    .design-callout {
+      padding: 22px 18px;
+    }
+    .design-callout h4 {
+      font-size: clamp(23px, 6.8vw, 26px);
+      line-height: 1.08;
+    }
+    .design-callout h4 small {
+      display: block;
+      margin: 8px 0 0;
+      vertical-align: 0;
+      letter-spacing: 0.16em;
+      line-height: 1.2;
+    }
+    .design-callout p {
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    dialog:not(#fb-dialog) {
+      width: calc(100% - 20px);
+      max-width: calc(100vw - 20px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .dialog-card {
+      padding: 38px 20px 28px;
+    }
+    .dialog-title {
+      font-size: clamp(24px, 7vw, 28px);
+      line-height: 1.08;
+      padding: 0 8px;
+    }
+    .dialog-opt {
+      padding: 14px;
+      gap: 12px;
+    }
+    .dialog-opt-text {
+      width: 100%;
+    }
+    .dialog-opt-label, .dialog-opt-sub {
+      white-space: normal;
+    }
+    .contact-row {
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .nav { padding-left: 10px; padding-right: 10px; }
+    .nav-right { gap: 5px !important; }
+    .nav-pay, .nav-cta, .lang-toggle {
+      padding: 6px 8px !important;
+      font-size: 10.5px !important;
+      letter-spacing: 0.055em !important;
+    }
+    .nav-tools span { font-size: 15px; letter-spacing: 0.06em; }
+    h1 { font-size: 29px; }
+    .svc-desc, .design-callout p { font-size: 19px; }
+  }
 </style>
+
+<style id="schadow-teko-balance-preview">
+/* Preview: Schadow Black Condensed is a true 900-weight display face.
+   Use it only where a bold display voice is intentional; use Teko Light/Regular
+   for reading copy, controls and supporting text to restore hierarchy. */
+html, body { font-synthesis: none; }
+body {
+  font-family: 'Teko', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.012em;
+}
+
+/* SCHADOW — intentional bold/display moments only */
+.splash-name,
+.nav-brand,
+h1,
+h2,
+.svc-name,
+.design-callout h4,
+.dialog-title,
+.pay-success-title {
+  font-family: 'Schadow', 'Teko', sans-serif !important;
+  font-weight: normal !important;
+  font-style: normal;
+}
+
+/* Tighter tracking suits the naturally heavy Schadow face */
+h1, h2, .svc-name, .dialog-title, .pay-success-title {
+  letter-spacing: 0.005em;
+}
+
+/* TEKO — lighter supporting typography / contrast */
+.nav-mid a,
+.svc-arrow,
+.svc-desc,
+.svc-detail-list li,
+.svc-byo,
+.svc-detail-steps li,
+.svc-detail-aside,
+.design-callout p,
+.footer-text,
+.footer-fine,
+.dialog-opt-label,
+.dialog-note,
+.calc-currency,
+.calc-input-wrap input,
+.calc-line,
+.sq-demo,
+.sq-status,
+.pay-success-msg,
+.fb-back,
+.fb-bar-title,
+.pay-tile-note,
+.contact-row,
+.qf-in,
+.qf-note {
+  font-family: 'Teko', 'Arial Narrow', Arial, sans-serif !important;
+  font-weight: 300 !important;
+  font-style: normal;
+  letter-spacing: 0.018em;
+}
+
+/* Slightly stronger only where the UI needs emphasis */
+.nav-mid a,
+.contact-row,
+.dialog-opt-label,
+.calc-input-wrap input,
+.qf-in {
+  font-weight: 400 !important;
+}
+
+/* Preserve Teko's existing label/button role and make the contrast intentional */
+.overline,
+.label,
+.nav-cta,
+.svc-num,
+.svc-detail-h,
+.svc-detail-list li strong,
+.svc-detail-steps li::before,
+.design-callout h4 small,
+.dialog-opt-sub,
+.dialog-info-value,
+.calc-input-row label,
+.calc-line strong,
+.pay-success-amount,
+.pay-success-ref,
+.pay-tile-name,
+.qr-divider {
+  font-family: 'Teko', 'Arial Narrow', Arial, sans-serif !important;
+}
+
+/* Body-size tuning after moving away from Garamond proportions */
+.svc-desc,
+.design-callout p,
+.dialog-note,
+.pay-success-msg,
+.contact-row,
+.qf-in { line-height: 1.45; }
+.svc-detail-list li,
+.svc-detail-steps li,
+.svc-detail-aside { line-height: 1.4; }
+.footer-text, .footer-fine, .pay-tile-note, .qf-note { line-height: 1.35; }
+</style>
+
 </head>
 <body>
 <svg class="pine-bg-fixed" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pf-khaki)"/></svg>
@@ -1235,13 +1512,13 @@
 
 <style>
   #quote-form{ display:flex; flex-direction:column; gap:9px; margin-bottom:16px; }
-  .qf-in{ font-family:'EB Garamond',Garamond,serif; font-size:16px; color:var(--ink);
+  .qf-in{ font-family:'Schadow','Teko',sans-serif; font-size:16px; color:var(--ink);
     background:#fffdf8; border:1px solid #ddd3bd; border-radius:8px; padding:11px 13px; width:100%; }
   .qf-in:focus{ outline:none; border-color:var(--green); }
   textarea.qf-in{ resize:vertical; min-height:70px; }
   .qf-send{ margin-top:2px; }
   .qf-send[disabled]{ opacity:.6; cursor:default; }
-  .qf-note{ font-family:'EB Garamond',serif; font-style:italic; font-size:14px; text-align:center; margin:2px 0 0; min-height:1em; }
+  .qf-note{ font-family:'Schadow','Teko',sans-serif; font-style:italic; font-size:14px; text-align:center; margin:2px 0 0; min-height:1em; }
   .qf-note.ok{ color:var(--green); } .qf-note.err{ color:#B4453B; }
   .qr-divider{ font-family:'Teko','Oswald',sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:13px;
     color:#9a8d72; text-align:center; margin:0 0 10px; }
@@ -4338,8 +4615,8 @@ async function downloadBusinessCard(){
     try{ await document.fonts.ready; await Promise.all([
       document.fonts.load("104px 'Schadow'"),
       document.fonts.load("500 34px 'Teko'"),
-      document.fonts.load("500 46px 'EB Garamond'"),
-      document.fonts.load("italic 500 34px 'EB Garamond'")
+      document.fonts.load("46px 'Schadow'"),
+      document.fonts.load("34px 'Schadow'")
     ]); }catch(e){}
 
     var padX=90;
@@ -4355,8 +4632,8 @@ async function downloadBusinessCard(){
     /* three services (Teko, spaced) */
     ctx.font="500 34px 'Teko', sans-serif"; ctx.fillStyle='#4A3424';
     _bcSpaced(ctx,'EMBROIDERY  ·  PRINTING  ·  ENGRAVING',padX,342,2,false);
-    /* contact (EB Garamond) */
-    ctx.fillStyle='#2A2520'; ctx.font="500 46px 'EB Garamond', serif";
+    /* contact (Schadow preview) */
+    ctx.fillStyle='#2A2520'; ctx.font="46px 'Schadow', sans-serif";
     ctx.fillText('(956) 225-5859',padX,474);
     ctx.fillText('brochcustom@gmail.com',padX,544);
 
@@ -4372,7 +4649,7 @@ async function downloadBusinessCard(){
     ctx.textAlign='center';
     ctx.font="500 26px 'Teko', sans-serif"; ctx.fillStyle='#1F4D3E';
     _bcSpaced(ctx,'SCAN TO VISIT',bx+s/2,by+s+46,4,true);
-    ctx.font="500 28px 'EB Garamond', serif"; ctx.fillStyle='#2A2520';
+    ctx.font="28px 'Schadow', sans-serif"; ctx.fillStyle='#2A2520';
     ctx.fillText('brochcustom.com',bx+s/2,by+s+82);
     ctx.textAlign='left';
 
