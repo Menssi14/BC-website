@@ -662,33 +662,62 @@
   }
 
   @media (max-width: 720px) {
+    /* Keep the original mobile nav sizing. Spanish gets its own second row for Herramientas. */
     .nav {
-      padding: 12px 4vw;
-      gap: 9px;
-      align-items: flex-start;
+      padding: 14px 5vw;
+      gap: 10px;
+      align-items: center;
     }
     .nav-brand {
       flex: 1 1 100%;
       width: 100%;
       text-align: center;
-      font-size: clamp(18px, 6vw, 21px);
+      font-size: 20px;
       line-height: 1;
     }
     .nav-right {
       width: 100%;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 7px !important;
+      gap: 8px !important;
     }
     .nav-tools span {
-      font-size: 16px;
-      letter-spacing: 0.09em;
+      font-size: 18px;
+      letter-spacing: 0.14em;
     }
-    .nav-pay, .nav-cta, .lang-toggle {
-      padding: 7px 10px !important;
-      font-size: 11px !important;
-      letter-spacing: 0.08em !important;
+    .nav-pay {
+      padding: 8px 12px !important;
+      font-size: 12px !important;
+      letter-spacing: 0.14em !important;
       line-height: 1.1;
+      white-space: nowrap;
+    }
+    .nav-cta {
+      padding: 8px 14px !important;
+      font-size: 12px !important;
+      letter-spacing: 0.12em !important;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .lang-toggle {
+      padding: 8px 12px !important;
+      font-size: 12px !important;
+      letter-spacing: 0.12em !important;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    /* Only Spanish moves Herramientas below the other nav controls. */
+    html[lang="es"] .nav-tools {
+      order: 99;
+      flex: 1 0 100%;
+      width: 100%;
+      text-align: center;
+      margin-top: 1px !important;
+    }
+    html[lang="es"] .nav-tools a {
+      display: inline-flex;
+      justify-content: center;
     }
 
     h1 {
@@ -783,14 +812,7 @@
   }
 
   @media (max-width: 360px) {
-    .nav { padding-left: 10px; padding-right: 10px; }
-    .nav-right { gap: 5px !important; }
-    .nav-pay, .nav-cta, .lang-toggle {
-      padding: 6px 8px !important;
-      font-size: 10.5px !important;
-      letter-spacing: 0.055em !important;
-    }
-    .nav-tools span { font-size: 15px; letter-spacing: 0.06em; }
+    /* Keep nav controls at the normal mobile size; only tighten content that can genuinely overflow. */
     h1 { font-size: 29px; }
     .svc-desc, .design-callout p { font-size: 19px; }
   }
