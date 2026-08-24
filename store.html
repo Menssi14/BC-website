@@ -11,7 +11,7 @@
 <link rel="canonical" href="https://brochcustom.com/store">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Teko:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 @font-face {
     font-family: 'Schadow';
@@ -44,8 +44,10 @@
     background-size: 600px 600px;
     background-repeat: repeat;
     color: var(--ink);
-    font-family: 'EB Garamond', Garamond, serif;
-    line-height: 1.5;
+    font-family: 'Teko','Arial Narrow',Arial,sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.35;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
       display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh;
@@ -91,7 +93,7 @@
     margin-bottom: 8px;
   }
   .store-hero h1 {
-    font-family: 'EB Garamond', serif; font-weight: 600;
+    font-family: 'Schadow','Teko',sans-serif; font-weight: normal;
     font-size: clamp(34px, 7vw, 52px); line-height: 1.05; color: var(--green);
   }
   .store-hero h1 em { font-style: italic; color: var(--burgundy); }
@@ -156,7 +158,7 @@
   .opt-chip:hover { border-color: var(--green); }
   .opt-chip.on { background: var(--green); color: var(--cream); border-color: var(--green); }
   .variant-row select {
-    font-family: 'EB Garamond', serif; font-size: 14px; padding: 6px 10px;
+    font-family: 'Teko','Arial Narrow',Arial,sans-serif; font-size: 14px; padding: 6px 10px;
     border: 0.5px solid rgba(42,37,32,0.25); border-radius: 4px; background: var(--cream);
     color: var(--ink); flex: 1; min-width: 90px;
   }
@@ -180,12 +182,12 @@
     text-align: center; padding: 70px 20px; color: var(--ink-soft);
     grid-column: 1 / -1;
   }
-  .empty h2 { font-family: 'EB Garamond', serif; font-style: italic; font-size: 26px; color: var(--green); margin-bottom: 8px; font-weight: 500; }
+  .empty h2 { font-family: 'Schadow','Teko',sans-serif; font-style: normal; font-size: 26px; color: var(--green); margin-bottom: 8px; font-weight: 500; }
   /* ── FOOTER ──────────────────────────────────────── */
   /* ── shared footer (same in the shop, the orders app and the tools app) ── */
   .bc-foot{ background:#163829; color:rgba(242,234,221,.82); text-align:center;
     padding:28px 20px; margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:6px;
-    font-family:'EB Garamond',Georgia,serif; font-size:14px; }
+    font-family:'Teko','Arial Narrow',Arial,sans-serif; font-size:16px; font-weight:300; }
   .bc-foot a{ color:#F4B5B0; text-decoration:none; }
   .bc-foot a:hover{ color:#F2EADD; }
   .bc-foot .bc-fine{ font-style:italic; font-size:12px; opacity:.6; }
@@ -216,7 +218,7 @@
     letter-spacing: 0.2em; font-size: 13px; color: var(--khaki); text-align: center;
     margin-bottom: 4px;
   }
-  .dialog-title { font-family: 'EB Garamond', serif; font-weight: 600; font-size: 28px; text-align: center; color: var(--green); margin-bottom: 18px; }
+  .dialog-title { font-family: 'Schadow','Teko',sans-serif; font-weight: normal; font-size: 28px; text-align: center; color: var(--green); margin-bottom: 18px; }
   .dialog-title em { font-style: italic; color: var(--burgundy); }
   .field { margin-bottom: 14px; }
   .field label {
@@ -225,7 +227,7 @@
   }
   .field input, .field select, .field textarea {
     width: 100%; padding: 11px 13px; border: 0.5px solid rgba(42,37,32,0.25);
-    border-radius: 4px; font-family: 'EB Garamond', serif; font-size: 16px;
+    border-radius: 4px; font-family: 'Teko','Arial Narrow',Arial,sans-serif; font-size: 16px;
     background: #fff; color: var(--ink);
   }
   .field textarea { resize: vertical; min-height: 60px; }
@@ -259,7 +261,7 @@
   .calc-total strong { color: var(--green); font-family: 'Teko',sans-serif; font-size: 26px; font-weight: 500; }
   .cart-empty { text-align: center; padding: 30px 0; color: var(--ink-soft); font-style: italic; }
   .sq-card-field { margin: 4px 0 14px; min-height: 48px; }
-  .sq-demo { padding: 16px; border: 0.5px dashed rgba(31,77,62,0.4); border-radius: 4px; font-family: 'EB Garamond', serif; font-style: italic; font-size: 14px; color: var(--ink-soft); text-align: center; background: rgba(31,77,62,0.03); }
+  .sq-demo { padding: 16px; border: 0.5px dashed rgba(31,77,62,0.4); border-radius: 4px; font-family: 'Teko','Arial Narrow',Arial,sans-serif; font-style: italic; font-size: 14px; color: var(--ink-soft); text-align: center; background: rgba(31,77,62,0.03); }
   .sq-status { margin: 12px 0 0; font-size: 14px; color: var(--green); text-align: center; min-height: 18px; }
   .co-wallets { margin-top: 6px; }
   .co-or { display: flex; align-items: center; text-align: center; margin: 18px 0 14px; color: var(--ink-soft); }
@@ -275,7 +277,7 @@
   .ps-tick { fill: none; stroke: var(--green); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 44; stroke-dashoffset: 0; animation: psTick 0.4s 0.45s ease-out backwards; }
   @keyframes psRing { from { stroke-dashoffset: 151; } to { stroke-dashoffset: 0; } }
   @keyframes psTick { from { stroke-dashoffset: 44; } to { stroke-dashoffset: 0; } }
-  .pay-success-title { font-family: 'EB Garamond', serif; font-size: 32px; font-weight: 600; color: var(--green); margin-bottom: 6px; }
+  .pay-success-title { font-family: 'Schadow','Teko',sans-serif; font-size: 32px; font-weight: normal; color: var(--green); margin-bottom: 6px; }
   .pay-success-amount { font-family: 'Teko','Oswald',sans-serif; font-size: 42px; font-weight: 500; color: var(--ink); margin-bottom: 12px; }
   .pay-success-msg { font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto 8px; max-width: 320px; }
   .pay-success-ref { font-family: 'Teko',sans-serif; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 24px; min-height: 16px; }
@@ -308,7 +310,7 @@
 
 
   /* ── Shirt builder ── */
-  #shirt-dialog .dialog-card{padding:20px 20px 16px}
+  #shirt-builder-section .dialog-card{padding:20px 20px 16px}
   .sb-line{display:flex;align-items:center;gap:12px;margin-top:10px}
   .sb-lbl{flex:0 0 62px;font-family:'Teko','Oswald',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--green)}
   .sb-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -319,7 +321,7 @@
   .sb-select:focus{outline:none;border-color:var(--green)}
   .sb-preview{position:relative;width:100%;max-width:min(380px, calc(90vh - 300px));margin:0 auto;aspect-ratio:1/1;background:#F2EADD;border:1px solid #e2dac8;border-radius:8px;overflow:hidden;cursor:pointer}
   .sb-tap{position:absolute;left:0;right:0;bottom:0;padding:7px 6px;background:rgba(31,77,62,.9);color:#F2EADD;font-family:'Teko','Oswald',sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;text-align:center}
-  .sb-note{font-family:'EB Garamond',serif;font-style:italic;font-size:12.5px;color:rgba(74,52,36,.6);margin:7px 0 0;text-align:center;min-height:16px}
+  .sb-note{font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;font-size:15px;color:rgba(74,52,36,.6);margin:7px 0 0;text-align:center;min-height:16px}
   .sb-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid #e2dac8}
   .sb-price{font-family:'Teko','Oswald',sans-serif;font-size:28px;color:var(--green);line-height:1}
   .sb-price small{display:block;font-size:11px;letter-spacing:.12em;color:rgba(74,52,36,.55)}
@@ -331,12 +333,12 @@
   .sb-card .sbc-body{padding:26px 20px 30px;text-align:center;background:#fff;border-radius:8px}
   .sb-card .sbc-body .sbc-t{font-size:30px}
   .sb-card .sbc-t{font-family:'Teko','Oswald',sans-serif;font-size:23px;letter-spacing:.08em;text-transform:uppercase;color:var(--green);line-height:1.1}
-  .sb-card .sbc-p{font-family:'EB Garamond',serif;font-style:italic;color:rgba(74,52,36,.7);margin:5px 0 12px;font-size:14.5px}
+  .sb-card .sbc-p{font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;color:rgba(74,52,36,.7);margin:5px 0 12px;font-size:17px}
   .sb-card .sbc-cta{display:inline-block;background:var(--green);color:#F2EADD;font-family:'Teko','Oswald',sans-serif;font-size:15px;letter-spacing:.1em;text-transform:uppercase;padding:8px 20px;border-radius:999px}
   /* short screens (iPhone SE and older): tighten so nothing needs scrolling */
   @media (max-height: 720px){
-    #shirt-dialog .dialog-card{padding:15px 16px 12px}
-    #shirt-dialog .label{margin-bottom:2px}
+    #shirt-builder-section .dialog-card{padding:15px 16px 12px}
+    #shirt-builder-section .label{margin-bottom:2px}
     .sb-line{margin-top:8px}
     .sb-note{margin-top:5px;min-height:14px}
     .sb-foot{margin-top:10px;padding-top:9px}
@@ -367,8 +369,8 @@
   .dpf-emoji{position:absolute;top:9px;right:11px;font-size:25px;line-height:1;opacity:.9}
   .dpf-txt{position:relative;display:block}
   .dpf-name{display:block;font-family:'Teko','Oswald',sans-serif;font-size:19px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);line-height:1.1}
-  .dpf-meta{display:block;font-family:'EB Garamond',serif;font-style:italic;font-size:12.5px;color:rgba(74,52,36,.6);margin-top:1px}
-  .qf-in{font-family:'EB Garamond',Garamond,serif;font-size:16px;color:var(--ink);background:#fffdf8;border:1px solid #ddd3bd;border-radius:8px;padding:11px 13px;width:100%}
+  .dpf-meta{display:block;font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;font-size:15px;color:rgba(74,52,36,.6);margin-top:1px}
+  .qf-in{font-family:'Teko','Arial Narrow',Arial,sans-serif;font-size:16px;color:var(--ink);background:#fffdf8;border:1px solid #ddd3bd;border-radius:8px;padding:11px 13px;width:100%}
   .qf-in:focus{outline:none;border-color:var(--green)}
   textarea.qf-in{resize:vertical;min-height:56px}
   .dp-upload{border-style:dashed;border-color:var(--green);background:rgba(31,77,62,.05)}
@@ -407,19 +409,73 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* Build Your Own = its own full-screen page inside the shop */
-  #shirt-dialog{ width:100vw; max-width:100vw; height:100vh; max-height:100vh; margin:0; padding:0; border:none; background:#F2EADD; }
-  #shirt-dialog::backdrop{ background:rgba(0,0,0,.35); }
-  #shirt-dialog .dialog-card{ max-width:none; width:100%; height:100%; margin:0; padding:0; border-radius:0; box-shadow:none; display:flex; flex-direction:column; overflow:hidden; }
-  #shirt-dialog .dialog-close{ position:absolute; top:12px; right:16px; z-index:6; font-size:30px; }
-  #shirt-dialog > .dialog-card > .label{ text-align:center; margin:0; padding:18px 0 10px; font-size:22px; letter-spacing:.14em; }
-  #sb-body{ flex:1; overflow-y:auto; overflow-x:hidden; padding:0 18px 30px; -webkit-overflow-scrolling:touch; }
-  .byo-grid{ max-width:1080px; margin:0 auto; }
-  @media(min-width:761px){ .byo-stagewrap{ position:sticky; top:6px; } }
-  .byo-stagewrap .sb-preview{ aspect-ratio:1/1; width:100%; max-width:480px; margin:0 auto; }
-  .byo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
-  @media(max-width:760px){ .byo-grid{ grid-template-columns:1fr; } }
-  .byo-stagewrap .sb-preview{ max-width:none; width:100%; }
+  /* Build Your Own = permanent section inside the shop */
+  #shirt-builder-section{
+    position:relative; z-index:1;
+    width:100%; max-width:1080px;
+    margin:18px auto 34px; padding:0 18px;
+    background:transparent;
+  }
+  #shirt-builder-section[hidden]{display:none!important}
+  .shirt-builder-shell{
+    background:transparent;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    overflow:visible;
+  }
+  .shirt-builder-head{
+    text-align:center;
+    padding:30px 24px 8px;
+  }
+  .shirt-builder-head .overline{
+    font-family:'Teko','Oswald',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.24em;
+    font-size:14px;
+    color:var(--khaki);
+    margin-bottom:5px;
+  }
+  .shirt-builder-head h2{
+    font-family:'Schadow','Teko',sans-serif;
+    font-weight:normal;
+    font-size:clamp(30px,5vw,42px);
+    line-height:1.05;
+    color:var(--green);
+    text-transform:uppercase;
+    letter-spacing:.015em;
+  }
+  .shirt-builder-head h2 em{font-style:normal;color:var(--burgundy)}
+  .shirt-builder-head p:last-child{
+    max-width:560px;
+    margin:9px auto 0;
+    color:var(--ink-soft);
+    font-family:'Teko','Oswald',sans-serif;
+    font-size:19px;
+    font-weight:300;
+    line-height:1.35;
+  }
+  #sb-body{
+    padding:10px 24px 30px;
+    overflow:visible;
+  }
+  .byo-grid{
+    max-width:100%;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:28px;
+    align-items:start;
+  }
+  @media(min-width:761px){
+    .byo-stagewrap{position:sticky;top:82px}
+  }
+  .byo-stagewrap .sb-preview{
+    aspect-ratio:1/1;
+    width:100%;
+    max-width:480px;
+    margin:0 auto;
+  }
   .byo-lbl{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:13px; color:#5A4E3F; margin:16px 0 8px; display:flex; justify-content:space-between; align-items:baseline; }
   .byo-lbl span{ color:#4A3424; }
   .byo-swatches{ display:flex; flex-wrap:wrap; gap:9px; }
@@ -449,13 +505,25 @@
   .byo-choose button{ text-align:left; border:1.5px solid rgba(74,52,36,.22); background:#fffdf8; border-radius:12px; padding:14px 16px; cursor:pointer; display:flex; flex-direction:column; gap:3px; }
   .byo-choose button b{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:18px; color:#1F4D3E; }
   .byo-choose button span{ font-size:13px; color:#6d6252; }
-  .byo-hint{ font-family:'EB Garamond',serif; font-style:italic; text-transform:none; letter-spacing:0; font-size:12.5px; color:#8a7f6d; }
+  .byo-hint{ font-family:'Teko','Oswald',sans-serif; font-style:normal; text-transform:none; letter-spacing:0; font-size:15px; font-weight:300; color:#8a7f6d; }
   .byo-slot{ display:flex; align-items:center; gap:10px; padding:9px 11px; border:1px solid rgba(74,52,36,.2); border-radius:10px; margin-top:8px; background:#fffdf8; }
   .byo-slot img{ width:38px; height:38px; object-fit:contain; border-radius:6px; flex:none; }
   .byo-slot span{ flex:1; font-size:13px; text-transform:uppercase; letter-spacing:.03em; color:#4A3424; }
   .byo-slot button{ border:none; background:none; color:#c0392b; font-size:20px; line-height:1; cursor:pointer; }
   .byo-slot.empty span{ color:#8a7f6d; }
   .byo-bk{ display:block; font-size:11px; font-style:italic; color:#7B6F50; }
+
+  @media(max-width:760px){
+    #shirt-builder-section{margin:10px auto 28px;padding:0 12px}
+    .shirt-builder-head{padding:24px 18px 4px}
+    #sb-body{padding:8px 14px 24px}
+    .byo-grid{grid-template-columns:1fr;gap:20px}
+    .byo-stagewrap .sb-preview{max-width:520px}
+  }
+  @media(max-width:420px){
+    .byo-two{grid-template-columns:1fr}
+    .shirt-builder-head p:last-child{font-size:18px}
+  }
 </style>
 </head>
 <body>
@@ -494,7 +562,7 @@
 <svg class="pine-bg-fixed" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pf-khaki)"/></svg>
   <!-- NAV -->
   <nav class="nav">
-    <a href="/" class="nav-brand">Broch Custom<small>Shop</small></a>
+    <a href="/" class="nav-brand">Broch Custom<small>The Shop</small></a>
     <div class="nav-right">
       <button class="nav-cart" onclick="openCart()" aria-label="Cart" title="Cart">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -508,10 +576,44 @@
 
   <!-- HERO -->
   <header class="store-hero">
-    <p class="overline">Edinburg · Texas</p>
-    <h1>The <em>shop</em></h1>
-    <p>Ready-made Broch Custom gear — caps, polos, drinkware and more, embroidered and printed in the Valley.</p>
+    <p>EMBROIDERED-PRINTED-ENGRAVED<br>✮ RIO GRANDE VALLEY ✮</p>
   </header>
+
+  <!-- PERMANENT SHIRT BUILDER -->
+  <section id="shirt-builder-section" class="shirt-builder-section" hidden aria-labelledby="shirt-builder-heading">
+    <div class="shirt-builder-shell">
+      <div class="shirt-builder-head">
+        <h2 id="shirt-builder-heading">Shirt Builder</h2>
+        <p>Choose your shirt, size and design &mdash; see it before you add it to your bag.</p>
+      </div>
+      <div id="sb-body">
+        <div class="byo-grid">
+          <div class="byo-stagewrap">
+            <div class="sb-preview" id="sb-preview"></div>
+          </div>
+          <div class="byo-controls">
+            <div class="byo-step"><b>1</b> Pick your shirt</div>
+            <div class="byo-lbl">Color <span id="byo-colname"></span></div>
+            <div class="byo-swatches" id="sb-cols"></div>
+            <div class="byo-two">
+              <div>
+                <div class="byo-lbl">Size</div>
+                <select id="sb-size" class="sb-select" onchange="bldSize=this.value;renderBuilder()"></select>
+              </div>
+              <div>
+                <div class="byo-lbl">Fabric</div>
+                <div class="byo-pills" id="sb-mats"></div>
+              </div>
+            </div>
+            <div class="byo-step"><b>2</b> Add your design</div>
+            <div id="byo-designs"></div>
+            <div class="sb-foot"><div class="sb-price" id="sb-price">&mdash;<small>each</small></div><button class="dialog-cta" style="margin:0" id="sb-add">Add to cart</button></div>
+          </div>
+        </div>
+        <input type="file" id="byo-upl" accept="image/*" style="display:none" onchange="onBuildUpload(event)">
+      </div>
+    </div>
+  </section>
 
   <!-- PRODUCT GRID -->
   <main class="grid-wrap">
@@ -800,8 +902,6 @@
   document.querySelectorAll('.bc-year').forEach(function(e){ e.textContent = new Date().getFullYear(); });
 
   // ── Load products from Supabase (falls back to the old file) ──
-  loadShirtCfg();
-
   async function loadProducts() {
     loadTemplates();
     if (sb) {
@@ -846,12 +946,10 @@
     if (!products.length) {
       grid.innerHTML = '';
       if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); }
-      addShirtBuilderCard();
       return;
     }
     products.forEach(p => grid.appendChild(productCard(p)));
     if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); }
-    addShirtBuilderCard();
   }
 
   function productCard(p) {
@@ -899,22 +997,7 @@
     if (el) el.textContent = fmt(variantPrice(p.price, size, material));
   }
 
-  // "Build your own" tile — first card in the grid when the builder is on.
-  function addShirtBuilderCard() {
-    if (!SHIRT.on) return;
-    const grid = $('product-grid');
-    const card = document.createElement('div');
-    card.className = 'card sb-card';
-    card.onclick = () => openShirtBuilder();
-    card.innerHTML =
-      '<div class="sbc-body">' +
-        '<div class="sbc-t">Custom shirt</div>' +
-        '<p class="sbc-p">Your size, your colour, your design &mdash; see it before you buy.</p>' +
-        '<span class="sbc-cta">Start building</span>' +
-      '</div>';
-    grid.prepend(card);
-  }
-
+  // Shirt builder settings remain available to admins from the product grid.
   function addShirtAdminCard() {
     const grid = $('product-grid');
     const card = document.createElement('div');
@@ -1539,7 +1622,7 @@
   }
 
   // Master option lists (same standardized set as the Orders app)
-  const SIZE_OPTIONS  = ['One Size','2T','3T','4T','5T','Youth XS','Youth S','Youth M','Youth L','Adult S','Adult M','Adult L','Adult XL','Adult 2XL','Adult 3XL','Adult 4XL','Adult 5XL'];
+  const SIZE_OPTIONS  = ['One Size','2T','3T','4T','5T','Youth XS','Youth S','Youth M','Youth L','Youth XL','Adult XS','Adult S','Adult M','Adult L','Adult XL','Adult 2XL','Adult 3XL','Adult 4XL','Adult 5XL'];
   const MATERIAL_OPTIONS = ['Cotton','Polyester','Blend'];
   const SLEEVE_OPTIONS = ['Short sleeve','Long sleeve'];
   const WEIGHT_PRESETS = [['Cap',0.5],['Shirt / Polo',0.75],['Hoodie',1.5],['Tumbler',1.25],['Small item',0.3],['Heavy / bulky',3]];
@@ -1845,14 +1928,24 @@
     sizes: [
       { k:'1T', in:5,    on:true }, { k:'2T', in:5.5, on:true }, { k:'3T', in:6,  on:true },
       { k:'4T', in:6.5,  on:true }, { k:'5T', in:7,   on:true },
-      { k:'Youth S', in:8, on:true }, { k:'Youth M', in:9, on:true }, { k:'Youth L', in:10, on:true },
-      { k:'Adult S', in:10, on:true }, { k:'Adult M', in:11, on:true }, { k:'Adult L', in:11.5, on:true },
+      { k:'Youth XS', in:7.5, on:true }, { k:'Youth S', in:8, on:true }, { k:'Youth M', in:9, on:true },
+      { k:'Youth L', in:10, on:true }, { k:'Youth XL', in:11, on:true },
+      { k:'Adult XS', in:9, on:true }, { k:'Adult S', in:10, on:true }, { k:'Adult M', in:11, on:true }, { k:'Adult L', in:11.5, on:true },
       { k:'Adult XL', in:12, on:true }, { k:'Adult 2XL', in:13, on:true }, { k:'Adult 3XL', in:14, on:true },
       { k:'Adult 4XL', in:14, on:true }, { k:'Adult 5XL', in:14, on:true }
     ],
     maxPrintIn: 14
   };
   let SHIRT = JSON.parse(JSON.stringify(SHIRT_DEFAULT));
+
+  function mergeShirtSizes(savedSizes) {
+    const saved = Array.isArray(savedSizes) ? savedSizes : [];
+    const byName = new Map(saved.map(s => [s && s.k, s]));
+    return SHIRT_DEFAULT.sizes.map(def => {
+      const old = byName.get(def.k);
+      return old ? Object.assign({}, def, old) : Object.assign({}, def);
+    });
+  }
   let bldColor = '', bldSize = '', bldMat = '', bldDesign = null;
   let bldSide='front', bldFront=null, bldBack=null;
   const BACK_FEE=5;
@@ -1866,6 +1959,7 @@
       if (error || !data) return;
       const saved = JSON.parse(await data.text());
       SHIRT = Object.assign(JSON.parse(JSON.stringify(SHIRT_DEFAULT)), saved);
+      SHIRT.sizes = mergeShirtSizes(saved.sizes);
     } catch (_) { /* first run — defaults */ }
   }
   async function saveShirtCfg() {
@@ -1880,6 +1974,11 @@
       if (error) throw error;
       $('ss-status').textContent = 'Saved.';
       renderProducts();
+      const section = $('shirt-builder-section');
+      if (section) {
+        section.hidden = !SHIRT.on;
+        if (SHIRT.on) openShirtBuilder(false);
+      }
       setTimeout(() => $('shirt-admin-dialog').close(), 700);
     } catch (e) { $('ss-status').textContent = "Couldn't save — try again."; }
   }
@@ -1917,7 +2016,7 @@
     return Object.entries(SHIRT.colors).filter(([k, c]) => c.on && c.material === mat);
   }
 
-  async function openShirtBuilder() {
+  async function openShirtBuilder(scrollToBuilder = true) {
     if (!bldMat) bldMat = 'Cotton';
     const inStock = stockColors();
     if (!inStock.find(c => c.k === bldColor)) bldColor = inStock.length ? inStock[0].k : '';
@@ -1928,8 +2027,12 @@
       const preferred = onSizes.find(s => s.k === 'Adult M');
       bldSize = preferred ? preferred.k : (onSizes.length ? onSizes[0].k : '');
     }
+    const section = $('shirt-builder-section');
+    if (section) section.hidden = !SHIRT.on;
     renderBuilder();
-    $('shirt-dialog').showModal();
+    if (section && scrollToBuilder) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   function renderBuilder() {
@@ -2194,7 +2297,6 @@
     }
     updateCartCount(); flashCart();
     btn.disabled = false; btn.textContent = 'Add to cart';
-    $('shirt-dialog').close();
     openCart();
   }
 
@@ -2230,7 +2332,7 @@
       if (d && d.ok) {
         note.style.color = 'var(--green)';
         note.textContent = "Got it! We\u2019ll be in touch with your quote soon.";
-        setTimeout(() => { $('art-quote-dialog').close(); $('shirt-dialog').close(); }, 1600);
+        setTimeout(() => { $('art-quote-dialog').close(); }, 1600);
       } else {
         note.textContent = (d && d.error) || "Couldn\u2019t send \u2014 call or text us at (956) 225-5859.";
       }
@@ -2478,7 +2580,15 @@
   ['co-street','co-city','co-zip'].forEach(function(fid){
     var el = $(fid); if (el) el.addEventListener('input', scheduleRateFetch);
   });
-  loadProducts();
+  (async function initStore(){
+    await loadShirtCfg();
+    const section = $('shirt-builder-section');
+    if (section) {
+      section.hidden = !SHIRT.on;
+      if (SHIRT.on) await openShirtBuilder(false);
+    }
+    await loadProducts();
+  })();
 </script>
   <!-- 3D VIEWER / BUILDER OVERLAY -->
   <div class="viewer3d" id="viewer3d" aria-hidden="true" onclick="if(event.target===this)close3D()">
@@ -2495,38 +2605,7 @@
   </div>
 
 
-  <dialog id="shirt-dialog">
-    <div class="dialog-card">
-      <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
-      <p class="label">Build your own</p>
-      <div id="sb-body">
-        <div class="byo-grid">
-          <div class="byo-stagewrap">
-            <div class="sb-preview" id="sb-preview"></div>
-          </div>
-          <div class="byo-controls">
-            <div class="byo-step"><b>1</b> Pick your shirt</div>
-            <div class="byo-lbl">Color <span id="byo-colname"></span></div>
-            <div class="byo-swatches" id="sb-cols"></div>
-            <div class="byo-two">
-              <div>
-                <div class="byo-lbl">Size</div>
-                <select id="sb-size" class="sb-select" onchange="bldSize=this.value;renderBuilder()"></select>
-              </div>
-              <div>
-                <div class="byo-lbl">Fabric</div>
-                <div class="byo-pills" id="sb-mats"></div>
-              </div>
-            </div>
-            <div class="byo-step"><b>2</b> Add your design</div>
-            <div id="byo-designs"></div>
-            <div class="sb-foot"><div class="sb-price" id="sb-price">&mdash;<small>each</small></div><button class="dialog-cta" style="margin:0" id="sb-add">Add to cart</button></div>
-          </div>
-        </div>
-        <input type="file" id="byo-upl" accept="image/*" style="display:none" onchange="onBuildUpload(event)">
-      </div>
-    </div>
-  </dialog>
+  
 
   <dialog id="design-choose">
     <div class="dialog-card" style="max-width:430px">
@@ -2567,15 +2646,15 @@
       <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
       <p class="label">Your artwork</p>
       <h3 class="dialog-title">We&rsquo;ll <em>quote it</em></h3>
-      <p style="font-family:'EB Garamond',serif;font-size:15px;margin:0 0 12px;color:#4A3424">Custom artwork is priced by hand &mdash; leave your info and we&rsquo;ll get back to you with a price.</p>
-      <p style="font-family:'EB Garamond',serif;font-style:italic;font-size:13px;margin:0 0 12px;padding:9px 12px;background:rgba(212,146,58,.1);border:1px solid rgba(212,146,58,.35);border-radius:8px;color:#7a5a2e">&#9888;&#65039; Small or blurry images may not print well &mdash; send the biggest, clearest copy you have. By sending, you confirm you have the right to use this artwork.</p>
+      <p style="font-family:'Teko','Arial Narrow',Arial,sans-serif;font-size:15px;margin:0 0 12px;color:#4A3424">Custom artwork is priced by hand &mdash; leave your info and we&rsquo;ll get back to you with a price.</p>
+      <p style="font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;font-size:15px;margin:0 0 12px;padding:9px 12px;background:rgba(212,146,58,.1);border:1px solid rgba(212,146,58,.35);border-radius:8px;color:#7a5a2e">&#9888;&#65039; Small or blurry images may not print well &mdash; send the biggest, clearest copy you have. By sending, you confirm you have the right to use this artwork.</p>
       <div style="display:flex;flex-direction:column;gap:9px">
         <input class="qf-in" id="aq-name" type="text" autocomplete="name" placeholder="Your name">
         <input class="qf-in" id="aq-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Phone (call or text)">
         <input class="qf-in" id="aq-email" type="email" autocomplete="email" placeholder="Email (optional)">
         <textarea class="qf-in" id="aq-msg" rows="2" placeholder="How many shirts? Anything else we should know?"></textarea>
         <button class="dialog-cta" style="margin:0" id="aq-send" onclick="submitArtQuote()">Send for a quote</button>
-        <p id="art-quote-note" style="font-family:'EB Garamond',serif;font-style:italic;font-size:14px;text-align:center;margin:0;min-height:1em"></p>
+        <p id="art-quote-note" style="font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;font-size:16px;text-align:center;margin:0;min-height:1em"></p>
       </div>
     </div>
   </dialog>
