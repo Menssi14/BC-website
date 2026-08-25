@@ -2415,7 +2415,12 @@
     cats.innerHTML = '';
     grid.innerHTML = '<p class="label">Loading designs&hellip;</p>';
     let list;
-    try { list = await fetchCatalogDesigns(); }
+    try {
+      list = await fetchCatalogDesigns();
+      // The shirt builder is for DTF/printed artwork only. Embroidery- and engraving-only
+      // catalog designs stay available elsewhere in the shop/admin picker.
+      if (forBuilder) list = list.filter(d => Array.isArray(d.tags) && d.tags.includes('print'));
+    }
     catch (e) { list = []; }
     if (!list.length && !forBuilder) { grid.innerHTML = '<p class="label">No designs in the catalog yet.</p>'; return; }
 
@@ -2485,7 +2490,7 @@
         grid.appendChild(wrap);
         const p = document.createElement('p');
         p.className = 'label'; p.style.marginTop = '10px';
-        p.textContent = 'Our design catalog couldn\u2019t load right now.';
+        p.textContent = forBuilder ? 'No DTF designs are available right now.' : 'Our design catalog couldn\u2019t load right now.';
         grid.appendChild(p);
         return;
       }

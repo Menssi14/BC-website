@@ -171,6 +171,14 @@
   .empty-state-orig{ text-align:center; padding:84px 20px; color:rgba(var(--ink-rgb),.55); }
   .empty-state .big{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.1em; font-size:26px; color:rgba(var(--ink-rgb),.4); }
   .empty-state p{ margin:8px 0 0; font-size:17px; }
+  .orders-load-state{ min-height:48vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:64px 20px; color:rgba(var(--ink-rgb),.58); }
+  .orders-load-spinner{ width:34px; height:34px; border:3px solid rgba(var(--ink-rgb),.14); border-top-color:var(--green); border-radius:50%; animation:ordersSpin .8s linear infinite; margin-bottom:15px; }
+  .orders-load-title{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase; font-size:25px; letter-spacing:.04em; color:var(--green); }
+  .orders-load-copy{ font-family:'Teko',sans-serif; font-size:17px; line-height:1.35; margin-top:5px; max-width:360px; }
+  .orders-retry{ margin-top:16px; border:0; border-radius:999px; background:var(--green); color:var(--cream); padding:9px 20px 7px; cursor:pointer; font-family:'Teko',sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:.08em; }
+  .orders-retry:hover{ filter:brightness(1.1); }
+  @keyframes ordersSpin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion:reduce){ .orders-load-spinner{ animation:none; border-top-color:rgba(var(--ink-rgb),.14); } }
 
   .fab-left{ right:auto !important; left:18px; }
   .fab{ position:fixed; right:18px; bottom:22px; z-index:60; width:62px; height:62px; border-radius:20px; background:var(--green); color:var(--cream); border:none; box-shadow:0 8px 24px rgba(31,77,62,.4); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .12s, filter .15s, box-shadow .15s; }
@@ -655,7 +663,7 @@
   </div>
 </div>
 
-<div class="wrap"><div id="board"></div></div>
+<div class="wrap"><div id="board"><div class="orders-load-state" role="status" aria-live="polite"><div class="orders-load-spinner" aria-hidden="true"></div><div class="orders-load-title">Loading orders</div><div class="orders-load-copy">Getting the latest order board&hellip;</div></div></div></div>
 
 <button class="fab" id="fab" title="New order"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
@@ -846,7 +854,33 @@
       sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ _saving=false; if(r&&r.error){ _needsSave=true; syncShow('⚠ Not saved — retrying','fail'); } else { _needsSave=false; syncShow('✓ Order saved','ok'); } }).catch(function(){ _saving=false; _needsSave=true; syncShow('⚠ Not saved — retrying','fail'); });
     }catch(e){ _saving=false; _needsSave=true; syncShow('⚠ Not saved — retrying','fail'); }
   }
-  function load(){ if(!sb){_loaded=true; render(); startAutoRefresh(); return;} sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){ if(r&&r.data){ r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))state.orders=s.orders.map(migrate); _loadOk=true; }catch(e){} _loaded=true; purgeOld(); render(); startAutoRefresh(); }); } else { _loaded=true; render(); startAutoRefresh(); } }).catch(function(){_loaded=true; render(); startAutoRefresh();}); }
+  function showInitialLoading(){
+    var board=$('board');
+    if(!board)return;
+    board.innerHTML='<div class="orders-load-state" role="status" aria-live="polite"><div class="orders-load-spinner" aria-hidden="true"></div><div class="orders-load-title">Loading orders</div><div class="orders-load-copy">Getting the latest order board&hellip;</div></div>';
+  }
+  function showInitialLoadError(){
+    var board=$('board');
+    if(!board)return;
+    board.innerHTML='<div class="orders-load-state" role="alert"><div class="orders-load-title">Could not load orders</div><div class="orders-load-copy">The order board did not load from Supabase. Your orders have not been changed.</div><button type="button" class="orders-retry" id="ordersRetry">Retry</button></div>';
+    var retry=$('ordersRetry'); if(retry)retry.addEventListener('click',load);
+  }
+  function load(){
+    _loaded=false;
+    showInitialLoading();
+    if(!sb){ _loaded=true; showInitialLoadError(); return; }
+    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
+      if(!(r&&r.data)){ _loaded=true; showInitialLoadError(); return; }
+      r.data.text().then(function(t){
+        try{
+          var s=JSON.parse(t);
+          if(!(s&&Array.isArray(s.orders)))throw new Error('Invalid orders file');
+          state.orders=s.orders.map(migrate);
+          _loadOk=true; _loaded=true; purgeOld(); render(); startAutoRefresh();
+        }catch(e){ _loaded=true; showInitialLoadError(); }
+      }).catch(function(){ _loaded=true; showInitialLoadError(); });
+    }).catch(function(){ _loaded=true; showInitialLoadError(); });
+  }
   var _refreshTimer=null, _lastRefresh=0, _remoteTag=null, _loadOk=false;
   function refresh(force){
     if(!sb || !_loaded) return;
