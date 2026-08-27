@@ -731,8 +731,8 @@
   display:flex;justify-content:center;align-items:flex-start
 }
 .dtf-sheet-shell{
-  --ruler:42px;position:relative;width:min(760px,calc(100vw - 390px));min-width:520px;
-  aspect-ratio:1/1;padding:var(--ruler) 0 0 var(--ruler);transform-origin:top center
+  --ruler:42px;position:relative;width:min(620px,calc(100vw - 390px));min-width:430px;
+  aspect-ratio:13/20;padding:var(--ruler) 0 0 var(--ruler);transform-origin:top center
 }
 .dtf-ruler-corner{
   position:absolute;left:0;top:0;width:var(--ruler);height:var(--ruler);
@@ -808,14 +808,14 @@
     linear-gradient(to right,rgba(31,77,62,.11) 1px,transparent 1px),
     linear-gradient(to bottom,rgba(31,77,62,.11) 1px,transparent 1px),
     conic-gradient(#e9e2d2 25%,#faf6ec 0 50%,#e9e2d2 0 75%,#faf6ec 0);
-  background-size:calc(100% / 13) 100%,100% calc(100% / 13),16px 16px;
+  background-size:calc(100% / 13) 100%,100% calc(100% / 20),16px 16px;
   box-shadow:0 10px 28px rgba(62,45,28,.10)
 }
 .dtf-sheet.solid{
   background-image:
     linear-gradient(to right,rgba(255,255,255,.13) 1px,transparent 1px),
     linear-gradient(to bottom,rgba(255,255,255,.13) 1px,transparent 1px);
-  background-size:calc(100% / 13) 100%,100% calc(100% / 13);
+  background-size:calc(100% / 13) 100%,100% calc(100% / 20);
   background-color:#c8c8c5
 }
 .dtf-sheet-empty{
@@ -830,13 +830,19 @@
   position:absolute;transform:translate(-50%,-50%);touch-action:none;user-select:none;cursor:move
 }
 .dtf-sheet-object img{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none
+  position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:fill;
+  transform-origin:center center;pointer-events:none;user-select:none;
+  max-width:none;max-height:none
 }
 .dtf-sheet-object.selected{z-index:50!important}
 .dtf-select-box{
-  position:absolute;inset:-1px;border:1.5px solid transparent;pointer-events:none
+  position:absolute;inset:0;border:1px solid transparent;pointer-events:none;
+  border-radius:2px;box-sizing:border-box
 }
-.dtf-sheet-object.selected .dtf-select-box{border-color:var(--pink)}
+.dtf-sheet-object.selected .dtf-select-box{
+  border-color:rgba(31,77,62,.86);
+  box-shadow:0 0 0 1px rgba(255,255,255,.72) inset
+}
 
 .dtf-sheet-object.colliding .dtf-select-box{
   border:2px dashed #ff6a2b!important;
@@ -893,26 +899,11 @@
   border-radius:50%;background:#fffdf8;z-index:4;padding:0
 }
 .dtf-sheet-object.selected .dtf-handle{display:block}
-.dtf-handle.nw{left:-8px;top:-8px;cursor:nwse-resize}
-.dtf-handle.ne{right:-8px;top:-8px;cursor:nesw-resize}
-.dtf-handle.sw{left:-8px;bottom:-8px;cursor:nesw-resize}
-.dtf-handle.se{right:-8px;bottom:-8px;cursor:nwse-resize}
+.dtf-handle.nw{left:-6px;top:-6px;cursor:nwse-resize}
+.dtf-handle.ne{right:-6px;top:-6px;cursor:nesw-resize}
+.dtf-handle.sw{left:-6px;bottom:-6px;cursor:nesw-resize}
+.dtf-handle.se{right:-6px;bottom:-6px;cursor:nwse-resize}
 
-.dtf-selected-bar{
-  display:none;position:absolute;left:50%;top:calc(100% + 13px);transform:translateX(-50%);
-  z-index:80;background:#fffdf8;border:1px solid #d5cab8;border-radius:6px;
-  box-shadow:0 7px 18px rgba(60,44,26,.16);padding:3px;white-space:nowrap
-}
-.dtf-sheet-object.selected .dtf-selected-bar{display:flex}
-.dtf-sheet-object.toolbar-above .dtf-selected-bar{
-  top:auto;bottom:calc(100% + 13px)
-}
-.dtf-selected-bar button{
-  height:30px;padding:0 8px;border:0;background:transparent;color:#4A3424;border-radius:4px;
-  font-family:'Teko',sans-serif;font-size:13px;cursor:pointer
-}
-.dtf-selected-bar button:hover{background:#f1eadc;color:var(--green)}
-.dtf-selected-bar button.danger:hover{color:#8d433b}
 
 .dtf-dimension-card{
   position:absolute;right:16px;top:68px;width:238px;z-index:100;background:#fffdf8;
@@ -1142,7 +1133,7 @@
   <dialog id="dtf-dialog" aria-labelledby="dtf-title">
     <div class="dtf-mobile-only">
       <div class="dtf-mobile-card">
-        <strong>Order DTF on Desktop</strong>
+        <strong>DTF Builder on Desktop</strong>
         <p>This editor needs a larger screen for accurate sizing and placement. Open Broch Custom on a desktop or laptop to build your DTF sheet.</p>
         <button type="button" onclick="closeDtfOrder()">Close</button>
       </div>
@@ -1152,9 +1143,9 @@
       <header class="dtf-head">
         <div class="dtf-brand">
           <small>Broch Custom</small>
-          <strong id="dtf-title">Order DTF</strong>
+          <strong id="dtf-title">DTF Builder</strong>
         </div>
-        <div class="dtf-head-meta">11 × 11 = $5 &nbsp;·&nbsp; up to 13 × 13 = $6</div>
+        <div class="dtf-head-meta">13 × 20 max &nbsp;·&nbsp; <span id="dtf-rate-copy">$0.10 per sq in</span></div>
         <div class="dtf-head-spacer"></div>
 
         <div class="dtf-qty-head" aria-label="Print amount">
@@ -1181,10 +1172,10 @@
             </div>
             <input id="dtf-file" type="file" accept=".png,.svg,image/png,image/svg+xml" multiple hidden onchange="handleDtfUpload(event)">
             <button class="dtf-upload-clean" type="button" onclick="$('dtf-file').click()">+ Add Files</button>
-            <div class="dtf-upload-note">PNG or SVG. Upload several designs and arrange them together on one print area.</div>
+            <div class="dtf-upload-note">PNG or SVG. Use one design for a single transfer, or place multiple designs to build a gangsheet.</div>
           </div>
           <div class="dtf-library-list" id="dtf-library-list">
-            <div class="dtf-empty-library" id="dtf-empty-library">Your uploaded graphics will appear here.</div>
+            <div class="dtf-empty-library" id="dtf-empty-library">Your uploaded designs will appear here.</div>
           </div>
         </aside>
 
@@ -1192,18 +1183,20 @@
           <div class="dtf-tools">
             <button class="dtf-tool" type="button" onclick="resetDtfSheet()">Reset</button>
             <button class="dtf-tool" id="dtf-preview-toggle" type="button" onclick="toggleDtfPreviewBg()">▦ Preview Background</button>
-            <button class="dtf-tool on" id="dtf-snap-toggle" type="button" onclick="toggleDtfSnap()" title="Snap artwork position and alignment. Resizing stays smooth.">⌗ Snap</button>
-            <button class="dtf-tool" type="button" onclick="autoArrangeDtf()">Auto Arrange</button>
+            <button class="dtf-tool on" id="dtf-snap-toggle" type="button" onclick="toggleDtfSnap()" title="Snap position and size to 0.25 inch intervals.">⌗ Snap</button>
 
             <span class="dtf-tool-sep"></span>
 
-            <button class="dtf-tool" id="dtf-duplicate-btn" type="button" onclick="duplicateSelectedDtf()" disabled>Duplicate</button>
-            <button class="dtf-tool" id="dtf-dimensions-btn" type="button" onclick="toggleDtfDimensions()" disabled>Dimensions</button>
+            <button class="dtf-tool" id="dtf-dimensions-btn" type="button" onclick="toggleDtfDimensions()" disabled>Size</button>
+            <button class="dtf-tool" id="dtf-rotate-left-btn" type="button" onclick="rotateSelectedDtf(-1)" disabled title="Rotate 90° left" aria-label="Rotate 90 degrees left">↶ 90°</button>
+            <button class="dtf-tool" id="dtf-rotate-right-btn" type="button" onclick="rotateSelectedDtf(1)" disabled title="Rotate 90° right" aria-label="Rotate 90 degrees right">↷ 90°</button>
+            <button class="dtf-tool" id="dtf-mirror-lr-btn" type="button" onclick="mirrorSelectedDtf('x')" disabled title="Mirror left to right" aria-label="Mirror left to right">Mirror ↔</button>
+            <button class="dtf-tool" id="dtf-mirror-tb-btn" type="button" onclick="mirrorSelectedDtf('y')" disabled title="Mirror top to bottom" aria-label="Mirror top to bottom">Mirror ↕</button>
             <button class="dtf-tool danger" id="dtf-delete-btn" type="button" onclick="removeSelectedDtf()" disabled>Delete</button>
 
             <div class="dtf-tools-center">
-              <strong>13 × 13</strong> workspace
-              <span class="dtf-overlap-status" id="dtf-overlap-status" hidden></span>
+              <strong>13 × 20</strong> workspace
+
             </div>
 
             <div class="dtf-zoom">
@@ -1224,7 +1217,7 @@
               </div>
               <div class="dtf-sheet" id="dtf-sheet">
                 <div class="dtf-sheet-empty" id="dtf-sheet-empty">
-                  <div><strong>Add your designs</strong>Upload PNG or SVG files from the Graphics panel.</div>
+                  <div><strong>Add your designs</strong>Upload one or more PNG or SVG files from the Graphics panel.</div>
                 </div>
               </div>
             </div>
@@ -1238,7 +1231,7 @@
             </div>
             <div class="dtf-dim-row">
               <label for="dtf-selected-height">Height (IN)</label>
-              <input id="dtf-selected-height" type="number" min="0.5" max="13" step="0.25" oninput="setSelectedDtfDimension('h',this.value)">
+              <input id="dtf-selected-height" type="number" min="0.5" max="20" step="0.25" oninput="setSelectedDtfDimension('h',this.value)">
             </div>
             <div class="dtf-lock-row">
               <span>Preserve Aspect Ratio</span>
@@ -1572,11 +1565,11 @@
     grid.innerHTML = '';
     if (!products.length) {
       grid.innerHTML = '';
-      if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); }
+      if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); addDtfAdminCard(); }
       return;
     }
     products.forEach(p => grid.appendChild(productCard(p)));
-    if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); }
+    if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); addDtfAdminCard(); }
   }
 
   function productCard(p) {
@@ -1632,6 +1625,16 @@
     card.style.cssText = 'align-items:center;justify-content:center;border-style:dashed;cursor:pointer;min-height:280px;';
     card.innerHTML = '<div style="text-align:center;color:var(--green);font-family:Teko,sans-serif;font-size:20px;letter-spacing:0.1em;text-transform:uppercase;">Shirt builder settings</div>';
     card.onclick = () => openShirtAdmin();
+    grid.appendChild(card);
+  }
+
+  function addDtfAdminCard() {
+    const grid = $('product-grid');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'align-items:center;justify-content:center;border-style:dashed;cursor:pointer;min-height:280px;';
+    card.innerHTML = '<div style="text-align:center;color:var(--green);font-family:Teko,sans-serif;font-size:20px;letter-spacing:0.1em;text-transform:uppercase;">DTF order settings</div>';
+    card.onclick = () => openDtfAdmin();
     grid.appendChild(card);
   }
 
@@ -1876,7 +1879,7 @@
     try { await dtfRestorePromise; } catch (_) {}
     const missingDtf = cart.find(c => c && c.id === 'dtf-order' && !c.dtfArtwork);
     if (missingDtf) {
-      alert('Your DTF artwork needs to be uploaded again before checkout. Open Order DTF and add the transfer again.');
+      alert('Your DTF artwork needs to be uploaded again before checkout. Open the DTF Builder and add the transfer again.');
       return;
     }
     $('cart-dialog').close();
@@ -1961,7 +1964,8 @@
           shippingCents: coShipCents(),
           address: coAddressText(),
           mockups: builtMockups(),
-          artwork: builtOriginals()
+          artwork: builtOriginals(),
+          hasDtf: hasDtfInCart()
         })
       });
       const data = await res.json();
@@ -2077,7 +2081,8 @@
           shippingCents: coShipCents(),
           address: coAddressText(),
           mockups: builtMockups(),
-          artwork: builtOriginals()
+          artwork: builtOriginals(),
+          hasDtf: hasDtfInCart()
         })
       });
       const data = await res.json();
@@ -2132,7 +2137,7 @@
       const oid = 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6);
       store.orders.push({
         id: oid,
-        type: 'NOTE',
+        type: hasDtfInCart() ? 'DTF' : 'NOTE',
         title: '\ud83c\udfec Website order' + (phonePretty ? ' \u00b7 ' + phonePretty : ''),
         custName: 'Website order' + (phonePretty ? ' \u00b7 ' + phonePretty : ''),
         custPhone: phone10,
@@ -3370,7 +3375,14 @@
   }
   function builtMockups() {
     const out=[];
-    cart.filter(c=>c.built).forEach(c=>{ if(Array.isArray(c.mockups)) c.mockups.forEach(m=>{ if(m) out.push(m); }); else if(c.photo) out.push(c.photo); });
+    cart.forEach(c=>{
+      if(!c)return;
+      if(c.id==='dtf-order' && c.photo){ out.push(c.photo); return; }
+      if(c.built){
+        if(Array.isArray(c.mockups)) c.mockups.forEach(m=>{ if(m) out.push(m); });
+        else if(c.photo) out.push(c.photo);
+      }
+    });
     return out.slice(0,3);
   }
 
@@ -3613,6 +3625,7 @@
   });
   (async function initStore(){
     await loadShirtCfg();
+    await loadDtfCfg();
     const section = $('shirt-builder-section');
     if (section) {
       section.hidden = !SHIRT.on;
@@ -3623,11 +3636,75 @@
     await loadProducts();
   })();
 
-  // ── Order DTF · clean multi-design editor ──────────────────
-  const DTF_MAX_IN = 13;
-  const DTF_PRICE_11 = 5;
-  const DTF_PRICE_13 = 6;
-  const DTF_DB = 'broch-dtf-local-v2';
+  // ── Order DTF · single-design 13x20 editor ─────────────────
+  const DTF_MAX_W = 13;
+  const DTF_MAX_H = 20;
+
+  // Owner-editable DTF pricing. Saved in Supabase so it follows the store
+  // across devices. First-run/default rate is $0.10 per square inch.
+  const DTF_CFG_FILE = '_store/dtf.json';
+  const DTF_CFG_DEFAULT = { pricePerSqIn: 0.10 };
+  let DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+
+  function currentDtfRate() {
+    const n = Number(DTF_CFG.pricePerSqIn);
+    return Number.isFinite(n) && n > 0 ? n : DTF_CFG_DEFAULT.pricePerSqIn;
+  }
+
+  async function loadDtfCfg() {
+    if (!sb) {
+      DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+      return;
+    }
+    try {
+      const { data, error } = await sb.storage.from(PRODUCTS_BUCKET).download(DTF_CFG_FILE);
+      if (error || !data) {
+        DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+        return;
+      }
+      const saved = JSON.parse(await data.text());
+      const rate = Number(saved && saved.pricePerSqIn);
+      DTF_CFG = {
+        pricePerSqIn: Number.isFinite(rate) && rate > 0
+          ? rate
+          : DTF_CFG_DEFAULT.pricePerSqIn
+      };
+    } catch (_) {
+      DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+    }
+  }
+
+  function openDtfAdmin() {
+    $('dtf-admin-rate').value = currentDtfRate().toFixed(2);
+    $('dtf-admin-status').textContent = '';
+    $('dtf-admin-dialog').showModal();
+  }
+
+  async function saveDtfCfg() {
+    const rate = Number($('dtf-admin-rate').value);
+    if (!Number.isFinite(rate) || rate <= 0) {
+      $('dtf-admin-status').textContent = 'Enter a valid price above $0.00.';
+      return;
+    }
+
+    DTF_CFG.pricePerSqIn = Math.round(rate * 100) / 100;
+    $('dtf-admin-status').textContent = 'Saving…';
+
+    try {
+      if (!sb) throw new Error('Cloud not connected');
+      const blob = new Blob([JSON.stringify(DTF_CFG)], { type:'application/json' });
+      const { error } = await sb.storage.from(PRODUCTS_BUCKET).upload(DTF_CFG_FILE, blob, { upsert:true });
+      if (error) throw error;
+
+      $('dtf-admin-status').textContent = 'Saved.';
+      renderDtfEditor();
+      setTimeout(() => $('dtf-admin-dialog').close(), 650);
+    } catch (e) {
+      $('dtf-admin-status').textContent = "Couldn't save — try again.";
+    }
+  }
+
+  const DTF_DB = 'broch-dtf-local-v4';
   const DTF_STORE = 'sheets';
 
   const dtfState = {
@@ -3647,22 +3724,62 @@
     return dtfState.designs.find(d=>d.id===dtfState.selectedId)||null;
   }
   function dtfClamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+  function hasDtfInCart(){ return cart.some(c=>c&&c.id==='dtf-order'); }
+
+  function dtfRotation(d){
+    return ((((d&&d.rotation)||0)%360)+360)%360;
+  }
+  function dtfIsQuarterTurn(d){
+    return dtfRotation(d)%180!==0;
+  }
+  function dtfSourceAspect(d){
+    const pxAspect=(Number(d&&d.pxW)||0)/(Number(d&&d.pxH)||1);
+    const a=Number(d&&d.sourceAspect)||pxAspect||Number(d&&d.aspect)||1;
+    return Number.isFinite(a)&&a>0?a:1;
+  }
+  function dtfDisplayAspect(d){
+    const a=dtfSourceAspect(d);
+    return dtfIsQuarterTurn(d)?1/a:a;
+  }
+  function dtfTransformLabel(d){
+    const parts=[];
+    const rot=dtfRotation(d);
+    if(rot===90)parts.push('90° right');
+    else if(rot===270)parts.push('90° left');
+    else if(rot===180)parts.push('180°');
+    if(d&&d.flipX)parts.push('Mirror left ↔ right');
+    if(d&&d.flipY)parts.push('Mirror top ↕ bottom');
+    return parts.join(' · ') || 'Standard';
+  }
+  function dtfImgFrame(d){
+    const odd=dtfIsQuarterTurn(d);
+    const boxW=Math.max(.01, d.widthIn||1);
+    const boxH=Math.max(.01, d.heightIn||1);
+    return {
+      widthPct: odd ? (boxH/boxW)*100 : 100,
+      heightPct: odd ? (boxW/boxH)*100 : 100,
+      transform: 'translate(-50%,-50%) rotate('+dtfRotation(d)+'deg) scale('+(d&&d.flipX?-1:1)+','+(d&&d.flipY?-1:1)+')'
+    };
+  }
+
 
   function toggleDtfSnap(){
     dtfState.snap=!dtfState.snap;
     renderDtfEditor();
   }
 
-  function snapDtfQuarter(v){
-    return Math.round(v*4)/4;
+  function snapDtfQuarter(v){ return Math.round(v*4)/4; }
+  function snapDtfDimension(v,min,max){
+    const snapped = dtfState.snap ? snapDtfQuarter(v) : v;
+    return dtfClamp(snapped,min,max);
   }
-
-  function snapDtfAxis(value, size, axis, activeId){
+  function snapDtfAxis(value,size,axis,activeId){
     if(!dtfState.snap)return value;
 
+    const limit = axis==='x' ? DTF_MAX_W : DTF_MAX_H;
     const half=size/2;
     const threshold=.16;
-    const candidates=[half,6.5,13-half];
+    const candidates=[half,limit/2,limit-half];
 
     for(const other of dtfState.designs){
       if(other.id===activeId)continue;
@@ -3670,7 +3787,6 @@
       const oPos=axis==='x'?other.x:other.y;
       const oh=oSize/2;
 
-      // align left/top edges, centers, and right/bottom edges
       candidates.push(
         oPos-oh+half,
         oPos,
@@ -3688,7 +3804,7 @@
         bestDist=dist;
       }
     }
-    return snapped;
+    return dtfClamp(snapped,half,limit-half);
   }
 
   function dtfIn(n){
@@ -3702,44 +3818,6 @@
     return Math.floor(len*0.75);
   }
 
-  function getDtfCollisions(){
-    const collisions=[];
-    const eps=.02; // ignore microscopic rounding contact
-    for(let i=0;i<dtfState.designs.length;i++){
-      const a=dtfState.designs[i];
-      const aL=a.x-a.widthIn/2, aR=a.x+a.widthIn/2;
-      const aT=a.y-a.heightIn/2, aB=a.y+a.heightIn/2;
-
-      for(let j=i+1;j<dtfState.designs.length;j++){
-        const b=dtfState.designs[j];
-        const bL=b.x-b.widthIn/2, bR=b.x+b.widthIn/2;
-        const bT=b.y-b.heightIn/2, bB=b.y+b.heightIn/2;
-
-        const left=Math.max(aL,bL);
-        const right=Math.min(aR,bR);
-        const top=Math.max(aT,bT);
-        const bottom=Math.min(aB,bB);
-
-        if((right-left)>eps && (bottom-top)>eps){
-          collisions.push({
-            aId:a.id,bId:b.id,
-            left,right,top,bottom,
-            width:right-left,height:bottom-top
-          });
-        }
-      }
-    }
-    return collisions;
-  }
-
-  function getDtfCollidingIds(){
-    const ids=new Set();
-    for(const c of getDtfCollisions()){
-      ids.add(c.aId);ids.add(c.bId);
-    }
-    return ids;
-  }
-
   function getDtfFootprint(){
     if(!dtfState.designs.length)return {w:0,h:0,minX:0,minY:0,maxX:0,maxY:0};
     let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
@@ -3751,9 +3829,17 @@
     }
     return {w:maxX-minX,h:maxY-minY,minX,minY,maxX,maxY};
   }
-  function getDtfUnitPrice(){
+  function getDtfArea(){
+    if(!dtfState.designs.length)return 0;
+    if(dtfState.designs.length===1){
+      const d=dtfState.designs[0];
+      return d.widthIn*d.heightIn;
+    }
     const f=getDtfFootprint();
-    return (f.w<=11.0001&&f.h<=11.0001)?DTF_PRICE_11:DTF_PRICE_13;
+    return f.w*f.h;
+  }
+  function getDtfUnitPrice(){
+    return Math.round((getDtfArea()*currentDtfRate())*100)/100;
   }
 
   function dtfDbOpen(){
@@ -3804,54 +3890,59 @@
 
   async function restoreDtfArtwork(){
     for(const c of cart.filter(c=>c&&c.id==='dtf-order'&&!c.dtfArtwork)){
-      const sheet=await dtfDbGet(c.key);
-      if(sheet&&Array.isArray(sheet.designs))c.dtfArtwork=sheet;
+      const saved=await dtfDbGet(c.key);
+      if(saved&&(saved.design||saved.designs))c.dtfArtwork=saved;
+      if(saved&&!c.photo){
+        c.photo = saved.previewPhoto || (saved.design?.dataUrl) || (saved.designs&&saved.designs.length===1 ? saved.designs[0].dataUrl : '');
+      }
     }
   }
   let dtfRestorePromise=restoreDtfArtwork();
 
-  function openDtfOrder(){
-    buildDtfRulers();
-    renderDtfEditor();
-    $('dtf-dialog').showModal();
-  }
+  function openDtfOrder(){ buildDtfRulers(); renderDtfEditor(); $('dtf-dialog').showModal(); }
   function closeDtfOrder(){ $('dtf-dialog').close(); }
 
   function buildDtfRulers(){
     const rx=$('dtf-ruler-x'),ry=$('dtf-ruler-y');
     if(!rx||!ry||rx.dataset.built==='1')return;
-    rx.dataset.built='1';ry.dataset.built='1';
+    rx.dataset.built='1';
+    ry.dataset.built='1';
 
-    // 0–13 inches, with a visible tick every 1/2 inch.
-    for(let half=0;half<=26;half++){
+    for(let half=0;half<=DTF_MAX_W*2;half++){
       const inches=half/2;
-      const pct=inches/13*100;
+      const pct=inches/DTF_MAX_W*100;
       const major=half%2===0;
 
-      const tx=document.createElement('i');
-      tx.className='dtf-ruler-tick-x '+(major?'major':'half');
-      tx.style.left=pct+'%';
-      rx.appendChild(tx);
-
-      const ty=document.createElement('i');
-      ty.className='dtf-ruler-tick-y '+(major?'major':'half');
-      ty.style.top=pct+'%';
-      ry.appendChild(ty);
+      const tick=document.createElement('i');
+      tick.className='dtf-ruler-tick-x '+(major?'major':'half');
+      tick.style.left=pct+'%';
+      rx.appendChild(tick);
 
       if(major){
-        const label=inches===13?'13"':String(inches);
+        const label=document.createElement('span');
+        label.className='dtf-ruler-label-x'+(inches===0?' edge-start':inches===DTF_MAX_W?' edge-end':'');
+        label.style.left=pct+'%';
+        label.textContent=inches===DTF_MAX_W?DTF_MAX_W+'"':String(inches);
+        rx.appendChild(label);
+      }
+    }
 
-        const lx=document.createElement('span');
-        lx.className='dtf-ruler-label-x'+(inches===0?' edge-start':inches===13?' edge-end':'');
-        lx.style.left=pct+'%';
-        lx.textContent=label;
-        rx.appendChild(lx);
+    for(let half=0;half<=DTF_MAX_H*2;half++){
+      const inches=half/2;
+      const pct=inches/DTF_MAX_H*100;
+      const major=half%2===0;
 
-        const ly=document.createElement('span');
-        ly.className='dtf-ruler-label-y'+(inches===0?' edge-start':inches===13?' edge-end':'');
-        ly.style.top=pct+'%';
-        ly.textContent=label;
-        ry.appendChild(ly);
+      const tick=document.createElement('i');
+      tick.className='dtf-ruler-tick-y '+(major?'major':'half');
+      tick.style.top=pct+'%';
+      ry.appendChild(tick);
+
+      if(major){
+        const label=document.createElement('span');
+        label.className='dtf-ruler-label-y'+(inches===0?' edge-start':inches===DTF_MAX_H?' edge-end':'');
+        label.style.top=pct+'%';
+        label.textContent=inches===DTF_MAX_H?DTF_MAX_H+'"':String(inches);
+        ry.appendChild(label);
       }
     }
   }
@@ -3894,12 +3985,12 @@
         }
 
         let longSide=isSvg?4:Math.max(pxW,pxH)/300;
-        longSide=dtfClamp(longSide||4,2,7);
+        longSide=dtfClamp(longSide||4,2,8);
         let widthIn,heightIn;
         if(aspect>=1){widthIn=longSide;heightIn=longSide/aspect}
         else{heightIn=longSide;widthIn=longSide*aspect}
-        widthIn=dtfClamp(widthIn,.5,13);
-        heightIn=dtfClamp(heightIn,.5,13);
+        widthIn=dtfClamp(widthIn,.5,DTF_MAX_W);
+        heightIn=dtfClamp(heightIn,.5,DTF_MAX_H);
 
         const design={
           id:dtfId(),
@@ -3907,10 +3998,13 @@
           mime:isSvg?'image/svg+xml':'image/png',
           dataUrl,
           bytes:file.size||dtfFileBase64Bytes(dataUrl),
-          pxW,pxH,aspect:aspect||1,isVector:isSvg,
+          pxW,pxH,aspect:aspect||1,sourceAspect:aspect||1,isVector:isSvg,
           widthIn,heightIn,
-          x:6.5,y:6.5,
+          x:DTF_MAX_W/2,y:DTF_MAX_H/2,
           locked:true,
+          rotation:0,
+          flipX:false,
+          flipY:false,
           background:await detectDtfBackground(dataUrl),
           dpi:null
         };
@@ -3956,16 +4050,43 @@
     dtfState.dimensionsOpen=false;
     renderDtfEditor();
   }
-  function removeSelectedDtf(){
-    if(dtfState.selectedId)removeDtfDesign(dtfState.selectedId);
-  }
+  function removeSelectedDtf(){ if(dtfState.selectedId)removeDtfDesign(dtfState.selectedId); }
   function duplicateSelectedDtf(){
     const d=selectedDtf();if(!d)return;
     const copy={...d,id:dtfId(),filename:d.filename.replace(/(\.[^.]+)?$/, ' copy$1')};
-    copy.x=dtfClamp(d.x+.35,copy.widthIn/2,13-copy.widthIn/2);
-    copy.y=dtfClamp(d.y+.35,copy.heightIn/2,13-copy.heightIn/2);
+    copy.x=dtfClamp(d.x+.35,copy.widthIn/2,DTF_MAX_W-copy.widthIn/2);
+    copy.y=dtfClamp(d.y+.35,copy.heightIn/2,DTF_MAX_H-copy.heightIn/2);
     dtfState.designs.push(copy);
     dtfState.selectedId=copy.id;
+    renderDtfEditor();
+  }
+
+  function rotateSelectedDtf(direction=1){
+    const d=selectedDtf(); if(!d)return;
+    const w=d.widthIn, h=d.heightIn;
+    d.widthIn=h;
+    d.heightIn=w;
+    d.rotation=(dtfRotation(d)+(direction<0?-90:90)+360)%360;
+    keepDtfInside(d);
+    renderDtfEditor();
+  }
+  function mirrorSelectedDtf(axis){
+    const d=selectedDtf(); if(!d)return;
+    if(axis==='x') d.flipX=!d.flipX;
+    else if(axis==='y') d.flipY=!d.flipY;
+    renderDtfEditor();
+  }
+  function resetSelectedDtfTransform(){
+    const d=selectedDtf(); if(!d)return;
+    if(dtfIsQuarterTurn(d)){
+      const w=d.widthIn;
+      d.widthIn=d.heightIn;
+      d.heightIn=w;
+    }
+    d.rotation=0;
+    d.flipX=false;
+    d.flipY=false;
+    keepDtfInside(d);
     renderDtfEditor();
   }
 
@@ -3979,29 +4100,20 @@
     dtfState.dimensionsOpen=false;
     renderDtfEditor();
   }
-  function toggleDtfPreviewBg(){
-    dtfState.solidPreview=!dtfState.solidPreview;
-    renderDtfEditor();
-  }
-  function changeDtfZoom(delta){
-    dtfState.zoom=dtfClamp((dtfState.zoom||100)+delta,70,130);
-    renderDtfEditor();
-  }
-  function changeDtfQty(delta){
-    dtfState.qty=dtfClamp((dtfState.qty||1)+delta,1,99);
-    renderDtfEditor();
-  }
+  function toggleDtfPreviewBg(){ dtfState.solidPreview=!dtfState.solidPreview; renderDtfEditor(); }
+  function changeDtfZoom(delta){ dtfState.zoom=dtfClamp((dtfState.zoom||100)+delta,70,130); renderDtfEditor(); }
+  function changeDtfQty(delta){ dtfState.qty=dtfClamp((dtfState.qty||1)+delta,1,99); renderDtfEditor(); }
 
   function autoArrangeDtf(render=true){
-    if(!dtfState.designs.length){if(render)renderDtfEditor();return}
+    if(!dtfState.designs.length){ if(render)renderDtfEditor(); return; }
     const gap=.22;
     let x=gap,y=gap,rowH=0;
     for(const d of dtfState.designs){
-      if(x+d.widthIn>13-gap){
+      if(x+d.widthIn>DTF_MAX_W-gap){
         x=gap;y+=rowH+gap;rowH=0;
       }
-      if(y+d.heightIn>13-gap){
-        d.x=6.5;d.y=6.5;
+      if(y+d.heightIn>DTF_MAX_H-gap){
+        d.x=DTF_MAX_W/2;d.y=DTF_MAX_H/2;
       }else{
         d.x=x+d.widthIn/2;
         d.y=y+d.heightIn/2;
@@ -4018,30 +4130,33 @@
     renderDtfEditor();
   }
   function toggleSelectedDtfLock(){
-    const d=selectedDtf();if(!d)return;
-    d.locked=!d.locked;renderDtfEditor();
+    const d=selectedDtf(); if(!d)return;
+    d.locked=!d.locked; renderDtfEditor();
   }
   function setSelectedDtfDimension(which,value){
-    const d=selectedDtf();if(!d)return;
-    let n=dtfClamp(Number(value)||.5,.5,13);
+    const d=selectedDtf(); if(!d)return;
+    let n=Number(value)||.5;
+    const displayAspect=dtfDisplayAspect(d);
     if(which==='w'){
-      d.widthIn=n;
-      if(d.locked&&d.aspect)d.heightIn=dtfClamp(n/d.aspect,.5,13);
+      n=snapDtfDimension(n,.5,DTF_MAX_W); d.widthIn=n;
+      if(d.locked)d.heightIn=dtfClamp(n/displayAspect,.5,DTF_MAX_H);
     }else{
-      d.heightIn=n;
-      if(d.locked&&d.aspect)d.widthIn=dtfClamp(n*d.aspect,.5,13);
+      n=snapDtfDimension(n,.5,DTF_MAX_H); d.heightIn=n;
+      if(d.locked)d.widthIn=dtfClamp(n*displayAspect,.5,DTF_MAX_W);
     }
     keepDtfInside(d);
     renderDtfEditor();
   }
   function keepDtfInside(d){
-    d.x=dtfClamp(d.x,d.widthIn/2,13-d.widthIn/2);
-    d.y=dtfClamp(d.y,d.heightIn/2,13-d.heightIn/2);
+    d.x=dtfClamp(d.x,d.widthIn/2,DTF_MAX_W-d.widthIn/2);
+    d.y=dtfClamp(d.y,d.heightIn/2,DTF_MAX_H-d.heightIn/2);
   }
 
   function dtfQuality(d){
     if(d.isVector)return {kind:'ok',short:'Vector',text:'Vector SVG · scalable'};
-    const dpi=Math.floor(Math.min(d.pxW/Math.max(.01,d.widthIn),d.pxH/Math.max(.01,d.heightIn)));
+    const pxW=dtfIsQuarterTurn(d)?d.pxH:d.pxW;
+    const pxH=dtfIsQuarterTurn(d)?d.pxW:d.pxH;
+    const dpi=Math.floor(Math.min(pxW/Math.max(.01,d.widthIn),pxH/Math.max(.01,d.heightIn)));
     d.dpi=dpi;
     if(dpi>=300)return {kind:'ok',short:dpi+' DPI',text:dpi+' DPI · excellent'};
     if(dpi>=150)return {kind:'warn',short:dpi+' DPI',text:dpi+' DPI · acceptable'};
@@ -4049,15 +4164,16 @@
   }
 
   function renderDtfLibrary(){
-    const list=$('dtf-library-list');if(!list)return;
+    const list=$('dtf-library-list'); if(!list)return;
     list.innerHTML='';
     $('dtf-design-count').textContent=dtfState.designs.length+' design'+(dtfState.designs.length===1?'':'s');
 
     if(!dtfState.designs.length){
       const empty=document.createElement('div');
-      empty.className='dtf-empty-library';empty.id='dtf-empty-library';
-      empty.textContent='Your uploaded graphics will appear here.';
-      list.appendChild(empty);return;
+      empty.className='dtf-empty-library';
+      empty.textContent='Your uploaded designs will appear here.';
+      list.appendChild(empty);
+      return;
     }
 
     for(const d of dtfState.designs){
@@ -4067,24 +4183,23 @@
       card.onclick=()=>selectDtf(d.id);
 
       const img=document.createElement('img');
-      img.className='dtf-art-thumb';img.src=d.dataUrl;img.alt='';
+      img.className='dtf-art-thumb'; img.src=d.dataUrl; img.alt='';
 
-      const info=document.createElement('div');info.className='dtf-art-info';
-      const name=document.createElement('div');name.className='dtf-art-name';name.textContent=d.filename;
-      const size=document.createElement('div');size.className='dtf-art-size';
-      size.textContent=dtfIn(d.widthIn)+'" × '+dtfIn(d.heightIn)+'"';
-      const badges=document.createElement('div');badges.className='dtf-badges';
+      const info=document.createElement('div'); info.className='dtf-art-info';
+      const name=document.createElement('div'); name.className='dtf-art-name'; name.textContent=d.filename;
+      const size=document.createElement('div'); size.className='dtf-art-size'; size.textContent=dtfIn(d.widthIn)+'" × '+dtfIn(d.heightIn)+'"';
+      const badges=document.createElement('div'); badges.className='dtf-badges';
 
-      const qb=document.createElement('span');qb.className='dtf-badge '+q.kind;qb.textContent=q.short;badges.appendChild(qb);
+      const qb=document.createElement('span'); qb.className='dtf-badge '+q.kind; qb.textContent=q.short; badges.appendChild(qb);
       if(d.background==='background'){
-        const bg=document.createElement('span');bg.className='dtf-badge warn';bg.textContent='BG';badges.appendChild(bg);
+        const bg=document.createElement('span'); bg.className='dtf-badge warn'; bg.textContent='BG'; badges.appendChild(bg);
       }
 
       info.append(name,size,badges);
 
       const rm=document.createElement('button');
-      rm.className='dtf-card-remove';rm.type='button';rm.textContent='×';rm.title='Remove';
-      rm.onclick=e=>{e.stopPropagation();removeDtfDesign(d.id)};
+      rm.className='dtf-card-remove'; rm.type='button'; rm.textContent='×'; rm.title='Remove';
+      rm.onclick=e=>{ e.stopPropagation(); removeDtfDesign(d.id); };
 
       card.append(img,info,rm);
       list.appendChild(card);
@@ -4092,100 +4207,64 @@
   }
 
   function renderDtfCanvas(){
-    const sheet=$('dtf-sheet');if(!sheet)return;
-    [...sheet.querySelectorAll('.dtf-sheet-object,.dtf-collision-zone')].forEach(n=>n.remove());
+    const sheet=$('dtf-sheet'); if(!sheet)return;
+    [...sheet.querySelectorAll('.dtf-sheet-object')].forEach(n=>n.remove());
     const empty=$('dtf-sheet-empty');
     if(empty)empty.style.display=dtfState.designs.length?'none':'flex';
 
     dtfState.designs.forEach((d,index)=>{
       const el=document.createElement('div');
-      const toolbarAbove=(d.y+d.heightIn/2)>10.9;
-      el.className='dtf-sheet-object'+(d.id===dtfState.selectedId?' selected':'')+(toolbarAbove?' toolbar-above':'');
+      el.className='dtf-sheet-object'+(d.id===dtfState.selectedId?' selected':'');
       el.dataset.id=d.id;
-      el.style.left=(d.x/13*100)+'%';
-      el.style.top=(d.y/13*100)+'%';
-      el.style.width=(d.widthIn/13*100)+'%';
-      el.style.height=(d.heightIn/13*100)+'%';
+      el.style.left=(d.x/DTF_MAX_W*100)+'%';
+      el.style.top=(d.y/DTF_MAX_H*100)+'%';
+      el.style.width=(d.widthIn/DTF_MAX_W*100)+'%';
+      el.style.height=(d.heightIn/DTF_MAX_H*100)+'%';
       el.style.zIndex=10+index;
 
-      const img=document.createElement('img');img.src=d.dataUrl;img.alt='';img.draggable=false;
-      const box=document.createElement('div');box.className='dtf-select-box';
+      const img=document.createElement('img'); img.src=d.dataUrl; img.alt=''; img.draggable=false;
+      const frame=dtfImgFrame(d);
+      img.style.width=frame.widthPct+'%';
+      img.style.height=frame.heightPct+'%';
+      img.style.transform=frame.transform;
+      img.style.left='50%';
+      img.style.top='50%';
+
+      const box=document.createElement('div'); box.className='dtf-select-box';
       el.append(img,box);
 
       if(d.id===dtfState.selectedId){
         for(const h of ['nw','ne','sw','se']){
-          const b=document.createElement('button');b.type='button';b.className='dtf-handle '+h;b.dataset.handle=h;
+          const b=document.createElement('button');
+          b.type='button'; b.className='dtf-handle '+h; b.dataset.handle=h;
           el.appendChild(b);
         }
-        const bar=document.createElement('div');bar.className='dtf-selected-bar';
-        bar.innerHTML='<button type="button" data-action="duplicate">Duplicate</button><button type="button" data-action="dimensions">Dimensions</button><button type="button" class="danger" data-action="delete">Delete</button>';
-        bar.addEventListener('pointerdown',e=>e.stopPropagation());
-        bar.addEventListener('click',e=>{
-          e.stopPropagation();
-          const a=e.target.closest('button')?.dataset.action;
-          if(a==='duplicate')duplicateSelectedDtf();
-          if(a==='dimensions')toggleDtfDimensions();
-          if(a==='delete')removeSelectedDtf();
-        });
-        el.appendChild(bar);
       }
 
       bindDtfObjectPointer(el,d);
       sheet.appendChild(el);
     });
-
-    updateDtfCollisionVisuals();
-  }
-
-  function updateDtfCollisionVisuals(){
-    const sheet=$('dtf-sheet');if(!sheet)return;
-
-    // Only collision guides are recreated. Artwork DOM nodes stay untouched,
-    // which preserves pointer capture during drag/resize.
-    [...sheet.querySelectorAll('.dtf-collision-zone')].forEach(n=>n.remove());
-
-    const collisions=getDtfCollisions();
-    const collidingIds=new Set();
-    collisions.forEach(c=>{
-      collidingIds.add(c.aId);
-      collidingIds.add(c.bId);
-    });
-
-    for(const el of sheet.querySelectorAll('.dtf-sheet-object')){
-      el.classList.toggle('colliding',collidingIds.has(el.dataset.id));
-    }
-
-    for(const c of collisions){
-      const z=document.createElement('div');
-      z.className='dtf-collision-zone';
-      z.style.left=(c.left/13*100)+'%';
-      z.style.top=(c.top/13*100)+'%';
-      z.style.width=(c.width/13*100)+'%';
-      z.style.height=(c.height/13*100)+'%';
-      sheet.appendChild(z);
-    }
   }
 
   function bindDtfObjectPointer(el,d){
     el.addEventListener('pointerdown',e=>{
       const handle=e.target.closest('.dtf-handle');
       if(d.id!==dtfState.selectedId){
-        dtfState.selectedId=d.id;dtfState.dimensionsOpen=false;renderDtfEditor();return;
+        dtfState.selectedId=d.id; dtfState.dimensionsOpen=false; renderDtfEditor(); return;
       }
       const rect=$('dtf-sheet').getBoundingClientRect();
-      const start={
+      el._dtfDrag={
         id:e.pointerId,kind:handle?'resize':'move',handle:handle?.dataset.handle||'',
         clientX:e.clientX,clientY:e.clientY,x:d.x,y:d.y,w:d.widthIn,h:d.heightIn,rect
       };
-      el._dtfDrag=start;
-      try{el.setPointerCapture(e.pointerId)}catch(_){}
+      try{ el.setPointerCapture(e.pointerId); }catch(_){}
       e.preventDefault();
     });
 
     el.addEventListener('pointermove',e=>{
-      const p=el._dtfDrag;if(!p||p.id!==e.pointerId)return;
-      const dx=(e.clientX-p.clientX)/Math.max(1,p.rect.width)*13;
-      const dy=(e.clientY-p.clientY)/Math.max(1,p.rect.height)*13;
+      const p=el._dtfDrag; if(!p||p.id!==e.pointerId)return;
+      const dx=(e.clientX-p.clientX)/Math.max(1,p.rect.width)*DTF_MAX_W;
+      const dy=(e.clientY-p.clientY)/Math.max(1,p.rect.height)*DTF_MAX_H;
 
       if(p.kind==='move'){
         d.x=snapDtfAxis(p.x+dx,d.widthIn,'x',d.id);
@@ -4194,39 +4273,36 @@
       }else{
         const sx=p.handle.includes('w')?-1:1;
         const sy=p.handle.includes('n')?-1:1;
-        let w=dtfClamp(p.w+dx*sx*2,.5,13);
-        let h=dtfClamp(p.h+dy*sy*2,.5,13);
+        let w=dtfClamp(p.w+dx*sx*2,.5,DTF_MAX_W);
+        let h=dtfClamp(p.h+dy*sy*2,.5,DTF_MAX_H);
 
-        if(d.locked&&d.aspect){
-          if(Math.abs(dx)>=Math.abs(dy))h=w/d.aspect;
-          else w=h*d.aspect;
-          if(w>13){w=13;h=w/d.aspect}
-          if(h>13){h=13;w=h*d.aspect}
+        if(d.locked){
+          const displayAspect=dtfDisplayAspect(d);
+          if(Math.abs(dx)>=Math.abs(dy)){
+            w=snapDtfDimension(w,.5,DTF_MAX_W);
+            h=w/displayAspect;
+          }else{
+            h=snapDtfDimension(h,.5,DTF_MAX_H);
+            w=h*displayAspect;
+          }
+          if(w>DTF_MAX_W){w=DTF_MAX_W;h=w/displayAspect}
+          if(h>DTF_MAX_H){h=DTF_MAX_H;w=h*displayAspect}
+        }else{
+          w=snapDtfDimension(w,.5,DTF_MAX_W);
+          h=snapDtfDimension(h,.5,DTF_MAX_H);
         }
 
-        // Resizing is deliberately continuous. Snap is for placement/alignment,
-        // not for forcing the artwork through .25-inch size jumps.
-        d.widthIn=dtfClamp(w,.5,13);
-        d.heightIn=dtfClamp(h,.5,13);
-
-        // Keep the opposite corner anchored while the dragged corner moves.
-        // Do NOT snap the object's center during resize; doing that makes
-        // the selected corner feel like it jumps away from the pointer.
+        d.widthIn=dtfClamp(w,.5,DTF_MAX_W);
+        d.heightIn=dtfClamp(h,.5,DTF_MAX_H);
         d.x=p.x+(d.widthIn-p.w)/2*sx;
         d.y=p.y+(d.heightIn-p.h)/2*sy;
         keepDtfInside(d);
       }
 
-      // Lightweight live movement without rebuilding the whole editor.
-      el.style.left=(d.x/13*100)+'%';
-      el.style.top=(d.y/13*100)+'%';
-      el.style.width=(d.widthIn/13*100)+'%';
-      el.style.height=(d.heightIn/13*100)+'%';
-
-      // Update only the overlap guides while dragging.
-      // Rebuilding the canvas here would delete the element that owns
-      // pointer capture and make the drag appear to freeze.
-      updateDtfCollisionVisuals();
+      el.style.left=(d.x/DTF_MAX_W*100)+'%';
+      el.style.top=(d.y/DTF_MAX_H*100)+'%';
+      el.style.width=(d.widthIn/DTF_MAX_W*100)+'%';
+      el.style.height=(d.heightIn/DTF_MAX_H*100)+'%';
       renderDtfSummary();
       renderSelectedDtfCard();
       e.preventDefault();
@@ -4234,7 +4310,7 @@
 
     const end=e=>{
       if(!el._dtfDrag||el._dtfDrag.id!==e.pointerId)return;
-      el._dtfDrag=null;renderDtfEditor();
+      el._dtfDrag=null; renderDtfEditor();
     };
     el.addEventListener('pointerup',end);
     el.addEventListener('pointercancel',end);
@@ -4244,12 +4320,15 @@
     const d=selectedDtf();
     const card=$('dtf-dimension-card');
     const enabled=!!d;
-    $('dtf-duplicate-btn').disabled=!enabled;
     $('dtf-dimensions-btn').disabled=!enabled;
+    $('dtf-rotate-left-btn').disabled=!enabled;
+    $('dtf-rotate-right-btn').disabled=!enabled;
+    $('dtf-mirror-lr-btn').disabled=!enabled;
+    $('dtf-mirror-tb-btn').disabled=!enabled;
     $('dtf-delete-btn').disabled=!enabled;
 
     if(!d||!dtfState.dimensionsOpen){
-      card.hidden=true;return;
+      card.hidden=true; return;
     }
     card.hidden=false;
     $('dtf-selected-width').value=Math.round(d.widthIn*100)/100;
@@ -4257,7 +4336,7 @@
     $('dtf-lock-switch').classList.toggle('on',d.locked);
 
     const q=dtfQuality(d);
-    let parts=['<span class="'+q.kind+'">'+escapeHtml(q.text)+'</span>'];
+    let parts=['<span class="'+q.kind+'">'+escapeHtml(q.text)+'</span>','<span>'+escapeHtml(dtfTransformLabel(d))+'</span>'];
     if(d.background==='background')parts.push('<span class="warn">Background detected — everything shown will print.</span>');
     else if(d.background==='transparent')parts.push('<span class="ok">Transparency detected.</span>');
     else parts.push('<span>Background could not be confirmed.</span>');
@@ -4265,23 +4344,26 @@
   }
 
   function renderDtfSummary(){
-    const unit=getDtfUnitPrice(),qty=dtfState.qty,total=unit*qty;
-    const collisions=getDtfCollisions();
+    const area=getDtfArea();
+    const unit=getDtfUnitPrice();
+    const qty=dtfState.qty;
+    const total=Math.round(unit*qty*100)/100;
+    const rate=currentDtfRate();
     $('dtf-head-qty').textContent=qty+' print'+(qty===1?'':'s');
     $('dtf-total').textContent=fmt(total);
-    $('dtf-tier-label').textContent=(unit===5?'11×11 tier':'13×13 tier');
-    $('dtf-add').disabled=!dtfState.designs.length;
 
-    const overlap=$('dtf-overlap-status');
-    if(overlap){
-      if(collisions.length){
-        overlap.hidden=false;
-        overlap.textContent='⚠ '+collisions.length+' overlap'+(collisions.length===1?'':'s');
-      }else{
-        overlap.hidden=true;
-        overlap.textContent='';
-      }
+    if(!dtfState.designs.length){
+      $('dtf-tier-label').textContent=fmt(rate)+' / sq in';
+    }else if(dtfState.designs.length===1){
+      $('dtf-tier-label').textContent=dtfIn(area)+' sq in';
+    }else{
+      const f=getDtfFootprint();
+      $('dtf-tier-label').textContent=dtfIn(f.w)+'" × '+dtfIn(f.h)+'" gangsheet';
     }
+
+    const rateCopy=$('dtf-rate-copy');
+    if(rateCopy)rateCopy.textContent=fmt(rate)+' per sq in';
+    $('dtf-add').disabled=!dtfState.designs.length;
 
     const d=selectedDtf();
     const rx=$('dtf-ruler-selection-x');
@@ -4298,14 +4380,14 @@
 
     if(rx){
       rx.hidden=false;
-      rx.style.left=(left/13*100)+'%';
-      rx.style.width=(d.widthIn/13*100)+'%';
+      rx.style.left=(left/DTF_MAX_W*100)+'%';
+      rx.style.width=(d.widthIn/DTF_MAX_W*100)+'%';
       $('dtf-ruler-width-label').textContent='W '+dtfIn(d.widthIn)+'"';
     }
     if(ry){
       ry.hidden=false;
-      ry.style.top=(top/13*100)+'%';
-      ry.style.height=(d.heightIn/13*100)+'%';
+      ry.style.top=(top/DTF_MAX_H*100)+'%';
+      ry.style.height=(d.heightIn/DTF_MAX_H*100)+'%';
       $('dtf-ruler-height-label').textContent='H '+dtfIn(d.heightIn)+'"';
     }
   }
@@ -4325,95 +4407,157 @@
     $('dtf-sheet-shell').style.transform='scale('+(dtfState.zoom/100)+')';
   }
 
+  function drawDtfDesignToCanvas(g,img,d,canvasW,canvasH){
+    const boxW=canvasW*d.widthIn/DTF_MAX_W;
+    const boxH=canvasH*d.heightIn/DTF_MAX_H;
+    const cx=canvasW*d.x/DTF_MAX_W;
+    const cy=canvasH*d.y/DTF_MAX_H;
+    const odd=dtfIsQuarterTurn(d);
+    const drawW=odd ? boxH : boxW;
+    const drawH=odd ? boxW : boxH;
+    g.save();
+    g.translate(cx,cy);
+    g.rotate(dtfRotation(d)*Math.PI/180);
+    g.scale(d&&d.flipX?-1:1,d&&d.flipY?-1:1);
+    g.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
+    g.restore();
+  }
+
   async function makeDtfSheetPreview(){
     try{
-      const S=520,c=document.createElement('canvas');c.width=S;c.height=S;
+      const W=390,H=600,c=document.createElement('canvas'); c.width=W; c.height=H;
       const g=c.getContext('2d');
-      const cell=20;
-      for(let y=0;y<S;y+=cell)for(let x=0;x<S;x+=cell){
-        g.fillStyle=((x/cell+y/cell)%2)?'#faf6ec':'#e9e2d2';g.fillRect(x,y,cell,cell);
+      const cell=15;
+      for(let y=0;y<H;y+=cell)for(let x=0;x<W;x+=cell){
+        g.fillStyle=((x/cell+y/cell)%2)?'#faf6ec':'#e9e2d2'; g.fillRect(x,y,cell,cell);
       }
       for(const d of dtfState.designs){
         const img=await loadImgEl(d.dataUrl,false);
-        const w=S*d.widthIn/13,h=S*d.heightIn/13;
-        const x=S*d.x/13-w/2,y=S*d.y/13-h/2;
-        g.drawImage(img,x,y,w,h);
+        drawDtfDesignToCanvas(g,img,d,W,H);
       }
-      return c.toDataURL('image/jpeg',.78);
-    }catch(_){return''}
+      return c.toDataURL('image/jpeg',.82);
+    }catch(_){ return ''; }
+  }
+
+  async function makeDtfGangsheetFile(){
+    try{
+      const W=1300,H=2000,c=document.createElement('canvas'); c.width=W; c.height=H;
+      const g=c.getContext('2d');
+      g.clearRect(0,0,W,H);
+      for(const d of dtfState.designs){
+        const img=await loadImgEl(d.dataUrl,false);
+        drawDtfDesignToCanvas(g,img,d,W,H);
+      }
+      return c.toDataURL('image/png');
+    }catch(_){ return ''; }
   }
 
   async function addDtfToCart(){
     if(!dtfState.designs.length)return;
-    const btn=$('dtf-add');btn.disabled=true;btn.textContent='Adding…';
+    const btn=$('dtf-add'); btn.disabled=true; btn.textContent='Adding…';
 
     const unitPrice=getDtfUnitPrice();
-    const f=getDtfFootprint();
     const qty=dtfState.qty;
     const key='dtf|'+Date.now().toString(36)+'|'+Math.random().toString(36).slice(2,7);
-    const photo=await makeDtfSheetPreview();
+    const previewPhoto=dtfState.designs.length===1
+      ? dtfState.designs[0].dataUrl
+      : await makeDtfSheetPreview();
 
     const designs=dtfState.designs.map(d=>({
       filename:d.filename,mime:d.mime,dataUrl:d.dataUrl,bytes:d.bytes,
       widthIn:Math.round(d.widthIn*100)/100,heightIn:Math.round(d.heightIn*100)/100,
       x:Math.round(d.x*100)/100,y:Math.round(d.y*100)/100,
       pxW:d.pxW,pxH:d.pxH,isVector:d.isVector,dpi:d.dpi,
-      background:d.background,unitPrice,qty
+      rotation:dtfRotation(d),flipX:!!d.flipX,flipY:!!d.flipY,
+      background:d.background
     }));
 
-    const sheet={
-      designs,qty,unitPrice,
-      footprintW:Math.round(f.w*100)/100,
-      footprintH:Math.round(f.h*100)/100
-    };
+    let saved;
+    let itemName='';
+    let variant='';
+
+    if(designs.length===1){
+      const d=designs[0];
+      saved={
+        mode:'single',
+        design:{...d,unitPrice,qty},
+        qty,unitPrice,
+        previewPhoto
+      };
+      itemName='DTF Transfer';
+      variant='1 design · '+dtfIn(d.widthIn)+'" × '+dtfIn(d.heightIn)+'" · '+dtfIn(d.widthIn*d.heightIn)+' sq in · '+dtfTransformLabel(d)+' · '+fmt(currentDtfRate())+'/sq in';
+    }else{
+      const f=getDtfFootprint();
+      const gangsheetFile=await makeDtfGangsheetFile();
+      saved={
+        mode:'gangsheet',
+        designs,
+        qty,unitPrice,
+        footprintW:Math.round(f.w*100)/100,
+        footprintH:Math.round(f.h*100)/100,
+        sheetW:DTF_MAX_W,sheetH:DTF_MAX_H,
+        gangsheetFile,
+        previewPhoto
+      };
+      itemName='DTF Gangsheet';
+      variant=designs.length+' designs · '+dtfIn(f.w)+'" × '+dtfIn(f.h)+'" used area · '+fmt(currentDtfRate())+'/sq in';
+    }
 
     cart.push({
-      key,id:'dtf-order',name:'Custom DTF Sheet',price:unitPrice,photo,
-      variant:designs.length+' design'+(designs.length===1?'':'s')+' · used area '+dtfIn(f.w)+'" × '+dtfIn(f.h)+'" · '+(unitPrice===5?'11×11':'13×13')+' tier',
-      qty,weightLb:.05,dtfArtwork:sheet
+      key,id:'dtf-order',name:itemName,price:unitPrice,photo:previewPhoto,
+      variant,qty,weightLb:.05,dtfArtwork:saved,orderTag:'DTF'
     });
 
-    await dtfDbPut(key,sheet);
-    updateCartCount();flashCart();
-    closeDtfOrder();openCart();
-    btn.textContent='Add to Bag';btn.disabled=false;
+    await dtfDbPut(key,saved);
+    updateCartCount(); flashCart();
+    closeDtfOrder(); openCart();
+    btn.textContent='Add to Bag'; btn.disabled=false;
   }
 
   async function sendDtfOrderEmails(reference,status){
-    try{await dtfRestorePromise}catch(_){}
-    const sheets=cart.filter(c=>c&&c.id==='dtf-order');
-    if(!sheets.length)return true;
+    try{ await dtfRestorePromise; }catch(_){}
+    const items=cart.filter(c=>c&&c.id==='dtf-order');
+    if(!items.length)return true;
 
     const phone=(($('co-phone')&&$('co-phone').value)||'').replace(/\D/g,'').slice(-10);
     const email=(($('co-email')&&$('co-email').value)||'').trim();
     let allOk=true;
 
-    // One self-email per DTF sheet. All original customer PNG/SVG files
-    // from that sheet are attached together to keep production organized.
-    for(let s=0;s<sheets.length;s++){
-      const sheet=sheets[s].dtfArtwork;
-      if(!sheet||!Array.isArray(sheet.designs)||!sheet.designs.length){
-        allOk=false;
-        continue;
-      }
+    for(let i=0;i<items.length;i++){
+      const saved=items[i].dtfArtwork;
+      if(!saved){ allOk=false; continue; }
 
       try{
+        const payload = {
+          reference:String(reference||'website order')+' · DTF '+(i+1),
+          status:String(status||'order'),
+          customerPhone:phone,
+          customerEmail:email
+        };
+
+        if(saved.mode==='single' && saved.design){
+          payload.artwork = { ...saved.design, qty:saved.qty, unitPrice:saved.unitPrice };
+        }else if(Array.isArray(saved.designs) && saved.designs.length){
+          payload.sheet = {
+            mode:'gangsheet',
+            qty:saved.qty,
+            unitPrice:saved.unitPrice,
+            footprintW:saved.footprintW,
+            footprintH:saved.footprintH,
+            sheetW:saved.sheetW||DTF_MAX_W,
+            sheetH:saved.sheetH||DTF_MAX_H,
+            designs:saved.designs,
+            gangsheetFile:saved.gangsheetFile || ''
+          };
+        }else{
+          allOk=false;
+          continue;
+        }
+
         const r=await fetch('/api/dtf-order',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            reference:String(reference||'website order')+' · DTF sheet '+(s+1),
-            status:String(status||'order'),
-            customerPhone:phone,
-            customerEmail:email,
-            sheet:{
-              qty:sheet.qty,
-              unitPrice:sheet.unitPrice,
-              footprintW:sheet.footprintW,
-              footprintH:sheet.footprintH,
-              designs:sheet.designs
-            }
-          })
+          body:JSON.stringify(payload)
         });
         const d=await r.json().catch(()=>({}));
         if(!r.ok||!d.ok)allOk=false;
@@ -4427,12 +4571,10 @@
 
   function showDtfEmailWarning(){
     const msg=$('co-ps-msg');
-    if(msg)msg.textContent+=' Your order went through, but one or more DTF artwork emails did not. Please email the original artwork to brochcustom@gmail.com with your confirmation number.';
+    if(msg)msg.textContent+=' Your order went through, but one or more DTF artwork emails did not. Please email the design or gangsheet to brochcustom@gmail.com with your confirmation number.';
   }
 
-  window.addEventListener('resize',()=>{
-    if($('dtf-dialog')&&$('dtf-dialog').open)renderDtfEditor();
-  });
+  window.addEventListener('resize',()=>{ if($('dtf-dialog')&&$('dtf-dialog').open)renderDtfEditor(); });
 
   window.addEventListener('keydown',e=>{
     const dlg=$('dtf-dialog');
@@ -4538,6 +4680,25 @@
       </div>
       <button class="dialog-cta" onclick="saveShirtCfg()">Save</button>
       <span class="label" id="ss-status" style="display:block;margin-top:8px"></span>
+    </div>
+  </dialog>
+
+  <dialog id="dtf-admin-dialog">
+    <div class="dialog-card">
+      <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
+      <p class="label">Admin</p>
+      <h3 class="dialog-title">DTF <em>pricing</em></h3>
+
+      <div class="field">
+        <label for="dtf-admin-rate">Price per square inch</label>
+        <input type="number" id="dtf-admin-rate" min="0.01" step="0.01" inputmode="decimal" placeholder="0.10">
+        <span class="label" style="display:block;margin-top:5px">
+          Example: 5 × 5 = 25 sq in. At $0.10/sq in, the price is $2.50.
+        </span>
+      </div>
+
+      <button class="dialog-cta" type="button" onclick="saveDtfCfg()">Save DTF price</button>
+      <span class="label" id="dtf-admin-status" style="display:block;margin-top:8px"></span>
     </div>
   </dialog>
 
