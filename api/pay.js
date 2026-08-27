@@ -18,12 +18,31 @@
 
 import nodemailer from 'nodemailer';
 
+function websiteOrderType(items, hasDtf) {
+  const text = String(items || '');
+
+  // DTF Builder orders get their own DTF tag.
+  if (hasDtf || /\bDTF\b/i.test(text)) return 'DTF';
+
+  // Uniform Builder / embroidered products.
+  const embroidered = /embroider(?:ed|y|ing)?|left chest embroidery|right chest name/i.test(text);
+
+  // Shirt Builder / products explicitly named as printed.
+  const printed = /\bcustom shirt\b|\bprinted\b|\bprinting\b|\bprint shirt\b/i.test(text);
+
+  if (embroidered && printed) return 'MIXED';
+  if (embroidered) return 'EMBROIDERED';
+  if (printed) return 'PRINTED';
+
+  return 'NOTE';
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const { sourceId, amountCents, email, phone, items, fulfillment, shippingCents, address, mockups } = req.body || {};
+  const { sourceId, amountCents, email, phone, items, fulfillment, shippingCents, address, mockups, hasDtf } = req.body || {};
 
   // Basic validation — never trust the browser blindly
   if (!sourceId || !Number.isInteger(amountCents) || amountCents < 50) {
@@ -121,7 +140,7 @@ export default async function handler(req, res) {
 
           store.orders.push({
             id: 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6),
-            type: 'NOTE',
+            type: websiteOrderType(items, hasDtf),
             title: (isShip ? '📦 ' : '') + 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
             custName: 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
             custPhone: phone10,

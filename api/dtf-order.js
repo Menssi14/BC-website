@@ -10,7 +10,16 @@
 
 import nodemailer from 'nodemailer';
 
-const MAX_FILE_BYTES = 3 * 1024 * 1024;
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+function formatTransform(d) {
+  const parts = [];
+  const rot = ((((Number(d?.rotation) || 0) % 360) + 360) % 360);
+  if (rot) parts.push(`Rotate ${rot}°`);
+  if (d?.flipX) parts.push('Mirror H');
+  if (d?.flipY) parts.push('Mirror V');
+  return parts.join(' · ') || 'Standard';
+}
 
 function cleanText(v, max = 200) {
   return String(v || '')
@@ -19,7 +28,7 @@ function cleanText(v, max = 200) {
     .trim();
 }
 
-function decodeArtwork(a) {
+function decodeImagePayload(a, fallbackName = 'dtf-artwork.png') {
   const dataUrl = typeof a?.dataUrl === 'string' ? a.dataUrl : '';
   const match = dataUrl.match(
     /^data:(image\/png|image\/svg\+xml);base64,([A-Za-z0-9+/=\r\n]+)$/i
@@ -30,13 +39,13 @@ function decodeArtwork(a) {
   const content = Buffer.from(match[2], 'base64');
   if (!content.length) throw new Error('Artwork could not be decoded.');
   if (content.length > MAX_FILE_BYTES) {
-    throw new Error('Each artwork file must currently be 3 MB or smaller.');
+    throw new Error('Each artwork file must currently be 10 MB or smaller.');
   }
 
   const mime = match[1].toLowerCase();
   const ext = mime === 'image/svg+xml' ? '.svg' : '.png';
 
-  let filename = cleanText(a.filename || ('dtf-artwork' + ext), 120)
+  let filename = cleanText(a.filename || fallbackName, 120)
     .replace(/[\\/:*?"<>|]+/g, '-');
 
   if (!filename.toLowerCase().endsWith(ext)) filename += ext;
@@ -56,7 +65,33 @@ function decodeArtwork(a) {
       ? Math.round(Number(a.dpi))
       : null,
     isVector: !!a.isVector,
+    rotation: ((((Number(a.rotation) || 0) % 360) + 360) % 360),
+    flipX: !!a.flipX,
+    flipY: !!a.flipY,
     background: a.background || 'unknown'
+  };
+}
+
+function decodePngAttachment(dataUrl, filename = 'dtf-gangsheet.png') {
+  const match = String(dataUrl || '').match(
+    /^data:(image\/png);base64,([A-Za-z0-9+/=\r\n]+)$/i
+  );
+
+  if (!match) throw new Error('Gangsheet PNG is required.');
+
+  const content = Buffer.from(match[2], 'base64');
+  if (!content.length) throw new Error('Gangsheet file could not be decoded.');
+  if (content.length > MAX_FILE_BYTES) {
+    throw new Error('The gangsheet file must currently be 10 MB or smaller.');
+  }
+
+  let safeName = cleanText(filename, 120).replace(/[\\/:*?"<>|]+/g, '-');
+  if (!safeName.toLowerCase().endsWith('.png')) safeName += '.png';
+
+  return {
+    filename: safeName,
+    content,
+    contentType: 'image/png'
   };
 }
 
@@ -96,7 +131,7 @@ export default async function handler(req, res) {
 
   let designs;
   try {
-    designs = sheet.designs.map(decodeArtwork);
+    designs = sheet.designs.map(d => decodeImagePayload(d, d?.filename || 'dtf-artwork.png'));
   } catch (e) {
     return res.status(413).json({
       ok: false,
@@ -105,48 +140,72 @@ export default async function handler(req, res) {
   }
 
   const qty = Math.max(1, Math.min(99, parseInt(sheet.qty, 10) || 1));
-  const unitPrice = Number(sheet.unitPrice) === 5 ? 5 : 6;
+  const unitPrice = Math.max(0, Number(sheet.unitPrice) || 0);
   const footprintW = Number(sheet.footprintW) || 0;
   const footprintH = Number(sheet.footprintH) || 0;
+  const mode = sheet.mode === 'gangsheet' || designs.length > 1 ? 'gangsheet' : 'single';
 
-  const designLines = [];
-  designs.forEach((d, i) => {
-    const backgroundText =
-      d.background === 'background'
-        ? 'BACKGROUND DETECTED — everything shown will print'
-        : d.background === 'transparent'
-          ? 'Transparency detected'
-          : 'Background not confirmed';
+  const d = designs[0];
+  const sizeText =
+    `${d.widthIn.toFixed(2).replace(/\.00$/, '')}" × ${d.heightIn.toFixed(2).replace(/\.00$/, '')}"`;
+  const sheetSizeText = footprintW > 0 && footprintH > 0
+    ? `${footprintW.toFixed(2).replace(/\.00$/, '')}" × ${footprintH.toFixed(2).replace(/\.00$/, '')}"`
+    : '';
+  const total = unitPrice * qty;
 
-    designLines.push(
-      `Design ${i + 1}: ${d.filename}`,
-      `  Size: ${d.widthIn.toFixed(2).replace(/\.00$/, '')}" × ${d.heightIn.toFixed(2).replace(/\.00$/, '')}"`,
-      `  Position: X ${d.x.toFixed(2).replace(/\.00$/, '')}", Y ${d.y.toFixed(2).replace(/\.00$/, '')}"`,
-      `  Quality: ${d.isVector ? 'Vector SVG' : (d.dpi ? d.dpi + ' DPI at selected size' : 'PNG')}`,
-      `  Background: ${backgroundText}`,
-      ''
+  const lowDpiCount = designs.filter(x => !x.isVector && x.dpi && x.dpi < 150).length;
+  const backgroundCount = designs.filter(x => x.background === 'background').length;
+  const warningLines = [];
+  if (lowDpiCount) warningLines.push(`⚠ Low resolution on ${lowDpiCount} design${lowDpiCount === 1 ? '' : 's'}`);
+  if (backgroundCount) warningLines.push(`⚠ Background detected on ${backgroundCount} design${backgroundCount === 1 ? '' : 's'}`);
+
+  let subject;
+  let details;
+  let attachments;
+
+  if (mode === 'single') {
+    subject = `DTF Order — ${sizeText} — Qty ${qty}`;
+    details = [
+      'New DTF Order',
+      '',
+      `Order: ${ref}`,
+      `Size: ${sizeText}`,
+      `Quantity: ${qty}`,
+      `Transform: ${formatTransform(d)}`,
+      `Price: $${unitPrice.toFixed(2)} each`,
+      qty > 1 ? `Total: $${total.toFixed(2)}` : '',
+      '',
+      ...warningLines,
+      warningLines.length ? '' : '',
+      'Original artwork attached.'
+    ].filter(Boolean).join('\n');
+
+    attachments = [designs[0].attachment];
+  } else {
+    const gangsheetAttachment = decodePngAttachment(
+      sheet.gangsheetFile,
+      `dtf-gangsheet-${ref}.png`
     );
-  });
 
-  const details = [
-    'BROCH CUSTOM — DTF PRODUCTION FILES',
-    '',
-    `Reference: ${ref}`,
-    `Order status: ${status}`,
-    phone ? `Customer phone: ${phone}` : '',
-    customerEmail ? `Customer email: ${customerEmail}` : '',
-    '',
-    `Print amount: ${qty}`,
-    `Price: $${unitPrice.toFixed(2)} each`,
-    footprintW && footprintH
-      ? `Used sheet area: ${footprintW.toFixed(2).replace(/\.00$/, '')}" × ${footprintH.toFixed(2).replace(/\.00$/, '')}"`
-      : '',
-    `Attached original files: ${designs.length}`,
-    '',
-    ...designLines,
-    'These are the ORIGINAL PNG/SVG files uploaded by the customer.',
-    'The artwork was emailed directly to the orders inbox and was not saved to Supabase.'
-  ].filter(Boolean).join('\n');
+    subject = `DTF Gangsheet — ${sheetSizeText || '13" × 20"'} — Qty ${qty}`;
+    details = [
+      'New DTF Gangsheet Order',
+      '',
+      `Order: ${ref}`,
+      sheetSizeText ? `Used area: ${sheetSizeText}` : '',
+      `Designs: ${designs.length}`,
+      `Quantity: ${qty}`,
+      `Transformed: ${designs.filter(x => formatTransform(x) !== 'Standard').length}`,
+      `Price: $${unitPrice.toFixed(2)} each`,
+      qty > 1 ? `Total: $${total.toFixed(2)}` : '',
+      '',
+      ...warningLines,
+      warningLines.length ? '' : '',
+      'Gangsheet file attached.'
+    ].filter(Boolean).join('\n');
+
+    attachments = [gangsheetAttachment];
+  }
 
   try {
     const mailer = nodemailer.createTransport({
@@ -164,15 +223,15 @@ export default async function handler(req, res) {
       replyTo: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(customerEmail)
         ? customerEmail
         : undefined,
-      subject: `🖨️ DTF ORDER FILES — ${ref}`,
+      subject,
       text: details,
-      attachments: designs.map(d => d.attachment)
+      attachments
     });
 
     return res.status(200).json({
       ok: true,
       emailedTo: MAIL_USER,
-      attachments: designs.length
+      attachments: attachments.length
     });
   } catch (e) {
     console.error('[dtf-order] self-email failed:', e);
