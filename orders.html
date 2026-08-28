@@ -433,8 +433,12 @@
   .sync .d{ width:8px; height:8px; border-radius:50%; background:var(--go); }
   .sync.sync-ok{ color:#1F7A4D; border-color:#bfe0cc; } .sync.sync-ok .d{ background:#1F7A4D; }
   .sync.sync-fail{ color:#B23B2E; border-color:#e7b4ac; background:#fff5f3; } .sync.sync-fail .d{ background:#C0392B; }
-  .sync.sync-save{ color:#9c6b12; } .sync.sync-save .d{ background:#E0A72E; animation:spulse 1s ease-in-out infinite; }
-  @keyframes spulse{ 0%,100%{opacity:1} 50%{opacity:.25} }
+  .sync.sync-save{ color:#9c6b12; }
+  .sync.sync-save .d{
+    width:12px;height:12px;background:transparent;border:2px solid #E0A72E;
+    border-top-color:transparent;animation:syncspin .7s linear infinite
+  }
+  @keyframes syncspin{to{transform:rotate(360deg)}}
 
   .kind-tag{ display:inline-block; margin:0 0 14px; }
   .urgency-section{ border-top:1px solid var(--line); margin-top:18px; padding-top:16px; }
@@ -770,6 +774,91 @@
   var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
   var state={orders:[]}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
+  var DRAFT_PREFIX='bc-order-draft-v1:', _draftTimer=null;
+
+  function draftKey(type){ return DRAFT_PREFIX+String(type||'NOTE'); }
+  function draftHasBuilder(){
+    return !!((builder.size||'').trim()||(builder.color||'').trim()||(builder.surface||'').trim()||(builder.material||'').trim()||(builder.placement||'').trim()||(builder.qty||1)!==1);
+  }
+  function draftHasContent(o){
+    if(!o)return false;
+    return !!(
+      (o.title||'').trim()||(o.custName||'').trim()||(o.custPhone||'').trim()||
+      (o.custEmail||'').trim()||(o.contact||'').trim()||(o.body||'').trim()||
+      (o.balanceDue||'').trim()||(o.due||'')||(o.payStatus||'')||
+      (o.images&&o.images.length)||(o.items&&o.items.length)||draftHasBuilder()
+    );
+  }
+  function saveNewDraftNow(){
+    clearTimeout(_draftTimer); _draftTimer=null;
+    if(!editing||(!editing.isNew&&!editing.drafting)||!draftHasContent(editing))return;
+    try{
+      localStorage.setItem(draftKey(editing.type),JSON.stringify({
+        v:1,
+        savedAt:Date.now(),
+        editing:editing,
+        builder:builder
+      }));
+    }catch(e){
+      // Large photos can exceed localStorage. Preserve all typed order details
+      // and item selections even if browser storage cannot hold the photos.
+      try{
+        var safe=JSON.parse(JSON.stringify(editing));
+        safe.images=[];
+        localStorage.setItem(draftKey(editing.type),JSON.stringify({
+          v:1,
+          savedAt:Date.now(),
+          editing:safe,
+          builder:builder,
+          photosOmitted:true
+        }));
+      }catch(_){}
+    }
+  }
+  function scheduleNewDraftSave(){
+    if(!editing||!editing.isNew)return;
+    clearTimeout(_draftTimer);
+    _draftTimer=setTimeout(saveNewDraftNow,180);
+  }
+  function readNewDraft(type){
+    try{
+      var raw=localStorage.getItem(draftKey(type));
+      if(!raw)return null;
+      var d=JSON.parse(raw);
+      if(!d||!d.editing||d.editing.type!==type)return null;
+      return d;
+    }catch(_){return null;}
+  }
+  function clearNewDraft(type){
+    clearTimeout(_draftTimer); _draftTimer=null;
+    try{ localStorage.removeItem(draftKey(type)); }catch(_){}
+  }
+
+  function recoverDraftsToBoard(){
+    var changed=false;
+    TYPES.forEach(function(type){
+      var d=readNewDraft(type);
+      if(!d||!d.editing||!draftHasContent(d.editing))return;
+
+      var incoming=d.editing;
+      incoming.isNew=false;
+      incoming.drafting=true;
+      if(!incoming.id)incoming.id=uid();
+      if(!incoming.items)incoming.items=[];
+      if(!incoming.images)incoming.images=[];
+
+      var existing=getOrder(incoming.id);
+      if(!existing){
+        state.orders.unshift(incoming);
+        changed=true;
+      }else if((incoming.updatedAt||d.savedAt||0) > (existing.updatedAt||0)){
+        var idx=state.orders.indexOf(existing);
+        state.orders[idx]=incoming;
+        changed=true;
+      }
+    });
+    return changed;
+  }
 
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
@@ -805,8 +894,107 @@
   }
   function itemCount(o){ return (o.items||[]).filter(itemHas).length; }
 
-  function persist(){ if(!_loaded)return; syncShow('Saving…','save'); if(!sb){syncShow('Saved on this device','ok');return;} clearTimeout(_saveTimer); _saveTimer=setTimeout(saveNow,500); }
-  function livePersist(){ if(editing&&!editing.isNew){ editing.updatedAt=Date.now(); persist(); } }
+  function persist(){
+    if(!_loaded)return;
+    syncShow('Saving… keep app open','save');
+    if(!sb){syncShow('✓ Saved on this device','ok');return;}
+    clearTimeout(_saveTimer);
+    _saveTimer=setTimeout(saveNow,120);
+  }
+
+  function promoteNewOrderDraft(){
+    if(!editing||!editing.isNew||!draftHasContent(editing))return false;
+    var type=editing.type;
+    editing.isNew=false;
+    editing.drafting=true;
+    editing.updatedAt=Date.now();
+
+    if(!getOrder(editing.id))state.orders.unshift(editing);
+
+    // Keep the local draft backup until the user intentionally closes it.
+    saveNewDraftNow();
+    buildBar(editing);
+    render();
+    persist();
+    return true;
+  }
+
+  function livePersist(){
+    if(!editing)return;
+    if(editing.isNew){
+      saveNewDraftNow();
+      promoteNewOrderDraft();
+      return;
+    }
+
+    editing.updatedAt=Date.now();
+
+    // While the order is still being composed, keep both a local backup and
+    // the normal cloud autosave. This is the Google-Notes-like safety layer.
+    if(editing.drafting)saveNewDraftNow();
+    persist();
+  }
+
+  function saveAndStay(){
+    if(!editing||_manualSaveBusy)return;
+
+    editing.items=(editing.items||[]).filter(itemHas);
+    if(editing.type!=='NOTE')editing.title=autoTitle(editing);
+
+    if(editing.isNew&&!draftHasContent(editing)){
+      toast('Add some order information first');
+      return;
+    }
+
+    if(editing.isNew||editing.drafting)saveNewDraftNow();
+    if(editing.isNew)promoteNewOrderDraft();
+    if(!editing)return;
+
+    var savedId=editing.id;
+    var savedType=editing.type;
+    var wasDraft=!!editing.drafting;
+
+    editing.drafting=false;
+    editing.updatedAt=Date.now();
+    buildBar(editing);
+    render();
+
+    _manualSaveBusy=true;
+    clearTimeout(_saveTimer);
+    _saveTimer=null;
+    syncShow('Saving… keep app open','save');
+
+    function start(){
+      if(_saving){
+        _needsSave=true;
+        setTimeout(start,70);
+        return;
+      }
+      saveNow(function(ok){
+        _manualSaveBusy=false;
+        if(ok){
+          clearNewDraft(savedType);
+          var current=getOrder(savedId);
+          if(current)current.drafting=false;
+          if(editing&&editing.id===savedId){
+            editing.drafting=false;
+            buildBar(editing);
+          }
+          render();
+        }else{
+          var current=getOrder(savedId);
+          if(wasDraft&&current)current.drafting=true;
+          if(wasDraft&&editing&&editing.id===savedId){
+            editing.drafting=true;
+            buildBar(editing);
+          }
+          render();
+        }
+      });
+    }
+    start();
+  }
+  var _manualSaveBusy=false;
   var _deletedIds = {};
   // (deleted ids kept in _deletedIds so a merge can't resurrect them)
   function _freshness(o){ return Math.max(o.updatedAt||0, o.trashedAt||0, o.createdAt||0); }
@@ -815,7 +1003,7 @@
   // a paid online order (or another device's edit) may have landed since we loaded.
   // 1) re-download the cloud copy   2) keep anything we don't have
   // 3) per order, keep whichever side was touched most recently   4) upload the union
-  function saveNow(){
+  function saveNow(done){
     if(!sb) return;
     _saveTimer=null;   // the debounce window is over — clear the flag so refreshes aren't blocked forever
     _saving=true;      // a real save is now in flight; pause cloud pulls until it finishes
@@ -823,16 +1011,21 @@
       var cloud = [];
       if(r && r.data) return r.data.text().then(function(t){
         try{ var s=JSON.parse(t); if(s && Array.isArray(s.orders)) cloud=s.orders; _loadOk=true; }catch(e){}
-        _mergeAndUpload(cloud);
+        _mergeAndUpload(cloud,done);
       });
-      _mergeAndUpload(cloud);   // no cloud file yet — just write ours
-    }).catch(function(){ _mergeAndUpload(null); });
+      _mergeAndUpload(cloud,done);   // no cloud file yet — just write ours
+    }).catch(function(){ _mergeAndUpload(null,done); });
   }
-  function _mergeAndUpload(cloud){
+  function _mergeAndUpload(cloud,done){
     try{
       // SAFETY: if we couldn't read the cloud file (download errored) AND we've never
       // successfully read it this session, do NOT upload — we might wipe good cloud data.
-      if(cloud===null && !_loadOk){ _saving=false; _needsSave=true; syncShow('⚠ Not saved — will retry','fail'); return; }
+      if(cloud===null && !_loadOk){
+        _saving=false; _needsSave=true;
+        syncShow('⚠ Not saved — keep app open','fail');
+        if(done)done(false);
+        return;
+      }
       if(Array.isArray(cloud)){
         _loadOk=true;
         var mine = {};
@@ -851,8 +1044,27 @@
         render();
       }
       var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
-      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){ _saving=false; if(r&&r.error){ _needsSave=true; syncShow('⚠ Not saved — retrying','fail'); } else { _needsSave=false; syncShow('✓ Order saved','ok'); } }).catch(function(){ _saving=false; _needsSave=true; syncShow('⚠ Not saved — retrying','fail'); });
-    }catch(e){ _saving=false; _needsSave=true; syncShow('⚠ Not saved — retrying','fail'); }
+      sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
+        _saving=false;
+        if(r&&r.error){
+          _needsSave=true;
+          syncShow('⚠ Not saved — keep app open','fail');
+          if(done)done(false);
+        }else{
+          _needsSave=false;
+          syncShow('✓ Saved — safe to close app','ok');
+          if(done)done(true);
+        }
+      }).catch(function(){
+        _saving=false; _needsSave=true;
+        syncShow('⚠ Not saved — keep app open','fail');
+        if(done)done(false);
+      });
+    }catch(e){
+      _saving=false; _needsSave=true;
+      syncShow('⚠ Not saved — keep app open','fail');
+      if(done)done(false);
+    }
   }
   function showInitialLoading(){
     var board=$('board');
@@ -876,7 +1088,11 @@
           var s=JSON.parse(t);
           if(!(s&&Array.isArray(s.orders)))throw new Error('Invalid orders file');
           state.orders=s.orders.map(migrate);
-          _loadOk=true; _loaded=true; purgeOld(); render(); startAutoRefresh();
+          _loadOk=true; _loaded=true; purgeOld();
+          var recovered=recoverDraftsToBoard();
+          render();
+          if(recovered)persist();
+          startAutoRefresh();
         }catch(e){ _loaded=true; showInitialLoadError(); }
       }).catch(function(){ _loaded=true; showInitialLoadError(); });
     }).catch(function(){ _loaded=true; showInitialLoadError(); });
@@ -938,7 +1154,16 @@
   }
   function purgeOld(){ var now=Date.now(),b=state.orders.length; state.orders=state.orders.filter(function(o){ var kill=(o.trashed&&o.trashedAt&&(now-o.trashedAt)>TRASH_DAYS*DAY); if(kill)_deletedIds[o.id]=true; return !kill; }); if(state.orders.length!==b)persist(); }
 
-  function syncShow(t, kind){ var el=$('sync'); $('syncText').textContent=t; el.classList.remove('sync-ok','sync-fail','sync-save'); if(kind==='ok')el.classList.add('sync-ok'); else if(kind==='fail')el.classList.add('sync-fail'); else if(kind==='save')el.classList.add('sync-save'); el.classList.add('show'); clearTimeout(syncShow._t); if(kind!=='save' && kind!=='fail'){ syncShow._t=setTimeout(function(){el.classList.remove('show');}, kind==='ok'?2400:1600); } }
+  function syncShow(t, kind){
+    var el=$('sync');
+    $('syncText').textContent=t;
+    el.classList.remove('sync-ok','sync-fail','sync-save');
+    if(kind==='ok')el.classList.add('sync-ok');
+    else if(kind==='fail')el.classList.add('sync-fail');
+    else if(kind==='save')el.classList.add('sync-save');
+    el.classList.add('show');
+    clearTimeout(syncShow._t);
+  }
   var toastUndo=null;
   function toast(msg,undoFn){ var el=$('toast'); $('toastMsg').textContent=msg; var b=$('toastAction'); if(undoFn){b.style.display='block';b.textContent='Undo';toastUndo=undoFn;}else{b.style.display='none';toastUndo=null;} el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){el.classList.remove('show');},4500); }
   $('toastAction').addEventListener('click',function(){ if(toastUndo){toastUndo(); $('toast').classList.remove('show');} });
@@ -1071,6 +1296,7 @@
       if(o.body) h+='<div class="ctext cnotes">'+esc(o.body)+'</div>';
     }
     var tags = '';
+    if(!o.trashed && !o.isQuote && o.drafting) tags+='<span class="tag" style="background:#F2EADD;color:#7A654B">Draft</span>';
     if(!o.trashed && !o.isQuote && o.stage && o.stage!=='New') tags+='<span class="tag stage" style="background:'+stageColor(o)+'22;color:'+stageColor(o)+'">'+esc(o.stage)+'</span>';
     if(!o.trashed && !o.isQuote && o.payStatus==='deposit') tags+='<span class="tag pay-dep">Deposit</span>';
     if(!o.trashed && !o.isQuote && o.payStatus==='paid') tags+='<span class="tag pay-paid">Paid</span>';
@@ -1099,7 +1325,12 @@
   chooser.addEventListener('click',function(){ chooser.classList.remove('show'); });
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
-  function openEditorNew(type){ editing={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true }; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(editing); buildBar(editing); overlay.classList.add('show'); setTimeout(function(){$('mTitle').focus();},60); }
+  function openEditorNew(type){
+    editing={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true,drafting:true };
+    builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
+    fillModal(editing); buildBar(editing); overlay.classList.add('show');
+    setTimeout(function(){ if($('mCustName'))$('mCustName').focus(); else $('mTitle').focus(); },60);
+  }
   function openEditor(id){ var o=getOrder(id); if(!o)return; editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
   function fillModal(o){
     var isNote=(o.type==='NOTE');
@@ -1406,6 +1637,25 @@
     });
   }
 
+  // Catch builder chips, steppers, payment/priority buttons, and other
+  // controls too. A meaningful new order becomes a real autosaved board item.
+  function autosaveEditorInteraction(){
+    if(!editing||_manualSaveBusy)return;
+    if(editing.isNew){
+      saveNewDraftNow();
+      promoteNewOrderDraft();
+    }else if(editing.drafting){
+      editing.updatedAt=Date.now();
+      saveNewDraftNow();
+      persist();
+    }
+  }
+  if($('modal')){
+    $('modal').addEventListener('input',function(){ setTimeout(autosaveEditorInteraction,0); },true);
+    $('modal').addEventListener('change',function(){ setTimeout(autosaveEditorInteraction,0); },true);
+    $('modal').addEventListener('click',function(){ setTimeout(autosaveEditorInteraction,0); },true);
+  }
+
   $('mTitle').addEventListener('input',function(e){ if(!editing)return; editing.title=e.target.value; livePersist(); });
   if($('mCustName'))$('mCustName').addEventListener('input',function(e){ if(!editing)return; editing.custName=e.target.value; var has=!!e.target.value.trim(); $('custExtra').style.display=has?'flex':'none'; livePersist(); });
   if($('mCustPhone'))$('mCustPhone').addEventListener('input',function(e){ if(!editing)return; editing.custPhone=e.target.value; editing.contact=e.target.value; livePersist(); });
@@ -1414,27 +1664,89 @@
 
   function buildBar(o){
     var bar=$('mBar'); bar.innerHTML='';
-    if(o.isNew){ var dc=document.createElement('button'); dc.className='m-ghost'; dc.textContent='Discard'; dc.onclick=discard; bar.appendChild(dc); var sv=document.createElement('button'); sv.className='m-close spacer'; sv.textContent='Save'; sv.onclick=commitOrClose; bar.appendChild(sv); }
+    if(o.isNew||o.drafting){
+      var dc=document.createElement('button'); dc.className='m-ghost'; dc.textContent='Discard'; dc.onclick=discard; bar.appendChild(dc);
+      var sv=document.createElement('button'); sv.className='m-done spacer'; sv.textContent='Save'; sv.onclick=saveAndStay; bar.appendChild(sv);
+      var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Close'; cl.onclick=commitOrClose; bar.appendChild(cl);
+    }
     else if(o.trashed){ var fv=document.createElement('button'); fv.className='m-forever'; fv.textContent='Delete forever'; fv.onclick=function(){var id=o.id;hideOverlay();forever(id);}; bar.appendChild(fv); var rs=document.createElement('button'); rs.className='m-restore spacer'; rs.textContent='Restore'; rs.onclick=function(){var id=o.id;hideOverlay();restore(id);}; bar.appendChild(rs); }
-    else { var tr=document.createElement('button'); tr.className='m-delete'; tr.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete'; tr.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'deleted');}; bar.appendChild(tr); var dn=document.createElement('button'); dn.className='m-done spacer'; dn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 12l5 5L20 6"/></svg>Mark done'; dn.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'done');}; bar.appendChild(dn); var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Close'; cl.onclick=commitOrClose; bar.appendChild(cl); }
+    else {
+      var tr=document.createElement('button'); tr.className='m-delete'; tr.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete'; tr.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'deleted');}; bar.appendChild(tr);
+      var dn=document.createElement('button'); dn.className='m-done spacer'; dn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 12l5 5L20 6"/></svg>Mark done'; dn.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'done');}; bar.appendChild(dn);
+      var sv=document.createElement('button'); sv.className='m-close'; sv.textContent='Save'; sv.onclick=saveAndStay; bar.appendChild(sv);
+      var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Close'; cl.onclick=commitOrClose; bar.appendChild(cl);
+    }
   }
   function hideOverlay(){ overlay.classList.remove('show'); editing=null; }
-  function discard(){ hideOverlay(); render(); }
+
+  function discard(){
+    if(!editing){ hideOverlay(); return; }
+    var type=editing.type;
+    var id=editing.id;
+
+    clearNewDraft(type);
+
+    if(!editing.isNew){
+      for(var i=state.orders.length-1;i>=0;i--){
+        if(state.orders[i].id===id){ state.orders.splice(i,1); break; }
+      }
+      _deletedIds[id]=true;
+      persist();
+    }
+
+    hideOverlay();
+    render();
+    toast('Draft discarded');
+  }
+
   function commitOrClose(){
     if(!editing){ overlay.classList.remove('show'); return; }
+
     editing.items=(editing.items||[]).filter(itemHas);
-    if(editing.type!=='NOTE'){ editing.title=autoTitle(editing); }
-    if(editing.isNew){
-      var hasText=(editing.title||'').trim()||(editing.body||'').trim()||(editing.images&&editing.images.length)||editing.items.length||editing.due;
-      if(!hasText){ discard(); return; }
-      delete editing.isNew; editing.updatedAt=Date.now(); state.orders.unshift(editing); hideOverlay(); persist(); render(); return;
+    if(editing.type!=='NOTE')editing.title=autoTitle(editing);
+
+    // Completely blank new order: just close it.
+    if(editing.isNew&&!draftHasContent(editing)){
+      clearNewDraft(editing.type);
+      hideOverlay();
+      render();
+      return;
     }
-    editing.updatedAt=Date.now(); hideOverlay(); render();
+
+    // If this is the very first interaction, promote it before closing.
+    if(editing.isNew)promoteNewOrderDraft();
+
+    if(editing){
+      if(editing.isNew||editing.drafting)saveNewDraftNow();
+      editing.drafting=false;
+      editing.updatedAt=Date.now();
+      persist();
+    }
+
+    hideOverlay();
+    render();
   }
+
+  // Like Google Notes: clicking outside simply closes the editor.
+  // Everything meaningful has already been autosaved.
   overlay.addEventListener('click',commitOrClose);
   function autoGrow(el,min){ el.style.height='auto'; el.style.height=Math.max(min||40,el.scrollHeight)+'px'; }
 
   $('fileInput').addEventListener('change',function(e){ var files=Array.prototype.slice.call(e.target.files); if(!files.length||!editing)return; if(!editing.images)editing.images=[]; var slots=3-editing.images.length; if(slots<=0){toast('Up to 3 photos');e.target.value='';return;} files=files.slice(0,slots); var pending=files.length; files.forEach(function(f){ processImage(f,function(url){ if(url)editing.images.push(url); pending--; if(pending===0){ renderImgs(); livePersist(); } }); }); e.target.value=''; });
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden&&editing&&(editing.isNew||editing.drafting))saveNewDraftNow();
+  });
+  window.addEventListener('pagehide',function(){
+    if(editing&&(editing.isNew||editing.drafting))saveNewDraftNow();
+  });
+  window.addEventListener('beforeunload',function(e){
+    if(editing&&(editing.isNew||editing.drafting))saveNewDraftNow();
+    if(_saving||_saveTimer||_needsSave||_manualSaveBusy){
+      e.preventDefault();
+      e.returnValue='';
+    }
+  });
 
   window.addEventListener('message',function(e){ var d=e.data; if(!d||typeof d!=='object')return; if(d.type==='BROCH_ORDER'&&d.order)ingest(d.order); else if(d.type==='BROCH_DESIGN'&&d.image)ingest({image:d.image,title:d.title||'',body:d.body||''}); });
   try{ if(window.parent&&window.parent!==window)window.parent.postMessage({type:'BROCH_ORDERS_READY'},'*'); }catch(_){}
@@ -1448,7 +1760,7 @@
   }
   function checkHash(){ if(location.hash.indexOf('#order=')===0){ try{ ingest(JSON.parse(decodeURIComponent(location.hash.slice(7)))); history.replaceState(null,'',location.pathname+location.search); }catch(_){}} }
 
-  document.addEventListener('keydown',function(e){ if(e.key!=='Escape')return; if(chooser.classList.contains('show')){chooser.classList.remove('show');return;} if(overlay.classList.contains('show')){ if(editing&&editing.isNew)discard(); else commitOrClose(); } });
+  document.addEventListener('keydown',function(e){ if(e.key!=='Escape')return; if(chooser.classList.contains('show')){chooser.classList.remove('show');return;} if(overlay.classList.contains('show'))commitOrClose(); });
 
   // ── Payment history (hidden icon → overlay) ──────────────
   var _histLoaded=false;
