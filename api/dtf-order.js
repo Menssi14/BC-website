@@ -159,10 +159,9 @@ export default async function handler(req, res) {
   if (lowDpiCount) warningLines.push(`⚠ Low resolution on ${lowDpiCount} design${lowDpiCount === 1 ? '' : 's'}`);
   if (backgroundCount) warningLines.push(`⚠ Background detected on ${backgroundCount} design${backgroundCount === 1 ? '' : 's'}`);
 
-  let subject;
-  let details;
-  let attachments;
+  let subject, details, attachments;
 
+  try {
   if (mode === 'single') {
     subject = `DTF Order — ${sizeText} — Qty ${qty}`;
     details = [
@@ -205,6 +204,9 @@ export default async function handler(req, res) {
     ].filter(Boolean).join('\n');
 
     attachments = [gangsheetAttachment];
+  }
+  } catch (e) {
+    return res.status(413).json({ ok: false, error: e.message || 'Could not read the artwork or gangsheet file.' });
   }
 
   try {

@@ -17,6 +17,7 @@
 // ============================================================
 
 import nodemailer from 'nodemailer';
+import { randomUUID } from 'crypto';
 
 function websiteOrderType(items, hasDtf) {
   const text = String(items || '');
@@ -57,7 +58,7 @@ export default async function handler(req, res) {
   // Build the charge.
   const payload = {
     source_id: sourceId,
-    idempotency_key: crypto.randomUUID(),     // prevents accidental double-charges
+    idempotency_key: randomUUID(),     // prevents accidental double-charges
     amount_money: { amount: amountCents, currency: 'USD' },
     location_id: process.env.SQUARE_LOCATION_ID
   };
