@@ -700,7 +700,8 @@
 .dtf-editor{min-width:0;min-height:0;display:flex;flex-direction:column;background:#efe9dd}
 .dtf-tools{
   height:52px;flex:0 0 52px;display:flex;align-items:center;gap:7px;padding:0 13px;
-  background:#fffdf8;border-bottom:1px solid #d9cfbc
+  background:#fffdf8;border-bottom:1px solid #d9cfbc;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch
 }
 .dtf-tool{
   height:36px;padding:0 11px;border:1px solid #d8cfbd;background:#fffdf8;color:#4A3424;
@@ -1184,17 +1185,19 @@
 
         <section class="dtf-editor">
           <div class="dtf-tools">
-            <button class="dtf-tool" type="button" onclick="resetDtfSheet()">Reset</button>
-            <button class="dtf-tool" id="dtf-preview-toggle" type="button" onclick="toggleDtfPreviewBg()">▦ Preview Background</button>
+            <button class="dtf-tool" type="button" onclick="resetDtfSheet()" title="Clear the sheet and start over">Reset</button>
+            <button class="dtf-tool" id="dtf-autoarrange-btn" type="button" onclick="autoArrangeDtf()" title="Auto-pack the designs neatly onto the sheet">⊞ Auto-arrange</button>
             <button class="dtf-tool on" id="dtf-snap-toggle" type="button" onclick="toggleDtfSnap()" title="Snap position and size to 0.25 inch intervals.">⌗ Snap</button>
+            <button class="dtf-tool" id="dtf-preview-toggle" type="button" onclick="toggleDtfPreviewBg()" title="Preview a fabric color behind your designs">▦ Preview Background</button>
 
             <span class="dtf-tool-sep"></span>
 
-            <button class="dtf-tool" id="dtf-dimensions-btn" type="button" onclick="toggleDtfDimensions()" disabled>Size</button>
+            <button class="dtf-tool" id="dtf-dimensions-btn" type="button" onclick="toggleDtfDimensions()" disabled title="Set the exact size in inches">Size</button>
             <button class="dtf-tool" id="dtf-rotate-left-btn" type="button" onclick="rotateSelectedDtf(-1)" disabled title="Rotate 90° left" aria-label="Rotate 90 degrees left">↶ 90°</button>
             <button class="dtf-tool" id="dtf-rotate-right-btn" type="button" onclick="rotateSelectedDtf(1)" disabled title="Rotate 90° right" aria-label="Rotate 90 degrees right">↷ 90°</button>
             <button class="dtf-tool" id="dtf-mirror-lr-btn" type="button" onclick="mirrorSelectedDtf('x')" disabled title="Mirror left to right" aria-label="Mirror left to right">Mirror ↔</button>
             <button class="dtf-tool" id="dtf-mirror-tb-btn" type="button" onclick="mirrorSelectedDtf('y')" disabled title="Mirror top to bottom" aria-label="Mirror top to bottom">Mirror ↕</button>
+            <button class="dtf-tool" id="dtf-duplicate-btn" type="button" onclick="duplicateSelectedDtf()" disabled title="Duplicate the selected design">⧉ Duplicate</button>
             <button class="dtf-tool danger" id="dtf-delete-btn" type="button" onclick="removeSelectedDtf()" disabled>Delete</button>
 
             <div class="dtf-tools-center">
@@ -4340,6 +4343,7 @@
     $('dtf-rotate-right-btn').disabled=!enabled;
     $('dtf-mirror-lr-btn').disabled=!enabled;
     $('dtf-mirror-tb-btn').disabled=!enabled;
+    $('dtf-duplicate-btn').disabled=!enabled;
     $('dtf-delete-btn').disabled=!enabled;
 
     if(!d||!dtfState.dimensionsOpen){
