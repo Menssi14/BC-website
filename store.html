@@ -562,6 +562,414 @@
     .shirt-builder-head p:last-child{font-size:18px}
   }
 </style>
+
+
+<style>
+/* ────────────────────────────────────────────────────────────
+   ORDER DTF · CLEAN MULTI-DESIGN EDITOR
+   Desktop editor only. Phones receive a clear desktop notice.
+   ──────────────────────────────────────────────────────────── */
+#dtf-dialog{
+  width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;
+  background:#f3eee3;color:#3e3025;overflow:hidden
+}
+#dtf-dialog::backdrop{background:rgba(17,43,34,.48)}
+.dtf-desktop-app{height:100%;display:flex;flex-direction:column;background:#f4efe4}
+.dtf-mobile-only{display:none}
+
+.dtf-head{
+  height:66px;flex:0 0 66px;display:flex;align-items:center;gap:18px;
+  padding:0 20px;background:var(--green);color:var(--cream);
+  border-bottom:1px solid rgba(242,234,221,.12)
+}
+.dtf-brand{min-width:170px}
+.dtf-brand small{
+  display:block;font-family:'Teko','Oswald',sans-serif;font-size:10px;line-height:1;
+  letter-spacing:.24em;color:var(--pink);text-transform:uppercase;margin-bottom:3px
+}
+.dtf-brand strong{
+  font-family:'Schadow','Teko',sans-serif;font-size:25px;line-height:1;
+  letter-spacing:.02em;text-transform:uppercase
+}
+.dtf-head-meta{
+  font-family:'Teko','Oswald',sans-serif;font-size:14px;letter-spacing:.05em;
+  color:rgba(242,234,221,.72);white-space:nowrap
+}
+.dtf-head-spacer{flex:1}
+.dtf-qty-head{
+  display:flex;align-items:center;height:38px;border:1px solid rgba(242,234,221,.27);
+  border-radius:7px;overflow:hidden
+}
+.dtf-qty-head span{
+  min-width:58px;text-align:center;font-family:'Teko',sans-serif;font-size:15px;letter-spacing:.05em
+}
+.dtf-qty-head button{
+  width:35px;height:38px;border:0;background:transparent;color:var(--cream);
+  font-size:20px;cursor:pointer
+}
+.dtf-qty-head button:hover{background:rgba(242,234,221,.10)}
+.dtf-price-head{min-width:86px;text-align:right}
+.dtf-price-head small{
+  display:block;font-family:'Teko',sans-serif;font-size:10px;letter-spacing:.10em;
+  color:rgba(242,234,221,.62);text-transform:uppercase
+}
+.dtf-price-head strong{
+  font-family:'Schadow','Teko',sans-serif;font-size:25px;line-height:1;color:var(--pink)
+}
+.dtf-head-close{
+  border:1px solid rgba(242,234,221,.32);background:transparent;color:var(--cream);
+  height:38px;padding:0 14px;border-radius:7px;font-family:'Teko',sans-serif;
+  font-size:15px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer
+}
+.dtf-head-close:hover{background:rgba(242,234,221,.08)}
+.dtf-head-add{
+  border:0;background:var(--pink);color:var(--green-dark);height:40px;padding:0 20px;
+  border-radius:7px;font-family:'Schadow','Teko',sans-serif;font-size:15px;font-weight:900;
+  letter-spacing:.04em;text-transform:uppercase;cursor:pointer;white-space:nowrap
+}
+.dtf-head-add:disabled{opacity:.42;cursor:not-allowed}
+
+.dtf-body{flex:1;min-height:0;display:grid;grid-template-columns:278px minmax(0,1fr)}
+.dtf-library{
+  min-height:0;display:flex;flex-direction:column;background:#fbf7ee;
+  border-right:1px solid #d9cfbc
+}
+.dtf-library-head{padding:18px 16px 12px}
+.dtf-library-title{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:12px
+}
+.dtf-library-title strong{
+  font-family:'Schadow','Teko',sans-serif;font-size:23px;color:var(--green);
+  text-transform:uppercase
+}
+.dtf-library-title span{
+  font-family:'Teko',sans-serif;font-size:13px;color:#8a7d69
+}
+.dtf-upload-clean{
+  width:100%;height:42px;border:0;border-radius:6px;background:var(--green);
+  color:var(--cream);font-family:'Schadow','Teko',sans-serif;font-size:15px;
+  letter-spacing:.04em;text-transform:uppercase;cursor:pointer
+}
+.dtf-upload-clean:hover{background:var(--green-dark)}
+.dtf-upload-note{
+  margin-top:7px;font-family:'Teko',sans-serif;font-size:12px;line-height:1.25;
+  color:#8a7d69
+}
+.dtf-library-list{
+  flex:1;min-height:0;overflow:auto;padding:3px 10px 16px
+}
+.dtf-empty-library{
+  margin:24px 10px;text-align:center;font-family:'Teko',sans-serif;font-size:15px;
+  color:#9a8f7d;line-height:1.25
+}
+.dtf-art-card{
+  position:relative;display:grid;grid-template-columns:62px minmax(0,1fr) 24px;gap:10px;
+  align-items:center;padding:8px;margin:0 0 7px;border:1px solid transparent;
+  border-radius:7px;background:transparent;cursor:pointer
+}
+.dtf-art-card:hover{background:#f3ecdf}
+.dtf-art-card.selected{
+  background:#eee7d8;border-color:rgba(31,77,62,.30)
+}
+.dtf-art-thumb{
+  width:62px;height:62px;object-fit:contain;border-radius:5px;padding:3px;
+  background:conic-gradient(#e9e2d2 25%,#faf6ec 0 50%,#e9e2d2 0 75%,#faf6ec 0) 0 0/14px 14px
+}
+.dtf-art-info{min-width:0}
+.dtf-art-name{
+  font-family:'Teko',sans-serif;font-size:16px;line-height:1.05;color:#4A3424;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.dtf-art-size{
+  margin-top:3px;font-family:'Teko',sans-serif;font-size:12px;color:#8c806d
+}
+.dtf-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.dtf-badge{
+  display:inline-flex;align-items:center;height:18px;padding:0 5px;border-radius:4px;
+  font-family:'Teko',sans-serif;font-size:10px;letter-spacing:.04em;text-transform:uppercase
+}
+.dtf-badge.ok{background:rgba(31,77,62,.10);color:var(--green)}
+.dtf-badge.warn{background:#f2dfbb;color:#79591e}
+.dtf-badge.bad{background:rgba(189,93,84,.13);color:#8b433a}
+.dtf-card-remove{
+  width:24px;height:24px;border:0;background:transparent;color:#9b8e7b;
+  font-size:18px;cursor:pointer;border-radius:4px
+}
+.dtf-card-remove:hover{background:#eadfce;color:#7c4039}
+
+.dtf-editor{min-width:0;min-height:0;display:flex;flex-direction:column;background:#efe9dd}
+.dtf-tools{
+  height:52px;flex:0 0 52px;display:flex;align-items:center;gap:7px;padding:0 13px;
+  background:#fffdf8;border-bottom:1px solid #d9cfbc
+}
+.dtf-tool{
+  height:36px;padding:0 11px;border:1px solid #d8cfbd;background:#fffdf8;color:#4A3424;
+  border-radius:6px;font-family:'Teko',sans-serif;font-size:15px;letter-spacing:.035em;
+  cursor:pointer;white-space:nowrap
+}
+.dtf-tool:hover:not(:disabled){border-color:var(--green);color:var(--green)}
+.dtf-tool:disabled{opacity:.36;cursor:default}
+.dtf-tool.on{background:var(--green);border-color:var(--green);color:var(--cream)}
+.dtf-tool.danger:hover:not(:disabled){border-color:#9a5148;color:#8d433b}
+.dtf-tool-sep{width:1px;height:24px;background:#ddd3c1;margin:0 2px}
+.dtf-tools-center{
+  flex:1;text-align:center;font-family:'Teko',sans-serif;font-size:13px;
+  letter-spacing:.08em;text-transform:uppercase;color:#776b59
+}
+.dtf-tools-center strong{
+  font-family:'Schadow','Teko',sans-serif;font-size:15px;color:var(--green)
+}
+.dtf-zoom{
+  display:flex;align-items:center;height:34px;border:1px solid #d8cfbd;border-radius:6px;overflow:hidden
+}
+.dtf-zoom button{
+  width:34px;height:34px;border:0;background:#fffdf8;color:var(--green);font-size:20px;cursor:pointer
+}
+.dtf-zoom span{
+  width:48px;text-align:center;font-family:'Teko',sans-serif;font-size:13px;color:#756957
+}
+
+.dtf-canvas-wrap{
+  flex:1;min-height:0;overflow:auto;padding:18px 34px 38px;
+  display:flex;justify-content:center;align-items:flex-start
+}
+.dtf-sheet-shell{
+  --ruler:42px;position:relative;width:min(620px,calc(100vw - 390px));min-width:430px;
+  aspect-ratio:13/20;padding:var(--ruler) 0 0 var(--ruler);transform-origin:top center
+}
+.dtf-ruler-corner{
+  position:absolute;left:0;top:0;width:var(--ruler);height:var(--ruler);
+  display:flex;align-items:center;justify-content:center;
+  border-right:1px solid #b8ad9a;border-bottom:1px solid #b8ad9a;
+  background:#e8e0d1;color:#6c5e4c;
+  font-family:'Schadow','Teko',sans-serif;font-size:11px;letter-spacing:.06em;
+  z-index:4;pointer-events:none
+}
+.dtf-ruler-x{
+  position:absolute;top:0;left:var(--ruler);right:0;height:var(--ruler);
+  border-bottom:1px solid #a99e8a;background:#eee7da;
+  font-family:'Teko',sans-serif;font-size:14px;color:#554a3c;pointer-events:none;
+  overflow:visible
+}
+.dtf-ruler-y{
+  position:absolute;left:0;top:var(--ruler);bottom:0;width:var(--ruler);
+  border-right:1px solid #a99e8a;background:#eee7da;
+  font-family:'Teko',sans-serif;font-size:14px;color:#554a3c;pointer-events:none;
+  overflow:visible
+}
+.dtf-ruler-tick-x{
+  position:absolute;bottom:0;width:1px;background:#8f846f;z-index:2
+}
+.dtf-ruler-tick-x.major{height:11px;background:#756a58}
+.dtf-ruler-tick-x.half{height:6px;opacity:.72}
+.dtf-ruler-tick-y{
+  position:absolute;right:0;height:1px;background:#8f846f;z-index:2
+}
+.dtf-ruler-tick-y.major{width:11px;background:#756a58}
+.dtf-ruler-tick-y.half{width:6px;opacity:.72}
+.dtf-ruler-label-x{
+  position:absolute;top:4px;z-index:3;transform:translateX(-50%);
+  min-width:18px;text-align:center;line-height:1
+}
+.dtf-ruler-label-y{
+  position:absolute;left:4px;z-index:3;transform:translateY(-50%);
+  min-width:19px;text-align:left;line-height:1
+}
+.dtf-ruler-label-x.edge-start{transform:none}
+.dtf-ruler-label-x.edge-end{transform:translateX(-100%)}
+.dtf-ruler-label-y.edge-start{transform:none;top:3px!important}
+.dtf-ruler-label-y.edge-end{transform:translateY(-100%)}
+.dtf-ruler-selection-x{
+  position:absolute;left:0;top:0;height:100%;z-index:1;
+  background:rgba(31,77,62,.18);
+  border-left:2px solid rgba(31,77,62,.55);
+  border-right:2px solid rgba(31,77,62,.55);
+  pointer-events:none
+}
+.dtf-ruler-selection-x span{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  padding:4px 9px;border-radius:5px;background:var(--green);
+  color:var(--cream);font-family:'Schadow','Teko',sans-serif;font-size:14px;
+  line-height:1;white-space:nowrap;box-shadow:0 2px 6px rgba(31,77,62,.14)
+}
+.dtf-ruler-selection-y{
+  position:absolute;left:0;top:0;width:100%;z-index:1;
+  background:rgba(31,77,62,.18);
+  border-top:2px solid rgba(31,77,62,.55);
+  border-bottom:2px solid rgba(31,77,62,.55);
+  pointer-events:none
+}
+.dtf-ruler-selection-y span{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);
+  padding:4px 9px;border-radius:5px;background:var(--green);
+  color:var(--cream);font-family:'Schadow','Teko',sans-serif;font-size:14px;
+  line-height:1;white-space:nowrap;box-shadow:0 2px 6px rgba(31,77,62,.14)
+}
+.dtf-sheet{
+  position:relative;width:100%;height:100%;overflow:hidden;border:1px solid #9b927f;
+  background-image:
+    linear-gradient(to right,rgba(31,77,62,.11) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(31,77,62,.11) 1px,transparent 1px),
+    conic-gradient(#e9e2d2 25%,#faf6ec 0 50%,#e9e2d2 0 75%,#faf6ec 0);
+  background-size:calc(100% / 13) 100%,100% calc(100% / 20),16px 16px;
+  box-shadow:0 10px 28px rgba(62,45,28,.10)
+}
+.dtf-sheet.solid{
+  background-image:
+    linear-gradient(to right,rgba(255,255,255,.13) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(255,255,255,.13) 1px,transparent 1px);
+  background-size:calc(100% / 13) 100%,100% calc(100% / 20);
+  background-color:#c8c8c5
+}
+.dtf-sheet-empty{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+  pointer-events:none;color:#867a68;font-family:'Teko',sans-serif;font-size:17px
+}
+.dtf-sheet-empty strong{
+  display:block;color:var(--green);font-family:'Schadow','Teko',sans-serif;
+  font-size:22px;text-transform:uppercase;margin-bottom:4px
+}
+.dtf-sheet-object{
+  position:absolute;transform:translate(-50%,-50%);touch-action:none;user-select:none;cursor:move
+}
+.dtf-sheet-object img{
+  position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:fill;
+  transform-origin:center center;pointer-events:none;user-select:none;
+  max-width:none;max-height:none
+}
+.dtf-sheet-object.selected{z-index:50!important}
+.dtf-select-box{
+  position:absolute;inset:0;border:1px solid transparent;pointer-events:none;
+  border-radius:2px;box-sizing:border-box
+}
+.dtf-sheet-object.selected .dtf-select-box{
+  border-color:rgba(31,77,62,.86);
+  box-shadow:0 0 0 1px rgba(255,255,255,.72) inset
+}
+
+.dtf-sheet-object.colliding .dtf-select-box{
+  border:2px dashed #ff6a2b!important;
+}
+.dtf-sheet-object.selected.colliding .dtf-select-box{
+  border-color:#ff6a2b!important;
+}
+.dtf-collision-zone{
+  position:absolute;
+  z-index:45;
+  pointer-events:none;
+  border:2px dashed #ff6a2b;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,106,43,.10) 0,
+      rgba(255,106,43,.10) 5px,
+      transparent 5px,
+      transparent 10px
+    );
+  box-sizing:border-box
+}
+.dtf-collision-zone::before,
+.dtf-collision-zone::after{
+  content:"";
+  position:absolute;
+  background:#ff6a2b;
+  opacity:.85
+}
+.dtf-collision-zone::before{
+  left:50%;top:-5px;bottom:-5px;width:1px;
+  transform:translateX(-50%)
+}
+.dtf-collision-zone::after{
+  top:50%;left:-5px;right:-5px;height:1px;
+  transform:translateY(-50%)
+}
+.dtf-overlap-status{
+  display:inline-flex;
+  align-items:center;
+  margin-left:9px;
+  padding:2px 7px;
+  border-radius:4px;
+  background:#fff0e9;
+  border:1px solid rgba(255,106,43,.45);
+  color:#b64919;
+  font-family:'Teko',sans-serif;
+  font-size:12px;
+  letter-spacing:.04em;
+  vertical-align:1px
+}
+.dtf-handle{
+  display:none;position:absolute;width:15px;height:15px;border:2px solid var(--pink);
+  border-radius:50%;background:#fffdf8;z-index:4;padding:0
+}
+.dtf-sheet-object.selected .dtf-handle{display:block}
+.dtf-handle.nw{left:-6px;top:-6px;cursor:nwse-resize}
+.dtf-handle.ne{right:-6px;top:-6px;cursor:nesw-resize}
+.dtf-handle.sw{left:-6px;bottom:-6px;cursor:nesw-resize}
+.dtf-handle.se{right:-6px;bottom:-6px;cursor:nwse-resize}
+
+
+.dtf-dimension-card{
+  position:absolute;right:16px;top:68px;width:238px;z-index:100;background:#fffdf8;
+  border:1px solid #d5cab8;border-radius:7px;box-shadow:0 10px 24px rgba(60,44,26,.18);
+  padding:12px
+}
+.dtf-dimension-card[hidden]{display:none}
+.dtf-dimension-card h4{
+  margin:0 0 9px;font-family:'Schadow','Teko',sans-serif;font-size:16px;
+  color:var(--green);text-transform:uppercase
+}
+.dtf-dim-row{display:grid;grid-template-columns:1fr 86px;align-items:center;gap:8px;margin-bottom:8px}
+.dtf-dim-row label{font-family:'Teko',sans-serif;font-size:14px;color:#5e5141}
+.dtf-dim-row input{
+  width:100%;height:34px;border:1px solid #d3c8b5;border-radius:5px;background:#fff;
+  color:#3f3025;text-align:center;font-family:'Teko',sans-serif;font-size:16px
+}
+.dtf-lock-row{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid #e0d7c6;
+  padding-top:9px;margin-top:3px;font-family:'Teko',sans-serif;font-size:14px;color:#5f5343
+}
+.dtf-switch{
+  position:relative;width:36px;height:20px;border:0;border-radius:999px;background:#c8c1b5;cursor:pointer;padding:0
+}
+.dtf-switch::after{
+  content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:.15s
+}
+.dtf-switch.on{background:var(--green)}
+.dtf-switch.on::after{left:18px}
+.dtf-selected-status{
+  margin-top:9px;padding-top:9px;border-top:1px solid #e0d7c6;
+  font-family:'Teko',sans-serif;font-size:12px;line-height:1.25;color:#7c705e
+}
+.dtf-selected-status .bad{color:#8d433b}
+.dtf-selected-status .warn{color:#80601d}
+.dtf-selected-status .ok{color:var(--green)}
+
+
+@media(max-width:899px){
+  #dtf-dialog{background:var(--green)}
+  .dtf-desktop-app{display:none!important}
+  .dtf-mobile-only{
+    min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:28px;
+    background:var(--green);color:var(--cream);text-align:center
+  }
+  .dtf-mobile-card{max-width:420px}
+  .dtf-mobile-card strong{
+    display:block;font-family:'Schadow','Teko',sans-serif;font-size:31px;text-transform:uppercase;
+    margin-bottom:10px;color:var(--pink)
+  }
+  .dtf-mobile-card p{
+    margin:0 0 20px;font-family:'Teko',sans-serif;font-size:19px;line-height:1.25;
+    color:rgba(242,234,221,.84)
+  }
+  .dtf-mobile-card button{
+    border:1px solid rgba(242,234,221,.42);background:transparent;color:var(--cream);
+    border-radius:7px;padding:10px 18px;font-family:'Schadow','Teko',sans-serif;
+    font-size:15px;text-transform:uppercase
+  }
+}
+</style>
+
 </head>
 <body>
 <svg class="svg-defs" aria-hidden="true">
@@ -601,6 +1009,7 @@
   <nav class="nav">
     <a href="/" class="nav-brand">Broch Custom<small>The Shop</small></a>
     <div class="nav-right">
+      <button class="nav-link dtf-nav-link" type="button" onclick="openDtfOrder()">Order DTF</button>
       <button class="nav-cart" onclick="openCart()" aria-label="Cart" title="Cart">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -721,6 +1130,123 @@
     <button type="button" class="admin-toggle" id="admin-toggle" hidden>✎ Editing — tap to exit</button>
     <div id="save-badge" hidden style="position:fixed;bottom:16px;right:16px;background:var(--green);color:var(--cream);padding:8px 16px;border-radius:999px;font-family:'Teko',sans-serif;letter-spacing:0.1em;text-transform:uppercase;font-size:14px;z-index:200;">Saved ✓</div>
   </footer>
+
+
+  <!-- ORDER DTF — clean desktop multi-design editor -->
+  <dialog id="dtf-dialog" aria-labelledby="dtf-title">
+    <div class="dtf-mobile-only">
+      <div class="dtf-mobile-card">
+        <strong>DTF Builder on Desktop</strong>
+        <p>This editor needs a larger screen for accurate sizing and placement. Open Broch Custom on a desktop or laptop to build your DTF sheet.</p>
+        <button type="button" onclick="closeDtfOrder()">Close</button>
+      </div>
+    </div>
+
+    <div class="dtf-desktop-app">
+      <header class="dtf-head">
+        <div class="dtf-brand">
+          <small>Broch Custom</small>
+          <strong id="dtf-title">DTF Builder</strong>
+        </div>
+        <div class="dtf-head-meta">13 × 20 max &nbsp;·&nbsp; <span id="dtf-rate-copy">$0.10 per sq in</span></div>
+        <div class="dtf-head-spacer"></div>
+
+        <div class="dtf-qty-head" aria-label="Print amount">
+          <button type="button" onclick="changeDtfQty(-1)" aria-label="Decrease quantity">−</button>
+          <span id="dtf-head-qty">1 print</span>
+          <button type="button" onclick="changeDtfQty(1)" aria-label="Increase quantity">+</button>
+        </div>
+
+        <div class="dtf-price-head">
+          <small id="dtf-tier-label">11×11 tier</small>
+          <strong id="dtf-total">$5.00</strong>
+        </div>
+
+        <button class="dtf-head-close" type="button" onclick="closeDtfOrder()">Close</button>
+        <button class="dtf-head-add" id="dtf-add" type="button" onclick="addDtfToCart()" disabled>Add to Bag</button>
+      </header>
+
+      <div class="dtf-body">
+        <aside class="dtf-library">
+          <div class="dtf-library-head">
+            <div class="dtf-library-title">
+              <strong>Graphics</strong>
+              <span id="dtf-design-count">0 designs</span>
+            </div>
+            <input id="dtf-file" type="file" accept=".png,.svg,image/png,image/svg+xml" multiple hidden onchange="handleDtfUpload(event)">
+            <button class="dtf-upload-clean" type="button" onclick="$('dtf-file').click()">+ Add Files</button>
+            <div class="dtf-upload-note">PNG or SVG. Use one design for a single transfer, or place multiple designs to build a gangsheet.</div>
+          </div>
+          <div class="dtf-library-list" id="dtf-library-list">
+            <div class="dtf-empty-library" id="dtf-empty-library">Your uploaded designs will appear here.</div>
+          </div>
+        </aside>
+
+        <section class="dtf-editor">
+          <div class="dtf-tools">
+            <button class="dtf-tool" type="button" onclick="resetDtfSheet()">Reset</button>
+            <button class="dtf-tool" id="dtf-preview-toggle" type="button" onclick="toggleDtfPreviewBg()">▦ Preview Background</button>
+            <button class="dtf-tool on" id="dtf-snap-toggle" type="button" onclick="toggleDtfSnap()" title="Snap position and size to 0.25 inch intervals.">⌗ Snap</button>
+
+            <span class="dtf-tool-sep"></span>
+
+            <button class="dtf-tool" id="dtf-dimensions-btn" type="button" onclick="toggleDtfDimensions()" disabled>Size</button>
+            <button class="dtf-tool" id="dtf-rotate-left-btn" type="button" onclick="rotateSelectedDtf(-1)" disabled title="Rotate 90° left" aria-label="Rotate 90 degrees left">↶ 90°</button>
+            <button class="dtf-tool" id="dtf-rotate-right-btn" type="button" onclick="rotateSelectedDtf(1)" disabled title="Rotate 90° right" aria-label="Rotate 90 degrees right">↷ 90°</button>
+            <button class="dtf-tool" id="dtf-mirror-lr-btn" type="button" onclick="mirrorSelectedDtf('x')" disabled title="Mirror left to right" aria-label="Mirror left to right">Mirror ↔</button>
+            <button class="dtf-tool" id="dtf-mirror-tb-btn" type="button" onclick="mirrorSelectedDtf('y')" disabled title="Mirror top to bottom" aria-label="Mirror top to bottom">Mirror ↕</button>
+            <button class="dtf-tool danger" id="dtf-delete-btn" type="button" onclick="removeSelectedDtf()" disabled>Delete</button>
+
+            <div class="dtf-tools-center">
+              <strong>13 × 20</strong> workspace
+
+            </div>
+
+            <div class="dtf-zoom">
+              <button type="button" onclick="changeDtfZoom(-10)" aria-label="Zoom out">−</button>
+              <span id="dtf-zoom-label">100%</span>
+              <button type="button" onclick="changeDtfZoom(10)" aria-label="Zoom in">+</button>
+            </div>
+          </div>
+
+          <div class="dtf-canvas-wrap">
+            <div class="dtf-sheet-shell" id="dtf-sheet-shell">
+              <div class="dtf-ruler-corner" aria-hidden="true">IN</div>
+              <div class="dtf-ruler-x" id="dtf-ruler-x">
+                <div class="dtf-ruler-selection-x" id="dtf-ruler-selection-x" hidden><span id="dtf-ruler-width-label"></span></div>
+              </div>
+              <div class="dtf-ruler-y" id="dtf-ruler-y">
+                <div class="dtf-ruler-selection-y" id="dtf-ruler-selection-y" hidden><span id="dtf-ruler-height-label"></span></div>
+              </div>
+              <div class="dtf-sheet" id="dtf-sheet">
+                <div class="dtf-sheet-empty" id="dtf-sheet-empty">
+                  <div><strong>Add your designs</strong>Upload one or more PNG or SVG files from the Graphics panel.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dtf-dimension-card" id="dtf-dimension-card" hidden>
+            <h4>Selected Design</h4>
+            <div class="dtf-dim-row">
+              <label for="dtf-selected-width">Width (IN)</label>
+              <input id="dtf-selected-width" type="number" min="0.5" max="13" step="0.25" oninput="setSelectedDtfDimension('w',this.value)">
+            </div>
+            <div class="dtf-dim-row">
+              <label for="dtf-selected-height">Height (IN)</label>
+              <input id="dtf-selected-height" type="number" min="0.5" max="20" step="0.25" oninput="setSelectedDtfDimension('h',this.value)">
+            </div>
+            <div class="dtf-lock-row">
+              <span>Preserve Aspect Ratio</span>
+              <button class="dtf-switch on" id="dtf-lock-switch" type="button" onclick="toggleSelectedDtfLock()" aria-label="Toggle aspect ratio lock"></button>
+            </div>
+            <div class="dtf-selected-status" id="dtf-selected-status"></div>
+          </div>
+
+        </section>
+      </div>
+    </div>
+  </dialog>
 
   <!-- CART DIALOG -->
   <dialog id="cart-dialog">
@@ -971,6 +1497,9 @@
         const o = Object.assign({}, c);
         // built-shirt mockups are big data images — don't let one overflow storage
         if (o.photo && o.photo.length > 150000) o.photo = '';
+        // DTF production artwork stays out of localStorage/Supabase. The live copy
+        // remains in memory and a temporary local IndexedDB until checkout.
+        if (o.dtfArtwork) delete o.dtfArtwork;
         return o;
       });
       localStorage.setItem(CART_KEY, JSON.stringify(slim));
@@ -1039,11 +1568,11 @@
     grid.innerHTML = '';
     if (!products.length) {
       grid.innerHTML = '';
-      if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); }
+      if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); addDtfAdminCard(); }
       return;
     }
     products.forEach(p => grid.appendChild(productCard(p)));
-    if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); }
+    if (isAdmin) { addAdminAddCard(); addShirtAdminCard(); addDtfAdminCard(); }
   }
 
   function productCard(p) {
@@ -1099,6 +1628,16 @@
     card.style.cssText = 'align-items:center;justify-content:center;border-style:dashed;cursor:pointer;min-height:280px;';
     card.innerHTML = '<div style="text-align:center;color:var(--green);font-family:Teko,sans-serif;font-size:20px;letter-spacing:0.1em;text-transform:uppercase;">Shirt builder settings</div>';
     card.onclick = () => openShirtAdmin();
+    grid.appendChild(card);
+  }
+
+  function addDtfAdminCard() {
+    const grid = $('product-grid');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'align-items:center;justify-content:center;border-style:dashed;cursor:pointer;min-height:280px;';
+    card.innerHTML = '<div style="text-align:center;color:var(--green);font-family:Teko,sans-serif;font-size:20px;letter-spacing:0.1em;text-transform:uppercase;">DTF order settings</div>';
+    card.onclick = () => openDtfAdmin();
     grid.appendChild(card);
   }
 
@@ -1338,8 +1877,14 @@
     return cartItemsText() + '\n\n' + extra;
   }
 
-  function goToCheckout() {
+  async function goToCheckout() {
     if (!cart.length) return;
+    try { await dtfRestorePromise; } catch (_) {}
+    const missingDtf = cart.find(c => c && c.id === 'dtf-order' && !c.dtfArtwork);
+    if (missingDtf) {
+      alert('Your DTF artwork needs to be uploaded again before checkout. Open the DTF Builder and add the transfer again.');
+      return;
+    }
     $('cart-dialog').close();
     $('checkout-body').hidden = false;
     $('co-success').hidden = true;
@@ -1422,11 +1967,17 @@
           shippingCents: coShipCents(),
           address: coAddressText(),
           mockups: builtMockups(),
-          artwork: builtOriginals()
+          artwork: builtOriginals(),
+          hasDtf: hasDtfInCart()
         })
       });
       const data = await res.json();
-      if (res.ok && data.ok) { showCheckoutSuccess(coTotalCents, data.receipt || data.id); return true; }
+      if (res.ok && data.ok) {
+        const dtfSent = await sendDtfOrderEmails(data.receipt || data.id, 'paid');
+        showCheckoutSuccess(coTotalCents, data.receipt || data.id);
+        if (!dtfSent) showDtfEmailWarning();
+        return true;
+      }
       throw new Error(data.error || 'Payment did not go through. No charge was made.');
     } catch (e) {
       $('co-status').textContent = e.message;
@@ -1533,12 +2084,16 @@
           shippingCents: coShipCents(),
           address: coAddressText(),
           mockups: builtMockups(),
-          artwork: builtOriginals()
+          artwork: builtOriginals(),
+          hasDtf: hasDtfInCart()
         })
       });
       const data = await res.json();
-      if (res.ok && data.ok) showCheckoutSuccess(coTotalCents, data.receipt || data.id);
-      else throw new Error(data.error || 'Payment did not go through. No charge was made.');
+      if (res.ok && data.ok) {
+        const dtfSent = await sendDtfOrderEmails(data.receipt || data.id, 'paid');
+        showCheckoutSuccess(coTotalCents, data.receipt || data.id);
+        if (!dtfSent) showDtfEmailWarning();
+      } else throw new Error(data.error || 'Payment did not go through. No charge was made.');
     } catch (e) {
       $('co-status').textContent = e.message;
       btn.disabled = false;
@@ -1585,7 +2140,7 @@
       const oid = 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6);
       store.orders.push({
         id: oid,
-        type: 'NOTE',
+        type: hasDtfInCart() ? 'DTF' : 'NOTE',
         title: '\ud83c\udfec Website order' + (phonePretty ? ' \u00b7 ' + phonePretty : ''),
         custName: 'Website order' + (phonePretty ? ' \u00b7 ' + phonePretty : ''),
         custPhone: phone10,
@@ -1615,7 +2170,9 @@
       const up = await sb.storage.from(PRODUCTS_BUCKET).upload('_orders/orders.json', blob, { upsert: true });
       if (up && up.error) throw up.error;
 
+      const dtfSent = await sendDtfOrderEmails(oid, 'unpaid');
       showPickupSuccess(coTotalCents, payMethod, oid);
+      if (!dtfSent) showDtfEmailWarning();
     } catch (e) {
       console.error('[pickup order]', e);
       $('co-status').textContent = 'Couldn\u2019t place the order \u2014 please try again, or call the shop.';
@@ -1660,6 +2217,9 @@
   }
 
   function finishOrder() {
+    try {
+      cart.filter(c => c && c.id === 'dtf-order').forEach(c => dtfDbDelete(c.key));
+    } catch (_) {}
     cart = [];
     try { localStorage.removeItem(CART_KEY); } catch (_) {}
     updateCartCount();
@@ -2157,8 +2717,8 @@
   }
 
 
-  /* shirt model now loads on demand from /shirt.glb */
-  /* ink texture now loads from /shirt-ink.png */
+  /* shirt model loads on demand from /shirt.glb */
+  /* ink loads from /shirt-ink.png */
   // ══════════════ 3D SHIRT VIEWER (upgrades the flat preview; auto-falls back to flat) ══════════════
   const SHIRT3D = { ok:false, booting:false, failed:false, renderer:null, scene:null, camera:null, group:null,
                     mats:[], meshes:[], size:null, ink:null, decal:null, canvas:null, lastDesign:null };
@@ -2347,7 +2907,7 @@
                       mats:[], meshes:[], size:null, ink:null, decal:null, nameDecal:null, canvas:null, mergedMesh:null, curDesign:null, curNameKey:null };
   const UNIFORM_VIEW_Y = -0.075; // compensate for the Polo model's built-in rightward stance
   const UNIFORM_NAME_FEE = 5;
-  /* polo model now loads on demand from /polo.glb */
+  /* polo model loads on demand from /polo.glb */
   let uniformBootObserver = null;
 
   function uniformFontDisplay(file){ return String(file||'').replace(/\.(ttf|otf|woff2?)$/i,''); }
@@ -2830,7 +3390,14 @@
   }
   function builtMockups() {
     const out=[];
-    cart.filter(c=>c.built).forEach(c=>{ if(Array.isArray(c.mockups)) c.mockups.forEach(m=>{ if(m) out.push(m); }); else if(c.photo) out.push(c.photo); });
+    cart.forEach(c=>{
+      if(!c)return;
+      if(c.id==='dtf-order' && c.photo){ out.push(c.photo); return; }
+      if(c.built){
+        if(Array.isArray(c.mockups)) c.mockups.forEach(m=>{ if(m) out.push(m); });
+        else if(c.photo) out.push(c.photo);
+      }
+    });
     return out.slice(0,3);
   }
 
@@ -3073,6 +3640,7 @@
   });
   (async function initStore(){
     await loadShirtCfg();
+    await loadDtfCfg();
     const section = $('shirt-builder-section');
     if (section) {
       section.hidden = !SHIRT.on;
@@ -3082,6 +3650,991 @@
     loadUniformFontMeta();
     await loadProducts();
   })();
+
+  // ── Order DTF · single-design 13x20 editor ─────────────────
+  const DTF_MAX_W = 13;
+  const DTF_MAX_H = 20;
+
+  // Owner-editable DTF pricing. Saved in Supabase so it follows the store
+  // across devices. First-run/default rate is $0.10 per square inch.
+  const DTF_CFG_FILE = '_store/dtf.json';
+  const DTF_CFG_DEFAULT = { pricePerSqIn: 0.10 };
+  let DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+
+  function currentDtfRate() {
+    const n = Number(DTF_CFG.pricePerSqIn);
+    return Number.isFinite(n) && n > 0 ? n : DTF_CFG_DEFAULT.pricePerSqIn;
+  }
+
+  async function loadDtfCfg() {
+    if (!sb) {
+      DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+      return;
+    }
+    try {
+      const { data, error } = await sb.storage.from(PRODUCTS_BUCKET).download(DTF_CFG_FILE);
+      if (error || !data) {
+        DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+        return;
+      }
+      const saved = JSON.parse(await data.text());
+      const rate = Number(saved && saved.pricePerSqIn);
+      DTF_CFG = {
+        pricePerSqIn: Number.isFinite(rate) && rate > 0
+          ? rate
+          : DTF_CFG_DEFAULT.pricePerSqIn
+      };
+    } catch (_) {
+      DTF_CFG = Object.assign({}, DTF_CFG_DEFAULT);
+    }
+  }
+
+  function openDtfAdmin() {
+    $('dtf-admin-rate').value = currentDtfRate().toFixed(2);
+    $('dtf-admin-status').textContent = '';
+    $('dtf-admin-dialog').showModal();
+  }
+
+  async function saveDtfCfg() {
+    const rate = Number($('dtf-admin-rate').value);
+    if (!Number.isFinite(rate) || rate <= 0) {
+      $('dtf-admin-status').textContent = 'Enter a valid price above $0.00.';
+      return;
+    }
+
+    DTF_CFG.pricePerSqIn = Math.round(rate * 100) / 100;
+    $('dtf-admin-status').textContent = 'Saving…';
+
+    try {
+      if (!sb) throw new Error('Cloud not connected');
+      const blob = new Blob([JSON.stringify(DTF_CFG)], { type:'application/json' });
+      const { error } = await sb.storage.from(PRODUCTS_BUCKET).upload(DTF_CFG_FILE, blob, { upsert:true });
+      if (error) throw error;
+
+      $('dtf-admin-status').textContent = 'Saved.';
+      renderDtfEditor();
+      setTimeout(() => $('dtf-admin-dialog').close(), 650);
+    } catch (e) {
+      $('dtf-admin-status').textContent = "Couldn't save — try again.";
+    }
+  }
+
+  const DTF_DB = 'broch-dtf-local-v4';
+  const DTF_STORE = 'sheets';
+
+  const dtfState = {
+    designs: [],
+    selectedId: null,
+    qty: 1,
+    zoom: 100,
+    solidPreview: false,
+    snap: true,
+    dimensionsOpen: false
+  };
+
+  function dtfId(){
+    return 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  }
+  function selectedDtf(){
+    return dtfState.designs.find(d=>d.id===dtfState.selectedId)||null;
+  }
+  function dtfClamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+  function hasDtfInCart(){ return cart.some(c=>c&&c.id==='dtf-order'); }
+
+  function dtfRotation(d){
+    return ((((d&&d.rotation)||0)%360)+360)%360;
+  }
+  function dtfIsQuarterTurn(d){
+    return dtfRotation(d)%180!==0;
+  }
+  function dtfSourceAspect(d){
+    const pxAspect=(Number(d&&d.pxW)||0)/(Number(d&&d.pxH)||1);
+    const a=Number(d&&d.sourceAspect)||pxAspect||Number(d&&d.aspect)||1;
+    return Number.isFinite(a)&&a>0?a:1;
+  }
+  function dtfDisplayAspect(d){
+    const a=dtfSourceAspect(d);
+    return dtfIsQuarterTurn(d)?1/a:a;
+  }
+  function dtfTransformLabel(d){
+    const parts=[];
+    const rot=dtfRotation(d);
+    if(rot===90)parts.push('90° right');
+    else if(rot===270)parts.push('90° left');
+    else if(rot===180)parts.push('180°');
+    if(d&&d.flipX)parts.push('Mirror left ↔ right');
+    if(d&&d.flipY)parts.push('Mirror top ↕ bottom');
+    return parts.join(' · ') || 'Standard';
+  }
+  function dtfImgFrame(d){
+    const odd=dtfIsQuarterTurn(d);
+    const boxW=Math.max(.01, d.widthIn||1);
+    const boxH=Math.max(.01, d.heightIn||1);
+    return {
+      widthPct: odd ? (boxH/boxW)*100 : 100,
+      heightPct: odd ? (boxW/boxH)*100 : 100,
+      transform: 'translate(-50%,-50%) rotate('+dtfRotation(d)+'deg) scale('+(d&&d.flipX?-1:1)+','+(d&&d.flipY?-1:1)+')'
+    };
+  }
+
+
+  function toggleDtfSnap(){
+    dtfState.snap=!dtfState.snap;
+    renderDtfEditor();
+  }
+
+  function snapDtfQuarter(v){ return Math.round(v*4)/4; }
+  function snapDtfDimension(v,min,max){
+    const snapped = dtfState.snap ? snapDtfQuarter(v) : v;
+    return dtfClamp(snapped,min,max);
+  }
+  function snapDtfAxis(value,size,axis,activeId){
+    if(!dtfState.snap)return value;
+
+    const limit = axis==='x' ? DTF_MAX_W : DTF_MAX_H;
+    const half=size/2;
+    const threshold=.16;
+    const candidates=[half,limit/2,limit-half];
+
+    for(const other of dtfState.designs){
+      if(other.id===activeId)continue;
+      const oSize=axis==='x'?other.widthIn:other.heightIn;
+      const oPos=axis==='x'?other.x:other.y;
+      const oh=oSize/2;
+
+      candidates.push(
+        oPos-oh+half,
+        oPos,
+        oPos+oh-half
+      );
+    }
+
+    let snapped=snapDtfQuarter(value);
+    let bestDist=Math.abs(snapped-value);
+
+    for(const c of candidates){
+      const dist=Math.abs(c-value);
+      if(dist<=threshold && dist<bestDist+.001){
+        snapped=c;
+        bestDist=dist;
+      }
+    }
+    return dtfClamp(snapped,half,limit-half);
+  }
+
+  function dtfIn(n){
+    const x=Math.round((Number(n)||0)*100)/100;
+    return String(x).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+  }
+  function dtfFileBase64Bytes(dataUrl){
+    const comma=String(dataUrl||'').indexOf(',');
+    if(comma<0)return 0;
+    const len=String(dataUrl).length-comma-1;
+    return Math.floor(len*0.75);
+  }
+
+  function getDtfFootprint(){
+    if(!dtfState.designs.length)return {w:0,h:0,minX:0,minY:0,maxX:0,maxY:0};
+    let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+    for(const d of dtfState.designs){
+      minX=Math.min(minX,d.x-d.widthIn/2);
+      maxX=Math.max(maxX,d.x+d.widthIn/2);
+      minY=Math.min(minY,d.y-d.heightIn/2);
+      maxY=Math.max(maxY,d.y+d.heightIn/2);
+    }
+    return {w:maxX-minX,h:maxY-minY,minX,minY,maxX,maxY};
+  }
+  function getDtfArea(){
+    if(!dtfState.designs.length)return 0;
+    if(dtfState.designs.length===1){
+      const d=dtfState.designs[0];
+      return d.widthIn*d.heightIn;
+    }
+    const f=getDtfFootprint();
+    return f.w*f.h;
+  }
+  function getDtfUnitPrice(){
+    return Math.round((getDtfArea()*currentDtfRate())*100)/100;
+  }
+
+  function dtfDbOpen(){
+    return new Promise((resolve,reject)=>{
+      if(!('indexedDB' in window))return reject(new Error('IndexedDB unavailable'));
+      const req=indexedDB.open(DTF_DB,1);
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        if(!db.objectStoreNames.contains(DTF_STORE))db.createObjectStore(DTF_STORE);
+      };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+  }
+  async function dtfDbPut(key,value){
+    try{
+      const db=await dtfDbOpen();
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(DTF_STORE,'readwrite');
+        tx.objectStore(DTF_STORE).put(value,key);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+      });
+      db.close();
+    }catch(_){}
+  }
+  async function dtfDbGet(key){
+    try{
+      const db=await dtfDbOpen();
+      const value=await new Promise((resolve,reject)=>{
+        const tx=db.transaction(DTF_STORE,'readonly');
+        const r=tx.objectStore(DTF_STORE).get(key);
+        r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
+      });
+      db.close();return value||null;
+    }catch(_){return null}
+  }
+  async function dtfDbDelete(key){
+    try{
+      const db=await dtfDbOpen();
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(DTF_STORE,'readwrite');
+        tx.objectStore(DTF_STORE).delete(key);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+      });
+      db.close();
+    }catch(_){}
+  }
+
+  async function restoreDtfArtwork(){
+    for(const c of cart.filter(c=>c&&c.id==='dtf-order'&&!c.dtfArtwork)){
+      const saved=await dtfDbGet(c.key);
+      if(saved&&(saved.design||saved.designs))c.dtfArtwork=saved;
+      if(saved&&!c.photo){
+        c.photo = saved.previewPhoto || (saved.design?.dataUrl) || (saved.designs&&saved.designs.length===1 ? saved.designs[0].dataUrl : '');
+      }
+    }
+  }
+  let dtfRestorePromise=restoreDtfArtwork();
+
+  function openDtfOrder(){ buildDtfRulers(); renderDtfEditor(); $('dtf-dialog').showModal(); }
+  function closeDtfOrder(){ $('dtf-dialog').close(); }
+
+  function buildDtfRulers(){
+    const rx=$('dtf-ruler-x'),ry=$('dtf-ruler-y');
+    if(!rx||!ry||rx.dataset.built==='1')return;
+    rx.dataset.built='1';
+    ry.dataset.built='1';
+
+    for(let half=0;half<=DTF_MAX_W*2;half++){
+      const inches=half/2;
+      const pct=inches/DTF_MAX_W*100;
+      const major=half%2===0;
+
+      const tick=document.createElement('i');
+      tick.className='dtf-ruler-tick-x '+(major?'major':'half');
+      tick.style.left=pct+'%';
+      rx.appendChild(tick);
+
+      if(major){
+        const label=document.createElement('span');
+        label.className='dtf-ruler-label-x'+(inches===0?' edge-start':inches===DTF_MAX_W?' edge-end':'');
+        label.style.left=pct+'%';
+        label.textContent=inches===DTF_MAX_W?DTF_MAX_W+'"':String(inches);
+        rx.appendChild(label);
+      }
+    }
+
+    for(let half=0;half<=DTF_MAX_H*2;half++){
+      const inches=half/2;
+      const pct=inches/DTF_MAX_H*100;
+      const major=half%2===0;
+
+      const tick=document.createElement('i');
+      tick.className='dtf-ruler-tick-y '+(major?'major':'half');
+      tick.style.top=pct+'%';
+      ry.appendChild(tick);
+
+      if(major){
+        const label=document.createElement('span');
+        label.className='dtf-ruler-label-y'+(inches===0?' edge-start':inches===DTF_MAX_H?' edge-end':'');
+        label.style.top=pct+'%';
+        label.textContent=inches===DTF_MAX_H?DTF_MAX_H+'"':String(inches);
+        ry.appendChild(label);
+      }
+    }
+  }
+
+  async function handleDtfUpload(e){
+    const files=[...(e.target.files||[])];
+    e.target.value='';
+    if(!files.length)return;
+
+    const loaded=[];
+    for(const file of files){
+      const lower=(file.name||'').toLowerCase();
+      const isSvg=file.type==='image/svg+xml'||lower.endsWith('.svg');
+      const isPng=file.type==='image/png'||lower.endsWith('.png');
+      if(!isSvg&&!isPng)continue;
+
+      try{
+        const dataUrl=await new Promise((resolve,reject)=>{
+          const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);
+        });
+
+        let pxW=0,pxH=0,aspect=1;
+        if(isSvg){
+          try{
+            const raw=await file.text();
+            const doc=new DOMParser().parseFromString(raw,'image/svg+xml');
+            const svg=doc.documentElement;
+            const vb=(svg.getAttribute('viewBox')||'').trim().split(/[\s,]+/).map(Number);
+            let w=parseFloat(svg.getAttribute('width'))||0;
+            let h=parseFloat(svg.getAttribute('height'))||0;
+            if(vb.length===4&&vb.every(Number.isFinite)&&vb[2]>0&&vb[3]>0){w=vb[2];h=vb[3]}
+            if(w>0&&h>0){pxW=w;pxH=h;aspect=w/h}
+          }catch(_){}
+        }
+        if(!pxW||!pxH){
+          const img=await loadImgEl(dataUrl,false);
+          pxW=img.naturalWidth||img.width||1000;
+          pxH=img.naturalHeight||img.height||1000;
+          aspect=pxW/pxH||1;
+        }
+
+        let longSide=isSvg?4:Math.max(pxW,pxH)/300;
+        longSide=dtfClamp(longSide||4,2,8);
+        let widthIn,heightIn;
+        if(aspect>=1){widthIn=longSide;heightIn=longSide/aspect}
+        else{heightIn=longSide;widthIn=longSide*aspect}
+        widthIn=dtfClamp(widthIn,.5,DTF_MAX_W);
+        heightIn=dtfClamp(heightIn,.5,DTF_MAX_H);
+
+        const design={
+          id:dtfId(),
+          filename:file.name||'artwork',
+          mime:isSvg?'image/svg+xml':'image/png',
+          dataUrl,
+          bytes:file.size||dtfFileBase64Bytes(dataUrl),
+          pxW,pxH,aspect:aspect||1,sourceAspect:aspect||1,isVector:isSvg,
+          widthIn,heightIn,
+          x:DTF_MAX_W/2,y:DTF_MAX_H/2,
+          locked:true,
+          rotation:0,
+          flipX:false,
+          flipY:false,
+          background:await detectDtfBackground(dataUrl),
+          dpi:null
+        };
+        loaded.push(design);
+      }catch(err){
+        console.error('[DTF upload]',file.name,err);
+      }
+    }
+
+    if(!loaded.length)return;
+    dtfState.designs.push(...loaded);
+    dtfState.selectedId=loaded[loaded.length-1].id;
+    autoArrangeDtf(false);
+    renderDtfEditor();
+  }
+
+  async function detectDtfBackground(src){
+    try{
+      const img=await loadImgEl(src,false);
+      const c=document.createElement('canvas'),S=80;c.width=S;c.height=S;
+      const g=c.getContext('2d',{willReadFrequently:true});
+      g.clearRect(0,0,S,S);g.drawImage(img,0,0,S,S);
+      const data=g.getImageData(0,0,S,S).data;
+      let transparent=0;
+      for(let i=3;i<data.length;i+=4)if(data[i]<245)transparent++;
+      return transparent/(S*S)>.003?'transparent':'background';
+    }catch(_){return'unknown'}
+  }
+
+  function selectDtf(id){
+    dtfState.selectedId=id;
+    dtfState.dimensionsOpen=false;
+    const idx=dtfState.designs.findIndex(d=>d.id===id);
+    if(idx>=0){
+      const d=dtfState.designs.splice(idx,1)[0];
+      dtfState.designs.push(d);
+    }
+    renderDtfEditor();
+  }
+  function removeDtfDesign(id){
+    dtfState.designs=dtfState.designs.filter(d=>d.id!==id);
+    if(dtfState.selectedId===id)dtfState.selectedId=dtfState.designs.at(-1)?.id||null;
+    dtfState.dimensionsOpen=false;
+    renderDtfEditor();
+  }
+  function removeSelectedDtf(){ if(dtfState.selectedId)removeDtfDesign(dtfState.selectedId); }
+  function duplicateSelectedDtf(){
+    const d=selectedDtf();if(!d)return;
+    const copy={...d,id:dtfId(),filename:d.filename.replace(/(\.[^.]+)?$/, ' copy$1')};
+    copy.x=dtfClamp(d.x+.35,copy.widthIn/2,DTF_MAX_W-copy.widthIn/2);
+    copy.y=dtfClamp(d.y+.35,copy.heightIn/2,DTF_MAX_H-copy.heightIn/2);
+    dtfState.designs.push(copy);
+    dtfState.selectedId=copy.id;
+    renderDtfEditor();
+  }
+
+  function rotateSelectedDtf(direction=1){
+    const d=selectedDtf(); if(!d)return;
+    const w=d.widthIn, h=d.heightIn;
+    d.widthIn=h;
+    d.heightIn=w;
+    d.rotation=(dtfRotation(d)+(direction<0?-90:90)+360)%360;
+    keepDtfInside(d);
+    renderDtfEditor();
+  }
+  function mirrorSelectedDtf(axis){
+    const d=selectedDtf(); if(!d)return;
+    if(axis==='x') d.flipX=!d.flipX;
+    else if(axis==='y') d.flipY=!d.flipY;
+    renderDtfEditor();
+  }
+  function resetSelectedDtfTransform(){
+    const d=selectedDtf(); if(!d)return;
+    if(dtfIsQuarterTurn(d)){
+      const w=d.widthIn;
+      d.widthIn=d.heightIn;
+      d.heightIn=w;
+    }
+    d.rotation=0;
+    d.flipX=false;
+    d.flipY=false;
+    keepDtfInside(d);
+    renderDtfEditor();
+  }
+
+  function resetDtfSheet(){
+    dtfState.designs=[];
+    dtfState.selectedId=null;
+    dtfState.qty=1;
+    dtfState.zoom=100;
+    dtfState.solidPreview=false;
+    dtfState.snap=true;
+    dtfState.dimensionsOpen=false;
+    renderDtfEditor();
+  }
+  function toggleDtfPreviewBg(){ dtfState.solidPreview=!dtfState.solidPreview; renderDtfEditor(); }
+  function changeDtfZoom(delta){ dtfState.zoom=dtfClamp((dtfState.zoom||100)+delta,70,130); renderDtfEditor(); }
+  function changeDtfQty(delta){ dtfState.qty=dtfClamp((dtfState.qty||1)+delta,1,99); renderDtfEditor(); }
+
+  function autoArrangeDtf(render=true){
+    if(!dtfState.designs.length){ if(render)renderDtfEditor(); return; }
+    const gap=.22;
+    let x=gap,y=gap,rowH=0;
+    for(const d of dtfState.designs){
+      if(x+d.widthIn>DTF_MAX_W-gap){
+        x=gap;y+=rowH+gap;rowH=0;
+      }
+      if(y+d.heightIn>DTF_MAX_H-gap){
+        d.x=DTF_MAX_W/2;d.y=DTF_MAX_H/2;
+      }else{
+        d.x=x+d.widthIn/2;
+        d.y=y+d.heightIn/2;
+        x+=d.widthIn+gap;
+        rowH=Math.max(rowH,d.heightIn);
+      }
+    }
+    if(render)renderDtfEditor();
+  }
+
+  function toggleDtfDimensions(){
+    if(!selectedDtf())return;
+    dtfState.dimensionsOpen=!dtfState.dimensionsOpen;
+    renderDtfEditor();
+  }
+  function toggleSelectedDtfLock(){
+    const d=selectedDtf(); if(!d)return;
+    d.locked=!d.locked; renderDtfEditor();
+  }
+  function setSelectedDtfDimension(which,value){
+    const d=selectedDtf(); if(!d)return;
+    let n=Number(value)||.5;
+    const displayAspect=dtfDisplayAspect(d);
+    if(which==='w'){
+      n=snapDtfDimension(n,.5,DTF_MAX_W); d.widthIn=n;
+      if(d.locked)d.heightIn=dtfClamp(n/displayAspect,.5,DTF_MAX_H);
+    }else{
+      n=snapDtfDimension(n,.5,DTF_MAX_H); d.heightIn=n;
+      if(d.locked)d.widthIn=dtfClamp(n*displayAspect,.5,DTF_MAX_W);
+    }
+    keepDtfInside(d);
+    renderDtfEditor();
+  }
+  function keepDtfInside(d){
+    d.x=dtfClamp(d.x,d.widthIn/2,DTF_MAX_W-d.widthIn/2);
+    d.y=dtfClamp(d.y,d.heightIn/2,DTF_MAX_H-d.heightIn/2);
+  }
+
+  function dtfQuality(d){
+    if(d.isVector)return {kind:'ok',short:'Vector',text:'Vector SVG · scalable'};
+    const pxW=dtfIsQuarterTurn(d)?d.pxH:d.pxW;
+    const pxH=dtfIsQuarterTurn(d)?d.pxW:d.pxH;
+    const dpi=Math.floor(Math.min(pxW/Math.max(.01,d.widthIn),pxH/Math.max(.01,d.heightIn)));
+    d.dpi=dpi;
+    if(dpi>=300)return {kind:'ok',short:dpi+' DPI',text:dpi+' DPI · excellent'};
+    if(dpi>=150)return {kind:'warn',short:dpi+' DPI',text:dpi+' DPI · acceptable'};
+    return {kind:'bad',short:'Low DPI',text:dpi+' DPI · may print blurry'};
+  }
+
+  function renderDtfLibrary(){
+    const list=$('dtf-library-list'); if(!list)return;
+    list.innerHTML='';
+    $('dtf-design-count').textContent=dtfState.designs.length+' design'+(dtfState.designs.length===1?'':'s');
+
+    if(!dtfState.designs.length){
+      const empty=document.createElement('div');
+      empty.className='dtf-empty-library';
+      empty.textContent='Your uploaded designs will appear here.';
+      list.appendChild(empty);
+      return;
+    }
+
+    for(const d of dtfState.designs){
+      const q=dtfQuality(d);
+      const card=document.createElement('div');
+      card.className='dtf-art-card'+(d.id===dtfState.selectedId?' selected':'');
+      card.onclick=()=>selectDtf(d.id);
+
+      const img=document.createElement('img');
+      img.className='dtf-art-thumb'; img.src=d.dataUrl; img.alt='';
+
+      const info=document.createElement('div'); info.className='dtf-art-info';
+      const name=document.createElement('div'); name.className='dtf-art-name'; name.textContent=d.filename;
+      const size=document.createElement('div'); size.className='dtf-art-size'; size.textContent=dtfIn(d.widthIn)+'" × '+dtfIn(d.heightIn)+'"';
+      const badges=document.createElement('div'); badges.className='dtf-badges';
+
+      const qb=document.createElement('span'); qb.className='dtf-badge '+q.kind; qb.textContent=q.short; badges.appendChild(qb);
+      if(d.background==='background'){
+        const bg=document.createElement('span'); bg.className='dtf-badge warn'; bg.textContent='BG'; badges.appendChild(bg);
+      }
+
+      info.append(name,size,badges);
+
+      const rm=document.createElement('button');
+      rm.className='dtf-card-remove'; rm.type='button'; rm.textContent='×'; rm.title='Remove';
+      rm.onclick=e=>{ e.stopPropagation(); removeDtfDesign(d.id); };
+
+      card.append(img,info,rm);
+      list.appendChild(card);
+    }
+  }
+
+  function renderDtfCanvas(){
+    const sheet=$('dtf-sheet'); if(!sheet)return;
+    [...sheet.querySelectorAll('.dtf-sheet-object')].forEach(n=>n.remove());
+    const empty=$('dtf-sheet-empty');
+    if(empty)empty.style.display=dtfState.designs.length?'none':'flex';
+
+    dtfState.designs.forEach((d,index)=>{
+      const el=document.createElement('div');
+      el.className='dtf-sheet-object'+(d.id===dtfState.selectedId?' selected':'');
+      el.dataset.id=d.id;
+      el.style.left=(d.x/DTF_MAX_W*100)+'%';
+      el.style.top=(d.y/DTF_MAX_H*100)+'%';
+      el.style.width=(d.widthIn/DTF_MAX_W*100)+'%';
+      el.style.height=(d.heightIn/DTF_MAX_H*100)+'%';
+      el.style.zIndex=10+index;
+
+      const img=document.createElement('img'); img.src=d.dataUrl; img.alt=''; img.draggable=false;
+      const frame=dtfImgFrame(d);
+      img.style.width=frame.widthPct+'%';
+      img.style.height=frame.heightPct+'%';
+      img.style.transform=frame.transform;
+      img.style.left='50%';
+      img.style.top='50%';
+
+      const box=document.createElement('div'); box.className='dtf-select-box';
+      el.append(img,box);
+
+      if(d.id===dtfState.selectedId){
+        for(const h of ['nw','ne','sw','se']){
+          const b=document.createElement('button');
+          b.type='button'; b.className='dtf-handle '+h; b.dataset.handle=h;
+          el.appendChild(b);
+        }
+      }
+
+      bindDtfObjectPointer(el,d);
+      sheet.appendChild(el);
+    });
+  }
+
+  function bindDtfObjectPointer(el,d){
+    el.addEventListener('pointerdown',e=>{
+      const handle=e.target.closest('.dtf-handle');
+      if(d.id!==dtfState.selectedId){
+        dtfState.selectedId=d.id; dtfState.dimensionsOpen=false; renderDtfEditor(); return;
+      }
+      const rect=$('dtf-sheet').getBoundingClientRect();
+      el._dtfDrag={
+        id:e.pointerId,kind:handle?'resize':'move',handle:handle?.dataset.handle||'',
+        clientX:e.clientX,clientY:e.clientY,x:d.x,y:d.y,w:d.widthIn,h:d.heightIn,rect
+      };
+      try{ el.setPointerCapture(e.pointerId); }catch(_){}
+      e.preventDefault();
+    });
+
+    el.addEventListener('pointermove',e=>{
+      const p=el._dtfDrag; if(!p||p.id!==e.pointerId)return;
+      const dx=(e.clientX-p.clientX)/Math.max(1,p.rect.width)*DTF_MAX_W;
+      const dy=(e.clientY-p.clientY)/Math.max(1,p.rect.height)*DTF_MAX_H;
+
+      if(p.kind==='move'){
+        d.x=snapDtfAxis(p.x+dx,d.widthIn,'x',d.id);
+        d.y=snapDtfAxis(p.y+dy,d.heightIn,'y',d.id);
+        keepDtfInside(d);
+      }else{
+        const sx=p.handle.includes('w')?-1:1;
+        const sy=p.handle.includes('n')?-1:1;
+        let w=dtfClamp(p.w+dx*sx*2,.5,DTF_MAX_W);
+        let h=dtfClamp(p.h+dy*sy*2,.5,DTF_MAX_H);
+
+        if(d.locked){
+          const displayAspect=dtfDisplayAspect(d);
+          if(Math.abs(dx)>=Math.abs(dy)){
+            w=snapDtfDimension(w,.5,DTF_MAX_W);
+            h=w/displayAspect;
+          }else{
+            h=snapDtfDimension(h,.5,DTF_MAX_H);
+            w=h*displayAspect;
+          }
+          if(w>DTF_MAX_W){w=DTF_MAX_W;h=w/displayAspect}
+          if(h>DTF_MAX_H){h=DTF_MAX_H;w=h*displayAspect}
+        }else{
+          w=snapDtfDimension(w,.5,DTF_MAX_W);
+          h=snapDtfDimension(h,.5,DTF_MAX_H);
+        }
+
+        d.widthIn=dtfClamp(w,.5,DTF_MAX_W);
+        d.heightIn=dtfClamp(h,.5,DTF_MAX_H);
+        d.x=p.x+(d.widthIn-p.w)/2*sx;
+        d.y=p.y+(d.heightIn-p.h)/2*sy;
+        keepDtfInside(d);
+      }
+
+      el.style.left=(d.x/DTF_MAX_W*100)+'%';
+      el.style.top=(d.y/DTF_MAX_H*100)+'%';
+      el.style.width=(d.widthIn/DTF_MAX_W*100)+'%';
+      el.style.height=(d.heightIn/DTF_MAX_H*100)+'%';
+      renderDtfSummary();
+      renderSelectedDtfCard();
+      e.preventDefault();
+    });
+
+    const end=e=>{
+      if(!el._dtfDrag||el._dtfDrag.id!==e.pointerId)return;
+      el._dtfDrag=null; renderDtfEditor();
+    };
+    el.addEventListener('pointerup',end);
+    el.addEventListener('pointercancel',end);
+  }
+
+  function renderSelectedDtfCard(){
+    const d=selectedDtf();
+    const card=$('dtf-dimension-card');
+    const enabled=!!d;
+    $('dtf-dimensions-btn').disabled=!enabled;
+    $('dtf-rotate-left-btn').disabled=!enabled;
+    $('dtf-rotate-right-btn').disabled=!enabled;
+    $('dtf-mirror-lr-btn').disabled=!enabled;
+    $('dtf-mirror-tb-btn').disabled=!enabled;
+    $('dtf-delete-btn').disabled=!enabled;
+
+    if(!d||!dtfState.dimensionsOpen){
+      card.hidden=true; return;
+    }
+    card.hidden=false;
+    $('dtf-selected-width').value=Math.round(d.widthIn*100)/100;
+    $('dtf-selected-height').value=Math.round(d.heightIn*100)/100;
+    $('dtf-lock-switch').classList.toggle('on',d.locked);
+
+    const q=dtfQuality(d);
+    let parts=['<span class="'+q.kind+'">'+escapeHtml(q.text)+'</span>','<span>'+escapeHtml(dtfTransformLabel(d))+'</span>'];
+    if(d.background==='background')parts.push('<span class="warn">Background detected — everything shown will print.</span>');
+    else if(d.background==='transparent')parts.push('<span class="ok">Transparency detected.</span>');
+    else parts.push('<span>Background could not be confirmed.</span>');
+    $('dtf-selected-status').innerHTML=parts.join('<br>');
+  }
+
+  function renderDtfSummary(){
+    const area=getDtfArea();
+    const unit=getDtfUnitPrice();
+    const qty=dtfState.qty;
+    const total=Math.round(unit*qty*100)/100;
+    const rate=currentDtfRate();
+    $('dtf-head-qty').textContent=qty+' print'+(qty===1?'':'s');
+    $('dtf-total').textContent=fmt(total);
+
+    if(!dtfState.designs.length){
+      $('dtf-tier-label').textContent=fmt(rate)+' / sq in';
+    }else if(dtfState.designs.length===1){
+      $('dtf-tier-label').textContent=dtfIn(area)+' sq in';
+    }else{
+      const f=getDtfFootprint();
+      $('dtf-tier-label').textContent=dtfIn(f.w)+'" × '+dtfIn(f.h)+'" gangsheet';
+    }
+
+    const rateCopy=$('dtf-rate-copy');
+    if(rateCopy)rateCopy.textContent=fmt(rate)+' per sq in';
+    $('dtf-add').disabled=!dtfState.designs.length;
+
+    const d=selectedDtf();
+    const rx=$('dtf-ruler-selection-x');
+    const ry=$('dtf-ruler-selection-y');
+
+    if(!d){
+      if(rx)rx.hidden=true;
+      if(ry)ry.hidden=true;
+      return;
+    }
+
+    const left=d.x-d.widthIn/2;
+    const top=d.y-d.heightIn/2;
+
+    if(rx){
+      rx.hidden=false;
+      rx.style.left=(left/DTF_MAX_W*100)+'%';
+      rx.style.width=(d.widthIn/DTF_MAX_W*100)+'%';
+      $('dtf-ruler-width-label').textContent='W '+dtfIn(d.widthIn)+'"';
+    }
+    if(ry){
+      ry.hidden=false;
+      ry.style.top=(top/DTF_MAX_H*100)+'%';
+      ry.style.height=(d.heightIn/DTF_MAX_H*100)+'%';
+      $('dtf-ruler-height-label').textContent='H '+dtfIn(d.heightIn)+'"';
+    }
+  }
+
+  function renderDtfEditor(){
+    buildDtfRulers();
+    renderDtfLibrary();
+    renderDtfCanvas();
+    renderSelectedDtfCard();
+    renderDtfSummary();
+
+    $('dtf-sheet').classList.toggle('solid',dtfState.solidPreview);
+    $('dtf-preview-toggle').classList.toggle('on',dtfState.solidPreview);
+    $('dtf-snap-toggle').classList.toggle('on',dtfState.snap);
+    $('dtf-snap-toggle').textContent=dtfState.snap?'⌗ Snap On':'⌗ Snap Off';
+    $('dtf-zoom-label').textContent=dtfState.zoom+'%';
+    $('dtf-sheet-shell').style.transform='scale('+(dtfState.zoom/100)+')';
+  }
+
+  function drawDtfDesignToCanvas(g,img,d,canvasW,canvasH){
+    const boxW=canvasW*d.widthIn/DTF_MAX_W;
+    const boxH=canvasH*d.heightIn/DTF_MAX_H;
+    const cx=canvasW*d.x/DTF_MAX_W;
+    const cy=canvasH*d.y/DTF_MAX_H;
+    const odd=dtfIsQuarterTurn(d);
+    const drawW=odd ? boxH : boxW;
+    const drawH=odd ? boxW : boxH;
+    g.save();
+    g.translate(cx,cy);
+    g.rotate(dtfRotation(d)*Math.PI/180);
+    g.scale(d&&d.flipX?-1:1,d&&d.flipY?-1:1);
+    g.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
+    g.restore();
+  }
+
+  async function makeDtfSheetPreview(){
+    try{
+      const W=390,H=600,c=document.createElement('canvas'); c.width=W; c.height=H;
+      const g=c.getContext('2d');
+      const cell=15;
+      for(let y=0;y<H;y+=cell)for(let x=0;x<W;x+=cell){
+        g.fillStyle=((x/cell+y/cell)%2)?'#faf6ec':'#e9e2d2'; g.fillRect(x,y,cell,cell);
+      }
+      for(const d of dtfState.designs){
+        const img=await loadImgEl(d.dataUrl,false);
+        drawDtfDesignToCanvas(g,img,d,W,H);
+      }
+      return c.toDataURL('image/jpeg',.82);
+    }catch(_){ return ''; }
+  }
+
+  async function makeDtfGangsheetFile(){
+    try{
+      const W=1300,H=2000,c=document.createElement('canvas'); c.width=W; c.height=H;
+      const g=c.getContext('2d');
+      g.clearRect(0,0,W,H);
+      for(const d of dtfState.designs){
+        const img=await loadImgEl(d.dataUrl,false);
+        drawDtfDesignToCanvas(g,img,d,W,H);
+      }
+      return c.toDataURL('image/png');
+    }catch(_){ return ''; }
+  }
+
+  async function addDtfToCart(){
+    if(!dtfState.designs.length)return;
+    const btn=$('dtf-add'); btn.disabled=true; btn.textContent='Adding…';
+
+    const unitPrice=getDtfUnitPrice();
+    const qty=dtfState.qty;
+    const key='dtf|'+Date.now().toString(36)+'|'+Math.random().toString(36).slice(2,7);
+    const previewPhoto=dtfState.designs.length===1
+      ? dtfState.designs[0].dataUrl
+      : await makeDtfSheetPreview();
+
+    const designs=dtfState.designs.map(d=>({
+      filename:d.filename,mime:d.mime,dataUrl:d.dataUrl,bytes:d.bytes,
+      widthIn:Math.round(d.widthIn*100)/100,heightIn:Math.round(d.heightIn*100)/100,
+      x:Math.round(d.x*100)/100,y:Math.round(d.y*100)/100,
+      pxW:d.pxW,pxH:d.pxH,isVector:d.isVector,dpi:d.dpi,
+      rotation:dtfRotation(d),flipX:!!d.flipX,flipY:!!d.flipY,
+      background:d.background
+    }));
+
+    let saved;
+    let itemName='';
+    let variant='';
+
+    if(designs.length===1){
+      const d=designs[0];
+      saved={
+        mode:'single',
+        design:{...d,unitPrice,qty},
+        qty,unitPrice,
+        previewPhoto
+      };
+      itemName='DTF Transfer';
+      variant='1 design · '+dtfIn(d.widthIn)+'" × '+dtfIn(d.heightIn)+'" · '+dtfIn(d.widthIn*d.heightIn)+' sq in · '+dtfTransformLabel(d)+' · '+fmt(currentDtfRate())+'/sq in';
+    }else{
+      const f=getDtfFootprint();
+      const gangsheetFile=await makeDtfGangsheetFile();
+      saved={
+        mode:'gangsheet',
+        designs,
+        qty,unitPrice,
+        footprintW:Math.round(f.w*100)/100,
+        footprintH:Math.round(f.h*100)/100,
+        sheetW:DTF_MAX_W,sheetH:DTF_MAX_H,
+        gangsheetFile,
+        previewPhoto
+      };
+      itemName='DTF Gangsheet';
+      variant=designs.length+' designs · '+dtfIn(f.w)+'" × '+dtfIn(f.h)+'" used area · '+fmt(currentDtfRate())+'/sq in';
+    }
+
+    cart.push({
+      key,id:'dtf-order',name:itemName,price:unitPrice,photo:previewPhoto,
+      variant,qty,weightLb:.05,dtfArtwork:saved,orderTag:'DTF'
+    });
+
+    await dtfDbPut(key,saved);
+    updateCartCount(); flashCart();
+    closeDtfOrder(); openCart();
+    btn.textContent='Add to Bag'; btn.disabled=false;
+  }
+
+  async function sendDtfOrderEmails(reference,status){
+    try{ await dtfRestorePromise; }catch(_){}
+    const items=cart.filter(c=>c&&c.id==='dtf-order');
+    if(!items.length)return true;
+
+    const phone=(($('co-phone')&&$('co-phone').value)||'').replace(/\D/g,'').slice(-10);
+    const email=(($('co-email')&&$('co-email').value)||'').trim();
+    let allOk=true;
+
+    for(let i=0;i<items.length;i++){
+      const saved=items[i].dtfArtwork;
+      if(!saved){ allOk=false; continue; }
+
+      try{
+        const payload = {
+          reference:String(reference||'website order')+' · DTF '+(i+1),
+          status:String(status||'order'),
+          customerPhone:phone,
+          customerEmail:email
+        };
+
+        if(saved.mode==='single' && saved.design){
+          payload.artwork = { ...saved.design, qty:saved.qty, unitPrice:saved.unitPrice };
+        }else if(Array.isArray(saved.designs) && saved.designs.length){
+          payload.sheet = {
+            mode:'gangsheet',
+            qty:saved.qty,
+            unitPrice:saved.unitPrice,
+            footprintW:saved.footprintW,
+            footprintH:saved.footprintH,
+            sheetW:saved.sheetW||DTF_MAX_W,
+            sheetH:saved.sheetH||DTF_MAX_H,
+            designs:saved.designs,
+            gangsheetFile:saved.gangsheetFile || ''
+          };
+        }else{
+          allOk=false;
+          continue;
+        }
+
+        const r=await fetch('/api/dtf-order',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(payload)
+        });
+        const d=await r.json().catch(()=>({}));
+        if(!r.ok||!d.ok)allOk=false;
+      }catch(_){
+        allOk=false;
+      }
+    }
+
+    return allOk;
+  }
+
+  function showDtfEmailWarning(){
+    const msg=$('co-ps-msg');
+    if(msg)msg.textContent+=' Your order went through, but one or more DTF artwork emails did not. Please email the design or gangsheet to brochcustom@gmail.com with your confirmation number.';
+  }
+
+  window.addEventListener('resize',()=>{ if($('dtf-dialog')&&$('dtf-dialog').open)renderDtfEditor(); });
+
+  window.addEventListener('keydown',e=>{
+    const dlg=$('dtf-dialog');
+    if(!dlg||!dlg.open||window.innerWidth<900)return;
+    const tag=(document.activeElement&&document.activeElement.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea')return;
+
+    const d=selectedDtf();
+
+    if(e.key==='Escape'){
+      if(dtfState.dimensionsOpen){
+        dtfState.dimensionsOpen=false;
+      }else{
+        dtfState.selectedId=null;
+      }
+      renderDtfEditor();
+      e.preventDefault();
+      return;
+    }
+
+    if(!d)return;
+
+    if(e.key==='Delete'||e.key==='Backspace'){
+      removeSelectedDtf();
+      e.preventDefault();
+      return;
+    }
+
+    const step=e.shiftKey?1:(dtfState.snap?.25:.05);
+    let moved=false;
+    if(e.key==='ArrowLeft'){d.x-=step;moved=true}
+    if(e.key==='ArrowRight'){d.x+=step;moved=true}
+    if(e.key==='ArrowUp'){d.y-=step;moved=true}
+    if(e.key==='ArrowDown'){d.y+=step;moved=true}
+    if(moved){
+      if(dtfState.snap){
+        d.x=snapDtfAxis(d.x,d.widthIn,'x',d.id);
+        d.y=snapDtfAxis(d.y,d.heightIn,'y',d.id);
+      }
+      keepDtfInside(d);
+      renderDtfEditor();
+      e.preventDefault();
+    }
+  });
+
 </script>
   <!-- 3D VIEWER / BUILDER OVERLAY -->
   <div class="viewer3d" id="viewer3d" aria-hidden="true" onclick="if(event.target===this)close3D()">
@@ -3142,6 +4695,25 @@
       </div>
       <button class="dialog-cta" onclick="saveShirtCfg()">Save</button>
       <span class="label" id="ss-status" style="display:block;margin-top:8px"></span>
+    </div>
+  </dialog>
+
+  <dialog id="dtf-admin-dialog">
+    <div class="dialog-card">
+      <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
+      <p class="label">Admin</p>
+      <h3 class="dialog-title">DTF <em>pricing</em></h3>
+
+      <div class="field">
+        <label for="dtf-admin-rate">Price per square inch</label>
+        <input type="number" id="dtf-admin-rate" min="0.01" step="0.01" inputmode="decimal" placeholder="0.10">
+        <span class="label" style="display:block;margin-top:5px">
+          Example: 5 × 5 = 25 sq in. At $0.10/sq in, the price is $2.50.
+        </span>
+      </div>
+
+      <button class="dialog-cta" type="button" onclick="saveDtfCfg()">Save DTF price</button>
+      <span class="label" id="dtf-admin-status" style="display:block;margin-top:8px"></span>
     </div>
   </dialog>
 
