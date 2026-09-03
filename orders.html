@@ -730,6 +730,91 @@
   var SUPABASE_URL='https://ixuxzdaevbytnznxmtal.supabase.co';
   var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4dXh6ZGFldmJ5dG56bnhtdGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzIyNjMsImV4cCI6MjA5MjA0ODI2M30.9FxQ47kbShuIehy2aqRkG11fewLjHxX1RvoPtCYPTIE';
   var BUCKET='files', ORDERS_FILE='_orders/orders.json';
+
+  /* ===== Order photos on the NAS =====
+     orders.json used to carry every photo as text, which is what made the
+     catalog file huge. A photo may now be either a data: URL (older orders,
+     still fine) or a storage key like "_orders/art/o123-0.webp". Both are
+     understood everywhere; new photos are written to the NAS. */
+  var ART_PREFIX='_orders/art/';
+  var NAS_API='/api/minio-file';
+  var artUrl={};                 // storage key -> signed link, for this visit
+
+  function isArtKey(v){ return typeof v==='string' && v.indexOf(ART_PREFIX)===0; }
+  function nasCall(payload){
+    return fetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)}).then(function(r){
+      return r.text().then(function(t){
+        var d; try{ d=JSON.parse(t); }
+        catch(e){ throw new Error('Storage server error (HTTP '+r.status+')'); }
+        if(!d.ok) throw new Error(d.message||d.error||'Storage request failed');
+        return d;
+      });
+    });
+  }
+  function nasLinks(keys){
+    var need=[],seen={};
+    keys.forEach(function(k){ if(isArtKey(k)&&!artUrl[k]&&!seen[k]){ seen[k]=1; need.push(k); } });
+    if(!need.length) return Promise.resolve(artUrl);
+    var out=[];
+    for(var i=0;i<need.length;i+=500) out.push(need.slice(i,i+500));
+    return Promise.all(out.map(function(b){
+      return nasCall({action:'view-urls',keys:b}).then(function(d){
+        Object.keys(d.urls||{}).forEach(function(k){ artUrl[k]=d.urls[k]; });
+      });
+    })).then(function(){ return artUrl; });
+  }
+  function dataUrlToBlob(u){
+    var c=u.indexOf(','),head=u.slice(0,c);
+    var mime=(head.match(/data:([^;,]+)/)||[])[1]||'application/octet-stream';
+    var body=u.slice(c+1);
+    if(head.indexOf(';base64')<0) return new Blob([decodeURIComponent(body)],{type:mime});
+    var bin=atob(body),n=bin.length,a=new Uint8Array(n);
+    for(var i=0;i<n;i++) a[i]=bin.charCodeAt(i);
+    return new Blob([a],{type:mime});
+  }
+  function extFor(m){
+    if(!m) return 'bin';
+    if(m.indexOf('webp')>=0) return 'webp';
+    if(m.indexOf('jpeg')>=0||m.indexOf('jpg')>=0) return 'jpg';
+    if(m.indexOf('png')>=0) return 'png';
+    return 'bin';
+  }
+  // Store one order photo on the NAS. Resolves to the storage key.
+  function nasPutArt(orderId,dataUrl){
+    var blob=dataUrlToBlob(dataUrl);
+    var key=ART_PREFIX+(orderId||'x')+'-'+Date.now().toString(36)+
+            Math.random().toString(36).slice(2,6)+'.'+extFor(blob.type);
+    return nasCall({action:'upload-url',key:key,contentType:blob.type||'application/octet-stream'})
+      .then(function(d){
+        return fetch(d.url,{method:'PUT',
+          headers:{'Content-Type':blob.type||'application/octet-stream'},body:blob});
+      })
+      .then(function(r){
+        if(!r.ok) throw new Error('Storage refused the photo (HTTP '+r.status+')');
+        return key;
+      });
+  }
+  // Build the src attribute for an order photo, whichever form it is in.
+  function artImgSrc(v){
+    if(!v) return 'src=""';
+    if(!isArtKey(v)) return 'src="'+v+'"';
+    var u=artUrl[v];
+    return (u?'src="'+u+'" ':'')+'data-nas-art="'+v+'"';
+  }
+  // After any HTML is written, point NAS-backed photos at their signed links.
+  function hydrateArt(root){
+    if(!root) return;
+    var els=root.querySelectorAll('img[data-nas-art]');
+    if(!els.length) return;
+    var keys=[]; for(var i=0;i<els.length;i++) keys.push(els[i].getAttribute('data-nas-art'));
+    nasLinks(keys).then(function(){
+      for(var j=0;j<els.length;j++){
+        var k=els[j].getAttribute('data-nas-art');
+        if(artUrl[k]) els[j].src=artUrl[k];
+      }
+    }).catch(function(e){ try{ console.warn('Order photos unavailable',e); }catch(_){} });
+  }
   var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
   var _loaded=false,_saveTimer=null, _saving=false, _needsSave=false, TRASH_DAYS=10, DAY=86400000;
   var URGENCY={ norush:{label:'No Rush',color:'#D9B96A',cls:'amber'}, priority:{label:'Priority',color:'#D98E5A',cls:'orange'}, asap:{label:'ASAP',color:'#C77A72',cls:'red'} };
@@ -1288,7 +1373,7 @@
   function cardHTML(o){
     var u=URGENCY[o.urgency]||URGENCY.norush; var imgs=o.images||[];
     var h='<div class="card u-'+(URGENCY[o.urgency]?o.urgency:'norush')+'" data-card="'+o.id+'">';
-    if(imgs.length){ h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">'; imgs.slice(0,3).forEach(function(uu){h+='<img src="'+uu+'" alt="">';}); h+='</div>'; }
+    if(imgs.length){ h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">'; imgs.slice(0,3).forEach(function(uu){h+='<img '+artImgSrc(uu)+' alt="">';}); h+='</div>'; }
     h+='<div class="card-pad">';
     var _t=autoTitle(o); if(_t){ var _nn=(o.type==='NOTE'?' note-name':''); h+= o.isQuote ? ('<h3'+(_nn?' class="'+_nn.trim()+'"':'')+'>'+esc(_t)+'</h3>') : ('<h3 class="tinted'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+esc(_t)+'</h3>'); }
     var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
@@ -1313,7 +1398,7 @@
     h+='</div>'; return h;
   }
 
-  function wireCards(){ var board=$('board'); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); }); }); }
+  function wireCards(){ var board=$('board'); hydrateArt(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); }); }); }
 
   function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
   function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
@@ -1412,7 +1497,8 @@
 
   function renderImgs(){
     var c=$('mImgs'); c.innerHTML=''; var imgs=editing.images||[];
-    imgs.forEach(function(uu,i){ var d=document.createElement('div'); d.className='imthumb'; d.innerHTML='<img src="'+uu+'"><span class="x">&times;</span>'; d.querySelector('.x').onclick=function(){ editing.images.splice(i,1); renderImgs(); livePersist(); }; c.appendChild(d); });
+    setTimeout(function(){ hydrateArt(c); },0);
+    imgs.forEach(function(uu,i){ var d=document.createElement('div'); d.className='imthumb'; d.innerHTML='<img '+artImgSrc(uu)+'><span class="x">&times;</span>'; d.querySelector('.x').onclick=function(){ editing.images.splice(i,1); renderImgs(); livePersist(); }; c.appendChild(d); });
     if(imgs.length<3){ var add=document.createElement('div'); add.className='addimg'; add.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Photo'; add.onclick=function(){ $('fileInput').click(); }; c.appendChild(add); }
   }
 
@@ -1739,7 +1825,18 @@
   overlay.addEventListener('click',commitOrClose);
   function autoGrow(el,min){ el.style.height='auto'; el.style.height=Math.max(min||40,el.scrollHeight)+'px'; }
 
-  $('fileInput').addEventListener('change',function(e){ var files=Array.prototype.slice.call(e.target.files); if(!files.length||!editing)return; if(!editing.images)editing.images=[]; var slots=3-editing.images.length; if(slots<=0){toast('Up to 3 photos');e.target.value='';return;} files=files.slice(0,slots); var pending=files.length; files.forEach(function(f){ processImage(f,function(url){ if(url)editing.images.push(url); pending--; if(pending===0){ renderImgs(); livePersist(); } }); }); e.target.value=''; });
+  $('fileInput').addEventListener('change',function(e){ var files=Array.prototype.slice.call(e.target.files); if(!files.length||!editing)return; if(!editing.images)editing.images=[]; var slots=3-editing.images.length; if(slots<=0){toast('Up to 3 photos');e.target.value='';return;} files=files.slice(0,slots); var pending=files.length; files.forEach(function(f){ processImage(f,function(url){
+      function finish(){ pending--; if(pending===0){ renderImgs(); livePersist(); } }
+      if(!url){ finish(); return; }
+      // the photo goes to the NAS; orders.json keeps only the reference
+      nasPutArt(editing&&editing.id, url).then(function(key){ editing.images.push(key); })
+        .catch(function(e){
+          try{ console.warn('Photo upload to storage failed',e); }catch(_){}
+          editing.images.push(url);   // keep it inline rather than lose the photo
+          toast('Storage unavailable — photo saved in the orders file');
+        })
+        .then(finish);
+    }); }); e.target.value=''; });
 
   document.addEventListener('visibilitychange',function(){
     if(document.hidden&&editing&&(editing.isNew||editing.drafting))saveNewDraftNow();
