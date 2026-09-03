@@ -18,6 +18,8 @@
 
 import nodemailer from 'nodemailer';
 
+import { stashOrderImages } from '../lib/nas-art.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -119,8 +121,13 @@ export default async function handler(req, res) {
         }
       } catch (_) { /* file may not exist yet */ }
 
+      const quoteId = 'q' + now.toString(36) + Math.random().toString(36).slice(2, 6);
+      // Same as paid orders: the preview goes to the NAS, the quote keeps a
+      // reference. Falls back to storing it inline if the NAS is unreachable.
+      const quoteImages = await stashOrderImages(preview ? [preview] : [], quoteId);
+
       store.orders.push({
-        id: 'q' + now.toString(36) + Math.random().toString(36).slice(2, 6),
+        id: quoteId,
         type: 'NOTE',
         isQuote: true,
         title: '💬 Quote' + (name ? ' · ' + name : (phonePretty ? ' · ' + phonePretty : '')),
@@ -137,7 +144,7 @@ export default async function handler(req, res) {
         balanceDue: '',
         fulfillment: 'pickup',
         items: [],
-        images: preview ? [preview] : [],
+        images: quoteImages,
         due: '', duePreset: '',
         trashed: false, trashedAt: null,
         source: 'quote',
