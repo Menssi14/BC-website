@@ -4,6 +4,7 @@
 //
 //   · Square token          · Gmail login        · EasyPost key
 //   · Supabase: orders file · catalog file       · file sharing
+//   · MinIO on the Synology NAS (reachable over Tailscale Funnel)
 //   · Backends deployed: pay · quote · notify · shipping
 //   · Pages up: the shop · the tools app
 //
@@ -73,6 +74,17 @@ export default async function handler(req, res) {
           body: JSON.stringify({ prefix: '', limit: 1 })
         }));
         return r.ok ? 'ok' : 'fail';
+      } catch (_) { return 'fail'; }
+    })(),
+    minio_nas: (async () => {
+      const EP = process.env.MINIO_ENDPOINT;
+      if (!EP) return 'off';
+      try {
+        // An unsigned request to MinIO answers 403 AccessDenied. That proves the
+        // NAS is reachable over the Tailscale Funnel with a valid certificate,
+        // without needing (or exposing) any credentials.
+        const r = await timed(fetch(EP.replace(/\/+$/, '') + '/'), 8000);
+        return (r.status === 403 || r.ok) ? 'ok' : 'fail';
       } catch (_) { return 'fail'; }
     })(),
     fn_pay:      deployed('/api/pay'),
