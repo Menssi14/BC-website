@@ -458,6 +458,8 @@
   .tag.pay-dep{ border-color:rgba(232,114,44,.5); color:#B85618; }
   .tag.pay-paid{ background:var(--green); border-color:var(--green); color:var(--cream); }
   .tag.pay-bal{ border-color:rgba(var(--ink-rgb),.4); }
+  #mBar .done-btn{ display:flex; align-items:center; gap:6px; cursor:pointer; border:none; background:none; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:16px; color:var(--green); padding:8px 14px; border-radius:999px; }
+  #mBar .done-btn:hover{ background:rgba(60,140,90,.12); }
   .done-btn.stage-adv{ background:var(--green); color:var(--cream); padding:8px 16px; border-radius:999px; font-size:15px; }
   .done-btn.stage-adv:hover{ background:#173D31; }
   .tag.ready{ border-color:var(--go); color:var(--go); }
@@ -1671,7 +1673,14 @@
     else if(o.trashed){ var fv=document.createElement('button'); fv.className='m-forever'; fv.textContent='Delete forever'; fv.onclick=function(){var id=o.id;hideOverlay();forever(id);}; bar.appendChild(fv); var rs=document.createElement('button'); rs.className='m-restore spacer'; rs.textContent='Restore'; rs.onclick=function(){var id=o.id;hideOverlay();restore(id);}; bar.appendChild(rs); }
     else {
       var tr=document.createElement('button'); tr.className='m-delete'; tr.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete'; tr.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'deleted');}; bar.appendChild(tr);
-      var dn=document.createElement('button'); dn.className='m-done spacer'; dn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 12l5 5L20 6"/></svg>Mark done'; dn.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'done');}; bar.appendChild(dn);
+      // Same control as the one on the card: shows the actual next stage
+      // (Digitized, Design Ready, Printed…) and only reads "Done" at the finish.
+      var nxt=nextStageLabel(o), isDone=(nxt==='Done');
+      var dn=document.createElement('button');
+      dn.className='done-btn spacer'+(isDone?'':' stage-adv');
+      dn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="'+(isDone?'M5 12l5 5L20 6':'M5 12h14M13 6l6 6-6 6')+'"/></svg>'+esc(nxt);
+      dn.onclick=function(){ var id=o.id; hideOverlay(); advanceStage(id); };
+      bar.appendChild(dn);
       var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Save & close'; cl.onclick=commitOrClose; bar.appendChild(cl);
     }
   }
@@ -1796,7 +1805,7 @@
   // ── Health check: read-only pokes at every service ──
   var HEALTH_GROUPS=[
     ['Services', [['payments','Payments \u00b7 Square'],['email','Email \u00b7 Gmail'],['shipping_key','Shipping \u00b7 EasyPost']]],
-    ['Cloud storage', [['sb_orders','Orders & quotes'],['sb_catalog','Design catalog'],['sb_files','File sharing'],['minio_nas','NAS storage \u00b7 MinIO']]],
+    ['Cloud storage', [['sb_orders','Orders & quotes'],['sb_catalog','Design catalog'],['sb_files','File sharing']]],
     ['Backends', [['fn_pay','Checkout'],['fn_quote','Quote intake'],['fn_notify','Customer emails'],['fn_shipping','Shipping rates']]],
     ['Pages', [['page_shop','The shop'],['page_tools','The tools app']]]
   ];
