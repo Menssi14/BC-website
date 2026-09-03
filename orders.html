@@ -428,7 +428,7 @@
   .toast{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); background:var(--burgundy); color:var(--cream); padding:12px 20px; border-radius:10px; z-index:120; box-shadow:0 6px 24px rgba(0,0,0,.25); font-size:16px; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; display:flex; align-items:center; gap:14px; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
   .toast button{ background:none; border:none; color:var(--pink); cursor:pointer; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:16px; font-weight:600; }
-  .sync{ position:fixed; left:12px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:60; font-family:'Teko',sans-serif; font-size:13px; text-transform:uppercase; letter-spacing:.09em; display:flex; align-items:center; gap:7px; padding:8px 13px; border-radius:22px; background:#fffdf8; border:1px solid #e3dac6; box-shadow:0 3px 12px rgba(0,0,0,.14); color:#6a6153; opacity:0; transform:translateY(8px); transition:opacity .25s, transform .25s; pointer-events:none; }
+  .sync{ position:fixed; left:12px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:130; font-family:'Teko',sans-serif; font-size:13px; text-transform:uppercase; letter-spacing:.09em; display:flex; align-items:center; gap:7px; padding:8px 13px; border-radius:22px; background:#fffdf8; border:1px solid #e3dac6; box-shadow:0 3px 12px rgba(0,0,0,.14); color:#6a6153; opacity:0; transform:translateY(8px); transition:opacity .25s, transform .25s; pointer-events:none; }
   .sync.show{ opacity:1; transform:none; }
   .sync .d{ width:8px; height:8px; border-radius:50%; background:var(--go); }
   .sync.sync-ok{ color:#1F7A4D; border-color:#bfe0cc; } .sync.sync-ok .d{ background:#1F7A4D; }
@@ -1666,15 +1666,13 @@
     var bar=$('mBar'); bar.innerHTML='';
     if(o.isNew||o.drafting){
       var dc=document.createElement('button'); dc.className='m-ghost'; dc.textContent='Discard'; dc.onclick=discard; bar.appendChild(dc);
-      var sv=document.createElement('button'); sv.className='m-done spacer'; sv.textContent='Save'; sv.onclick=saveAndStay; bar.appendChild(sv);
-      var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Close'; cl.onclick=commitOrClose; bar.appendChild(cl);
+      var cl=document.createElement('button'); cl.className='m-done spacer'; cl.textContent='Save & close'; cl.onclick=commitOrClose; bar.appendChild(cl);
     }
     else if(o.trashed){ var fv=document.createElement('button'); fv.className='m-forever'; fv.textContent='Delete forever'; fv.onclick=function(){var id=o.id;hideOverlay();forever(id);}; bar.appendChild(fv); var rs=document.createElement('button'); rs.className='m-restore spacer'; rs.textContent='Restore'; rs.onclick=function(){var id=o.id;hideOverlay();restore(id);}; bar.appendChild(rs); }
     else {
       var tr=document.createElement('button'); tr.className='m-delete'; tr.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete'; tr.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'deleted');}; bar.appendChild(tr);
       var dn=document.createElement('button'); dn.className='m-done spacer'; dn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 12l5 5L20 6"/></svg>Mark done'; dn.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'done');}; bar.appendChild(dn);
-      var sv=document.createElement('button'); sv.className='m-close'; sv.textContent='Save'; sv.onclick=saveAndStay; bar.appendChild(sv);
-      var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Close'; cl.onclick=commitOrClose; bar.appendChild(cl);
+      var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Save & close'; cl.onclick=commitOrClose; bar.appendChild(cl);
     }
   }
   function hideOverlay(){ overlay.classList.remove('show'); editing=null; }
