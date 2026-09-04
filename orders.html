@@ -472,6 +472,77 @@
   .it-sub{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:16px; line-height:1.45; color:rgba(var(--ink-rgb),.85); margin-top:2px; }
   .it-sub .cdot{ width:11px; height:11px; }
 </style>
+<style>
+  /* Phone: the filter pill was 23px tall — too small to hit. */
+  @media (max-width: 720px) {
+    .tf-toggle {
+      padding: 10px 16px 9px !important;
+      min-height: 40px;
+      font-size: 14px !important;
+    }
+  }
+
+  /* ---- Today's goals -------------------------------------------------
+     Sits above the board because it is read at a glance, not opened.
+     Reuses the board's own paper/ink palette rather than introducing a
+     second visual language. */
+  .goals .hist-head{ align-items:baseline; }
+  .goals-day{ font-size:22px; font-weight:600; color:var(--green); letter-spacing:.01em; }
+  .goals-count{ font-size:16px; color:rgba(var(--ink-rgb),.62); flex:1; }
+  .goals-track{ height:3px; background:rgba(var(--ink-rgb),.10); flex:0 0 auto; }
+  .goals-track i{ display:block; height:100%; width:0; background:var(--go); transition:width .3s; }
+  .goals-body{ padding:14px 18px 18px; overflow-y:auto; }
+  .goals-add{ display:flex; gap:8px; }
+  .goals-add input{ flex:1; min-width:0; font-family:inherit; font-size:17px; color:var(--burgundy);
+    background:var(--tag-bg); border:1px solid var(--line-strong); border-radius:9px; padding:11px 12px; }
+  .goals-add input:focus{ outline:none; border-color:var(--green); }
+  .goals-add button, .goals-pull{ font-family:inherit; font-size:16px; cursor:pointer;
+    border-radius:9px; padding:11px 18px; border:1px solid var(--green); }
+  .goals-add button{ background:var(--green); color:var(--cream); border:0; }
+  .goals-add button:disabled{ opacity:.4; cursor:default; }
+  .goals-pull{ background:none; color:var(--green); margin-top:9px; width:100%; }
+  .goals-pull:hover{ background:rgba(31,77,62,.06); }
+  .goals-carried{ font-size:15px; color:rgba(var(--ink-rgb),.6); margin-top:11px; font-style:italic; }
+  .goals-list{ list-style:none; margin:11px 0 0; padding:0; }
+  .goals-empty{ font-size:16px; color:rgba(var(--ink-rgb),.55); margin:13px 2px 2px; }
+  .goal{ display:flex; align-items:flex-start; gap:11px; padding:11px 2px;
+    border-top:1px solid var(--line); }
+  .goals-list .goal:first-child{ border-top:0; }
+  /* the box reads as 26px but the button is a full 40px to tap */
+  .goal-check{ flex:0 0 auto; width:40px; height:40px; margin:-6px 0 0 -7px; padding:0;
+    border:0; background:none; cursor:pointer; display:grid; place-items:center; }
+  .goal-check .box{ width:26px; height:26px; border-radius:7px; display:grid; place-items:center;
+    border:2px solid var(--line-strong); background:var(--tag-bg); transition:background .12s, border-color .12s; }
+  .goal-check:focus-visible .box{ outline:2px solid var(--green); outline-offset:2px; }
+  .goal.done .goal-check .box{ background:var(--go); border-color:var(--go); }
+  .goal-check .tick{ width:11px; height:6px; border-left:2.5px solid var(--cream);
+    border-bottom:2.5px solid var(--cream); transform:rotate(-45deg) translate(1px,-2px); opacity:0; }
+  .goal.done .goal-check .tick{ opacity:1; }
+  .goal-text{ flex:1; font-size:17px; line-height:1.35; color:var(--burgundy);
+    overflow-wrap:anywhere; }
+  .goal.done .goal-text{ text-decoration:line-through; color:rgba(var(--ink-rgb),.45); }
+  .goal-order{ display:inline-flex; align-items:center; min-height:38px; font-size:15px;
+    color:var(--green); background:none; border:0; padding:6px 2px 4px; cursor:pointer;
+    font-family:inherit; text-align:left; }
+  .goal-order:hover{ text-decoration:underline; }
+  .goal-order:focus-visible{ outline:2px solid var(--green); outline-offset:2px; border-radius:6px; }
+  .goal-x{ flex:0 0 auto; width:40px; height:40px; border:0; background:none; cursor:pointer;
+    color:rgba(var(--ink-rgb),.4); font-size:22px; line-height:1; border-radius:8px; padding:0; }
+  .goal-x:hover{ color:var(--red); background:rgba(214,69,69,.08); }
+  .goal-pick{ display:block; width:100%; text-align:left; font-family:inherit; font-size:16px;
+    color:var(--burgundy); background:var(--tag-bg); border:1px solid var(--line);
+    border-radius:9px; padding:12px 13px; margin-bottom:8px; cursor:pointer; }
+  .goal-pick:hover{ border-color:var(--green); }
+  .goal-pick small{ display:block; font-size:14px; color:rgba(var(--ink-rgb),.55); margin-top:2px; }
+
+  /* ---- a photo that could not be loaded must not look like no photo ---- */
+  .art-gone{ display:flex; align-items:center; justify-content:center; text-align:center;
+    min-height:88px; padding:10px; border-radius:8px; font-size:14px; line-height:1.3;
+    color:rgba(var(--ink-rgb),.55); background:repeating-linear-gradient(45deg,
+      rgba(var(--ink-rgb),.05) 0 7px, rgba(var(--ink-rgb),.02) 7px 14px);
+    border:1px dashed var(--line-strong); }
+  .imthumb .art-gone{ min-height:0; height:100%; font-size:12px; }
+</style>
 </head>
 <body>
 
@@ -479,6 +550,13 @@
   <a class="wordmark" href="/" title="Broch Custom home">BROCH CUSTOM<small>ORDERS</small></a>
   <span class="view-title" id="viewTitle"></span>
   <button class="hbtn" id="linksBtn" title="Links" aria-label="Links"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9.5 14.5a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14.5 9.5a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+  <button class="hbtn" id="goalsBtn" title="Today's goals" aria-label="Today's goals" aria-haspopup="dialog">
+    <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9 11l3 3 8-8"></path>
+      <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"></path>
+    </svg>
+    <span class="badge" id="goalsBadge" hidden>0</span>
+  </button>
   <button class="hbtn" id="viewToggle" title="Trash"></button>
 </header>
 
@@ -669,7 +747,8 @@
   </div>
 </div>
 
-<div class="wrap"><div id="board"><div class="orders-load-state" role="status" aria-live="polite"><div class="orders-load-spinner" aria-hidden="true"></div><div class="orders-load-title">Loading orders</div><div class="orders-load-copy">Getting the latest order board&hellip;</div></div></div></div>
+<div class="wrap">
+<div id="board"><div class="orders-load-state" role="status" aria-live="polite"><div class="orders-load-spinner" aria-hidden="true"></div><div class="orders-load-title">Loading orders</div><div class="orders-load-copy">Getting the latest order board&hellip;</div></div></div></div>
 
 <button class="fab" id="fab" title="New order"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
@@ -722,6 +801,36 @@
 <datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
+<div class="overlay" id="goalsOverlay">
+  <div class="hist-box goals" id="goals" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="goals-day" id="goalsDay">Today</span>
+      <span class="goals-count" id="goalsCount">Nothing planned yet</span>
+      <button class="icon-btn" id="goalsClose" title="Close" aria-label="Close">&times;</button>
+    </div>
+    <div class="goals-track"><i id="goalsFill"></i></div>
+    <div class="goals-body" id="goalsBody">
+      <div class="goals-add">
+        <input id="goalInput" type="text" maxlength="140" placeholder="What needs doing today?" autocomplete="off">
+        <button id="goalAdd" type="button">Add</button>
+      </div>
+      <button class="goals-pull" id="goalPull" type="button">Pull one from the board</button>
+      <div class="goals-carried" id="goalsCarried" hidden></div>
+      <ul class="goals-list" id="goalsList"></ul>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="goalPickOverlay" style="z-index:95">
+  <div class="hist-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Pull from the board</span>
+      <button class="icon-btn" id="goalPickClose" title="Close">&times;</button>
+    </div>
+    <div id="goalPickList" style="padding:4px 2px 2px"></div>
+  </div>
+</div>
+
 <div class="sync" id="sync"><span class="d"></span><span id="syncText">Saved</span></div>
 
 <script>
@@ -803,17 +912,33 @@
     return (u?'src="'+u+'" ':'')+'data-nas-art="'+v+'"';
   }
   // After any HTML is written, point NAS-backed photos at their signed links.
+  // Swap a photo that will not load for a visible placeholder. A missing
+  // photo must never look the same as an order that never had one.
+  function artGone(el){
+    if(!el || !el.parentNode || el.dataset.gone) return;
+    var d=document.createElement('div');
+    d.className='art-gone';
+    d.textContent='Photo unavailable — storage offline';
+    d.title='This order has a photo, but it could not be loaded from the NAS.';
+    d.dataset.gone='1';
+    el.parentNode.replaceChild(d, el);
+  }
   function hydrateArt(root){
     if(!root) return;
     var els=root.querySelectorAll('img[data-nas-art]');
     if(!els.length) return;
-    var keys=[]; for(var i=0;i<els.length;i++) keys.push(els[i].getAttribute('data-nas-art'));
+    var arr=[].slice.call(els);
+    var keys=arr.map(function(e){ return e.getAttribute('data-nas-art'); });
+    arr.forEach(function(e){ e.addEventListener('error', function(){ artGone(e); }); });
     nasLinks(keys).then(function(){
-      for(var j=0;j<els.length;j++){
-        var k=els[j].getAttribute('data-nas-art');
-        if(artUrl[k]) els[j].src=artUrl[k];
-      }
-    }).catch(function(e){ try{ console.warn('Order photos unavailable',e); }catch(_){} });
+      arr.forEach(function(e){
+        var k=e.getAttribute('data-nas-art');
+        if(artUrl[k]) e.src=artUrl[k]; else artGone(e);
+      });
+    }).catch(function(err){
+      try{ console.warn('Order photos unavailable',err); }catch(_){}
+      arr.forEach(artGone);
+    });
   }
   var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
   var _loaded=false,_saveTimer=null, _saving=false, _needsSave=false, TRASH_DAYS=10, DAY=86400000;
@@ -860,7 +985,7 @@
   var TYPES=['Embroidery','DTF','Sublimation','Engraving','NOTE'];
   var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
-  var state={orders:[]}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
+  var state={orders:[],daily:{date:'',tasks:[],carried:0,updatedAt:0}}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
   var DRAFT_PREFIX='bc-order-draft-v1:', _draftTimer=null;
 
   function draftKey(type){ return DRAFT_PREFIX+String(type||'NOTE'); }
@@ -949,6 +1074,227 @@
 
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+  /* ===================== Today's goals =====================
+     A short list of what you mean to get done today. Stored in the same
+     orders file so the phone and the computer agree, merged task by task
+     like orders are. Each new day clears what you finished and carries
+     forward what you did not, so nothing is quietly lost. */
+  var _deletedTasks = {};
+
+  function todayKey(d){
+    d = d || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function tuid(){ return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+  function normalizeDaily(d){
+    var out = { date: todayKey(), tasks: [], carried: 0, updatedAt: 0 };
+    if(!d || typeof d !== 'object') return out;
+    out.date = typeof d.date === 'string' ? d.date : todayKey();
+    out.carried = +d.carried || 0;
+    out.updatedAt = +d.updatedAt || 0;
+    out.tasks = (Array.isArray(d.tasks) ? d.tasks : []).filter(function(t){
+      return t && typeof t.id === 'string' && typeof t.text === 'string';
+    }).map(function(t){
+      return { id:t.id, text:String(t.text).slice(0,140), done:!!t.done,
+               orderId: t.orderId || null, createdAt:+t.createdAt || 0,
+               updatedAt:+t.updatedAt || 0, deleted: !!t.deleted };
+    });
+    return out;
+  }
+
+  // Roll the list over when the date changes. Returns true if anything moved.
+  function rollDaily(){
+    var today = todayKey();
+    if(state.daily.date === today) return false;
+    var before = state.daily.tasks.filter(function(t){ return !t.deleted; }).length;
+    // Remember what today's roll-over cleared. Without this the next cloud
+    // sync sees them as "tasks we don't have" and puts them straight back.
+    state.daily.tasks.forEach(function(t){ if(t.done) _deletedTasks[t.id]=true; });
+    state.daily.tasks = state.daily.tasks.filter(function(t){ return !t.done && !t.deleted; });
+    state.daily.carried = state.daily.tasks.length;
+    state.daily.date = today;
+    state.daily.updatedAt = Date.now();
+    return before > 0;
+  }
+
+  function mergeDaily(cloud){
+    var c = normalizeDaily(cloud);
+    // A newer day always wins — an older device must not resurrect yesterday.
+    if(c.date > state.daily.date){
+      state.daily.date = c.date;
+      state.daily.carried = c.carried;
+    }
+    // Their list is from an older day and ours has already rolled over —
+    // taking their tasks would undo the roll-over.
+    if(c.date && c.date < state.daily.date) return;
+    var mine = {};
+    state.daily.tasks.forEach(function(t){ mine[t.id] = t; });
+    c.tasks.forEach(function(t){
+      if(_deletedTasks[t.id]) return;
+      var m = mine[t.id];
+      if(!m){ state.daily.tasks.push(t); return; }
+      if((t.updatedAt||0) > (m.updatedAt||0)){
+        state.daily.tasks[state.daily.tasks.indexOf(m)] = t;
+      }
+    });
+    state.daily.tasks = state.daily.tasks.filter(function(t){ return !t.deleted; });
+    rollDaily();
+  }
+
+  function liveTasks(){ return state.daily.tasks.filter(function(t){ return !t.deleted; }); }
+
+  function renderGoals(){
+    var wrap=$('goals'); if(!wrap) return;
+    var tasks = liveTasks();
+    var done = tasks.filter(function(t){ return t.done; }).length;
+
+    var d = new Date();
+    $('goalsDay').textContent = d.toLocaleDateString([], { weekday:'long' });
+    $('goalsCount').textContent = !tasks.length
+      ? 'Nothing planned yet'
+      : (done === tasks.length ? 'All ' + tasks.length + ' done' : done + ' of ' + tasks.length + ' done');
+    $('goalsFill').style.width = tasks.length ? Math.round(done/tasks.length*100) + '%' : '0%';
+
+    var badge=$('goalsBadge');
+    if(badge){
+      var left=tasks.length-done;
+      badge.hidden = left===0;
+      badge.textContent = left>9 ? '9+' : String(left);
+    }
+
+    var carried=$('goalsCarried');
+    if(state.daily.carried > 0 && tasks.some(function(t){ return !t.done; })){
+      carried.hidden=false;
+      carried.textContent = state.daily.carried === 1
+        ? 'One goal carried over from before.'
+        : state.daily.carried + ' goals carried over from before.';
+    } else { carried.hidden=true; }
+
+    var list=$('goalsList'); list.innerHTML='';
+    if(!tasks.length){
+      var e=document.createElement('li'); e.className='goals-empty';
+      e.textContent='Add what you want finished today, or pull one off the board.';
+      list.appendChild(e); return;
+    }
+    tasks.forEach(function(t){
+      var li=document.createElement('li'); li.className='goal'+(t.done?' done':'');
+
+      var chk=document.createElement('button');
+      chk.type='button'; chk.className='goal-check';
+      chk.setAttribute('aria-pressed', t.done?'true':'false');
+      chk.setAttribute('aria-label', (t.done?'Mark not done: ':'Mark done: ')+t.text);
+      var box=document.createElement('span'); box.className='box';
+      var tick=document.createElement('span'); tick.className='tick';
+      box.appendChild(tick); chk.appendChild(box);
+      chk.onclick=function(){ toggleGoal(t.id); };
+
+      var mid=document.createElement('div'); mid.style.flex='1'; mid.style.minWidth='0';
+      var tx=document.createElement('div'); tx.className='goal-text'; tx.textContent=t.text;
+      mid.appendChild(tx);
+      if(t.orderId){
+        var o=getOrder(t.orderId);
+        var link=document.createElement('button');
+        link.type='button'; link.className='goal-order';
+        link.textContent = o ? ('Open ' + (o.title || o.custName || 'this order')) : 'That order is gone';
+        if(o) link.onclick=function(){ openEditor(t.orderId); };
+        else { link.disabled=true; link.style.color='rgba(var(--ink-rgb),.4)'; link.style.cursor='default'; }
+        mid.appendChild(link);
+      }
+
+      var x=document.createElement('button');
+      x.type='button'; x.className='goal-x'; x.innerHTML='&times;';
+      x.setAttribute('aria-label','Remove: '+t.text);
+      x.onclick=function(){ removeGoal(t.id); };
+
+      li.appendChild(chk); li.appendChild(mid); li.appendChild(x);
+      list.appendChild(li);
+    });
+  }
+
+  function touchDaily(){ state.daily.updatedAt=Date.now(); renderGoals(); persist(); }
+
+  function addGoal(text, orderId){
+    text=(text||'').trim();
+    if(!text) return false;
+    var now=Date.now();
+    state.daily.tasks.push({ id:tuid(), text:text.slice(0,140), done:false,
+      orderId:orderId||null, createdAt:now, updatedAt:now, deleted:false });
+    touchDaily();
+    return true;
+  }
+  function toggleGoal(id){
+    var t=state.daily.tasks.find(function(x){ return x.id===id; });
+    if(!t) return;
+    t.done=!t.done; t.updatedAt=Date.now();
+    touchDaily();
+  }
+  function removeGoal(id){
+    var t=state.daily.tasks.find(function(x){ return x.id===id; });
+    if(!t) return;
+    t.deleted=true; t.updatedAt=Date.now();
+    _deletedTasks[id]=true;
+    touchDaily();
+    toast('Goal removed');
+  }
+
+  function openGoalPicker(){
+    var box=$('goalPickList'); box.innerHTML='';
+    var already={}; liveTasks().forEach(function(t){ if(t.orderId) already[t.orderId]=true; });
+    var list=state.orders.filter(function(o){ return !o.trashed && !o.drafting && !already[o.id]; })
+                         .sort(sortOrders).slice(0,40);
+    if(!list.length){
+      var p=document.createElement('div'); p.className='goals-empty';
+      p.textContent='Every open order is already on today\u2019s list.';
+      box.appendChild(p);
+    } else {
+      list.forEach(function(o){
+        var b=document.createElement('button');
+        b.type='button'; b.className='goal-pick';
+        b.appendChild(document.createTextNode(o.title || o.custName || 'Untitled order'));
+        var sm=document.createElement('small');
+        sm.textContent=(o.type||'') + (o.stage ? ' \u00b7 ' + o.stage : '');
+        b.appendChild(sm);
+        b.onclick=function(){
+          addGoal(o.title || o.custName || 'Untitled order', o.id);
+          $('goalPickOverlay').classList.remove('show');
+        };
+        box.appendChild(b);
+      });
+    }
+    $('goalPickOverlay').classList.add('show');
+  }
+
+  function openGoals(open){
+    var ov=$('goalsOverlay');
+    ov.classList.toggle('show', !!open);
+    if(open) setTimeout(function(){ try{ $('goalInput').focus(); }catch(e){} }, 60);
+  }
+
+  function wireGoals(){
+    $('goalsBtn').addEventListener('click', function(){ openGoals(!$('goalsOverlay').classList.contains('show')); });
+    $('goalsClose').addEventListener('click', function(){ openGoals(false); });
+    $('goalsOverlay').addEventListener('click', function(){ openGoals(false); });
+    $('goalAdd').addEventListener('click', function(){
+      if(addGoal($('goalInput').value)) $('goalInput').value='';
+      $('goalInput').focus();
+    });
+    $('goalInput').addEventListener('keydown', function(e){
+      if(e.key==='Enter'){ e.preventDefault(); if(addGoal(this.value)) this.value=''; }
+    });
+    $('goalPull').addEventListener('click', openGoalPicker);
+    $('goalPickClose').addEventListener('click', function(){ $('goalPickOverlay').classList.remove('show'); });
+    $('goalPickOverlay').addEventListener('click', function(){ this.classList.remove('show'); });
+    document.addEventListener('keydown', function(e){
+      if(e.key!=='Escape') return;
+      if($('goalPickOverlay').classList.contains('show')){ $('goalPickOverlay').classList.remove('show'); return; }
+      if($('goalsOverlay').classList.contains('show')) openGoals(false);
+    });
+    renderGoals();
+    // roll the day over if the tab is left open past midnight
+    setInterval(function(){ if(rollDaily()){ renderGoals(); persist(); } }, 60000);
+  }
   function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function getOrder(id){for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id)return state.orders[i];return null;}
   function pad(n){return (n<10?'0':'')+n;}
@@ -1096,13 +1442,20 @@
     _saving=true;      // a real save is now in flight; pause cloud pulls until it finishes
     sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
       var cloud = [];
+      _cloudDaily = null;
       if(r && r.data) return r.data.text().then(function(t){
-        try{ var s=JSON.parse(t); if(s && Array.isArray(s.orders)) cloud=s.orders; _loadOk=true; }catch(e){}
+        try{
+          var s=JSON.parse(t);
+          if(s && Array.isArray(s.orders)) cloud=s.orders;
+          if(s && s.daily) _cloudDaily=s.daily;
+          _loadOk=true;
+        }catch(e){}
         _mergeAndUpload(cloud,done);
       });
       _mergeAndUpload(cloud,done);   // no cloud file yet — just write ours
     }).catch(function(){ _mergeAndUpload(null,done); });
   }
+  var _cloudDaily=null;
   function _mergeAndUpload(cloud,done){
     try{
       // SAFETY: if we couldn't read the cloud file (download errored) AND we've never
@@ -1129,8 +1482,9 @@
         });
         state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
         render();
+        if(_cloudDaily){ mergeDaily(_cloudDaily); renderGoals(); }
       }
-      var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
+      var blob=new Blob([JSON.stringify({v:10,orders:state.orders,daily:state.daily})],{type:'application/json'});
       sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
         _saving=false;
         if(r&&r.error){
@@ -1175,9 +1529,13 @@
           var s=JSON.parse(t);
           if(!(s&&Array.isArray(s.orders)))throw new Error('Invalid orders file');
           state.orders=s.orders.map(migrate);
+          state.daily=normalizeDaily(s.daily);
+          var rolled=rollDaily();
           _loadOk=true; _loaded=true; purgeOld();
           var recovered=recoverDraftsToBoard();
           render();
+          wireGoals();
+          if(rolled)persist();
           if(recovered)persist();
           startAutoRefresh();
         }catch(e){ _loaded=true; showInitialLoadError(); }
@@ -1208,6 +1566,10 @@
             _loadOk=true;
             var incoming=JSON.stringify(s.orders);
             if(incoming!==JSON.stringify(state.orders)){ state.orders=s.orders.map(migrate); purgeOld(); render(); }
+            // goals edited on the other device show up here too
+            var beforeGoals=JSON.stringify(state.daily);
+            mergeDaily(s.daily);
+            if(JSON.stringify(state.daily)!==beforeGoals) renderGoals();
           }
         }catch(e){}
         if(tag) _remoteTag=tag;
@@ -1548,8 +1910,18 @@
         var sameDay=d.toDateString()===now.toDateString();
         var time=d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
         var year=(d.getFullYear()!==now.getFullYear()) ? (', '+d.getFullYear()) : '';
-        return sameDay ? ('Started today at '+time)
-                       : ('Started '+d.toLocaleDateString([], {month:'short', day:'numeric'})+year+' at '+time);
+        var started = sameDay ? ('Started today at '+time)
+                              : ('Started '+d.toLocaleDateString([], {month:'short', day:'numeric'})+year+' at '+time);
+        // last edited, only when it actually differs from when it was started
+        var u=editing.updatedAt;
+        if(!u || u - t < 60000) return started;
+        var ud=new Date(u);
+        var uSameDay=ud.toDateString()===now.toDateString();
+        var uTime=ud.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+        var uYear=(ud.getFullYear()!==now.getFullYear()) ? (', '+ud.getFullYear()) : '';
+        return started + ' \u00b7 edited ' + (uSameDay
+          ? ('today at '+uTime)
+          : (ud.toLocaleDateString([], {month:'short', day:'numeric'})+uYear+' at '+uTime));
       }
       stamp.textContent=stampText();   // the created date never changes — set it once
 
