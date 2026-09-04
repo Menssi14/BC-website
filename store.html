@@ -971,6 +971,17 @@
 }
 </style>
 
+<style>
+  /* "each" next to a price was 11px — below comfortable reading size. */
+  .dialog-price small, .prod-price small, small { font-size: 12.5px; }
+
+  /* The footer phone number is a real tap target — customers call from here.
+     It measured 17px tall, well under a fingertip. */
+  .bc-foot a[href^="tel:"]{ display:inline-block; padding:6px 4px; }
+  @media (max-width: 720px){
+    .bc-foot a[href^="tel:"]{ padding:13px 10px; margin:2px 0; font-size:1.05em; }
+  }
+</style>
 </head>
 <body>
 <svg class="svg-defs" aria-hidden="true">
@@ -1126,7 +1137,7 @@
 
   <!-- FOOTER -->
   <footer class="bc-foot">
-    <div>Broch Custom &middot; Edinburg, TX &middot; <a href="tel:+19562255859">(956) 225-5859</a></div>
+    <div>Broch Custom &middot; Edinburg, TX &middot; <a class="bc-tel" href="tel:+19562255859">(956) 225-5859</a></div>
     <div class="bc-fine">&copy; <span class="bc-year"></span> Broch Custom</div>
     <button type="button" class="admin-toggle" id="admin-toggle" hidden>✎ Editing — tap to exit</button>
     <div id="save-badge" hidden style="position:fixed;bottom:16px;right:16px;background:var(--green);color:var(--cream);padding:8px 16px;border-radius:999px;font-family:'Teko',sans-serif;letter-spacing:0.1em;text-transform:uppercase;font-size:14px;z-index:200;">Saved ✓</div>
@@ -3418,6 +3429,61 @@
   // and NO folder path in the image URL (images are inline data URLs).
   let catalogDesigns = null, catalogFolders = [], catTopById = new Map(), pendingDesignPick = null;
 
+  /* Design images moved out of catalog.json and onto the NAS, so a design's
+     'png' may be a data: URL (older entries) or a storage key such as
+     "_designs/d12ab.webp". Keys are resolved to short-lived links for the
+     thumbnails, and turned back into real bytes when a design is chosen —
+     an order must not carry a link that expires. */
+  const DESIGN_PREFIX = '_designs/';
+  const designLink = new Map();          // storage key -> signed link, this visit
+  const isDesignKey = v => typeof v === 'string' && v.startsWith(DESIGN_PREFIX);
+
+  async function nasCall(payload) {
+    const r = await fetch('/api/minio-file', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const txt = await r.text();
+    let d;
+    try { d = JSON.parse(txt); }
+    catch { throw new Error('Storage server error (HTTP ' + r.status + ')'); }
+    if (!d.ok) throw new Error(d.message || d.error || 'Storage request failed');
+    return d;
+  }
+
+  async function resolveDesignLinks(keys) {
+    const need = [...new Set(keys.filter(k => isDesignKey(k) && !designLink.has(k)))];
+    if (!need.length) return;
+    for (let i = 0; i < need.length; i += 500) {
+      const d = await nasCall({ action: 'view-urls', keys: need.slice(i, i + 500) });
+      Object.entries(d.urls || {}).forEach(([k, u]) => designLink.set(k, u));
+    }
+  }
+
+  // What to show in a thumbnail: the data URL as-is, or the resolved link.
+  function designThumb(d) {
+    const v = d.png || d.svg || '';
+    return isDesignKey(v) ? (designLink.get(v) || '') : v;
+  }
+
+  // Real bytes for anything that gets kept — the cart, the order, the mockup.
+  async function designBytes(d) {
+    const v = d.png || d.svg || '';
+    if (!isDesignKey(v)) return v;
+    await resolveDesignLinks([v]);
+    const url = designLink.get(v);
+    if (!url) throw new Error('That design could not be loaded from storage');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Storage answered HTTP ' + res.status);
+    const blob = await res.blob();
+    return await new Promise((ok, no) => {
+      const fr = new FileReader();
+      fr.onload = () => ok(fr.result);
+      fr.onerror = () => no(new Error('Could not read that design'));
+      fr.readAsDataURL(blob);
+    });
+  }
+
   async function fetchCatalogDesigns() {
     if (catalogDesigns) return catalogDesigns;
     if (!sb) throw new Error('no cloud');
@@ -3443,6 +3509,16 @@
     catalogDesigns = (saved.designs || [])
       .filter(d => d.png || d.svg)
       .filter(d => !hidden.has(d.folderId));
+
+    // one call covers every thumbnail in the picker
+    try {
+      await resolveDesignLinks([
+        ...catalogDesigns.map(d => d.png || d.svg),
+        ...catalogFolders.map(f => f && f.cover).filter(Boolean)
+      ]);
+    } catch (e) {
+      console.warn('Design images could not be resolved from storage', e);
+    }
     return catalogDesigns;
   }
 
@@ -3485,8 +3561,17 @@
     if (present.has('Other')) groups.push('Other');
     const folderOf = n => catalogFolders.find(f => !f.parentId && f.name === n) || null;
 
-    function choose(d) {
-      const pick = { src: d.png || d.svg, name: d.name || 'Design' };
+    async function choose(d) {
+      let src;
+      try {
+        // fetch the real image, never a link that expires in a few hours
+        src = await designBytes(d);
+      } catch (e) {
+        console.warn('choose design', e);
+        alert('That design could not be loaded right now. Please try again.');
+        return;
+      }
+      const pick = { src, name: d.name || 'Design' };
       if (forUniform) { uniDesign=pick; dlg.close(); renderUniformBuilder(); return; }
       if (forBuilder) { if(bldSide==='back') bldBack=pick; else bldFront=pick; dlg.close(); renderBuilder(); return; }
       pendingDesignPick = pick;
@@ -3500,7 +3585,7 @@
       const item = document.createElement('div');
       item.className = 'dp-item';
       const im = document.createElement('img');
-      im.src = d.png || d.svg;
+      im.src = designThumb(d);
       im.alt = d.name || 'Design';
       im.loading = 'lazy';
       const nm = document.createElement('div');
@@ -3555,11 +3640,14 @@
         const f = folderOf(g);
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'dp-folder' + (f && f.cover ? ' has-cover' : '');
-        if (f && f.cover) card.style.backgroundImage = 'url(' + f.cover + ')';
+        const coverSrc = (f && f.cover)
+          ? (isDesignKey(f.cover) ? (designLink.get(f.cover) || '') : f.cover)
+          : '';
+        card.className = 'dp-folder' + (coverSrc ? ' has-cover' : '');
+        if (coverSrc) card.style.backgroundImage = 'url(' + coverSrc + ')';
         card.innerHTML =
-          (f && f.cover ? '<span class="dpf-veil"></span>' : '') +
-          ((!(f && f.cover) && f && f.emoji) ? '<span class="dpf-emoji">' + f.emoji + '</span>' : '') +
+          (coverSrc ? '<span class="dpf-veil"></span>' : '') +
+          ((!coverSrc && f && f.emoji) ? '<span class="dpf-emoji">' + f.emoji + '</span>' : '') +
           '<span class="dpf-txt"><span class="dpf-name"></span>' +
           '<span class="dpf-meta">' + n + ' design' + (n === 1 ? '' : 's') + '</span></span>';
         card.querySelector('.dpf-name').textContent = g;
