@@ -1937,7 +1937,19 @@ h1, h2, .svc-name, .dialog-title, .pay-success-title {
   .qf-send{ margin-top:2px; }
   .qf-send[disabled]{ opacity:.6; cursor:default; }
   .qf-note{ font-family:'Schadow','Teko',sans-serif; font-style:italic; font-size:14px; text-align:center; margin:2px 0 0; min-height:1em; }
-  .qf-note.ok{ color:var(--green); } .qf-note.err{ color:#B4453B; }
+  .qf-note.ok{ color:var(--green); }
+  /* photo attach on the quote form */
+  .qf-photo{ display:flex; align-items:center; gap:10px; }
+  .qf-pick{ font-family:'Schadow','Teko',sans-serif; font-size:15px; color:var(--green);
+    background:#fffdf8; border:1px dashed #c3b79c; border-radius:8px; padding:10px 14px;
+    cursor:pointer; flex:1; text-align:center; }
+  .qf-pick:hover{ border-color:var(--green); background:#f7f3e8; }
+  .qf-thumb{ position:relative; width:54px; height:54px; border-radius:8px; overflow:hidden;
+    border:1px solid #ddd3bd; background:#fffdf8; flex:0 0 auto; }
+  .qf-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .qf-thumb .x{ position:absolute; top:0; right:0; width:20px; height:20px; line-height:19px;
+    text-align:center; background:rgba(107,34,51,.92); color:#F2EADD; cursor:pointer;
+    border-bottom-left-radius:8px; font-size:15px; } .qf-note.err{ color:#B4453B; }
   .qr-divider{ font-family:'Teko','Oswald',sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:13px;
     color:#9a8d72; text-align:center; margin:0 0 10px; }
 </style>
@@ -1951,6 +1963,10 @@ h1, h2, .svc-name, .dialog-title, .pay-success-title {
       <input class="qf-in" id="qf-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Phone (call or text)" data-es-ph="Teléfono">
       <input class="qf-in" id="qf-email" type="email" autocomplete="email" placeholder="Email (optional)" data-es-ph="Correo (opcional)">
       <textarea class="qf-in" id="qf-msg" rows="3" placeholder="What do you need? Shirts, caps, embroidery, how many…" data-es-ph="¿Qué necesitas? Playeras, gorras, bordado, cuántas…"></textarea>
+      <div class="qf-photo">
+        <button type="button" class="qf-pick" id="qf-pick" data-es="Adjuntar una foto (opcional)">Attach a photo (optional)</button>
+        <input type="file" id="qf-file" accept="image/*" hidden>
+      </div>
       <button type="submit" class="btn-solid qf-send" data-es="Enviar">Send it</button>
       <p class="qf-note" id="qf-note"></p>
     </form>
@@ -4968,6 +4984,62 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     if (!form) return;
     var note = document.getElementById('qf-note');
     var es = function(){ return document.documentElement.lang === 'es'; };
+
+    // ── optional photo ──────────────────────────────────────────
+    // Shrunk in the browser before sending, so the request stays small.
+    // The server puts it on the NAS and keeps only a reference.
+    var pick = document.getElementById('qf-pick');
+    var file = document.getElementById('qf-file');
+    var wrap = document.querySelector('.qf-photo');
+    var photo = null;
+
+    function shrink(f, cb){
+      var rd = new FileReader();
+      rd.onload = function(e){
+        var img = new Image();
+        img.onload = function(){
+          var max = 900, w = img.width, h = img.height;
+          if (w > max || h > max){ var r = Math.min(max/w, max/h); w = Math.round(w*r); h = Math.round(h*r); }
+          var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+          var cx = cv.getContext('2d');
+          cx.fillStyle = '#fff'; cx.fillRect(0,0,w,h);
+          cx.drawImage(img,0,0,w,h);
+          var out;
+          try { out = cv.toDataURL('image/webp', 0.8); } catch(_) { out = cv.toDataURL('image/jpeg', 0.82); }
+          if (out.indexOf('image/webp') < 0) out = cv.toDataURL('image/jpeg', 0.82);
+          cb(out);
+        };
+        img.onerror = function(){ cb(null); };
+        img.src = e.target.result;
+      };
+      rd.onerror = function(){ cb(null); };
+      rd.readAsDataURL(f);
+    }
+    function showThumb(){
+      var old = wrap.querySelector('.qf-thumb');
+      if (old) old.remove();
+      if (!photo){ pick.textContent = es() ? 'Adjuntar una foto (opcional)' : 'Attach a photo (optional)'; return; }
+      pick.textContent = es() ? 'Cambiar la foto' : 'Change photo';
+      var d = document.createElement('div');
+      d.className = 'qf-thumb';
+      var im = document.createElement('img'); im.src = photo; im.alt = '';
+      var x = document.createElement('span'); x.className = 'x'; x.textContent = '\u00d7';
+      x.title = es() ? 'Quitar' : 'Remove';
+      x.onclick = function(){ photo = null; file.value = ''; showThumb(); };
+      d.appendChild(im); d.appendChild(x);
+      wrap.appendChild(d);
+    }
+    pick.addEventListener('click', function(){ file.click(); });
+    file.addEventListener('change', function(){
+      var f = file.files && file.files[0];
+      if (!f) return;
+      pick.textContent = es() ? 'Preparando…' : 'Preparing…';
+      shrink(f, function(url){
+        photo = url || null;
+        if (!url){ note.textContent = es() ? 'No se pudo leer esa imagen.' : "Couldn't read that image."; note.classList.add('err'); }
+        showThumb();
+      });
+    });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var name = document.getElementById('qf-name').value.trim();
@@ -4982,13 +5054,14 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       note.textContent = es() ? 'Enviando…' : 'Sending…';
       fetch('/api/quote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source: 'homepage', name: name, phone: phone, email: email, message: msg })
+        body: JSON.stringify({ source: 'homepage', name: name, phone: phone, email: email, message: msg, preview: photo || '' })
       }).then(function (r) { return r.json(); }).then(function (d) {
         btn.disabled = false;
         if (d && d.ok) {
           note.textContent = es() ? '¡Recibido! Te contactamos pronto.' : "Got it! We'll be in touch soon.";
           note.classList.add('ok');
           form.reset();
+          photo = null; file.value = ''; showThumb();
         } else {
           note.textContent = (d && d.error) || (es() ? 'No se pudo enviar — llámanos al (956) 225-5859.' : "Couldn't send — call or text us at (956) 225-5859.");
           note.classList.add('err');
