@@ -1953,6 +1953,63 @@ h1, h2, .svc-name, .dialog-title, .pay-success-title {
   .qr-divider{ font-family:'Teko','Oswald',sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:13px;
     color:#9a8d72; text-align:center; margin:0 0 10px; }
 </style>
+
+<style>
+  /* ── Phone header: drop the wordmark, give the controls the room ──
+     The brand had a whole row to itself on phones. With it gone the icons
+     and the quote button can be a usable size on one line. These rules sit
+     after every other stylesheet, and use !important where the elements
+     carry inline styles. */
+  @media (max-width: 720px) {
+    .nav-brand { display: none !important; }
+
+    .nav { padding: 10px 4vw !important; gap: 0 !important; }
+    .nav-right {
+      width: 100% !important;
+      justify-content: space-evenly !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+      gap: 6px !important;
+    }
+
+    /* bigger tap targets and bigger glyphs */
+    .nav-icon {
+      width: 52px !important;
+      height: 52px !important;
+      flex: 0 0 52px !important;
+    }
+    .nav-icon .nav-glyph { width: 34px !important; height: 34px !important; }
+    .nav-icon i { font-size: 31px !important; }
+
+    /* the quote pill was 12px — too small to read */
+    .nav-cta {
+      padding: 12px 20px !important;
+      font-size: 17px !important;
+      letter-spacing: 0.08em !important;
+      border-radius: 999px !important;
+      white-space: nowrap;
+    }
+  }
+
+  /* Genuinely small phones only: still bigger than before, just tighter.
+     Common sizes (360-430px) keep the full-size icons above. */
+  @media (max-width: 345px) {
+    .nav { padding: 9px 3vw !important; }
+    .nav-right { gap: 2px !important; }
+    .nav-icon {
+      width: 46px !important;
+      height: 46px !important;
+      flex: 0 0 46px !important;
+    }
+    .nav-icon .nav-glyph { width: 31px !important; height: 31px !important; }
+    .nav-icon i { font-size: 28px !important; }
+    .nav-cta {
+      padding: 11px 15px !important;
+      font-size: 16px !important;
+      letter-spacing: 0.05em !important;
+    }
+  }
+</style>
 <dialog id="quote-dialog">
   <div class="dialog-card">
     <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
@@ -5058,10 +5115,25 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       }).then(function (r) { return r.json(); }).then(function (d) {
         btn.disabled = false;
         if (d && d.ok) {
-          note.textContent = es() ? '¡Recibido! Te contactamos pronto.' : "Got it! We'll be in touch soon.";
+          // Say it plainly on the button itself, then close — a line of text
+          // under the form was too easy to miss.
+          var label = btn.getAttribute('data-original-label');
+          if (label === null) { label = btn.textContent; btn.setAttribute('data-original-label', label); }
+          btn.disabled = true;
+          btn.textContent = es() ? 'Guardado \u2713' : 'Saved \u2713';
+          note.textContent = '';
           note.classList.add('ok');
           form.reset();
           photo = null; file.value = ''; showThumb();
+          setTimeout(function(){
+            var dlg = document.getElementById('quote-dialog');
+            if (dlg && dlg.open) { try { dlg.close(); } catch (_) {} }
+            btn.textContent = btn.getAttribute('data-original-label') || label;
+            btn.disabled = false;
+            note.textContent = '';
+            note.className = 'qf-note';
+          }, 1100);
+          return;
         } else {
           note.textContent = (d && d.error) || (es() ? 'No se pudo enviar — llámanos al (956) 225-5859.' : "Couldn't send — call or text us at (956) 225-5859.");
           note.classList.add('err');
