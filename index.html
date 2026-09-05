@@ -969,6 +969,18 @@ h1, h2, .svc-name, .dialog-title, .pay-success-title {
 </style>
 
 
+<style>
+  /* Phone: the footer contact links were too short to hit reliably.
+     Padding only — the text size and look are unchanged. */
+  @media (max-width: 720px) {
+    .footer-phone, .footer-email {
+      display: inline-block;
+      padding: 11px 4px;
+      min-height: 44px;
+      line-height: 1.35;
+    }
+  }
+</style>
 </head>
 <body>
 <svg class="pine-bg-fixed" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pf-khaki)"/></svg>
@@ -1890,7 +1902,7 @@ h1, h2, .svc-name, .dialog-title, .pay-success-title {
 <g transform="translate(-2.554,-11.100) scale(1.04225)"><path d="M157.51719480821876,159.3054351961934C157.94046436810223,159.3054351961934 158.3252548770872,159.42087234888888 158.71004538607215,159.42087234888888C163.2890524429932,159.42087234888888 164.7512563771361,161.19090869021971 164.7512563771361,165.2696880854603L164.7512563771361,177.19819386399416C164.7512563771361,182.27742858259566 163.2890524429932,184.04746492392647 157.51719480821876,184.16290207662195ZM140.93272387096684,223.14218063679866L161.24966274537292,223.14218063679866C175.21755822152707,223.14218063679866 179.83504432934663,220.21777276851293 179.83504432934663,209.17428516064453L179.83504432934663,197.93840229828362C179.83504432934663,189.62692730420844 176.67976215566995,186.9718727922122 166.25193936217744,186.58708228322723C174.75580961074513,185.50966885806935 177.75717558082783,182.39286573529114 177.75717558082783,174.96640891188136L177.75717558082783,164.88489757647534C177.75717558082783,155.68840441173472 173.75535428738422,153.2642242051295 163.78928010467368,153.2642242051295L140.93272387096684,153.2642242051295L140.93272387096684,159.61326760338136L144.357359400933,159.61326760338136L144.357359400933,216.79313723854676L140.93272387096684,216.79313723854676ZM166.6367298711624,208.98188990615205C166.6367298711624,215.02310089721595 165.05908878432405,216.87009534034377 157.51719480821876,217.10096964573475L157.51719480821876,190.08867591499038C157.51719480821876,190.08867591499038 157.82502721540675,190.08867591499038 158.90244064056463,190.08867591499038C163.98167535916616,190.08867591499038 166.6367298711624,192.66677232518964 166.6367298711624,197.55361178929866ZM218.5126471304792,153.2642242051295L210.00877688191153,153.2642242051295L210.00877688191153,157.76627316025355C207.27676426811828,154.1492423757949 203.8521287381521,152.30224793266706 199.15768452853555,152.30224793266706C191.1540419416483,152.30224793266706 186.26720247753929,157.07365024408062 186.26720247753929,165.3851252381558L186.26720247753929,207.98143458279114C186.26720247753929,219.7175451068325 189.88423326199793,224.02719880746406 202.58232005850175,224.02719880746406C214.5108258370356,224.02719880746406 219.01287479215966,219.90994036132497 219.01287479215966,208.78949465165957L219.01287479215966,190.9736940856558L212.85622664840025,190.9736940856558L212.85622664840025,208.3662250917761C212.85622664840025,214.33047798104303 211.66337607054686,217.6781554092122 206.58414135194533,217.6781554092122C201.31251137885135,217.6781554092122 200.35053510638895,214.4459151337385 200.35053510638895,208.3662250917761L200.35053510638895,165.88535289983625C200.35053510638895,161.65265730100165 200.8507627680694,158.72824943271596 205.04497931600548,158.72824943271596C209.04680060944912,158.72824943271596 209.73942352562204,161.3833039447122 209.73942352562204,165.88535289983625L209.73942352562204,178.08321203465954L218.5126471304792,178.08321203465954Z" fill="#000000"/></g>
 </svg></div>
     <p class="qr-url" id="qr-url">brochcustom.com</p>
-    <button class="dl-card" id="dl-card" type="button" onclick="downloadBusinessCard()"><i class="ti ti-download" aria-hidden="true"></i><span data-es="Descargar tarjeta">Download business card</span></button>
+    <button class="dl-card" id="dl-card" type="button" data-mode="site" onclick="qrDownloadClick()"><i class="ti ti-download" aria-hidden="true"></i><span data-es="Descargar tarjeta">Download business card</span></button>
   </div>
 </dialog>
 
@@ -4971,13 +4983,85 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     document.getElementById('qr-canvas').style.display = 'none';
     document.getElementById('qr-svg').style.display = 'block';
     document.getElementById('qr-url').textContent = 'brochcustom.com';
+    setQrMode('site');
     document.getElementById('qr-dialog').showModal();
   }
 
   function openPayQR() {
     document.getElementById('qr-svg').style.display = 'none';
     document.getElementById('qr-canvas').style.display = 'block';
+    setQrMode('pay');
     openQRFor('https://brochcustom.com/#pay', 'brochcustom.com/#pay');
+  }
+
+  /* The QR dialog is shared. From the footer it is the site QR and the button
+     offers the business card; from the payment sheet it is the payment QR and
+     the button should hand you that QR as a picture to send someone. */
+  function setQrMode(mode) {
+    var btn = document.getElementById('dl-card');
+    if (!btn) return;
+    var span = btn.querySelector('span');
+    btn.dataset.mode = mode;
+    var en = (mode === 'pay') ? 'Download QR code' : 'Download business card';
+    var es = (mode === 'pay') ? 'Descargar c\u00f3digo QR' : 'Descargar tarjeta';
+    // set both, or the language toggle will restore the old wording later
+    span.setAttribute('data-en', en);
+    span.setAttribute('data-es', es);
+    span.textContent = (document.documentElement.lang === 'es') ? es : en;
+  }
+
+  function qrDownloadClick() {
+    var btn = document.getElementById('dl-card');
+    if (btn && btn.dataset.mode === 'pay') downloadPayQR();
+    else downloadBusinessCard();
+  }
+
+  // Compose the payment QR into a clean, sendable picture.
+  function downloadPayQR() {
+    var src = document.getElementById('qr-canvas');
+    if (!src) return;
+    var W = 760, H = 980, PAD = 60;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var c = cv.getContext('2d');
+
+    c.fillStyle = '#F2EADD';
+    c.fillRect(0, 0, W, H);
+    c.strokeStyle = '#1F4D3E';
+    c.lineWidth = 6;
+    c.strokeRect(PAD * 0.5, PAD * 0.5, W - PAD, H - PAD);
+
+    c.fillStyle = '#1F4D3E';
+    c.textAlign = 'center';
+    c.font = '700 54px Teko, "Arial Narrow", Arial, sans-serif';
+    c.fillText('BROCH CUSTOM', W / 2, 150);
+    c.fillStyle = '#6B2233';
+    c.font = '400 34px Teko, "Arial Narrow", Arial, sans-serif';
+    c.fillText('Scan to pay', W / 2, 198);
+
+    var qs = 520;
+    c.fillStyle = '#ffffff';
+    c.fillRect((W - qs) / 2 - 12, 240 - 12, qs + 24, qs + 24);
+    c.drawImage(src, (W - qs) / 2, 240, qs, qs);
+
+    c.fillStyle = '#1F4D3E';
+    c.font = '400 30px Teko, "Arial Narrow", Arial, sans-serif';
+    c.fillText('brochcustom.com/#pay', W / 2, 830);
+    c.fillStyle = '#6B2233';
+    c.font = '400 26px Teko, "Arial Narrow", Arial, sans-serif';
+    c.fillText('Card  \u00b7  Cash App  \u00b7  Zelle  \u00b7  Cash or check', W / 2, 878);
+
+    cv.toBlob(function (blob) {
+      if (!blob) return;
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'broch-custom-payment-qr.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+    }, 'image/png');
   }
 
   function shareSite() {
