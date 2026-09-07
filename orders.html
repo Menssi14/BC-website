@@ -313,6 +313,10 @@
   .m-title{ width:100%; border:none; outline:none; background:none; font-family:'Schadow','Teko',sans-serif; font-size:24px; font-weight:normal; line-height:1.08; letter-spacing:.01em; color:var(--burgundy); margin:0 0 8px; }
   .m-title::placeholder{ color:rgba(var(--ink-rgb),.34); }
   .cust-block{ margin:0 0 8px; }
+  /* shown only when someone tries to type a third word into a title */
+  .word-cap{ display:none; font-size:13.5px; line-height:1.35; color:var(--burgundy);
+    opacity:.8; margin:-2px 0 8px; }
+  .word-cap.show{ display:block; }
   .cust-name{ width:100%; border:none; outline:none; background:none; font-family:'Schadow','Teko',sans-serif; font-size:29px; font-weight:normal; line-height:1.05; letter-spacing:.01em; color:var(--burgundy); }
   .cust-name::placeholder{ color:rgba(31,77,62,.55); font-weight:normal; }
   .cust-extra{ display:flex; flex-direction:column; gap:7px; margin-top:9px; }
@@ -826,6 +830,7 @@
           <input class="cust-sub" id="mCustEmail" placeholder="Email (optional)" inputmode="email" autocomplete="off">
         </div>
       </div>
+      <div class="word-cap" id="wordCap"></div>
       <span class="kind-tag" id="kindTag"></span>
       <div id="mBody"></div>
       <button type="button" class="sec-toggle" id="metaToggle" style="display:none"></button>
@@ -1873,6 +1878,7 @@
     if($('custExtra'))$('custExtra').style.display=hasName?'flex':'none';
     $('kindTag').textContent=o.type;
     if($('mBalance'))$('mBalance').value=o.balanceDue||'';
+    if($('wordCap')){ $('wordCap').classList.remove('show'); $('wordCap').textContent=''; }
     renderImgs(); renderBody();
   }
 
@@ -2195,8 +2201,39 @@
     $('modal').addEventListener('click',function(){ setTimeout(autosaveEditorInteraction,0); },true);
   }
 
-  $('mTitle').addEventListener('input',function(e){ if(!editing)return; editing.title=e.target.value; livePersist(); });
-  if($('mCustName'))$('mCustName').addEventListener('input',function(e){ if(!editing)return; editing.custName=e.target.value; var has=!!e.target.value.trim(); $('custExtra').style.display=has?'flex':'none'; livePersist(); });
+  /* ---- titles hold a name, not the job ----
+     Two words is the limit. A title that is already longer (an old order, or
+     one that came in from the website) is left exactly as it is and can still
+     be edited or shortened — it just cannot grow. */
+  var MAX_TITLE_WORDS=2;
+  function wordCount(v){ var m=String(v||'').match(/\S+/g); return m?m.length:0; }
+  function sayWordCap(msg){
+    var el=$('wordCap'); if(!el)return;
+    el.textContent=msg; el.classList.add('show');
+    clearTimeout(sayWordCap._t);
+    sayWordCap._t=setTimeout(function(){ el.classList.remove('show'); },4000);
+  }
+  function capTitle(input,was,msg){
+    var v=input.value;
+    // at the limit, stop trailing spaces piling up behind the last word
+    if(wordCount(v)>=MAX_TITLE_WORDS && /\s\s$/.test(v)){
+      input.value=was; try{ input.setSelectionRange(was.length,was.length); }catch(_e){}
+      return was;
+    }
+    if(wordCount(v)<=MAX_TITLE_WORDS) return v;      // fine
+    if(wordCount(v)<=wordCount(was)) return v;       // already long — not getting longer
+    var at=input.selectionStart;
+    input.value=was;
+    try{ at=Math.max(0,Math.min((at||1)-1,was.length)); input.setSelectionRange(at,at); }catch(_e){}
+    sayWordCap(msg);
+    return was;
+  }
+  $('mTitle').addEventListener('input',function(e){ if(!editing)return;
+    editing.title=capTitle(e.target,editing.title||'','Two words max — put the details in the note below.');
+    livePersist(); });
+  if($('mCustName'))$('mCustName').addEventListener('input',function(e){ if(!editing)return;
+    editing.custName=capTitle(e.target,editing.custName||'','Two words max — put the details in Notes below.');
+    var has=!!e.target.value.trim(); $('custExtra').style.display=has?'flex':'none'; livePersist(); });
   if($('mCustPhone'))$('mCustPhone').addEventListener('input',function(e){ if(!editing)return; editing.custPhone=e.target.value; editing.contact=e.target.value; livePersist(); });
   if($('mCustEmail'))$('mCustEmail').addEventListener('input',function(e){ if(!editing)return; editing.custEmail=e.target.value; livePersist(); });
   if($('mBalance'))$('mBalance').addEventListener('input',function(e){ if(!editing)return; editing.balanceDue=e.target.value.replace(/[^0-9.]/g,''); livePersist(); });
