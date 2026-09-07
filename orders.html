@@ -54,7 +54,6 @@
   html[data-theme="dark"] .hbtn,
   html[data-theme="dark"] .fab,
   html[data-theme="dark"] .tf.on,
-  html[data-theme="dark"] .duechip.on,
   html[data-theme="dark"] .vchip.on,
   html[data-theme="dark"] .add-batch,
   html[data-theme="dark"] .tag.pay-paid,
@@ -334,7 +333,6 @@
   .opt{ font-style:italic; text-transform:none; letter-spacing:0; color:rgba(var(--ink-rgb),.45); font-family:'Teko',sans-serif; font-size:14px; }
   .field-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.1em; font-size:13px; color:rgba(var(--ink-rgb),.55); margin:0 0 8px; display:flex; align-items:center; gap:8px; }
 
-  .tl{ display:flex; align-items:center; gap:7px; }
   /* ---- photo viewer: swipe between photos, pinch or double-tap to zoom in ---- */
   .lightbox{ position:fixed; inset:0; background:rgba(20,15,10,.94); display:none; z-index:400;
     overflow:hidden; touch-action:none; -webkit-user-select:none; user-select:none; }
@@ -362,15 +360,6 @@
   .lightbox.multi .lb-dots{ display:flex; }
   .lb-dots i{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.32); }
   .lb-dots i.on{ background:#fff; }
-  #mTL, #mPay{ display:block; }
-
-  /* Broch-style segmented control (Priority + Payment) */
-  .seg-track{ position:relative; display:flex; height:44px; border-radius:10px; background:#EFE8DA; border:1px solid rgba(var(--ink-rgb),.16); overflow:hidden; touch-action:none; cursor:pointer; user-select:none; }
-  .seg-pill{ position:absolute; top:3px; bottom:3px; left:0; border-radius:8px; background:#6E8F7E; box-shadow:0 1px 3px rgba(0,0,0,.12); transition:left .22s cubic-bezier(.4,.0,.2,1), background .22s, width .22s; z-index:1; opacity:.92; }
-  .seg-opt{ position:relative; z-index:2; flex:1; display:flex; align-items:center; justify-content:center; font-family:'Teko','Oswald',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:15px; color:rgba(var(--ink-rgb),.62); transition:color .18s; pointer-events:none; padding-top:2px; }
-  .seg-opt.on{ color:#F2EADD; font-weight:500; }
-  .seg-track.seg-locked{ opacity:.85; }
-  .seg-track.seg-locked::after{ content:'PAID ONLINE'; position:absolute; right:8px; top:-16px; font-family:'Teko',sans-serif; font-size:10px; letter-spacing:.1em; color:rgba(var(--ink-rgb),.45); }
   .uslider{ position:relative; display:flex; height:34px; border-radius:999px; overflow:hidden; border:1px solid var(--line-strong); }
   .useg{ flex:1; opacity:.3; cursor:pointer; transition:opacity .15s; }
   .useg.first{ border-radius:999px 0 0 999px; } .useg.last{ border-radius:0 999px 999px 0; }
@@ -380,6 +369,8 @@
   .useg.payseg{ opacity:1; }
   .uknob.clockknob{ display:flex; align-items:center; justify-content:center; width:32px; height:32px; background:#EDE4D3 !important; color:#4A3424; border:2px solid #fff !important; box-shadow:0 1px 5px rgba(0,0,0,.3) !important; }
   .uknob.paydollar{ display:flex; align-items:center; justify-content:center; font-family:'Teko','Oswald',sans-serif; font-weight:600; font-size:24px; line-height:1; padding-top:2px; width:32px; height:32px; background:#EDE4D3 !important; color:#fff; border:2px solid #fff !important; box-shadow:0 1px 5px rgba(0,0,0,.3) !important; text-shadow:none; }
+  .sec-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+  .sec-row .sec-toggle{ width:auto; flex:1 1 auto; margin-top:0; text-align:center; padding:11px 12px; }
   .sec-toggle{ display:block; width:100%; text-align:left; margin-top:16px; cursor:pointer;
     background:rgba(31,77,62,.05); border:1px dashed rgba(31,77,62,.35); border-radius:11px; padding:11px 14px;
     font-family:'Teko',sans-serif; font-size:16px; letter-spacing:.09em; text-transform:uppercase; color:var(--green); }
@@ -396,9 +387,26 @@
   .tl .lamp.on{ opacity:1; box-shadow:0 0 0 2px rgba(242,234,221,.9), 0 0 0 3.5px currentColor; }
   .tl .lamp.go{ background:var(--go); color:var(--go); } .tl .lamp.amber{ background:var(--amber); color:var(--amber); } .tl .lamp.red{ background:var(--red); color:var(--red); }
   .tl .tl-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:16px; color:rgba(var(--ink-rgb),.7); min-width:62px; }
-  .due-chips{ display:flex; flex-wrap:wrap; gap:8px; }
-  .duechip{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-size:15px; font-weight:500; color:var(--burgundy); background:var(--note); border:1px solid var(--line-strong); border-radius:999px; padding:8px 14px 6px; cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
-  .duechip.on{ background:var(--green); color:var(--cream); border-color:var(--green); }
+  /* a short list you scroll up and down; whatever sits in the band is picked */
+  .wheel-wrap{ position:relative; }
+  .wheel-band{ position:absolute; left:0; right:0; top:44px; height:44px; border-radius:12px;
+    background:var(--note); border:2px solid var(--line-strong); pointer-events:none;
+    transition:border-color .18s; }
+  .wheel-band.locked::after{ content:'PAID ONLINE'; position:absolute; right:9px; top:-17px;
+    font-family:'Teko',sans-serif; font-size:10px; letter-spacing:.1em;
+    color:rgba(var(--ink-rgb),.45); }
+  .wheel{ position:relative; height:132px; overflow-y:auto; overflow-x:hidden;
+    overscroll-behavior:contain; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; padding:44px 0; }
+  .wheel::-webkit-scrollbar{ display:none; }
+  .wheel.locked{ opacity:.72; pointer-events:none; }
+  .wheel-opt{ height:44px; display:flex; align-items:center; justify-content:center; gap:9px;
+    scroll-snap-align:center; cursor:pointer; font-family:'Teko',sans-serif;
+    text-transform:uppercase; letter-spacing:.05em; font-size:19px; line-height:1;
+    color:rgba(var(--ink-rgb),.38); transition:color .15s, font-size .15s; }
+  .wheel-opt.on{ color:var(--green); font-size:23px; }
+  .wheel-opt .wdot{ width:10px; height:10px; border-radius:50%; opacity:0; transition:opacity .15s; }
+  .wheel-opt.on .wdot{ opacity:1; }
 
   .note-body{ width:100%; border:1px solid var(--line-strong); outline:none; background:var(--cream); resize:none; font-family:'Teko',sans-serif; font-size:20px; line-height:1.45; color:var(--burgundy); min-height:130px; border-radius:11px; padding:12px 14px; }
   .note-body:focus{ border-color:var(--green); }
@@ -833,16 +841,27 @@
       <div class="word-cap" id="wordCap"></div>
       <span class="kind-tag" id="kindTag"></span>
       <div id="mBody"></div>
-      <button type="button" class="sec-toggle" id="metaToggle" style="display:none"></button>
-      <div class="urgency-section" id="urgencySection">
-        <div class="field-label">Priority</div>
-        <div class="tl" id="mTL"></div>
-        <div class="field-label" style="margin-top:18px">Payment <span class="opt">optional</span></div>
-        <div class="tl" id="mPay"></div>
+      <div class="sec-row" id="secRow">
+        <button type="button" class="sec-toggle" id="payToggle" style="display:none"></button>
+        <button type="button" class="sec-toggle" id="dueToggle" style="display:none"></button>
+      </div>
+      <div class="urgency-section" id="paySection">
+        <div class="field-label">Payment <span class="opt">optional</span></div>
+        <div class="wheel-wrap">
+          <div class="wheel-band" id="payBand"></div>
+          <div class="wheel" id="mPay"></div>
+        </div>
         <div class="bal-row" id="balRow" style="display:none">
           <span class="bal-label">Balance due</span>
           <span class="bal-dollar">$</span>
           <input class="bal-input" id="mBalance" type="text" inputmode="decimal" placeholder="0.00">
+        </div>
+      </div>
+      <div class="urgency-section" id="dueSection">
+        <div class="field-label">Due Date <span class="opt">optional</span></div>
+        <div class="wheel-wrap">
+          <div class="wheel-band" id="dueBand"></div>
+          <div class="wheel" id="mDue"></div>
         </div>
       </div>
     </div>
@@ -995,7 +1014,7 @@
   }
   var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
   var _loaded=false,_saveTimer=null, _saving=false, _needsSave=false, TRASH_DAYS=10, DAY=86400000;
-  var URGENCY={ norush:{label:'No Rush',color:'#D9B96A',cls:'amber'}, priority:{label:'Priority',color:'#D98E5A',cls:'orange'}, asap:{label:'ASAP',color:'#C77A72',cls:'red'} };
+  var URGENCY={ norush:{label:'On Track',color:'#96B486',cls:'green'}, priority:{label:'Soon',color:'#D98E5A',cls:'orange'}, asap:{label:'Urgent',color:'#C77A72',cls:'red'} };
   var URANK={asap:0,priority:1,norush:2};
 
   // Progress stages per order type. Last entry is always the finish (→ trash).
@@ -1140,6 +1159,68 @@
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
   function tuid(){ return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+  /* ===================== Due dates =====================
+     A due date is picked as a plain day — Today, Tomorrow, or any day of the
+     week — and stored as a real calendar date, so "Friday" still means that
+     Friday once the week has moved on. */
+  var DOW_KEYS=['sun','mon','tue','wed','thu','fri','sat'];
+  var DOW_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var MON_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  /* The list runs from today forward, so "Today" and "Monday" can never be
+     the same row twice. Seven days, plus a way to clear it. */
+  function dueChoices(){
+    var out=[];
+    for(var i=0;i<7;i++){
+      var d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+i);
+      out.push({
+        k: i===0?'today':(i===1?'tomorrow':DOW_KEYS[d.getDay()]),
+        label: i===0?'Today':(i===1?'Tomorrow':DOW_NAMES[d.getDay()]),
+        color: URGENCY[urgencyForDays(i)].color
+      });
+    }
+    return out;
+  }
+  function computeDue(preset){
+    var d=new Date(); d.setHours(12,0,0,0);
+    if(preset==='today') return todayKey(d);
+    if(preset==='tomorrow'){ d.setDate(d.getDate()+1); return todayKey(d); }
+    var i=DOW_KEYS.indexOf(preset);
+    if(i<0) return '';
+    d.setDate(d.getDate()+((i-d.getDay()+7)%7));   // the next one; today counts
+    return todayKey(d);
+  }
+  /* One setting drives the colour: how soon it is due. Counting today as
+     day one —
+       day 1 and 2 (today, tomorrow, or already past) -> red
+       day 3 and 4                                    -> orange
+       further out, or no date at all                 -> green            */
+  function urgencyForDays(days){
+    if(days<=1) return 'asap';       // today, tomorrow, overdue
+    if(days<=3) return 'priority';   // the two days after that
+    return 'norush';
+  }
+  function daysUntilDue(o){
+    var v=(o&&o.due)||''; var p=v.split('-');
+    if(p.length!==3) return null;
+    var d=new Date(+p[0],(+p[1])-1,+p[2],12,0,0);
+    if(isNaN(d.getTime())) return null;
+    var t=new Date(); t.setHours(12,0,0,0);
+    return Math.round((d-t)/86400000);
+  }
+  function dueInfo(o){
+    var days=daysUntilDue(o);
+    if(days===null) return null;
+    var p=o.due.split('-'), d=new Date(+p[0],(+p[1])-1,+p[2],12,0,0);
+    var lvl=urgencyForDays(days);
+    var txt;
+    if(days<0) txt='Overdue';
+    else if(days===0) txt='Due Today';
+    else if(days===1) txt='Due Tomorrow';
+    else if(days<7) txt='Due '+DOW_NAMES[d.getDay()];
+    else txt='Due '+MON_NAMES[d.getMonth()]+' '+d.getDate();
+    return { txt:txt, level:lvl, red:(lvl==='asap'), over:(lvl==='asap') };
+  }
 
   function normalizeDaily(d){
     var out = { date: todayKey(), tasks: [], carried: 0, updatedAt: 0 };
@@ -1644,7 +1725,7 @@
     if(o.items===undefined){ o.items=[]; if(o.sizes&&o.sizes.length){ o.sizes.forEach(function(s){ if(s&&(s.size||s.qty)){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)o.items.push({size:s.size||'',color:o.color||'',surface:'',name:''}); } }); } }
     else if(o.items.length&&o.items[0]&&o.items[0].name===undefined){ var ni=[]; o.items.forEach(function(s){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)ni.push({size:s.size||'',color:s.color||'',surface:s.surface||'',name:''}); }); o.items=ni; }
     delete o.sizes; delete o.names; delete o.color; delete o.amount; delete o.varOrder;
-    if(o.body===undefined)o.body=''; if(o.duePreset===undefined)o.duePreset='';
+    if(o.body===undefined)o.body=''; if(o.duePreset===undefined)o.duePreset=''; if(o.due===undefined)o.due='';
     if(o.urgency===undefined)o.urgency=o.status==='urgent'?'asap':'fcfs';
     if(o.contact===undefined)o.contact=''; if(o.custName===undefined)o.custName=(o.type!=='NOTE'?(o.title||''):''); if(o.custPhone===undefined)o.custPhone=o.contact||''; if(o.custEmail===undefined)o.custEmail=''; if(o.designReady===undefined)o.designReady=false;
     if(o.urgency==='fcfs')o.urgency='priority';
@@ -1688,7 +1769,15 @@
     render();
   });
 
-  function sortOrders(a,b){ var r=(URANK[a.urgency]==null?9:URANK[a.urgency])-(URANK[b.urgency]==null?9:URANK[b.urgency]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
+  /* Priority and due day are separate settings and both optional, but an order
+     due today (or already past due) turns red on its own, whatever the
+     priority slider says. The slider itself is left untouched. */
+  function effUrgency(o){
+    var d=dueInfo(o);
+    if(d) return d.level;        // a due date decides the colour
+    return o.urgency;            // no date: whatever the order already carried
+  }
+  function sortOrders(a,b){ var ea=effUrgency(a), eb=effUrgency(b); var r=(URANK[ea]==null?9:URANK[ea])-(URANK[eb]==null?9:URANK[eb]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
 
   // tiny type filter — '' means show everything
   function typeCounts(list){
@@ -1786,8 +1875,8 @@
     h+='</div>'; return h;
   }
   function cardHTML(o){
-    var u=URGENCY[o.urgency]||URGENCY.norush; var imgs=o.images||[];
-    var h='<div class="card u-'+(URGENCY[o.urgency]?o.urgency:'norush')+'" data-card="'+o.id+'">';
+    var _eu=effUrgency(o); var u=URGENCY[_eu]||URGENCY.norush; var imgs=o.images||[];
+    var h='<div class="card u-'+(URGENCY[_eu]?_eu:'norush')+'" data-card="'+o.id+'">';
     if(imgs.length){
       h+='<div class="card-shots'+(imgs.length>1?' multi':'')+'">';
       h+='<div class="card-imgs n'+Math.min(imgs.length,3)+'">';
@@ -1807,6 +1896,7 @@
     var tags = '';
     if(!o.trashed && !o.isQuote && o.drafting) tags+='<span class="tag" style="background:#F2EADD;color:#7A654B">Draft</span>';
     if(!o.trashed && !o.isQuote && o.stage && o.stage!=='New') tags+='<span class="tag stage" style="background:'+stageColor(o)+'22;color:'+stageColor(o)+'">'+esc(o.stage)+'</span>';
+    if(!o.trashed && !o.isQuote){ var _di=dueInfo(o); if(_di) tags+='<span class="tag due'+(_di.over?' overdue':'')+'">'+esc(_di.txt)+'</span>'; }
     if(!o.trashed && !o.isQuote && o.payStatus==='deposit') tags+='<span class="tag pay-dep">Deposit</span>';
     if(!o.trashed && !o.isQuote && o.payStatus==='paid') tags+='<span class="tag pay-paid">Paid</span>';
     if(!o.trashed && !o.isQuote && o.balanceDue) tags+='<span class="tag pay-bal">Bal $'+esc(o.balanceDue)+'</span>';
@@ -1888,60 +1978,88 @@
     {k:'deposit',label:'Deposit made',color:'#D9B96A'},
     {k:'paid',label:'Paid',color:'#6FA383'}
   ];
-  // Generic Broch-style segmented slider: labeled track + sliding pill.
-  // opts: [{label, color}], getIdx(), onPick(i). Returns nothing; renders into container c.
-  function buildSegmented(c, opts, getIdx, onPick){
-    if(!c)return; c.innerHTML='';
-    var track=document.createElement('div'); track.className='seg-track';
-    var pill=document.createElement('div'); pill.className='seg-pill';
-    track.appendChild(pill);
-    var labelEls=[];
+  /* Generic up-and-down wheel. opts: [{k,label,color}]. Whatever sits in the
+     highlighted band is the pick; it settles a moment after you stop scrolling.
+     Tapping a row scrolls it into the band. */
+  var WHEEL_ROW=44;
+  function buildWheel(c, band, opts, currentKey, onLand, locked){
+    if(!c) return;
+    c.innerHTML='';
     opts.forEach(function(o,ix){
-      var lb=document.createElement('div'); lb.className='seg-opt'; lb.textContent=o.label;
-      track.appendChild(lb); labelEls.push(lb);
+      var row=document.createElement('div'); row.className='wheel-opt';
+      var dot=document.createElement('span'); dot.className='wdot';
+      dot.style.background=o.color||'transparent';
+      row.appendChild(dot);
+      row.appendChild(document.createTextNode(o.label));
+      row.onclick=function(){ c.scrollTo({top:ix*WHEEL_ROW,behavior:'smooth'}); };
+      c.appendChild(row);
     });
-    function place(){
-      var i=getIdx(); if(i<0)i=0;
-      var pct=100/opts.length;
-      pill.style.width=pct+'%';
-      pill.style.left=(i*pct)+'%';
-      pill.style.background=opts[i].color||'#1F4D3E';
-      for(var j=0;j<labelEls.length;j++){ labelEls[j].classList.toggle('on', j===i); }
+    function clampIdx(){ return Math.max(0,Math.min(Math.round(c.scrollTop/WHEEL_ROW),opts.length-1)); }
+    function paint(i){
+      for(var k=0;k<c.children.length;k++) c.children[k].classList.toggle('on',k===i);
+      if(band) band.style.borderColor=(opts[i]&&opts[i].color)?opts[i].color:'var(--line-strong)';
+      return opts[i]?opts[i].k:'';
     }
-    function idxFromX(x){ var r=track.getBoundingClientRect(); var rel=(x-r.left)/r.width; return Math.max(0,Math.min(opts.length-1,Math.floor(rel*opts.length))); }
-    function pick(i){ onPick(i); place(); }
-    var dragging=false;
-    function onMove(e){ if(!dragging)return; var x=(e.touches?e.touches[0].clientX:e.clientX); pick(idxFromX(x)); if(e.cancelable)e.preventDefault(); }
-    function onUp(){ dragging=false; document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); }
-    function onDown(e){ dragging=true; var x=(e.touches?e.touches[0].clientX:e.clientX); pick(idxFromX(x)); document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp); }
-    track.addEventListener('mousedown',onDown); track.addEventListener('touchstart',onDown,{passive:true});
-    c.appendChild(track);
-    place();
+    var settled=currentKey, idle=null;
+    c.onscroll=function(){
+      paint(clampIdx());
+      clearTimeout(idle);
+      idle=setTimeout(function(){
+        var key=paint(clampIdx());
+        if(key!==settled){ settled=key; onLand(key); }
+      },160);
+    };
+    var at=0;
+    for(var i=0;i<opts.length;i++){ if(opts[i].k===currentKey) at=i; }
+    c.classList.toggle('locked',!!locked);
+    if(band) band.classList.toggle('locked',!!locked);
+    c.scrollTop=at*WHEEL_ROW; paint(at);
+    return { select:function(k){ for(var i=0;i<opts.length;i++) if(opts[i].k===k){ c.scrollTop=i*WHEEL_ROW; paint(i); settled=k; } } };
   }
 
   function buildPayControls(){
     var c=$('mPay'); if(!c)return;
-    function syncBalance(){ var i=idxOf(); var show=(PAYSTAGES[i].k==='unpaid'||PAYSTAGES[i].k==='deposit'); var br=$('balRow'); if(br) br.style.display=show?'flex':'none'; }
-    function idxOf(){ for(var j=0;j<PAYSTAGES.length;j++){ if(PAYSTAGES[j].k===(editing.payStatus||'')) return j; } return 0; }
-    if(editing.payLocked){
-      // Online orders: payment already settled via Square — show it, but locked.
-      buildSegmented(c, PAYSTAGES, idxOf, function(){});   // no-op on pick
-      var trk=c.querySelector('.seg-track'); if(trk){ trk.classList.add('seg-locked'); trk.style.pointerEvents='none'; }
-      syncBalance();
-      return;
+    function syncBalance(){
+      var k=editing.payStatus||'unpaid';
+      var br=$('balRow'); if(br) br.style.display=(k==='unpaid'||k==='deposit')?'flex':'none';
     }
-    buildSegmented(c, PAYSTAGES, idxOf, function(i){ editing.payStatus=PAYSTAGES[i].k; livePersist(); syncBalance(); });
+    var cur=editing.payStatus||'unpaid';
+    // Online orders: payment already settled through Square — shown, but locked.
+    buildWheel(c, $('payBand'), PAYSTAGES, cur, function(key){
+      editing.payStatus=key; livePersist(); syncBalance();
+    }, !!editing.payLocked);
     syncBalance();
   }
-  function buildMetaControls(){
-    var c=$('mTL');
-    var order=['norush','priority','asap'];
-    var opts=order.map(function(k){ return {label:URGENCY[k].label, color:URGENCY[k].color}; });
-    function idxOf(){ var i=order.indexOf(editing.urgency); return i<0?1:i; }
-    buildSegmented(c, opts, idxOf, function(i){ editing.urgency=order[i]; livePersist(); });
+  function buildDueControls(){
+    var c=$('mDue'); if(!c) return;
+    var opts=[{k:'',label:'No Date',color:URGENCY.norush.color}].concat(dueChoices());
+    // match on the date itself, so an older order saved as "mon" still lands right
+    var cur='';
+    for(var i=0;i<opts.length;i++){
+      var same = opts[i].k ? (computeDue(opts[i].k)===editing.due) : !editing.due;
+      if(same){ cur=opts[i].k; break; }
+    }
+    buildWheel(c, $('dueBand'), opts, cur, function(key){
+      editing.duePreset=key;
+      editing.due=key?computeDue(key):'';
+      editing.urgency=key?(effUrgency(editing)||'norush'):'norush';
+      livePersist();
+    });
   }
 
-
+  function buildPayControls(){
+    var c=$('mPay'); if(!c)return;
+    function syncBalance(){
+      var k=editing.payStatus||'unpaid';
+      var br=$('balRow'); if(br) br.style.display=(k==='unpaid'||k==='deposit')?'flex':'none';
+    }
+    var cur=editing.payStatus||'unpaid';
+    // Online orders: payment already settled through Square — shown, but locked.
+    buildWheel(c, $('payBand'), PAYSTAGES, cur, function(key){
+      editing.payStatus=key; livePersist(); syncBalance();
+    }, !!editing.payLocked);
+    syncBalance();
+  }
   function renderImgs(){
     var c=$('mImgs'); c.innerHTML=''; var imgs=editing.images||[];
     setTimeout(function(){ hydrateArt(c); },0);
@@ -1950,35 +2068,39 @@
   }
 
   function renderBody(){
-    buildMetaControls(); buildPayControls();
-    // quotes aren't orders yet — the whole Priority/Payment section hides
-    var us=$('urgencySection'), mt=$('metaToggle');
-    if(us && mt){
-      if(editing.isQuote){ us.style.display='none'; mt.style.display='none'; }
-      else{
-        // existing orders: fold the pickers into a one-line summary
-        var open = !!editing.isNew;
-        us.style.display = open ? '' : 'none';
-        mt.style.display = '';
-        function metaSummary(){
-          var bits=[];
-          var u=URGENCY[editing.urgency]; bits.push(u?u.label:'No rush');
-          if(editing.payStatus==='paid') bits.push('Paid');
-          else if(editing.payStatus==='deposit') bits.push('Deposit');
-          if(editing.balanceDue) bits.push('Bal $'+editing.balanceDue);
-          return bits.join(' \u00b7 ');
-        }
-        function paintMeta(){
-          mt.innerHTML = (us.style.display==='none')
-            ? '<span class="mt-plus">+</span> ' + metaSummary()
-            : '<span class="mt-plus">\u2212</span> Priority & payment';
-        }
-        mt.onclick=function(){ us.style.display=(us.style.display==='none')?'':'none'; paintMeta(); };
-        paintMeta();
-        // picker taps refresh the summary line
-        us.addEventListener('click', function(){ setTimeout(paintMeta, 30); });
+    buildPayControls(); buildDueControls();
+    /* Priority, Payment and Due Date are three separate sections, each with
+       its own button. Collapsed, the button reads the current setting; open,
+       it reads the section name. Quotes are not orders yet, so all three hide. */
+    var secRow=$('secRow');
+    if(secRow) secRow.style.display = editing.isQuote ? 'none' : 'flex';
+    function wireSection(btnId, secId, name, summary){
+      var sec=$(secId), btn=$(btnId);
+      if(!sec || !btn) return;
+      if(editing.isQuote){ sec.style.display='none'; btn.style.display='none'; return; }
+      btn.style.display='';
+      sec.style.display = editing.isNew ? '' : 'none';
+      function paint(){
+        btn.innerHTML = (sec.style.display==='none')
+          ? '<span class="mt-plus">+</span> ' + summary()
+          : '<span class="mt-plus">\u2212</span> ' + name;
       }
+      btn.onclick=function(){ sec.style.display=(sec.style.display==='none')?'':'none'; paint(); };
+      sec.onclick=function(){ setTimeout(paint, 30); };   // a pick refreshes the summary
+      paint();
     }
+    wireSection('payToggle','paySection','Payment', function(){
+      var bits=[];
+      if(editing.payStatus==='paid') bits.push('Paid');
+      else if(editing.payStatus==='deposit') bits.push('Deposit');
+      else bits.push('Not Paid');
+      if(editing.balanceDue) bits.push('Bal $'+editing.balanceDue);
+      return bits.join(' \u00b7 ');
+    });
+    wireSection('dueToggle','dueSection','Due Date', function(){
+      var d=dueInfo(editing);
+      return d ? d.txt : 'No Due Date';
+    });
     var c=$('mBody'); c.innerHTML='';
     // Dictation + "last edited" stamp, shared by both note fields.
     function noteExtras(ta, min){
