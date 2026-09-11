@@ -137,6 +137,19 @@
     .ci-dots i.on{ background:var(--green); transform:scale(1.25); }
   }
   .card-pad{ padding:11px 13px 11px; }
+  /* phones: tags on one side, sizes on the other, swiped like the photos */
+  .info-strip{ display:flex; align-items:flex-start; overflow-x:auto; overflow-y:hidden; margin:0 -13px;
+    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; overscroll-behavior-x:contain;
+    transition:height .25s ease; }
+  .info-strip::-webkit-scrollbar{ display:none; }
+  .info-pane{ flex:0 0 100%; width:100%; box-sizing:border-box; padding:0 13px 2px; scroll-snap-align:center; scroll-snap-stop:always; min-width:0; }
+  .info-pane > :first-child{ margin-top:4px; }
+  .info-pane .card-block:first-child{ border-top:none; padding-top:0; }
+  .info-pane .contact{ margin-top:8px; }
+  .info-dots{ display:flex; justify-content:center; align-items:center; gap:7px; padding:9px 0 1px; }
+  .info-dots i{ width:7px; height:7px; border-radius:50%; background:rgba(var(--ink-rgb),.22); cursor:pointer;
+    transition:background .15s, transform .15s; }
+  .info-dots i.on{ background:var(--green); transform:scale(1.25); }
   .card h3{ margin:0 0 3px; font-family:'Schadow','Teko',sans-serif; font-size:20px; font-weight:normal; line-height:1.08; letter-spacing:.01em; word-break:break-word; }
   /* the title carries the urgency color — a full-width band, edge to edge */
   .card h3.tinted{ padding:9px 13px 8px; border-radius:0; color:#2C2620;
@@ -634,6 +647,147 @@
       rgba(var(--ink-rgb),.05) 0 7px, rgba(var(--ink-rgb),.02) 7px 14px);
     border:1px dashed var(--line-strong); }
   .imthumb .art-gone{ min-height:0; height:100%; font-size:12px; }
+  /* ================= Phone: new-order screen =================
+     Phones only. One step per screen, big scroll wheels like the payment
+     picker. Opening an existing order still uses the regular editor. */
+  .wz{ position:fixed; inset:0; z-index:110; display:none; flex-direction:column;
+    height:100vh; height:100dvh; background:var(--cream); color:var(--burgundy); }
+  .wz.show{ display:flex; }
+  body.wz-open{ overflow:hidden; }
+  body.wz-open .sync, body.wz-open .fab{ display:none; }
+  body.wz-open .toast{ bottom:calc(104px + env(safe-area-inset-bottom,0px)); }
+  .wz-top{ display:flex; align-items:center; gap:12px; padding:calc(10px + env(safe-area-inset-top,0px)) 14px 4px; }
+  .wz-ib{ flex:none; width:42px; height:42px; border-radius:13px; border:1px solid var(--line-strong); background:var(--note);
+    color:var(--green); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .wz-ib:active{ transform:scale(.94); }
+  .wz-ib.hidden{ visibility:hidden; }
+  .wz-prog{ flex:1; height:6px; border-radius:99px; background:rgba(var(--ink-rgb),.12); overflow:hidden; }
+  .wz-bar{ height:100%; width:0; border-radius:99px; background:var(--green); transition:width .35s cubic-bezier(.3,.8,.3,1); }
+  .wz-head{ padding:14px 22px 6px; }
+  .wz-no{ font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.08em; color:rgba(var(--ink-rgb),.55); }
+  .wz-title{ margin:2px 0 0; font-family:'Schadow','Teko',sans-serif; font-weight:normal; font-size:31px; line-height:1.05; color:var(--green); }
+  .wz-body{ position:relative; flex:1; overflow:hidden; }
+  .wz-pane{ position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain; padding:14px 18px 24px; transition:transform .32s cubic-bezier(.3,.8,.3,1), opacity .32s; }
+  .wz-pane.mid{ display:flex; flex-direction:column; justify-content:center; padding-bottom:40px; }
+  .wz-pane.mid .wzw-list{ height:322px; padding:138px 0;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 14%,#000 86%,transparent 100%);
+            mask-image:linear-gradient(to bottom,transparent 0,#000 14%,#000 86%,transparent 100%); }
+  .wz-pane.mid .wzw-band{ top:138px; }
+  .wz-pane.from-right{ transform:translateX(38%); opacity:0; }
+  .wz-pane.from-left{ transform:translateX(-38%); opacity:0; }
+  .wz-pane.to-left{ transform:translateX(-30%); opacity:0; pointer-events:none; }
+  .wz-pane.to-right{ transform:translateX(30%); opacity:0; pointer-events:none; }
+  .wz-foot{ display:flex; gap:10px; padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--line); background:var(--cream); }
+  .wz-next{ flex:1; height:58px; border:none; border-radius:17px; background:var(--green); color:var(--cream); cursor:pointer;
+    font-family:'Teko',sans-serif; font-size:24px; font-weight:600; letter-spacing:.04em; display:flex; align-items:center; justify-content:center; gap:10px;
+    box-shadow:0 6px 18px rgba(31,77,62,.25); -webkit-tap-highlight-color:transparent; transition:transform .12s, opacity .2s; }
+  .wz-next:active{ transform:scale(.97); }
+  .wz-next.soft{ background:transparent; color:var(--green); border:1.5px solid var(--line-strong); box-shadow:none; }
+  .wz-lbl{ font-family:'Teko',sans-serif; font-size:16px; letter-spacing:.07em; color:rgba(var(--ink-rgb),.6); text-align:center; margin:0 0 6px; }
+  .wz-hint{ font-size:14.5px; line-height:1.4; color:rgba(var(--ink-rgb),.6); text-align:center; margin:14px 6px 0; }
+
+  /* the wheel: five rows showing, the middle one is the pick */
+  .wzw{ position:relative; flex:1 1 0; min-width:0; }
+  .wzw-list{ position:relative; height:230px; overflow-y:auto; overflow-x:hidden; scroll-snap-type:y mandatory;
+    overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:92px 0;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 70%,transparent 100%);
+            mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 70%,transparent 100%); }
+  .wzw-list::-webkit-scrollbar{ display:none; }
+  .wzw-band{ position:absolute; left:0; right:0; top:92px; height:46px; border-radius:14px; background:var(--note);
+    border:2px solid var(--line-strong); pointer-events:none; transition:border-color .18s; }
+  .wzw.big .wzw-band{ border-color:var(--green); }
+  .wzw-opt{ height:46px; scroll-snap-align:center; display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:0 6px; font-family:'Teko',sans-serif; font-size:21px; line-height:1; color:var(--burgundy); cursor:pointer;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transform-origin:center; will-change:transform,opacity; }
+  .wzw-opt > span.t{ overflow:hidden; text-overflow:ellipsis; }
+  .wzw-opt.on{ color:var(--green); font-weight:600; }
+  .wzw-opt.none{ color:rgba(var(--ink-rgb),.45); }
+  .wzw-opt .sw{ flex:none; width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.18); }
+  .wzw.big .wzw-opt{ font-size:27px; letter-spacing:.02em; }
+  .wz-wheels{ display:flex; gap:8px; }
+  .wz-other{ display:none; margin-top:12px; }
+  .wz-other.show{ display:block; }
+
+  .wz-in{ display:block; width:100%; box-sizing:border-box; margin:0 0 12px; padding:15px 16px; border-radius:15px;
+    border:1.5px solid var(--line-strong); background:var(--note); color:var(--burgundy); outline:none;
+    font-family:'Teko',sans-serif; font-size:23px; letter-spacing:.02em; }
+  .wz-in:focus{ border-color:var(--green); }
+  .wz-in.name{ font-family:'Schadow','Teko',sans-serif; font-size:26px; letter-spacing:0; }
+  textarea.wz-in{ font-family:inherit; font-size:17px; line-height:1.45; min-height:120px; resize:none; }
+  .wz-cap{ display:none; margin:-4px 2px 12px; font-size:14px; color:#B4520F; }
+  .wz-cap.show{ display:block; }
+
+  /* placement tiles */
+  .wz-tiles{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .wz-tile{ position:relative; min-height:66px; border-radius:16px; border:1.5px solid var(--line-strong); background:var(--note);
+    color:var(--burgundy); font-family:'Teko',sans-serif; font-size:22px; letter-spacing:.02em; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; padding:8px; -webkit-tap-highlight-color:transparent;
+    transition:transform .12s, background .15s, border-color .15s; }
+  .wz-tile:active{ transform:scale(.96); }
+  .wz-tile.on{ background:var(--green); color:var(--cream); border-color:var(--green); }
+  .wz-tile.on.odd{ background:rgba(232,114,44,.16); color:#8E3F0A; border:2px solid var(--orange); }
+  html[data-theme="dark"] .wz-tile.on.odd{ color:#F7B07E; }
+  .wz-tile .pl-ico{ display:none; color:var(--orange); }
+  .wz-tile.on.odd .pl-ico{ display:block; }
+  .wz-tile .tick{ position:absolute; top:6px; right:9px; font-size:16px; opacity:0; }
+  .wz-tile.on:not(.odd) .tick{ opacity:1; }
+
+  /* sizes step */
+  .wz-add{ width:100%; margin-top:14px; height:56px; border-radius:16px; border:2px dashed var(--green); background:rgba(31,77,62,.06);
+    color:var(--green); font-family:'Teko',sans-serif; font-size:23px; font-weight:600; letter-spacing:.03em; cursor:pointer; }
+  .wz-add:active{ transform:scale(.98); }
+  .wz-add.pop{ animation:wzpop .35s ease; }
+  @keyframes wzpop{ 40%{ transform:scale(1.04); } }
+  .wz-items{ margin-top:16px; }
+  .wz-item{ display:flex; align-items:center; gap:10px; padding:11px 4px; border-bottom:1px solid var(--line); }
+  .wz-item .q{ flex:none; min-width:40px; font-family:'Teko',sans-serif; font-size:24px; font-weight:600; color:var(--green); }
+  .wz-item .s{ flex:1; min-width:0; font-family:'Teko',sans-serif; font-size:18px; line-height:1.2; }
+  .wz-item .s b{ font-weight:600; }
+  .wz-item .x{ flex:none; width:36px; height:36px; border-radius:11px; border:none; background:rgba(var(--ink-rgb),.08);
+    color:rgba(var(--ink-rgb),.7); font-size:20px; cursor:pointer; }
+  .wz-item.fresh{ animation:wzin .45s ease; }
+  @keyframes wzin{ from{ background:rgba(60,140,90,.22); } to{ background:transparent; } }
+  .wz-link{ display:block; margin:8px auto 0; padding:10px 14px; min-height:44px; background:none; border:none; color:var(--green); cursor:pointer;
+    font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.04em; text-decoration:underline; text-underline-offset:4px; }
+  .wz-sum{ margin:0 0 12px; text-align:center; font-family:'Teko',sans-serif; font-size:18px; color:rgba(var(--ink-rgb),.7); }
+
+  /* photos */
+  .wz-shot{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; width:100%; min-height:170px;
+    border-radius:20px; border:2px dashed var(--line-strong); background:var(--note); color:var(--green); cursor:pointer;
+    font-family:'Teko',sans-serif; font-size:23px; letter-spacing:.03em; }
+  .wz-shot:active{ transform:scale(.98); }
+  .wz-thumbs{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .wz-th{ position:relative; aspect-ratio:1/1; border-radius:14px; overflow:hidden; background:rgba(var(--ink-rgb),.08); }
+  .wz-th img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .wz-th .x{ position:absolute; top:5px; right:5px; width:30px; height:30px; border-radius:50%; border:none;
+    background:rgba(0,0,0,.6); color:#fff; font-size:17px; cursor:pointer; }
+  .wz-th.busy::after{ content:''; position:absolute; inset:0; background:rgba(255,255,255,.35) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke='%231F4D3E' stroke-width='5' stroke-dasharray='90 40'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 25 25' to='360 25 25' dur='.8s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/svg%3E") center no-repeat; }
+
+  /* payment + due */
+  .wz-bal{ display:none; align-items:center; gap:10px; margin-top:16px; padding:0 4px; }
+  .wz-bal.show{ display:flex; }
+  .wz-bal span{ font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.05em; color:rgba(var(--ink-rgb),.7); }
+  .wz-bal input{ flex:1; margin:0; }
+
+  /* review */
+  .wz-preview{ max-width:300px; margin:4px auto 16px; pointer-events:none; }
+  .wz-preview .card{ margin:0; break-inside:auto; }
+  .wz-empty{ text-align:center; padding:26px 10px; font-size:16px; color:rgba(var(--ink-rgb),.6); }
+
+  /* leaving halfway */
+  .wz-ask{ position:absolute; inset:0; z-index:5; display:none; align-items:flex-end; background:rgba(20,18,14,.45); }
+  .wz-ask.show{ display:flex; }
+  .wz-ask-box{ width:100%; background:var(--note); border-radius:22px 22px 0 0; padding:22px 18px calc(18px + env(safe-area-inset-bottom,0px));
+    display:flex; flex-direction:column; gap:10px; animation:wzup .25s ease; }
+  @keyframes wzup{ from{ transform:translateY(40px); opacity:0; } }
+  .wz-ask-box h3{ margin:0 0 6px; text-align:center; font-family:'Schadow','Teko',sans-serif; font-weight:normal; font-size:24px; color:var(--green); }
+  .wz-ask-box button{ height:54px; border-radius:15px; font-family:'Teko',sans-serif; font-size:21px; letter-spacing:.04em; cursor:pointer;
+    border:1.5px solid var(--line-strong); background:transparent; color:var(--burgundy); }
+  .wz-ask-box .keep{ background:var(--green); color:var(--cream); border-color:var(--green); }
+  .wz-ask-box .drop{ color:var(--red); border-color:rgba(214,69,69,.45); }
+  .card.wz-new{ animation:wznew 1.6s ease; }
+  @keyframes wznew{ 0%,30%{ box-shadow:0 0 0 4px var(--go); } 100%{ box-shadow:var(--shadow); } }
 </style>
 </head>
 <body>
@@ -865,6 +1019,26 @@
   </div>
 </div>
 
+<!-- Phone: new-order screen -->
+<div class="wz" id="wz" aria-hidden="true">
+  <div class="wz-top">
+    <button class="wz-ib" id="wzBack" type="button" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="wz-prog"><div class="wz-bar" id="wzBar"></div></div>
+    <button class="wz-ib" id="wzX" type="button" aria-label="Close"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="wz-head"><div class="wz-no" id="wzNo"></div><h2 class="wz-title" id="wzTitle"></h2></div>
+  <div class="wz-body" id="wzBody"></div>
+  <div class="wz-foot"><button class="wz-next" id="wzNext" type="button"></button></div>
+  <input type="file" id="wzFile" accept="image/*" multiple hidden>
+  <div class="wz-ask" id="wzAsk">
+    <div class="wz-ask-box">
+      <h3>Leave This Order?</h3>
+      <button type="button" class="keep" id="wzAskSave">Save What I Have</button>
+      <button type="button" class="drop" id="wzAskDrop">Discard It</button>
+      <button type="button" id="wzAskStay">Keep Going</button>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="overlay">
   <div class="modal" id="modal" onclick="event.stopPropagation()">
     <div class="m-imgs" id="mImgs"></div>
@@ -1820,6 +1994,7 @@
     // Never refresh while the editor is open (would discard in-progress typing),
     // and never right after a local save is pending.
     if(overlay && overlay.classList.contains('show')) return;
+    if(wz && wz.open) return;                      // same for the phone new-order screen
     if(_saveTimer || _saving) return;
     // Cheap metadata check FIRST — only download the whole orders file if it actually changed.
     // This is what keeps Supabase bandwidth usage tiny while the board sits idle.
@@ -1889,27 +2064,19 @@
       if(kill)_deletedIds[o.id]=true; return !kill; });
     if(state.orders.length!==b||fixed)persist();
   }
-  /* "Absolutely nothing": no name, phone, email, notes, items, photos, due
-     date, payment or balance. Anything else anyone has set, including
-     fields this check doesn't know about, counts as something, and orders
-     that came from the website are never treated as empty. */
-  var EMPTY_IGNORES={id:1,type:1,stage:1,urgency:1,designReady:1,createdAt:1,updatedAt:1,trashed:1,trashedAt:1,
-    trashReason:1,drafting:1,isNew:1,duePreset:1,items:1,images:1,payLocked:1,status:1,source:1};
+  /* "Absolutely nothing" is judged by what a card would actually show: a
+     name, phone, email, notes, an item, a photo, a due date, a deposit or
+     payment, or a balance. Bookkeeping the app keeps behind the scenes, and
+     the untouched "Not paid" starting point, don't count as something. */
   function orderIsEmpty(o){
     if(!o) return false;
-    if(o.source && o.source!=='manual') return false;
-    if(o.isQuote) return false;
     if((o.images||[]).length) return false;
     if((o.items||[]).some(itemHas)) return false;
-    for(var k in o){
-      if(!Object.prototype.hasOwnProperty.call(o,k) || EMPTY_IGNORES[k]) continue;
-      var v=o[k];
-      if(v===null || v===undefined || v===false || v===0 || v==='') continue;
-      if(typeof v==='string'){ if(v.trim()) return false; continue; }
-      if(Array.isArray(v)){ if(v.length) return false; continue; }
-      if(typeof v==='object'){ if(Object.keys(v).length) return false; continue; }
-      return false;
-    }
+    var txt=['title','custName','custPhone','custEmail','contact','body','customer','phone','notes','details'];
+    for(var i=0;i<txt.length;i++){ var v=o[txt[i]]; if(v!=null && String(v).trim()) return false; }
+    if(o.due && String(o.due).trim()) return false;
+    if(o.payStatus==='deposit' || o.payStatus==='paid') return false;
+    if(parseFloat(o.balanceDue)>0) return false;
     return true;
   }
 
@@ -1970,7 +2137,8 @@
       board.innerHTML=tl.length?'<div class="section-label">Clears automatically after 10 days</div><div class="grid">'+tl.map(cardHTML).join('')+'</div>':'<div class="empty-state"><div class="big">Trash is empty</div><p>Done and deleted orders rest here for 10 days, then clear out on their own.</p></div>';
       wireCards(); return;
     }
-    var all=state.orders.filter(function(o){return !o.trashed;}).sort(sortOrders);
+    // an order with nothing in it never shows on the board (except the one open right now)
+    var all=state.orders.filter(function(o){return !o.trashed && !(orderIsEmpty(o) && !(editing&&editing.id===o.id));}).sort(sortOrders);
     if(all.length===0){ board.innerHTML='<div class="empty-state"><div class="big">No orders yet</div><p>Tap the + button to add one. Online orders and quote requests arrive here on their own.</p></div>'; return; }
 
     // build the filter menu from what's actually on the board
@@ -2074,7 +2242,7 @@
     named.forEach(function(it){ h+=itemLineHTML(it,1); });
     h+='</div>'; return h;
   }
-  function cardHTML(o){
+  function cardHTML(o,opt){
     var _eu=effUrgency(o); var u=URGENCY[_eu]||URGENCY.norush; var imgs=o.images||[];
     var h='<div class="card u-'+(URGENCY[_eu]?_eu:'norush')+'" data-card="'+o.id+'">';
     if(imgs.length){
@@ -2092,12 +2260,10 @@
       var _in=(_n?'<span class="h3-n" title="'+_n+(_n===1?' item':' items')+'">'+_n+'</span>':'')+'<span class="h3-t">'+esc(_t)+'</span>';
       h+= o.isQuote ? ('<h3 class="has-n'+_nn+'">'+_in+'</h3>') : ('<h3 class="tinted has-n'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+_in+'</h3>'); }
     h+=placeBlockHTML(o);
-    var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
-    if(o.type==='NOTE'){ if(o.body) h+='<div class="ctext">'+esc(o.body)+'</div>'; }
-    else {
-      h+=cardItemsHTML(o);
-      if(o.body) h+='<div class="ctext cnotes">'+esc(o.body)+'</div>';
-    }
+    var _ph=(o.custPhone||o.contact||''); var contactH=''; if(_ph) contactH='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
+    var itemsH='', notesH='';
+    if(o.type==='NOTE'){ if(o.body) notesH='<div class="ctext">'+esc(o.body)+'</div>'; }
+    else { itemsH=cardItemsHTML(o); if(o.body) notesH='<div class="ctext cnotes">'+esc(o.body)+'</div>'; }
     var tags = '';
     if(!o.trashed && !o.isQuote && o.drafting) tags+='<span class="tag" style="background:#F2EADD;color:#7A654B">Draft</span>';
     if(!o.trashed && !o.isQuote && o.stage && o.stage!=='New') tags+='<span class="tag stage" style="background:'+stageColor(o)+'22;color:'+stageColor(o)+'">'+esc(o.stage)+'</span>';
@@ -2108,7 +2274,20 @@
     if(o.type&&o.type!=='NOTE') tags+='<span class="tag">'+esc(o.type)+'</span>';
     if(o.source==='online') tags+='<span class="tag online">Online</span>';
     if(o.trashed) tags+='<span class="tag countdown">Deletes in '+daysLeft(o)+'d</span>';
-    h+= tags ? '<div class="card-tags">'+tags+'</div></div>' : '</div>';
+    var tagsH = tags ? '<div class="card-tags">'+tags+'</div>' : '';
+    /* Phones: the lower half of the card swipes like the photos do. Tags and
+       warnings (due, payment, balance, notes, phone) come first; sizes and
+       names are one swipe away. The placement warning stays above, always. */
+    var swipe = phoneBoard() && !(opt&&opt.flat) && o.type!=='NOTE' && itemsH && (tagsH||notesH||contactH);
+    if(swipe){
+      h+='<div class="info-swipe"><div class="info-strip">'+
+           '<div class="info-pane pane-tags">'+tagsH+notesH+contactH+'</div>'+
+           '<div class="info-pane pane-items">'+itemsH+'</div>'+
+         '</div><div class="info-dots" data-stop="1"><i class="on" title="Tags"></i><i title="Sizes"></i></div></div>';
+      h+='</div>';
+    } else {
+      h+=contactH+(o.type==='NOTE'?notesH:(itemsH+notesH))+tagsH+'</div>';
+    }
     if(o.trashed){ h+='<div class="card-bar"><span class="lbl" data-act="restore" data-id="'+o.id+'">Restore</span><button class="icon-btn" style="margin-left:auto" data-act="forever" data-id="'+o.id+'" title="Delete forever"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
     else if(o.isQuote){ h+='<div class="card-bar"><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
     else { var nxt=nextStageLabel(o); var isDone=(nxt==='Done'); h+='<div class="card-bar">'+(o.custEmail?('<button class="icon-btn'+((o.readyEmailedAt||o.paidEmailedAt)?' sent':'')+'" data-act="ready" data-id="'+o.id+'" title="Email the customer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>'):'')+'<button class="done-btn'+(isDone?'':' stage-adv')+'" data-act="advance" data-id="'+o.id+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="'+(isDone?'M5 12l5 5L20 6':'M5 12h14M13 6l6 6-6 6')+'"/></svg>'+esc(nxt)+'</button><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
@@ -2161,9 +2340,9 @@
       if(k<n) left+=h[k];
     }
     function move(c,parent,before){
-      var strip=c.querySelector('.card-imgs'), x=strip?strip.scrollLeft:0;
+      var strips=[].slice.call(c.querySelectorAll('.card-imgs,.info-strip')), xs=strips.map(function(st){ return st.scrollLeft; });
       parent.insertBefore(c,before||null);
-      if(strip&&x) strip.scrollLeft=x;                   // keep the photo you swiped to
+      strips.forEach(function(st,k){ if(xs[k]) st.scrollLeft=xs[k]; });   // keep the photo / side you swiped to
     }
     // only the cards that change sides are moved
     while(A.children.length>best) move(A.lastElementChild,B,B.firstElementChild);
@@ -2198,11 +2377,44 @@
     board.addEventListener('load',rebalanceSoon,true);   // a photo arrived: heights changed
     board.addEventListener('error',rebalanceSoon,true);
     window.addEventListener('resize',rebalanceSoon);
-    if(phoneMQ){ var onMQ=function(){ splitBoard(); };
+    if(phoneMQ){ var onMQ=function(){ render(); };
       if(phoneMQ.addEventListener) phoneMQ.addEventListener('change',onMQ); else if(phoneMQ.addListener) phoneMQ.addListener(onMQ); }
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(rebalanceSoon);
   })();
-  function wireCards(){ var board=$('board'); splitBoard(); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); }); }); }
+  var infoSide={};                                   // order id -> 1 when showing sizes
+  function wireInfo(root){
+    (root||document).querySelectorAll('.info-swipe').forEach(function(box){
+      if(box.getAttribute('data-wired')) return; box.setAttribute('data-wired','1');
+      var strip=box.querySelector('.info-strip'), panes=strip.children, dots=box.querySelectorAll('.info-dots i');
+      var card=box.closest('[data-card]'), id=card?card.getAttribute('data-card'):'';
+      var cur=infoSide[id]?1:0, timer=null;
+      function paintDots(){ for(var k=0;k<dots.length;k++) dots[k].classList.toggle('on',k===cur); }
+      function fit(){ var h=panes[cur]&&panes[cur].offsetHeight; if(h) strip.style.height=h+'px'; }
+      strip._side=function(){ return cur; };
+      strip.addEventListener('scroll',function(){
+        lastStripScroll=Date.now();
+        clearTimeout(timer);
+        timer=setTimeout(function(){
+          var i=Math.round(strip.scrollLeft/(strip.clientWidth||1)); i=Math.max(0,Math.min(panes.length-1,i));
+          if(i!==cur){ cur=i; if(id){ if(i) infoSide[id]=1; else delete infoSide[id]; } paintDots(); fit(); }
+        },90);
+      },{passive:true});
+      box.querySelector('.info-dots').addEventListener('click',function(e){
+        e.stopPropagation();
+        var i=Array.prototype.indexOf.call(dots,e.target); if(i<0) return;
+        strip.scrollTo({left:i*strip.clientWidth,behavior:'smooth'});
+      });
+      if(window.ResizeObserver){ var ro=new ResizeObserver(function(){ fit(); }); for(var k=0;k<panes.length;k++) ro.observe(panes[k]); }
+      paintDots(); fit();
+    });
+  }
+  // after cards are placed, put each one back on the side it was showing
+  function restoreInfo(root){
+    (root||document).querySelectorAll('.info-strip').forEach(function(st){
+      if(st._side && st._side()) st.scrollLeft=st.clientWidth*st._side();
+    });
+  }
+  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); }); }); }
 
   function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
   function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
@@ -2211,17 +2423,468 @@
   /* ===== chooser + editor ===== */
   var chooser=$('chooser'), overlay=$('overlay');
   $('fab').addEventListener('click',function(){
+    if(phoneBoard()){ openWizard(); return; }       // phones: the step-by-step screen
     chooser.classList.add('show');
   });
   chooser.addEventListener('click',function(){ chooser.classList.remove('show'); });
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
+  // the blank order every new order starts from (editor and phone screen alike)
+  function newOrderObject(type){ return { id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true,drafting:true }; }
   function openEditorNew(type){
-    editing={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true,drafting:true };
+    editing=newOrderObject(type);
     builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
     fillModal(editing); buildBar(editing); overlay.classList.add('show');
     setTimeout(function(){ if($('mCustName'))$('mCustName').focus(); else $('mTitle').focus(); },60);
   }
+  /* ================= Phone: new-order screen =================
+     On a phone, + opens this instead of the long editor: one step per
+     screen, a scroll wheel for every choice. It fills in exactly the same
+     order the editor would, with the same autosave, so a half-made order is
+     never lost. Opening an existing order still uses the regular editor. */
+  var wz={ open:false, type:'DTF', steps:[], i:0, b:null, pane:null, busy:0 };
+  var WZ_ROW=46;
+  var WZ_TYPES=[{k:'Embroidery',label:'Embroidery'},{k:'DTF',label:'DTF'},{k:'Sublimation',label:'Sublimation'},{k:'Engraving',label:'Engraving'},{k:'NOTE',label:'Note'}];
+  var WZ_ARROW='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var WZ_CHECK='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>';
+  function wzEl(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
+  function wzList(id){ var dl=document.getElementById(id); return dl?Array.prototype.map.call(dl.querySelectorAll('option'),function(o){ return o.value||o.textContent; }):[]; }
+  function wzEng(){ return wz.type==='Engraving'; }
+  function wzSub(){ return wz.type==='Sublimation'; }
+  function wzHard(){ return wzEng()||wzSub(); }
+  function wzSurfList(){ return wzList(wzEng()?'engSurfList':(wzSub()?'subSurfList':'surfList')); }
+  function wzMatList(){ return wzList(wzEng()?'engMatList':(wzSub()?'subMatList':'matList')); }
+  function wzPlaceListId(){ return /cap|beanie|hat|visor/i.test(wz.b.surface||'') ? 'capPlaceList' : 'placeList'; }
+  function wzSizeList(){ var l=wzList('sizeList'); if(l.indexOf('Adult XS')<0) l.unshift('Adult XS'); return l; }
+
+  /* The wheel: five rows showing, the one in the middle is the pick. It
+     settles a moment after you stop; tapping a row rolls it to the middle. */
+  function wzWheel(opts, cur, onLand, cls){
+    var w=wzEl('div','wzw'+(cls?' '+cls:'')), band=wzEl('div','wzw-band'), list=wzEl('div','wzw-list'), big=(cls==='big');
+    var rows=opts.map(function(o,ix){
+      var r=wzEl('div','wzw-opt'+(o.none?' none':''));
+      if(o.sw){ var s=wzEl('span','sw'); s.style.background=o.sw; r.appendChild(s); }
+      r.appendChild(wzEl('span','t',o.label));
+      r.addEventListener('click',function(){ list.scrollTo({top:ix*WZ_ROW,behavior:'smooth'}); });
+      r.style.opacity='.2';
+      list.appendChild(r); return r;
+    });
+    w.appendChild(band); w.appendChild(list);
+    var at=0; for(var i=0;i<opts.length;i++) if(opts[i].k===cur) at=i;
+    var settled=opts[at]?opts[at].k:'', last=-1, raf=0, idle=null, buzz=0;
+    function centre(){ return Math.max(0,Math.min(opts.length-1,Math.round(list.scrollTop/WZ_ROW))); }
+    function paint(){
+      raf=0;
+      var pos=list.scrollTop/WZ_ROW, c=centre(), lo=Math.max(0,c-4), hi=Math.min(opts.length-1,c+4);
+      if(last>=0) for(var j=Math.max(0,last-5);j<=Math.min(opts.length-1,last+5);j++){ if(j<lo||j>hi){ rows[j].style.opacity='.2'; rows[j].classList.remove('on'); } }
+      for(var k=lo;k<=hi;k++){
+        var d=Math.min(Math.abs(k-pos),3);
+        rows[k].style.opacity=String(Math.max(big?.38:.2,1-d*(big?.2:.3)));
+        rows[k].style.transform='scale('+(1-d*.07).toFixed(3)+')';
+        rows[k].classList.toggle('on',k===c);
+      }
+      if(c!==last && last!==-1){                      // a tiny tick as each row passes (Android)
+        var now=Date.now(); if(now-buzz>45 && navigator.vibrate){ try{ navigator.vibrate(3); }catch(_){} buzz=now; }
+      }
+      last=c;
+    }
+    list.addEventListener('scroll',function(){
+      if(!raf) raf=requestAnimationFrame(paint);
+      clearTimeout(idle);
+      idle=setTimeout(function(){ var k=opts[centre()].k; if(k!==settled){ settled=k; onLand(k); } },140);
+    },{passive:true});
+    w.sync=function(){ list.scrollTop=at*WZ_ROW; paint(); };
+    return w;
+  }
+  function wzCol(label, wheel){ var c=wzEl('div','wzw-col'); c.style.flex='1 1 0'; c.style.minWidth='0'; c.appendChild(wzEl('div','wz-lbl',label)); c.appendChild(wheel); return c; }
+
+  function wzSteps(){
+    if(wz.type==='NOTE') return ['type','note'];
+    var s=['type','customer','garment'];
+    if(!wzHard()) s.push('placement');
+    s.push('sizes','photo','paydue','review');
+    return s;
+  }
+  function wzTitle(k){
+    return ({ type:'What Kind Of Order?', customer:'Who Is It For?',
+      garment: wzHard()?'What Are We Making?':'What Are We Printing On?',
+      placement:'Where Does It Print?', sizes: wzEng()?'How Many?':'Sizes And How Many',
+      photo:'Add A Photo', paydue:'Payment And Due Date', review:'Check It And Save', note:'Write The Note' })[k]||'';
+  }
+  function wzProgress(){
+    $('wzNo').textContent='Step '+(wz.i+1)+' Of '+wz.steps.length;
+    $('wzBar').style.width=Math.round((wz.i+1)/wz.steps.length*100)+'%';
+  }
+
+  function openWizard(){
+    wz.open=true; wz.i=0; wz.busy=0;
+    wz.b={surface:'',material:'',color:'',placement:'',size:'',qty:'1'};
+    wz.type='DTF';                              // the wheel always opens in the same spot
+    editing=null;
+    builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
+    var el=$('wz'); el.classList.add('show'); el.setAttribute('aria-hidden','false');
+    document.body.classList.add('wz-open');
+    $('wzAsk').classList.remove('show');
+    $('wzBody').innerHTML=''; wz.pane=null;
+    wzShow(0,0);
+  }
+  function wzClose(){
+    wz.open=false;
+    var el=$('wz'); el.classList.remove('show'); el.setAttribute('aria-hidden','true');
+    document.body.classList.remove('wz-open');
+    $('wzAsk').classList.remove('show');
+    $('wzBody').innerHTML=''; wz.pane=null;
+  }
+  function wzShow(i, dir){
+    wz.steps=wzSteps();
+    wz.i=Math.max(0,Math.min(i,wz.steps.length-1));
+    var key=wz.steps[wz.i];
+    wzProgress();
+    $('wzTitle').textContent=wzTitle(key);
+    $('wzBack').classList.toggle('hidden', wz.i===0);
+    var pane=wzEl('div','wz-pane'+(dir>0?' from-right':(dir<0?' from-left':'')));
+    WZ_BUILD[key](pane);
+    var old=wz.pane; $('wzBody').appendChild(pane); wz.pane=pane;
+    pane.querySelectorAll('.wzw').forEach(function(w){ if(w.sync) w.sync(); });
+    if(old){ old.classList.add(dir<0?'to-right':'to-left'); setTimeout(function(){ if(old.parentNode) old.parentNode.removeChild(old); },340); }
+    if(dir){ void pane.offsetWidth; pane.classList.remove('from-right','from-left'); }
+    wzFoot();
+  }
+  function wzFoot(){
+    if(!wz.open) return;
+    var key=wz.steps[wz.i], btn=$('wzNext');
+    if(wz.i===wz.steps.length-1){ btn.innerHTML=WZ_CHECK+(wz.type==='NOTE'?'Save Note':'Save Order'); btn.classList.remove('soft'); return; }
+    var filled=wzFilled(key);
+    btn.innerHTML=(filled?'Next':'Skip')+WZ_ARROW;
+    btn.classList.toggle('soft',!filled);
+  }
+  function wzFilled(key){
+    var e=editing||{};
+    if(key==='type') return true;
+    if(key==='customer') return !!((e.custName||'').trim()||(e.custPhone||'').trim()||(e.custEmail||'').trim());
+    if(key==='garment') return !!(wz.b.surface||wz.b.material||wz.b.color);
+    if(key==='placement') return !!wz.b.placement;
+    if(key==='sizes') return (e.items||[]).some(itemHas) || itemHas(wzItem());
+    if(key==='photo') return !!((e.images||[]).length);
+    if(key==='paydue') return !!(e.payStatus||e.due||parseFloat(e.balanceDue)>0);
+    return true;
+  }
+  function wzNext(){
+    if(!wz.open) return;
+    var key=wz.steps[wz.i];
+    if(key==='type') wzBegin();
+    if(key==='sizes') wzAutoAdd();
+    if(wz.i>=wz.steps.length-1){ wzFinish(); return; }
+    wzShow(wz.i+1,1);
+  }
+  function wzBack(){ if(wz.open && wz.i>0) wzShow(wz.i-1,-1); }
+
+  // The order itself starts once the type is picked — the same blank order
+  // the regular editor starts with.
+  function wzBegin(){
+    if(!editing){ editing=newOrderObject(wz.type); return; }
+    if(editing.type!==wz.type){ clearNewDraft(editing.type); editing.type=wz.type; livePersist(); }
+  }
+  function wzItem(){
+    return { size:wzEng()?'':(wz.b.size||''), color:wzSub()?'':(wz.b.color||''), surface:wz.b.surface||'',
+      material:wz.b.material||'', placement:wzHard()?'':(wz.b.placement||''), name:'' };
+  }
+  function wzAdd(){
+    var it=wzItem();
+    if(!itemHas(it)){ toast('Pick a size or a garment first'); return 0; }
+    var n=Math.max(1,parseInt(wz.b.qty,10)||1);
+    for(var i=0;i<n;i++) editing.items.push({size:it.size,color:it.color,surface:it.surface,material:it.material,placement:it.placement,name:''});
+    wz.fresh=itemKey(it);
+    livePersist();
+    return n;
+  }
+  // Picked a size but went straight to Next without tapping Add: add it.
+  function wzAutoAdd(){
+    if(!editing || (editing.items||[]).some(itemHas)) return;
+    if(!itemHas(wzItem())) return;
+    var n=wzAdd(); if(n) toast('Added '+n+' \u00d7 '+(wzItem().size||wzItem().surface||'item'));
+  }
+
+  function wzFinish(){
+    if(!editing){ wzClose(); return; }
+    editing.items=(editing.items||[]).filter(itemHas);
+    if(editing.type!=='NOTE') editing.title=autoTitle(editing);
+    if(orderIsEmpty(editing)){ toast(wz.type==='NOTE'?'Write something first':'Add something first: a name, an item or a photo'); return; }
+    if(editing.isNew) promoteNewOrderDraft();
+    if(!editing){ wzClose(); return; }
+    saveNewDraftNow();                         // same as Save & close in the editor
+    editing.drafting=false;
+    editing.updatedAt=Date.now();
+    var id=editing.id, note=(editing.type==='NOTE');
+    persist();
+    editing=null;
+    wzClose(); render();
+    toast(note?'Note saved':'Order saved');
+    var c=document.querySelector('#board [data-card="'+id+'"]');
+    if(c){ c.classList.add('wz-new'); try{ c.scrollIntoView({block:'center',behavior:'smooth'}); }catch(_){}
+      setTimeout(function(){ c.classList.remove('wz-new'); },1800); }
+  }
+  function wzQuit(){
+    if(editing){
+      var probe=Object.assign({},editing,{items:(editing.items||[]).filter(itemHas)});
+      if(!orderIsEmpty(probe)){ $('wzAsk').classList.add('show'); return; }
+    }
+    wzDiscard(true);
+  }
+  function wzDiscard(silent){
+    if(editing){
+      var id=editing.id;
+      clearNewDraft(editing.type);
+      if(!editing.isNew){
+        for(var i=state.orders.length-1;i>=0;i--){ if(state.orders[i].id===id){ state.orders.splice(i,1); break; } }
+        _deletedIds[id]=true; persist();
+      }
+      editing=null;
+    }
+    wzClose(); render();
+    if(!silent) toast('Order discarded');
+  }
+
+  function wzOptList(list, noneLabel, sw){
+    return [{k:'',label:noneLabel||'\u2014',none:true}]
+      .concat(list.map(function(v){ return {k:v,label:v,sw:sw?sw(v):null}; }))
+      .concat([{k:'__other',label:'Other\u2026',none:true}]);
+  }
+  // one wheel for one field, with a type-your-own box when "Other…" is picked
+  function wzField(label, list, field, sw, onChange){
+    var cur=wz.b[field]||'', isOther=!!cur && list.indexOf(cur)<0;
+    var box=wzEl('div','wz-other'+(isOther?' show':''));
+    var oin=wzEl('input','wz-in'); oin.placeholder='Other '+label; oin.value=isOther?cur:''; oin.autocapitalize='words';
+    oin.addEventListener('input',function(){ wz.b[field]=oin.value.trim(); if(onChange)onChange(); wzFoot(); });
+    box.appendChild(oin);
+    var w=wzWheel(wzOptList(list,null,sw), isOther?'__other':cur, function(k){
+      if(k==='__other'){ box.classList.add('show'); wz.b[field]=oin.value.trim(); setTimeout(function(){ oin.focus(); },60); }
+      else { box.classList.remove('show'); wz.b[field]=k; }
+      if(onChange)onChange(); wzFoot();
+    });
+    return { col:wzCol(label,w), other:box };
+  }
+
+  var WZ_BUILD={
+    type:function(p){
+      p.classList.add('mid');
+      p.appendChild(wzWheel(WZ_TYPES, wz.type, function(k){
+        wz.type=k; wz.steps=wzSteps(); wzProgress(); wzFoot();
+      },'big'));
+      p.appendChild(wzEl('p','wz-hint','Scroll to the kind of order, then tap Next.'));
+    },
+    customer:function(p){
+      var n=wzEl('input','wz-in name'); n.placeholder='Customer Name'; n.autocapitalize='words'; n.autocomplete='off'; n.enterKeyHint='next';
+      n.value=editing.custName||'';
+      var cap=wzEl('div','wz-cap');
+      n.addEventListener('input',function(){
+        var tried=n.value, was=editing.custName||'';
+        editing.custName=capTitle(n,was,'Two words max');
+        if(n.value!==tried && wordCount(tried)>MAX_TITLE_WORDS){ cap.textContent='Two words max \u2014 put the details in the notes at the end.'; cap.classList.add('show'); clearTimeout(cap._t); cap._t=setTimeout(function(){ cap.classList.remove('show'); },4000); }
+        livePersist(); wzFoot();
+      });
+      var ph=wzEl('input','wz-in'); ph.type='tel'; ph.inputMode='tel'; ph.autocomplete='tel'; ph.placeholder='Phone'; ph.enterKeyHint='next'; ph.value=editing.custPhone||'';
+      ph.addEventListener('input',function(){ editing.custPhone=ph.value; editing.contact=ph.value; livePersist(); wzFoot(); });
+      var em=wzEl('input','wz-in'); em.type='email'; em.inputMode='email'; em.autocomplete='email'; em.placeholder='Email (Optional)'; em.enterKeyHint='done'; em.value=editing.custEmail||'';
+      em.addEventListener('input',function(){ editing.custEmail=em.value; livePersist(); wzFoot(); });
+      n.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); ph.focus(); } });
+      ph.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); em.focus(); } });
+      em.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); em.blur(); wzNext(); } });
+      p.appendChild(n); p.appendChild(cap); p.appendChild(ph); p.appendChild(em);
+      p.appendChild(wzEl('p','wz-hint','All optional \u2014 tap Skip if you don\u2019t have it yet.'));
+    },
+    garment:function(p){
+      var row=wzEl('div','wz-wheels'), others=wzEl('div');
+      var placeWas=wzPlaceListId();
+      var f1=wzField(wzHard()?'Item':'Garment', wzSurfList(), 'surface', null, function(){
+        var now=wzPlaceListId(); if(now!==placeWas){ wz.b.placement=''; placeWas=now; }   // caps have their own spots
+      });
+      var f2=wzField('Material', wzMatList(), 'material');
+      row.appendChild(f1.col); row.appendChild(f2.col); others.appendChild(f1.other); others.appendChild(f2.other);
+      if(!wzSub()){ var f3=wzField('Color', COLORS.map(function(c){ return c.n; }), 'color', colorHex); row.appendChild(f3.col); others.appendChild(f3.other); }
+      p.appendChild(row); p.appendChild(others);
+      p.appendChild(wzEl('p','wz-hint','Scroll each wheel. Leave one on \u2014 if it doesn\u2019t matter.'));
+    },
+    placement:function(p){
+      var list=wzList(wzPlaceListId()), grid=wzEl('div','wz-tiles');
+      function chosen(){ return placeTokens(wz.b.placement); }
+      list.forEach(function(v){
+        var t=wzEl('button','wz-tile'+(isUsualPlace(v)?'':' odd')); t.type='button';
+        t.innerHTML=PLACE_WARN+'<span>'+esc(placeWords(v))+'</span><span class="tick">\u2713</span>';
+        function paintT(){ t.classList.toggle('on', chosen().some(function(x){ return x.toLowerCase()===v.toLowerCase(); })); }
+        t.addEventListener('click',function(){
+          var sel=chosen(), ix=-1; sel.forEach(function(x,i){ if(x.toLowerCase()===v.toLowerCase()) ix=i; });
+          if(ix>=0) sel.splice(ix,1); else sel.push(v);
+          // keep the list's own order, whatever order they were tapped in
+          sel.sort(function(a,b){ return list.indexOf(a)-list.indexOf(b); });
+          wz.b.placement=sel.join(', '); paintT(); wzFoot();
+          if(navigator.vibrate){ try{ navigator.vibrate(6); }catch(_){} }
+        });
+        paintT(); grid.appendChild(t);
+      });
+      p.appendChild(grid);
+      p.appendChild(wzEl('p','wz-hint','Tap every spot that gets printed. Anything besides Front gets a warning on the order.'));
+    },
+    sizes:function(p){
+      var sum=wzEl('div','wz-sum'), g=wzItem(), parts=[];
+      if(g.color)parts.push(g.color); if(g.surface)parts.push(g.surface); if(g.material)parts.push(g.material); if(g.placement)parts.push(placeWords(g.placement.replace(/,\s*/g,' + ')));
+      sum.textContent=parts.length?parts.join(' \u00b7 '):'No garment picked';
+      p.appendChild(sum);
+      var row=wzEl('div','wz-wheels'), others=wzEl('div');
+      var add=wzEl('button','wz-add'); add.type='button';
+      function label(){ var it=wzItem(); add.textContent='Add '+(Math.max(1,parseInt(wz.b.qty,10)||1))+' \u00d7 '+(it.size||it.surface||'Item'); }
+      if(!wzEng()){ var f=wzField('Size', wzSizeList(), 'size', null, label); row.appendChild(f.col); others.appendChild(f.other); }
+      var qopts=[]; for(var q=1;q<=100;q++) qopts.push({k:String(q),label:String(q)});
+      row.appendChild(wzCol('How Many', wzWheel(qopts, String(wz.b.qty||'1'), function(k){ wz.b.qty=k; label(); wzFoot(); })));
+      p.appendChild(row); p.appendChild(others);
+      label(); p.appendChild(add);
+      var list=wzEl('div','wz-items'); p.appendChild(list);
+      function paintList(){
+        list.innerHTML='';
+        var groups={}, order=[];
+        (editing.items||[]).forEach(function(it,ix){ if(!itemHas(it))return; var k=itemKey(it)+'|'+((it.name||'').trim()); if(!groups[k]){ groups[k]={it:it,ix:[]}; order.push(k); } groups[k].ix.push(ix); });
+        order.forEach(function(k){
+          var gr=groups[k], r=wzEl('div','wz-item'+(wz.fresh&&k.indexOf(wz.fresh)===0?' fresh':''));
+          r.appendChild(wzEl('span','q',gr.ix.length+'\u00d7'));
+          var s=wzEl('span','s'); s.textContent=comboText(gr.it); r.appendChild(s);
+          var x=wzEl('button','x','\u00d7'); x.type='button'; x.setAttribute('aria-label','Remove');
+          x.addEventListener('click',function(){
+            var gone=gr.ix.map(function(i){ return editing.items[i]; });
+            editing.items=editing.items.filter(function(_it,i){ return gr.ix.indexOf(i)<0; });
+            livePersist(); paintList(); wzFoot();
+            toast('Removed '+gone.length, function(){ if(!editing)return; editing.items=editing.items.concat(gone); livePersist(); paintList(); wzFoot(); });
+          });
+          r.appendChild(x); list.appendChild(r);
+        });
+        wz.fresh='';
+      }
+      add.addEventListener('click',function(){
+        var n=wzAdd(); if(!n) return;
+        add.classList.remove('pop'); void add.offsetWidth; add.classList.add('pop');
+        if(navigator.vibrate){ try{ navigator.vibrate(12); }catch(_){} }
+        paintList(); wzFoot();
+      });
+      paintList();
+      var more=wzEl('button','wz-link',wzHard()?'+ A Different Item':'+ A Different Garment'); more.type='button';
+      more.addEventListener('click',function(){ wzShow(wz.steps.indexOf('garment'),-1); });
+      p.appendChild(more);
+    },
+    photo:function(p){
+      var shot=wzEl('button','wz-shot'); shot.type='button';
+      shot.innerHTML='<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg><span>Take Or Choose A Photo</span>';
+      shot.addEventListener('click',function(){ if((editing.images||[]).length+wz.busy>=3){ toast('Up to 3 photos'); return; } $('wzFile').click(); });
+      var th=wzEl('div','wz-thumbs');
+      p.appendChild(shot); p.appendChild(th);
+      p.appendChild(wzEl('p','wz-hint','Up to 3. The design, the shirt, or the customer\u2019s picture.'));
+      wz.paintPhotos=function(){
+        th.innerHTML='';
+        (editing.images||[]).forEach(function(src,i){
+          var t=wzEl('div','wz-th'); t.innerHTML='<img '+artImgSrc(src)+' alt="">';
+          var x=wzEl('button','x','\u00d7'); x.type='button'; x.setAttribute('aria-label','Remove photo');
+          x.addEventListener('click',function(){ editing.images.splice(i,1); livePersist(); wz.paintPhotos(); wzFoot(); });
+          t.appendChild(x); th.appendChild(t);
+        });
+        for(var b=0;b<wz.busy;b++) th.appendChild(wzEl('div','wz-th busy'));
+        hydrateArt(th);
+      };
+      wz.paintPhotos();
+    },
+    paydue:function(p){
+      var row=wzEl('div','wz-wheels');
+      var bal=wzEl('div','wz-bal'); bal.appendChild(wzEl('span','','Balance Due $'));
+      var bi=wzEl('input','wz-in'); bi.inputMode='decimal'; bi.placeholder='0.00'; bi.value=editing.balanceDue||'';
+      bi.addEventListener('input',function(){ editing.balanceDue=bi.value.replace(/[^0-9.]/g,''); if(bi.value!==editing.balanceDue) bi.value=editing.balanceDue; livePersist(); wzFoot(); });
+      bal.appendChild(bi);
+      function syncBal(){ var k=editing.payStatus||'unpaid'; bal.classList.toggle('show',k==='unpaid'||k==='deposit'); }
+      var pay=wzWheel(PAYSTAGES.map(function(s){ return {k:s.k,label:s.label,sw:s.color}; }), editing.payStatus||'unpaid', function(k){
+        editing.payStatus=k; syncBal(); livePersist(); wzFoot();
+      });
+      var cur='', dopts=[{k:'',label:'No Date',sw:URGENCY.norush.color}].concat(dueChoices().map(function(d){ return {k:d.k,label:d.label,sw:d.color}; }));
+      for(var i=0;i<dopts.length;i++){ if(dopts[i].k ? (computeDue(dopts[i].k)===editing.due) : !editing.due){ cur=dopts[i].k; break; } }
+      var due=wzWheel(dopts, cur, function(k){
+        editing.duePreset=k; editing.due=k?computeDue(k):'';
+        editing.urgency=k?(effUrgency(editing)||'norush'):'norush';
+        livePersist(); wzFoot();
+      });
+      row.appendChild(wzCol('Payment',pay)); row.appendChild(wzCol('Due',due));
+      p.appendChild(row); p.appendChild(bal); syncBal();
+    },
+    review:function(p){
+      var nt=wzEl('textarea','wz-in'); nt.placeholder='Notes (Optional)'; nt.value=editing.body||'';
+      var prev=wzEl('div','wz-preview');
+      function paintPrev(){
+        var probe=Object.assign({},editing,{items:(editing.items||[]).filter(itemHas),drafting:false,isNew:false});
+        if(orderIsEmpty(probe)){ prev.innerHTML='<div class="wz-empty">Nothing added yet. Go back and add a name, an item or a photo.</div>'; return; }
+        prev.innerHTML=cardHTML(probe,{flat:true}); hydrateArt(prev);
+      }
+      var t=null;
+      nt.addEventListener('input',function(){ editing.body=nt.value; livePersist(); clearTimeout(t); t=setTimeout(paintPrev,250); });
+      p.appendChild(nt);
+      p.appendChild(wzEl('div','wz-lbl','How It Will Look'));
+      p.appendChild(prev); paintPrev();
+    },
+    note:function(p){
+      var ti=wzEl('input','wz-in name'); ti.placeholder='Note Title'; ti.autocapitalize='words'; ti.value=editing.title||'';
+      var cap=wzEl('div','wz-cap');
+      ti.addEventListener('input',function(){
+        var tried=ti.value, was=editing.title||'';
+        editing.title=capTitle(ti,was,'Two words max');
+        if(ti.value!==tried && wordCount(tried)>MAX_TITLE_WORDS){ cap.textContent='Two words max \u2014 put the details in the note below.'; cap.classList.add('show'); clearTimeout(cap._t); cap._t=setTimeout(function(){ cap.classList.remove('show'); },4000); }
+        livePersist(); wzFoot();
+      });
+      var bd=wzEl('textarea','wz-in'); bd.placeholder='Write your note\u2026'; bd.value=editing.body||''; bd.style.minHeight='200px';
+      bd.addEventListener('input',function(){ editing.body=bd.value; livePersist(); wzFoot(); });
+      p.appendChild(ti); p.appendChild(cap); p.appendChild(bd);
+    }
+  };
+
+  // photos: shrunk in the phone, sent to the NAS, the same way the editor does it
+  $('wzFile').addEventListener('change',function(e){
+    var files=Array.prototype.slice.call(e.target.files||[]); e.target.value='';
+    if(!files.length||!editing) return;
+    if(!editing.images) editing.images=[];
+    var slots=3-editing.images.length-wz.busy; if(slots<=0){ toast('Up to 3 photos'); return; }
+    files=files.slice(0,slots);
+    var me=editing;
+    files.forEach(function(f){
+      wz.busy++; if(wz.paintPhotos) wz.paintPhotos();
+      processImage(f,function(url){
+        function done(){ wz.busy=Math.max(0,wz.busy-1); if(editing===me){ livePersist(); if(wz.open&&wz.paintPhotos) wz.paintPhotos(); wzFoot(); } }
+        if(!url){ done(); return; }
+        nasPutArt(me.id,url).then(function(key){ me.images.push(key); })
+          .catch(function(err){
+            try{ console.warn('Photo upload to storage failed',err); }catch(_){}
+            me.images.push(url);
+            toast('Storage unavailable \u2014 photo saved in the orders file');
+          }).then(done);
+      });
+    });
+  });
+  $('wzNext').addEventListener('click',wzNext);
+  $('wzBack').addEventListener('click',wzBack);
+  $('wzX').addEventListener('click',wzQuit);
+  $('wzAskSave').addEventListener('click',function(){ $('wzAsk').classList.remove('show'); wzFinish(); });
+  $('wzAskDrop').addEventListener('click',function(){ wzDiscard(false); });
+  $('wzAskStay').addEventListener('click',function(){ $('wzAsk').classList.remove('show'); });
+  // a sideways swipe moves between steps (never saves by itself)
+  (function(){
+    var body=$('wzBody'), sx=0, sy=0, st=0, ok=false;
+    body.addEventListener('touchstart',function(e){
+      ok=(e.touches.length===1) && !(e.target.closest && e.target.closest('input,textarea'));
+      if(!ok) return; sx=e.touches[0].clientX; sy=e.touches[0].clientY; st=Date.now();
+    },{passive:true});
+    body.addEventListener('touchend',function(e){
+      if(!ok) return; ok=false;
+      var t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+      if(Date.now()-st>700 || Math.abs(dx)<70 || Math.abs(dx)<Math.abs(dy)*2.2) return;
+      if(dx<0){ if(wz.i<wz.steps.length-1) wzNext(); } else wzBack();
+    },{passive:true});
+  })();
+  document.addEventListener('keydown',function(e){
+    if(!wz.open || e.key!=='Escape') return;
+    if($('wzAsk').classList.contains('show')) $('wzAsk').classList.remove('show'); else wzQuit();
+  });
+
   function openEditor(id){ var o=getOrder(id); if(!o)return; editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
   function fillModal(o){
     var isNote=(o.type==='NOTE');
