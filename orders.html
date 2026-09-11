@@ -83,6 +83,11 @@
   .hbtn:hover{ filter:brightness(1.18); }
   @media(max-width:560px){ header{ gap:8px; padding:12px 13px; } .hbtn{ width:38px; height:38px; border-radius:11px; }
     .grid{ column-width:auto; column-count:2; column-gap:9px; }
+    /* Two real columns side by side. iPhone Safari sometimes left a card in
+       the second CSS column unpainted (only its photo showed), so on phones
+       the cards are placed into two stacks instead, in the same order. */
+    .grid.split{ display:flex; align-items:flex-start; gap:9px; column-count:auto; columns:auto; }
+    .grid.split > .gcol{ flex:1 1 0; min-width:0; }
     .card .ctext{ font-size:16px; line-height:1.45; }
     .card h3{ font-size:19px; }
     .cust-name{ font-size:27px; }
@@ -136,6 +141,16 @@
   /* the title carries the urgency color — a full-width band, edge to edge */
   .card h3.tinted{ padding:9px 13px 8px; border-radius:0; color:#2C2620;
     margin:-11px -13px 9px; }
+  /* the item count sits at the right end of the title */
+  /* The title wraps around it word by word, so a narrow phone card never
+     splits a name in the middle of a word just to make room. */
+  .card h3.has-n{ display:flow-root; }
+  .card h3 .h3-t{ word-break:normal; overflow-wrap:break-word; }
+  .card h3 .h3-n{ float:right; margin:0 0 2px 6px; white-space:nowrap; font-family:'Teko',sans-serif;
+    font-weight:600; font-size:13px; line-height:1; letter-spacing:.02em; padding:3px 6px 1px;
+    min-width:20px; text-align:center;
+    border-radius:999px; background:rgba(var(--ink-rgb),.08); color:var(--green); }
+  .card h3.tinted .h3-n{ background:rgba(0,0,0,.14); color:inherit; }
   /* note names: bolder + larger so they read clearly at a glance */
   .card h3.note-name{ font-weight:normal; font-size:21px; line-height:1.12; }
   .card .contact{ display:inline-flex; align-items:center; gap:5px; font-size:13px; color:var(--green); text-decoration:none; margin:1px 0 5px; }
@@ -343,6 +358,9 @@
   .lb-slide img{ max-width:calc(100vw - 20px); max-height:100%; width:auto; height:auto; display:block;
     border-radius:8px; box-shadow:0 20px 70px rgba(0,0,0,.6); will-change:transform;
     -webkit-user-drag:none; pointer-events:none; }
+  /* with a mouse, the photo itself answers a right-click so the browser's
+     own menu offers Save Image / Copy Image */
+  @media (hover:hover) and (pointer:fine){ .lb-slide img{ pointer-events:auto; } }
   .lb-count{ position:absolute; top:17px; left:0; right:0; text-align:center; color:rgba(255,255,255,.8);
     font-family:'Teko',sans-serif; letter-spacing:.14em; font-size:16px; pointer-events:none; }
   .lb-close{ position:absolute; top:9px; right:10px; width:40px; height:40px; border-radius:50%;
@@ -459,6 +477,8 @@
   .gitem{ display:flex; align-items:center; gap:10px; padding:13px 4px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
   .gitem:last-child{ border-bottom:none; }
   .g-idx{ font-family:'Teko',sans-serif; font-size:18px; color:rgba(var(--ink-rgb),.4); width:22px; text-align:right; flex:none; }
+  /* the count on a combined row, read like the "4×" on the board card */
+  .g-idx.g-q{ width:auto; min-width:30px; font-weight:600; font-size:20px; color:var(--green); }
   .gitem .cdot{ width:16px; height:16px; }
   .g-sum{ font-size:17px; color:var(--burgundy); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .g-name{ flex:1 1 100%; min-width:90px; border:1px solid var(--line-strong); border-radius:9px; padding:9px 12px; font-family:'Teko',sans-serif; font-size:19px; color:var(--burgundy); background:var(--note); outline:none; margin-top:4px; }
@@ -582,6 +602,11 @@
   .goal-x{ flex:0 0 auto; width:40px; height:40px; border:0; background:none; cursor:pointer;
     color:rgba(var(--ink-rgb),.4); font-size:22px; line-height:1; border-radius:8px; padding:0; }
   .goal-x:hover{ color:var(--red); background:rgba(214,69,69,.08); }
+  /* the list of orders to pull from scrolls inside its box, so the whole
+     board is reachable however many orders are open */
+  #goalPickList{ flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch; }
+  .goals-body{ flex:1 1 auto; min-height:0; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
   .goal-pick{ display:block; width:100%; text-align:left; font-family:inherit; font-size:16px;
     color:var(--burgundy); background:var(--tag-bg); border:1px solid var(--line);
     border-radius:9px; padding:12px 13px; margin-bottom:8px; cursor:pointer; }
@@ -921,6 +946,68 @@
   var NAS_API='/api/minio-file';
   var artUrl={};                 // storage key -> signed link, for this visit
 
+  /* ===== Order photos kept on this device =====
+     Every visit used to fetch every photo from the NAS again, over the
+     shop's home internet, because each visit gets freshly signed links the
+     browser has never seen. A photo stored under a key never changes (a new
+     photo always gets a new key), so once a device has it, it keeps it:
+     later visits show it straight from the phone, with no NAS trip at all.
+     If the browser can't keep photos, everything works exactly as before. */
+  var ART_CACHE='broch-order-photos-v1';
+  var artBlob={};                // storage key -> on-device picture, for this visit
+  var artCacheOff=!(window.caches && window.fetch && window.Response && window.URL && URL.createObjectURL);
+  function artCacheReq(key){ return location.origin+'/__order-photo/'+encodeURIComponent(key); }
+  function artCacheOpen(){
+    if(artCacheOff) return Promise.reject(new Error('off'));
+    return caches.open(ART_CACHE).catch(function(e){ artCacheOff=true; throw e; });
+  }
+  function artCacheGet(key){
+    if(artBlob[key]) return Promise.resolve(artBlob[key]);
+    return artCacheOpen().then(function(c){ return c.match(artCacheReq(key)); })
+      .then(function(r){ return r ? r.blob() : null; })
+      .then(function(b){ if(b && b.size){ artBlob[key]=URL.createObjectURL(b); return artBlob[key]; } return null; })
+      .catch(function(){ return null; });
+  }
+  function artCachePut(key, blob){
+    if(!blob || !blob.size) return;
+    if(!artBlob[key]) artBlob[key]=URL.createObjectURL(blob);
+    artCacheOpen().then(function(c){
+      return c.put(artCacheReq(key), new Response(blob,{headers:{'Content-Type':blob.type||'image/webp'}}));
+    }).catch(function(){});
+  }
+  // Download one photo from its signed link and keep it on this device.
+  // If the NAS ever refuses this, remember it for a day so photos are not
+  // downloaded twice on every visit; plain links are used meanwhile.
+  var _artFetchBroken=false;
+  try{ var _afb=+localStorage.getItem('broch-photo-fetch-off')||0;
+       if(_afb && Date.now()-_afb<86400000) _artFetchBroken=true; }catch(_){}
+  function artFetchKeep(key, url){
+    if(_artFetchBroken) return Promise.resolve(null);
+    return fetch(url,{mode:'cors',credentials:'omit'}).then(function(r){
+      if(!r.ok) return 'gone';                 // the NAS answered: this photo is not there
+      return r.blob().then(function(b){ artCachePut(key,b); return artBlob[key]||null; });
+    }).catch(function(){ return 'blocked'; }); // NAS offline, or it refused: try a plain link
+  }
+  function artFetchOff(){
+    if(_artFetchBroken) return; _artFetchBroken=true;
+    try{ localStorage.setItem('broch-photo-fetch-off',String(Date.now())); }catch(_){}
+  }
+  // Drop photos this device keeps for orders that no longer exist.
+  // Only the copy on this phone or computer is removed; the NAS is untouched.
+  function artCacheTidy(){
+    if(artCacheOff || !_loadOk) return;
+    var live={};
+    state.orders.forEach(function(o){ (o.images||[]).forEach(function(k){ if(isArtKey(k)) live[k]=1; }); });
+    artCacheOpen().then(function(c){
+      return c.keys().then(function(reqs){
+        reqs.forEach(function(rq){
+          var k=decodeURIComponent((rq.url.split('/__order-photo/')[1]||''));
+          if(k && !live[k]) c.delete(rq);
+        });
+      });
+    }).catch(function(){});
+  }
+
   function isArtKey(v){ return typeof v==='string' && v.indexOf(ART_PREFIX)===0; }
   function nasCall(payload){
     return fetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
@@ -973,6 +1060,7 @@
       })
       .then(function(r){
         if(!r.ok) throw new Error('Storage refused the photo (HTTP '+r.status+')');
+        artCachePut(key, blob);                // this device already has it
         return key;
       });
   }
@@ -980,7 +1068,7 @@
   function artImgSrc(v){
     if(!v) return 'src=""';
     if(!isArtKey(v)) return 'src="'+v+'"';
-    var u=artUrl[v];
+    var u=artBlob[v] || (_artFetchBroken||artCacheOff ? artUrl[v] : null);
     return (u?'src="'+u+'" ':'')+'data-nas-art="'+v+'"';
   }
   // After any HTML is written, point NAS-backed photos at their signed links.
@@ -1002,6 +1090,38 @@
     var arr=[].slice.call(els);
     var keys=arr.map(function(e){ return e.getAttribute('data-nas-art'); });
     arr.forEach(function(e){ e.addEventListener('error', function(){ artGone(e); }); });
+    function show(k,u){ arr.forEach(function(e){ if(e.getAttribute('data-nas-art')===k && e.getAttribute('src')!==u) e.src=u; }); }
+    if(!artCacheOff){
+      // 1. photos this device already has show at once
+      var uniq=keys.filter(function(k,i){ return keys.indexOf(k)===i; });
+      Promise.all(uniq.map(function(k){ return artCacheGet(k).then(function(u){ if(u) show(k,u); return u?null:k; }); }))
+      .then(function(missing){
+        missing=missing.filter(Boolean);
+        if(!missing.length) return;
+        // 2. the rest come from the NAS once, and are kept for next time
+        return nasLinks(missing).then(function(){
+          return Promise.all(missing.map(function(k){
+            var url=artUrl[k];
+            if(!url){ arr.forEach(function(e){ if(e.getAttribute('data-nas-art')===k) artGone(e); }); return; }
+            return artFetchKeep(k,url).then(function(u){
+              if(u==='gone'){ arr.forEach(function(e){ if(e.getAttribute('data-nas-art')===k) artGone(e); }); return; }
+              if(u==='blocked'){
+                // if the plain link works, the NAS is up and only refused this
+                // way of downloading: stop trying it for a day
+                arr.forEach(function(e){ if(e.getAttribute('data-nas-art')===k)
+                  e.addEventListener('load', artFetchOff, {once:true}); });
+                u=null;
+              }
+              show(k, u||url);
+            });
+          }));
+        });
+      }).catch(function(err){
+        try{ console.warn('Order photos unavailable',err); }catch(_){}
+        arr.forEach(function(e){ if(!e.getAttribute('src')) artGone(e); });
+      });
+      return;
+    }
     nasLinks(keys).then(function(){
       arr.forEach(function(e){
         var k=e.getAttribute('data-nas-art');
@@ -1672,6 +1792,7 @@
           if(rolled)persist();
           if(recovered)persist();
           startAutoRefresh();
+          setTimeout(artCacheTidy, 15000);
         }catch(e){ _loaded=true; showInitialLoadError(); }
       }).catch(function(){ _loaded=true; showInitialLoadError(); });
     }).catch(function(){ _loaded=true; showInitialLoadError(); });
@@ -1886,7 +2007,11 @@
       h+='</div>';
     }
     h+='<div class="card-pad">';
-    var _t=autoTitle(o); if(_t){ var _nn=(o.type==='NOTE'?' note-name':''); h+= o.isQuote ? ('<h3'+(_nn?' class="'+_nn.trim()+'"':'')+'>'+esc(_t)+'</h3>') : ('<h3 class="tinted'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+esc(_t)+'</h3>'); }
+    var _t=autoTitle(o); if(_t){ var _nn=(o.type==='NOTE'?' note-name':'');
+      // how many pieces the order is, right beside the title
+      var _n=(o.type==='NOTE')?0:itemCount(o);
+      var _in=(_n?'<span class="h3-n" title="'+_n+(_n===1?' item':' items')+'">'+_n+'</span>':'')+'<span class="h3-t">'+esc(_t)+'</span>';
+      h+= o.isQuote ? ('<h3 class="has-n'+_nn+'">'+_in+'</h3>') : ('<h3 class="tinted has-n'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+_in+'</h3>'); }
     var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     if(o.type==='NOTE'){ if(o.body) h+='<div class="ctext">'+esc(o.body)+'</div>'; }
     else {
@@ -1934,7 +2059,70 @@
       });
     });
   }
-  function wireCards(){ var board=$('board'); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); }); }); }
+  /* ===== Phone board: two stacks of cards =====
+     Same order and balance the CSS columns gave: the list runs down the left
+     stack and continues at the top of the right one, split wherever the two
+     come out closest in height. Re-balanced as photos arrive. */
+  var phoneMQ=window.matchMedia?window.matchMedia('(max-width:560px)'):null;
+  function phoneBoard(){ return !!(phoneMQ && phoneMQ.matches); }
+  function balanceGrid(g){
+    var cols=g.children; if(cols.length!==2) return;
+    var A=cols[0], B=cols[1];
+    var cards=[].slice.call(A.children).concat([].slice.call(B.children));
+    var n=cards.length; if(!n) return;
+    var gap=parseFloat(getComputedStyle(cards[0]).marginBottom)||0;
+    var h=cards.map(function(c){ return c.offsetHeight+gap; });
+    var total=0; h.forEach(function(v){ total+=v; });
+    // the split with the shortest tallest stack; on a tie, more on the left
+    var left=0, best=0, bestCost=Infinity;
+    for(var k=0;k<=n;k++){
+      var cost=Math.max(left,total-left);
+      if(cost<=bestCost+0.5){ best=k; if(cost<bestCost) bestCost=cost; }
+      if(k<n) left+=h[k];
+    }
+    function move(c,parent,before){
+      var strip=c.querySelector('.card-imgs'), x=strip?strip.scrollLeft:0;
+      parent.insertBefore(c,before||null);
+      if(strip&&x) strip.scrollLeft=x;                   // keep the photo you swiped to
+    }
+    // only the cards that change sides are moved
+    while(A.children.length>best) move(A.lastElementChild,B,B.firstElementChild);
+    while(A.children.length<best && B.firstElementChild) move(B.firstElementChild,A,null);
+  }
+  function splitBoard(){
+    var board=$('board'); if(!board) return;
+    board.querySelectorAll('.grid').forEach(function(g){
+      if(!phoneBoard()){
+        if(g.classList.contains('split')){
+          var cs=[].slice.call(g.querySelectorAll('.gcol > .card'));
+          g.innerHTML=''; cs.forEach(function(c){ g.appendChild(c); }); g.classList.remove('split');
+        }
+        return;
+      }
+      if(!g.classList.contains('split')){
+        var a=document.createElement('div'), b=document.createElement('div');
+        a.className='gcol'; b.className='gcol';
+        [].slice.call(g.children).forEach(function(c){ a.appendChild(c); });
+        g.appendChild(a); g.appendChild(b); g.classList.add('split');
+      }
+      balanceGrid(g);
+    });
+  }
+  var _balanceQ=0;
+  function rebalanceSoon(){
+    if(_balanceQ || !phoneBoard()) return;
+    _balanceQ=requestAnimationFrame(function(){ _balanceQ=0; splitBoard(); });
+  }
+  (function(){
+    var board=$('board'); if(!board) return;
+    board.addEventListener('load',rebalanceSoon,true);   // a photo arrived: heights changed
+    board.addEventListener('error',rebalanceSoon,true);
+    window.addEventListener('resize',rebalanceSoon);
+    if(phoneMQ){ var onMQ=function(){ splitBoard(); };
+      if(phoneMQ.addEventListener) phoneMQ.addEventListener('change',onMQ); else if(phoneMQ.addListener) phoneMQ.addListener(onMQ); }
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(rebalanceSoon);
+  })();
+  function wireCards(){ var board=$('board'); splitBoard(); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); }); }); }
 
   function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
   function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
@@ -2278,25 +2466,41 @@
     var rm=row.querySelector('.g-rm'); row.insertBefore(nm, rm);
     setTimeout(function(){ nm.focus(); }, 30);
   }
+  /* Items without a name that are otherwise identical show as one row with
+     a count, the same way the board card shows them. Each item is still
+     stored on its own, so totals, labels and everything else are unchanged.
+     A named item always keeps its own row. On a combined row, "+ name" names
+     one of them (it moves to its own row) and \u00d7 removes one. */
+  function itemKey(it){
+    return ['size','color','surface','material','placement'].map(function(k){ return String(it[k]||'').trim(); }).join('|');
+  }
   function fillGen(container){
     container.innerHTML='';
     if(!editing.items.length){ var e=document.createElement('div'); e.className='gen-empty'; e.textContent='No items yet — add one below.'; container.appendChild(e); return; }
+    var rows=[], byKey={};
     editing.items.forEach(function(it,i){
+      if((it.name && it.name.trim()) || it._editingName){ rows.push([i]); return; }
+      var k=itemKey(it);
+      if(byKey[k]) byKey[k].push(i); else { byKey[k]=[i]; rows.push(byKey[k]); }
+    });
+    rows.forEach(function(ix){
+      var it=editing.items[ix[0]], lastI=ix[ix.length-1], one=editing.items[lastI];
       var row=document.createElement('div'); row.className='gitem';
-      var idx=document.createElement('span'); idx.className='g-idx'; idx.textContent=(i+1); row.appendChild(idx);
+      var idx=document.createElement('span'); idx.className='g-idx g-q'; idx.textContent=ix.length+'\u00d7';
+      idx.title=ix.length===1?'1 item':ix.length+' identical items'; row.appendChild(idx);
       var dot=document.createElement('span'); dot.className='cdot'; if(it.color){dot.style.background=colorHex(it.color);}else{dot.style.background='transparent';dot.style.borderStyle='dashed';} row.appendChild(dot);
       var sum=document.createElement('span'); sum.className='g-sum'; sum.textContent=comboText(it); row.appendChild(sum);
-      var rm=document.createElement('span'); rm.className='g-rm'; rm.innerHTML='&times;'; rm.onclick=function(){editing.items.splice(i,1);fillGen(container);livePersist();};
+      var rm=document.createElement('span'); rm.className='g-rm'; rm.innerHTML='&times;';
+      rm.title=ix.length>1?'Remove one':'Remove';
+      rm.onclick=function(){ editing.items.splice(lastI,1); fillGen(container); livePersist(); };
       if(it.name && it.name.trim()){
         var chip=document.createElement('span'); chip.className='g-name-chip';
         chip.innerHTML='<span>'+esc(it.name)+'</span><span class="edit">edit</span>';
         chip.querySelector('.edit').onclick=function(){ showNameInput(row, it, container); };
         row.appendChild(chip);
-      } else if(it._editingName){
-        // handled by showNameInput below on demand
       } else {
         var addn=document.createElement('button'); addn.type='button'; addn.className='g-addname'; addn.textContent='+ name';
-        addn.onclick=function(){ showNameInput(row, it, container); };
+        addn.onclick=function(){ showNameInput(row, one, container); };
         row.appendChild(addn);
       }
       row.appendChild(rm);
@@ -2865,6 +3069,7 @@
     var srcs=[], imgs=[], idx=0, scale=1, tx=0, ty=0, prevOverflow='';
     var pts={}, np=0, mode='', startX=0, startY=0, startTx=0, startTy=0, startScale=1;
     var pinchDist=1, pinchX=0, pinchY=0, dragX=0, moved=0, downT=0, lastTap=0, tapTimer=null;
+    var lastPtr='', menuUp=false, noClose=false;
 
     function isOpen(){ return box.classList.contains('show'); }
     function W(){ return track.clientWidth||window.innerWidth||1; }
@@ -2907,7 +3112,7 @@
       track.innerHTML=''; dots.innerHTML=''; imgs=[]; pts={}; np=0; mode='';
       srcs.forEach(function(src){
         var sl=document.createElement('div'); sl.className='lb-slide';
-        var im=document.createElement('img'); im.src=src; im.alt='';
+        var im=document.createElement('img'); im.src=src; im.alt=''; im.draggable=false;
         sl.appendChild(im); track.appendChild(sl); imgs.push(im);
         dots.appendChild(document.createElement('i'));
       });
@@ -2924,7 +3129,13 @@
     }
 
     box.addEventListener('pointerdown',function(e){
+      lastPtr=e.pointerType||'';
+      // Only the main button drives the viewer. A right-click (or the wheel
+      // button) used to count as a tap, and a tap closes the photo.
+      if(e.pointerType==='mouse' && e.button!==0) return;
       if(e.target.closest('button')) return;
+      // The click that dismisses the right-click menu must not close the photo.
+      noClose=menuUp; menuUp=false;
       if(box.setPointerCapture){ try{ box.setPointerCapture(e.pointerId); }catch(_e){} }
       pts[e.pointerId]={x:e.clientX,y:e.clientY}; np++;
       if(np===1){
@@ -2938,7 +3149,7 @@
       }
     });
     box.addEventListener('pointermove',function(e){
-      if(!pts[e.pointerId]) return;
+      if(!pts[e.pointerId]){ if(e.pointerType==='mouse') menuUp=false; return; }
       pts[e.pointerId].x=e.clientX; pts[e.pointerId].y=e.clientY;
       if(mode==='pinch'){
         var k=Object.keys(pts); if(k.length<2) return;
@@ -2975,7 +3186,7 @@
         if(scale>1) resetZoom(); else zoomAt(px,py,2.6);
       } else {
         lastTap=now;
-        tapTimer=setTimeout(function(){ tapTimer=null; if(scale<=1) close(); },340);
+        if(!noClose) tapTimer=setTimeout(function(){ tapTimer=null; if(scale<=1) close(); },340);
       }
     }
     box.addEventListener('pointerup',up);
@@ -2987,7 +3198,14 @@
       zoomAt(e.clientX,e.clientY, scale*step);
       if(scale<=1.03) resetZoom();
     },{passive:false});
-    box.addEventListener('contextmenu',function(e){ if(isOpen()) e.preventDefault(); });
+    // A phone's long-press menu would fight the pinch and swipe, so it stays
+    // off there. With a mouse, the browser's own menu is let through.
+    box.addEventListener('contextmenu',function(e){
+      if(!isOpen()) return;
+      if(lastPtr==='mouse' || (e.pointerType==='mouse') || (!lastPtr && !e.pointerType)){ menuUp=true; return; }
+      e.preventDefault();
+    });
+    box.addEventListener('dragstart',function(e){ e.preventDefault(); });
 
     $('lbPrev').addEventListener('click',function(e){ e.stopPropagation(); setIdx(idx-1,true); });
     $('lbNext').addEventListener('click',function(e){ e.stopPropagation(); setIdx(idx+1,true); });
