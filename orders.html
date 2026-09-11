@@ -745,6 +745,9 @@
   .wz-item .q{ flex:none; min-width:40px; font-family:'Teko',sans-serif; font-size:24px; font-weight:600; color:var(--green); }
   .wz-item .s{ flex:1; min-width:0; font-family:'Teko',sans-serif; font-size:18px; line-height:1.2; }
   .wz-item .s b{ font-weight:600; }
+  .wz-item .nm{ flex:none; font-family:'Schadow','Teko',sans-serif; font-size:16px; color:var(--burgundy); }
+  .wz-item .nmb{ flex:none; padding:7px 10px; border-radius:10px; border:1px dashed var(--line-strong);
+    background:transparent; color:var(--green); font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.04em; cursor:pointer; }
   .wz-item .x{ flex:none; width:36px; height:36px; border-radius:11px; border:none; background:rgba(var(--ink-rgb),.08);
     color:rgba(var(--ink-rgb),.7); font-size:20px; cursor:pointer; }
   .wz-item.fresh{ animation:wzin .45s ease; }
@@ -774,6 +777,12 @@
   /* review */
   .wz-preview{ max-width:300px; margin:4px auto 16px; pointer-events:none; }
   .wz-preview .card{ margin:0; break-inside:auto; }
+  .wz-acts{ display:flex; gap:10px; margin-top:18px; }
+  .wz-act{ flex:1; height:54px; border-radius:15px; cursor:pointer; font-family:'Teko',sans-serif; font-size:20px;
+    letter-spacing:.04em; border:1.5px solid var(--line-strong); background:transparent; color:var(--burgundy); }
+  .wz-act.go{ background:rgba(31,77,62,.08); border-color:var(--green); color:var(--green); }
+  .wz-act.go.fin{ background:var(--green); color:var(--cream); }
+  .wz-act.del{ flex:0 0 34%; color:var(--red); border-color:rgba(214,69,69,.45); }
   .wz-empty{ text-align:center; padding:26px 10px; font-size:16px; color:rgba(var(--ink-rgb),.6); }
 
   /* leaving halfway */
@@ -2460,7 +2469,7 @@
   var WZ_PATH={
     DTF:        { what:['T-Shirt','Polo','Long Sleeve','Sweatshirt'], mats:['Cotton','Poly'], color:true, place:true,
                   whatLabel:'Garment', title:'What Are We Printing On?' },
-    Embroidery: { what:['Cap','Polo','T-Shirt'], mats:[], color:true, place:true,
+    Embroidery: { what:['Cap','Polo','T-Shirt'], mats:[], color:true, place:false,
                   whatLabel:'Garment', title:'What Are We Embroidering On?' },
     Sublimation:{ what:['Mug','Tumbler','T-Shirt'], mats:[], color:false, place:false,
                   whatLabel:'Item', title:'What Are We Sublimating?' },
@@ -2521,28 +2530,29 @@
   function wzCol(label, wheel){ var c=wzEl('div','wzw-col'); c.style.flex='1 1 0'; c.style.minWidth='0'; c.appendChild(wzEl('div','wz-lbl',label)); c.appendChild(wheel); return c; }
 
   function wzSteps(){
-    if(wz.type==='NOTE') return ['type','note'];
-    var s=['type','customer','garment'];
+    if(wz.type==='NOTE') return wz.edit?['note']:['type','note'];
+    var s=wz.edit?['customer','garment']:['type','customer','garment'];
     if(wzPath().place) s.push('placement');
-    s.push('sizes','photo','paydue','review');
+    s.push('sizes','photo','review');
     return s;
   }
   function wzTitle(k){
-    return ({ type:'What Kind Of Order?', customer:'Who Is It For?',
-      garment: wzPath().title,
+    return ({ type:'What Kind Of Order?', customer:'Customer And Due Date',
+      customer2:'Customer And Due Date', garment: wzPath().title,
       placement:'Where Does It Print?', sizes: wzNeedsSize()?'Sizes And How Many':'How Many?',
-      photo:'Add A Photo', paydue:'Payment And Due Date', review:'Check It And Save', note:'Write The Note' })[k]||'';
+      photo:'Add A Photo', review:wz.edit?'Notes And Check':'Check It And Save', note:'Write The Note' })[k]||'';
   }
   function wzProgress(){
     $('wzNo').textContent='Step '+(wz.i+1)+' Of '+wz.steps.length;
     $('wzBar').style.width=Math.round((wz.i+1)/wz.steps.length*100)+'%';
   }
 
-  function openWizard(){
-    wz.open=true; wz.i=0; wz.busy=0;
+  function openWizard(existing){
+    wz.open=true; wz.i=0; wz.busy=0; wz.edit=!!existing;
     wz.b={surface:'',material:'',color:'',placement:'',size:'',qty:'1'};
-    wz.type='DTF';                              // the wheel always opens in the same spot
-    editing=null;
+    wz.type=existing?existing.type:'DTF';       // a new order always opens on the same spot
+    editing=existing||null;
+    if(editing){ if(!editing.images)editing.images=[]; if(!editing.items)editing.items=[]; }
     builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
     var el=$('wz'); el.classList.add('show'); el.setAttribute('aria-hidden','false');
     document.body.classList.add('wz-open');
@@ -2551,7 +2561,7 @@
     wzShow(0,0);
   }
   function wzClose(){
-    wz.open=false;
+    wz.open=false; wz.edit=false;
     var el=$('wz'); el.classList.remove('show'); el.setAttribute('aria-hidden','true');
     document.body.classList.remove('wz-open');
     $('wzAsk').classList.remove('show');
@@ -2575,7 +2585,7 @@
   function wzFoot(){
     if(!wz.open) return;
     var key=wz.steps[wz.i], btn=$('wzNext');
-    if(wz.i===wz.steps.length-1){ btn.innerHTML=WZ_CHECK+(wz.type==='NOTE'?'Save Note':'Save Order'); btn.classList.remove('soft'); return; }
+    if(wz.i===wz.steps.length-1){ btn.innerHTML=WZ_CHECK+(wz.edit?'Save & Close':(wz.type==='NOTE'?'Save Note':'Save Order')); btn.classList.remove('soft'); return; }
     var filled=wzFilled(key);
     btn.innerHTML=(filled?'Next':'Skip')+WZ_ARROW;
     btn.classList.toggle('soft',!filled);
@@ -2583,7 +2593,7 @@
   function wzFilled(key){
     var e=editing||{};
     if(key==='type') return true;
-    if(key==='customer') return !!((e.custName||'').trim()||(e.custPhone||'').trim()||(e.custEmail||'').trim());
+    if(key==='customer') return !!((e.custName||'').trim()||(e.custPhone||'').trim()||(e.custEmail||'').trim()||e.payStatus||e.due);
     if(key==='garment') return !!(wz.b.surface||wz.b.material||wz.b.color);
     if(key==='placement') return !!wz.b.placement;
     if(key==='sizes') return (e.items||[]).some(itemHas) || itemHas(wzItem());
@@ -2630,6 +2640,7 @@
 
   function wzFinish(){
     if(!editing){ wzClose(); return; }
+    if(wz.edit){ wzClose(); commitOrClose(); return; }           // an order already on the board: just save
     editing.items=(editing.items||[]).filter(itemHas);
     if(editing.type!=='NOTE') editing.title=autoTitle(editing);
     if(orderIsEmpty(editing)){ toast(wz.type==='NOTE'?'Write something first':'Add something first: a name, an item or a photo'); return; }
@@ -2648,6 +2659,7 @@
       setTimeout(function(){ c.classList.remove('wz-new'); },1800); }
   }
   function wzQuit(){
+    if(wz.edit){ wzFinish(); return; }                           // nothing to discard: it was already saved
     if(editing){
       var probe=Object.assign({},editing,{items:(editing.items||[]).filter(itemHas)});
       if(!orderIsEmpty(probe)){ $('wzAsk').classList.add('show'); return; }
@@ -2714,6 +2726,7 @@
       ph.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); em.focus(); } });
       em.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); em.blur(); wzNext(); } });
       p.appendChild(n); p.appendChild(cap); p.appendChild(ph); p.appendChild(em);
+      WZ_BUILD.paydue(p);                       // payment and due date live here too now
       p.appendChild(wzEl('p','wz-hint','All optional \u2014 tap Skip if you don\u2019t have it yet.'));
     },
     garment:function(p){
@@ -2774,6 +2787,16 @@
           var gr=groups[k], r=wzEl('div','wz-item'+(wz.fresh&&k.indexOf(wz.fresh)===0?' fresh':''));
           r.appendChild(wzEl('span','q',gr.ix.length+'\u00d7'));
           var s=wzEl('span','s'); s.textContent=comboText(gr.it); r.appendChild(s);
+          if((gr.it.name||'').trim()){ var nmv=wzEl('span','nm',gr.it.name); r.appendChild(nmv); }
+          else {
+            var nb=wzEl('button','nmb','+ name'); nb.type='button';
+            nb.addEventListener('click',function(){
+              var one=editing.items[gr.ix[gr.ix.length-1]];
+              var v=prompt('Name on this one:',''); if(v===null) return;
+              one.name=v.trim(); livePersist(); paintList(); wzFoot();
+            });
+            r.appendChild(nb);
+          }
           var x=wzEl('button','x','\u00d7'); x.type='button'; x.setAttribute('aria-label','Remove');
           x.addEventListener('click',function(){
             var gone=gr.ix.map(function(i){ return editing.items[i]; });
@@ -2847,8 +2870,18 @@
       var t=null;
       nt.addEventListener('input',function(){ editing.body=nt.value; livePersist(); clearTimeout(t); t=setTimeout(paintPrev,250); });
       p.appendChild(nt);
-      p.appendChild(wzEl('div','wz-lbl','How It Will Look'));
+      p.appendChild(wzEl('div','wz-lbl',wz.edit?'On The Board':'How It Will Look'));
       p.appendChild(prev); paintPrev();
+      if(wz.edit){
+        var acts=wzEl('div','wz-acts');
+        var nx=nextStageLabel(editing), isDone=(nx==='Done');
+        var adv=wzEl('button','wz-act go'+(isDone?' fin':'')); adv.type='button'; adv.textContent=nx;
+        adv.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; advanceStage(id); });
+        adv.title='Move this order along';
+        var del=wzEl('button','wz-act del'); del.type='button'; del.textContent='Delete';
+        del.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; toTrash(id,'deleted'); });
+        acts.appendChild(adv); acts.appendChild(del); p.appendChild(acts);
+      }
     },
     note:function(p){
       var ti=wzEl('input','wz-in name'); ti.placeholder='Note Title'; ti.autocapitalize='words'; ti.value=editing.title||'';
@@ -2912,7 +2945,9 @@
     if($('wzAsk').classList.contains('show')) $('wzAsk').classList.remove('show'); else wzQuit();
   });
 
-  function openEditor(id){ var o=getOrder(id); if(!o)return; editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
+  function openEditor(id){ var o=getOrder(id); if(!o)return;
+    if(phoneBoard() && !o.trashed){ openWizard(o); return; }     // phones: the same clean screens
+    editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
   function fillModal(o){
     var isNote=(o.type==='NOTE');
     $('mTitle').style.display=isNote?'block':'none';
@@ -3135,18 +3170,21 @@
     var isEng=(editing.type==='Engraving');
     var isSub=(editing.type==='Sublimation');
     var isVin=(editing.type==='Vinyl');
+    // Same short lists the phone uses, so both sides ask the same things.
+    var pa = WZ_PATH[editing.type] || WZ_PATH.DTF;
     var surfListId = isEng?'engSurfList' : (isSub?'subSurfList':(isVin?'vinylSurfList':'surfList'));
     var matListId  = isEng?'engMatList'  : (isSub?'subMatList':'matList');
-    var noPlacement = isEng || isSub || isVin;   // hard goods and vinyl: skip the shirt placement picker
+    var noPlacement = !pa.place;
+    var noSize = !pa.what.some(function(v){ return WZ_SIZED.test(v); });
     // Each field gets: the input (type if you want) + a side-scrolling row of tappable chips
-    function fieldWithChips(cls, listId, ph, getV, setV){
+    function fieldWithChips(cls, listId, ph, getV, setV, optsOverride){
       var wrap=document.createElement('div'); wrap.className='b-field';
       var inp=document.createElement('input'); inp.className=cls; inp.setAttribute('list',listId); inp.setAttribute('autocomplete','off'); inp.placeholder=ph; inp.value=getV();
       inp.oninput=function(e){ setV(e.target.value); syncChips(); };
       wrap.appendChild(inp);
       var strip=document.createElement('div'); strip.className='chip-strip';
       var dl=document.getElementById(listId);
-      var opts = dl ? Array.prototype.map.call(dl.querySelectorAll('option'), function(o){ return o.value||o.textContent; }) : [];
+      var opts = optsOverride || (dl ? Array.prototype.map.call(dl.querySelectorAll('option'), function(o){ return o.value||o.textContent; }) : []);
       function syncChips(){ strip.querySelectorAll('.vchip').forEach(function(ch){ ch.classList.toggle('on', ch.dataset.val===getV()); }); }
       opts.forEach(function(val){
         var ch=document.createElement('button'); ch.type='button'; ch.className='vchip'+(getV()===val?' on':''); ch.dataset.val=val; ch.textContent=val;
@@ -3180,7 +3218,7 @@
       wrap.appendChild(strip);
       return wrap;
     }
-    if(!isEng && !isVin){ bld.appendChild(fieldWithChips('b-inp','sizeList','Size',function(){return builder.size;},function(v){builder.size=v;})); }
+    if(!noSize){ bld.appendChild(fieldWithChips('b-inp','sizeList','Size',function(){return builder.size;},function(v){builder.size=v;})); }
     var placeSlot=null;
     function placementListId(){ return /cap|beanie|hat|visor/i.test(builder.surface||'') ? 'capPlaceList' : 'placeList'; }
     function rebuildPlacement(){
@@ -3192,10 +3230,10 @@
       fresh.dataset.list=want;
       placeSlot.replaceWith(fresh); placeSlot=fresh;
     }
-    bld.appendChild(fieldWithChips('b-inp', surfListId, (isEng||isSub||isVin)?'Item':'Garment', function(){return builder.surface;}, function(v){builder.surface=v; rebuildPlacement();}));
-    if(!isVin){ bld.appendChild(fieldWithChips('b-inp', matListId, 'Material', function(){return builder.material;}, function(v){builder.material=v;})); }
+    bld.appendChild(fieldWithChips('b-inp', surfListId, pa.whatLabel, function(){return builder.surface;}, function(v){builder.surface=v; rebuildPlacement();}, pa.what));
+    if(pa.mats.length){ bld.appendChild(fieldWithChips('b-inp', matListId, 'Material', function(){return builder.material;}, function(v){builder.material=v;}, pa.mats)); }
     if(!noPlacement){ placeSlot=multiChipsField(placementListId(),'Placement (pick any)',function(){return builder.placement;},function(v){builder.placement=v;}); placeSlot.dataset.list=placementListId(); bld.appendChild(placeSlot); }
-    if(!isSub){ bld.appendChild(colorStrip(function(){return builder.color;}, function(cc){builder.color=cc;})); }
+    if(pa.color){ bld.appendChild(colorStrip(function(){return builder.color;}, function(cc){builder.color=cc;})); }
     var qa=document.createElement('div'); qa.className='qty-add';
     var step=document.createElement('div'); step.className='stepper';
     var minus=document.createElement('button'); minus.type='button'; minus.textContent='\u2212';
