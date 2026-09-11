@@ -705,7 +705,8 @@
   .wzw-opt.none{ color:rgba(var(--ink-rgb),.45); }
   .wzw-opt .sw{ flex:none; width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.18); }
   .wzw.big .wzw-opt{ font-size:27px; letter-spacing:.02em; }
-  .wz-wheels{ display:flex; gap:8px; }
+  .wz-wheels{ display:flex; gap:8px; justify-content:center; }
+  .wz-wheels.one .wzw-col{ max-width:190px; }    /* a lone wheel doesn't stretch across the screen */
   .wz-other{ display:none; margin-top:12px; }
   .wz-other.show{ display:block; }
 
@@ -1014,6 +1015,7 @@
       <button data-type="DTF"><span class="nm">DTF</span></button>
       <button data-type="Sublimation"><span class="nm">Sublimation</span></button>
       <button data-type="Engraving"><span class="nm">Engraving</span></button>
+      <button data-type="Vinyl"><span class="nm">Vinyl</span></button>
       <button data-type="NOTE"><span class="nm">Note</span></button>
     </div>
   </div>
@@ -1083,7 +1085,7 @@
 </div>
 
 <datalist id="sizeList"><option>Adult S</option><option>Adult M</option><option>Adult L</option><option>Adult XL</option><option>Adult 2XL</option><option>Adult 3XL</option><option>Youth S</option><option>Youth M</option><option>Youth L</option><option>One Size</option></datalist>
-<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
+<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="vinylSurfList"><option>Decal</option><option>Sign</option><option>Banner</option><option>Shirt</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
 <div class="overlay" id="goalsOverlay">
@@ -1331,6 +1333,7 @@
     Sublimation:['New','Design Ready','Done'],
     Embroidery: ['New','Digitized','Done'],
     Engraving:  ['New','Design Ready','Done'],
+    Vinyl:      ['New','Design Ready','Done'],
     NOTE:       ['New','Done']
   };
   function stageList(o){
@@ -1362,7 +1365,7 @@
     var pos=Math.min(mid.length-1, Math.round((i-1)*(mid.length-1)/Math.max(1,steps-1)));
     return mid[pos];
   }
-  var TYPES=['Embroidery','DTF','Sublimation','Engraving','NOTE'];
+  var TYPES=['Embroidery','DTF','Sublimation','Engraving','Vinyl','NOTE'];
   var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
   var state={orders:[],daily:{date:'',tasks:[],carried:0,updatedAt:0}}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
@@ -2147,6 +2150,7 @@
       {k:'Embroidery', label:'Embroidery', test:function(o){ return o.type==='Embroidery'; }},
       {k:'DTF',        label:'DTF',        test:function(o){ return o.type==='DTF'; }},
       {k:'Engraving',  label:'Engraving',  test:function(o){ return o.type==='Engraving'; }},
+      {k:'Vinyl',      label:'Vinyl',      test:function(o){ return o.type==='Vinyl'; }},
       {k:'@online',    label:'Online',     test:function(o){ return o.source==='online'; }}
     ];
 
@@ -2444,16 +2448,34 @@
      never lost. Opening an existing order still uses the regular editor. */
   var wz={ open:false, type:'DTF', steps:[], i:0, b:null, pane:null, busy:0 };
   var WZ_ROW=46;
-  var WZ_TYPES=[{k:'Embroidery',label:'Embroidery'},{k:'DTF',label:'DTF'},{k:'Sublimation',label:'Sublimation'},{k:'Engraving',label:'Engraving'},{k:'NOTE',label:'Note'}];
+  var WZ_TYPES=[{k:'Embroidery',label:'Embroidery'},{k:'DTF',label:'DTF'},{k:'Sublimation',label:'Sublimation'},
+    {k:'Engraving',label:'Engraving'},{k:'Vinyl',label:'Vinyl'},{k:'NOTE',label:'Note'}];
+  /* Each type asks only what it needs. The short lists are deliberate:
+     "Other\u2026" takes anything typed, and unusual jobs go in the note.
+       what   the things we work on, for this type
+       mats   materials, or none at all
+       color  ask for a color
+       place  ask where it prints
+     A size wheel only appears for the things that come in sizes. */
+  var WZ_PATH={
+    DTF:        { what:['T-Shirt','Polo','Long Sleeve','Sweatshirt'], mats:['Cotton','Poly'], color:true, place:true,
+                  whatLabel:'Garment', title:'What Are We Printing On?' },
+    Embroidery: { what:['Cap','Polo','T-Shirt'], mats:[], color:true, place:true,
+                  whatLabel:'Garment', title:'What Are We Embroidering On?' },
+    Sublimation:{ what:['Mug','Tumbler','T-Shirt'], mats:[], color:false, place:false,
+                  whatLabel:'Item', title:'What Are We Sublimating?' },
+    Engraving:  { what:['Tumbler'], mats:[], color:true, place:false,
+                  whatLabel:'Item', title:'What Are We Engraving?' },
+    Vinyl:      { what:['Decal','Sign','Banner','Shirt'], mats:[], color:true, place:false,
+                  whatLabel:'Item', title:'What Are We Cutting?' }
+  };
+  var WZ_SIZED=/^(t-?shirt|shirt|polo|long ?sleeve|short ?sleeve|sweat ?shirt|hoodie|jacket|fishing shirt|apron)$/i;
+  function wzPath(){ return WZ_PATH[wz.type]||WZ_PATH.DTF; }
+  function wzNeedsSize(){ return WZ_SIZED.test((wz.b.surface||'').trim()); }
   var WZ_ARROW='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   var WZ_CHECK='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>';
   function wzEl(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
   function wzList(id){ var dl=document.getElementById(id); return dl?Array.prototype.map.call(dl.querySelectorAll('option'),function(o){ return o.value||o.textContent; }):[]; }
-  function wzEng(){ return wz.type==='Engraving'; }
-  function wzSub(){ return wz.type==='Sublimation'; }
-  function wzHard(){ return wzEng()||wzSub(); }
-  function wzSurfList(){ return wzList(wzEng()?'engSurfList':(wzSub()?'subSurfList':'surfList')); }
-  function wzMatList(){ return wzList(wzEng()?'engMatList':(wzSub()?'subMatList':'matList')); }
   function wzPlaceListId(){ return /cap|beanie|hat|visor/i.test(wz.b.surface||'') ? 'capPlaceList' : 'placeList'; }
   function wzSizeList(){ var l=wzList('sizeList'); if(l.indexOf('Adult XS')<0) l.unshift('Adult XS'); return l; }
 
@@ -2501,14 +2523,14 @@
   function wzSteps(){
     if(wz.type==='NOTE') return ['type','note'];
     var s=['type','customer','garment'];
-    if(!wzHard()) s.push('placement');
+    if(wzPath().place) s.push('placement');
     s.push('sizes','photo','paydue','review');
     return s;
   }
   function wzTitle(k){
     return ({ type:'What Kind Of Order?', customer:'Who Is It For?',
-      garment: wzHard()?'What Are We Making?':'What Are We Printing On?',
-      placement:'Where Does It Print?', sizes: wzEng()?'How Many?':'Sizes And How Many',
+      garment: wzPath().title,
+      placement:'Where Does It Print?', sizes: wzNeedsSize()?'Sizes And How Many':'How Many?',
       photo:'Add A Photo', paydue:'Payment And Due Date', review:'Check It And Save', note:'Write The Note' })[k]||'';
   }
   function wzProgress(){
@@ -2586,8 +2608,9 @@
     if(editing.type!==wz.type){ clearNewDraft(editing.type); editing.type=wz.type; livePersist(); }
   }
   function wzItem(){
-    return { size:wzEng()?'':(wz.b.size||''), color:wzSub()?'':(wz.b.color||''), surface:wz.b.surface||'',
-      material:wz.b.material||'', placement:wzHard()?'':(wz.b.placement||''), name:'' };
+    var pa=wzPath();
+    return { size:wzNeedsSize()?(wz.b.size||''):'', color:pa.color?(wz.b.color||''):'', surface:wz.b.surface||'',
+      material:pa.mats.length?(wz.b.material||''):'', placement:pa.place?(wz.b.placement||''):'', name:'' };
   }
   function wzAdd(){
     var it=wzItem();
@@ -2694,16 +2717,19 @@
       p.appendChild(wzEl('p','wz-hint','All optional \u2014 tap Skip if you don\u2019t have it yet.'));
     },
     garment:function(p){
-      var row=wzEl('div','wz-wheels'), others=wzEl('div');
+      var pa=wzPath(), row=wzEl('div','wz-wheels'), others=wzEl('div');
       var placeWas=wzPlaceListId();
-      var f1=wzField(wzHard()?'Item':'Garment', wzSurfList(), 'surface', null, function(){
+      var f1=wzField(pa.whatLabel, pa.what, 'surface', null, function(){
         var now=wzPlaceListId(); if(now!==placeWas){ wz.b.placement=''; placeWas=now; }   // caps have their own spots
+        if(!wzNeedsSize()) wz.b.size='';                                                  // caps and tumblers have no size
+        $('wzTitle').textContent=wzTitle(wz.steps[wz.i]);
       });
-      var f2=wzField('Material', wzMatList(), 'material');
-      row.appendChild(f1.col); row.appendChild(f2.col); others.appendChild(f1.other); others.appendChild(f2.other);
-      if(!wzSub()){ var f3=wzField('Color', COLORS.map(function(c){ return c.n; }), 'color', colorHex); row.appendChild(f3.col); others.appendChild(f3.other); }
+      row.appendChild(f1.col); others.appendChild(f1.other);
+      if(pa.mats.length){ var f2=wzField('Material', pa.mats, 'material'); row.appendChild(f2.col); others.appendChild(f2.other); }
+      if(pa.color){ var f3=wzField('Color', COLORS.map(function(c){ return c.n; }), 'color', colorHex); row.appendChild(f3.col); others.appendChild(f3.other); }
+      if(row.children.length===1) row.classList.add('one');
       p.appendChild(row); p.appendChild(others);
-      p.appendChild(wzEl('p','wz-hint','Scroll each wheel. Leave one on \u2014 if it doesn\u2019t matter.'));
+      p.appendChild(wzEl('p','wz-hint','Not on the list? Pick Other\u2026 and type it \u2014 or leave it and put it in the note at the end.'));
     },
     placement:function(p){
       var list=wzList(wzPlaceListId()), grid=wzEl('div','wz-tiles');
@@ -2726,16 +2752,17 @@
       p.appendChild(wzEl('p','wz-hint','Tap every spot that gets printed. Anything besides Front gets a warning on the order.'));
     },
     sizes:function(p){
-      var sum=wzEl('div','wz-sum'), g=wzItem(), parts=[];
+      var sum=wzEl('div','wz-sum'), g=wzItem(), parts=[], needSize=wzNeedsSize();
       if(g.color)parts.push(g.color); if(g.surface)parts.push(g.surface); if(g.material)parts.push(g.material); if(g.placement)parts.push(placeWords(g.placement.replace(/,\s*/g,' + ')));
       sum.textContent=parts.length?parts.join(' \u00b7 '):'No garment picked';
       p.appendChild(sum);
       var row=wzEl('div','wz-wheels'), others=wzEl('div');
       var add=wzEl('button','wz-add'); add.type='button';
       function label(){ var it=wzItem(); add.textContent='Add '+(Math.max(1,parseInt(wz.b.qty,10)||1))+' \u00d7 '+(it.size||it.surface||'Item'); }
-      if(!wzEng()){ var f=wzField('Size', wzSizeList(), 'size', null, label); row.appendChild(f.col); others.appendChild(f.other); }
+      if(needSize){ var f=wzField('Size', wzSizeList(), 'size', null, label); row.appendChild(f.col); others.appendChild(f.other); }
       var qopts=[]; for(var q=1;q<=100;q++) qopts.push({k:String(q),label:String(q)});
       row.appendChild(wzCol('How Many', wzWheel(qopts, String(wz.b.qty||'1'), function(k){ wz.b.qty=k; label(); wzFoot(); })));
+      if(row.children.length===1) row.classList.add('one');
       p.appendChild(row); p.appendChild(others);
       label(); p.appendChild(add);
       var list=wzEl('div','wz-items'); p.appendChild(list);
@@ -2765,7 +2792,7 @@
         paintList(); wzFoot();
       });
       paintList();
-      var more=wzEl('button','wz-link',wzHard()?'+ A Different Item':'+ A Different Garment'); more.type='button';
+      var more=wzEl('button','wz-link','+ A Different '+wzPath().whatLabel); more.type='button';
       more.addEventListener('click',function(){ wzShow(wz.steps.indexOf('garment'),-1); });
       p.appendChild(more);
     },
@@ -3107,9 +3134,10 @@
     var bld=document.createElement('div'); bld.className='builder';
     var isEng=(editing.type==='Engraving');
     var isSub=(editing.type==='Sublimation');
-    var surfListId = isEng?'engSurfList' : (isSub?'subSurfList':'surfList');
+    var isVin=(editing.type==='Vinyl');
+    var surfListId = isEng?'engSurfList' : (isSub?'subSurfList':(isVin?'vinylSurfList':'surfList'));
     var matListId  = isEng?'engMatList'  : (isSub?'subMatList':'matList');
-    var noPlacement = isEng || isSub;   // hard goods: single placement area, skip the shirt placement picker
+    var noPlacement = isEng || isSub || isVin;   // hard goods and vinyl: skip the shirt placement picker
     // Each field gets: the input (type if you want) + a side-scrolling row of tappable chips
     function fieldWithChips(cls, listId, ph, getV, setV){
       var wrap=document.createElement('div'); wrap.className='b-field';
@@ -3152,7 +3180,7 @@
       wrap.appendChild(strip);
       return wrap;
     }
-    if(!isEng){ bld.appendChild(fieldWithChips('b-inp','sizeList','Size',function(){return builder.size;},function(v){builder.size=v;})); }
+    if(!isEng && !isVin){ bld.appendChild(fieldWithChips('b-inp','sizeList','Size',function(){return builder.size;},function(v){builder.size=v;})); }
     var placeSlot=null;
     function placementListId(){ return /cap|beanie|hat|visor/i.test(builder.surface||'') ? 'capPlaceList' : 'placeList'; }
     function rebuildPlacement(){
@@ -3164,8 +3192,8 @@
       fresh.dataset.list=want;
       placeSlot.replaceWith(fresh); placeSlot=fresh;
     }
-    bld.appendChild(fieldWithChips('b-inp', surfListId, (isEng||isSub)?'Item':'Garment', function(){return builder.surface;}, function(v){builder.surface=v; rebuildPlacement();}));
-    bld.appendChild(fieldWithChips('b-inp', matListId, 'Material', function(){return builder.material;}, function(v){builder.material=v;}));
+    bld.appendChild(fieldWithChips('b-inp', surfListId, (isEng||isSub||isVin)?'Item':'Garment', function(){return builder.surface;}, function(v){builder.surface=v; rebuildPlacement();}));
+    if(!isVin){ bld.appendChild(fieldWithChips('b-inp', matListId, 'Material', function(){return builder.material;}, function(v){builder.material=v;})); }
     if(!noPlacement){ placeSlot=multiChipsField(placementListId(),'Placement (pick any)',function(){return builder.placement;},function(v){builder.placement=v;}); placeSlot.dataset.list=placementListId(); bld.appendChild(placeSlot); }
     if(!isSub){ bld.appendChild(colorStrip(function(){return builder.color;}, function(cc){builder.color=cc;})); }
     var qa=document.createElement('div'); qa.className='qty-add';
