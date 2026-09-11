@@ -544,6 +544,20 @@
   .it-main .it-name{ font-weight:800; color:var(--burgundy); }
   .it-sub{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:16px; line-height:1.45; color:rgba(var(--ink-rgb),.85); margin-top:2px; }
   .it-sub .cdot{ width:11px; height:11px; }
+  .it-sub .pl-odd{ font-weight:700; color:#B4520F; }
+  html[data-theme="dark"] .it-sub .pl-odd{ color:#F4A36B; }
+  /* placement line under the title */
+  .card .place{ display:flex; align-items:center; gap:7px; margin:0 0 8px; font-family:'Teko',sans-serif;
+    line-height:1.1; letter-spacing:.02em; }
+  .card .place .pl-words{ display:flex; flex-wrap:wrap; align-items:baseline; column-gap:6px; row-gap:0; min-width:0; }
+  .card .place .pl-words i{ font-style:normal; font-weight:500; opacity:.55; }
+  .card .place-ok{ font-size:17px; font-weight:500; color:rgba(var(--ink-rgb),.6); }
+  .card .place-odd{ font-size:19px; font-weight:600; color:#8E3F0A; background:rgba(232,114,44,.13);
+    border:1.5px solid var(--orange); border-radius:10px; padding:6px 10px 4px 8px; }
+  .card .place-odd .odd{ font-weight:700; }
+  .card .place-odd span:not(.odd):not(.pl-words){ font-weight:500; opacity:.72; }   /* plain Front, beside the warning ones */
+  .card .place-odd .pl-ico{ flex:none; margin-top:-3px; color:var(--orange); }
+  html[data-theme="dark"] .card .place-odd{ color:#F7B07E; background:rgba(232,114,44,.16); }
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -1684,7 +1698,10 @@
   var _manualSaveBusy=false;
   var _deletedIds = {};
   // (deleted ids kept in _deletedIds so a merge can't resurrect them)
-  function _freshness(o){ return Math.max(o.updatedAt||0, o.trashedAt||0, o.createdAt||0); }
+  // A time more than a day ahead can only come from a device with the wrong
+  // date; it is ignored so it can't make one copy win every merge forever.
+  function _freshness(o){ var lim=Date.now()+DAY; function t(x){ return (typeof x==='number'&&x<=lim)?x:0; }
+    return Math.max(t(o.updatedAt), t(o.trashedAt), t(o.createdAt)); }
 
   // MERGE-THEN-SAVE. Never blind-overwrite the cloud file:
   // a paid online order (or another device's edit) may have landed since we loaded.
@@ -1856,7 +1873,45 @@
     if(o.balanceDue===undefined)o.balanceDue='';
     delete o.isNew; return o;
   }
-  function purgeOld(){ var now=Date.now(),b=state.orders.length; state.orders=state.orders.filter(function(o){ var kill=(o.trashed&&o.trashedAt&&(now-o.trashedAt)>TRASH_DAYS*DAY); if(kill)_deletedIds[o.id]=true; return !kill; }); if(state.orders.length!==b)persist(); }
+  function purgeOld(){
+    var now=Date.now(), b=state.orders.length, fixed=false;
+    state.orders.forEach(function(o){
+      // A trash date in the future (a device with the wrong date) made the
+      // countdown read past 10 days. It counts from today instead.
+      if(o.trashed && (typeof o.trashedAt!=='number' || !isFinite(o.trashedAt) || o.trashedAt>now+DAY)){ o.trashedAt=now; o.updatedAt=now; fixed=true; }
+    });
+    state.orders=state.orders.filter(function(o){
+      var kill=(o.trashed&&o.trashedAt&&(now-o.trashedAt)>TRASH_DAYS*DAY);
+      // An order with absolutely nothing in it is not kept. Only once nobody
+      // has touched it for 10 minutes, so an order someone is still typing
+      // on another device is left alone.
+      if(!kill && orderIsEmpty(o) && !(editing&&editing.id===o.id) && now-Math.max(o.updatedAt||0,o.createdAt||0)>10*60000) kill=true;
+      if(kill)_deletedIds[o.id]=true; return !kill; });
+    if(state.orders.length!==b||fixed)persist();
+  }
+  /* "Absolutely nothing": no name, phone, email, notes, items, photos, due
+     date, payment or balance. Anything else anyone has set, including
+     fields this check doesn't know about, counts as something, and orders
+     that came from the website are never treated as empty. */
+  var EMPTY_IGNORES={id:1,type:1,stage:1,urgency:1,designReady:1,createdAt:1,updatedAt:1,trashed:1,trashedAt:1,
+    trashReason:1,drafting:1,isNew:1,duePreset:1,items:1,images:1,payLocked:1,status:1,source:1};
+  function orderIsEmpty(o){
+    if(!o) return false;
+    if(o.source && o.source!=='manual') return false;
+    if(o.isQuote) return false;
+    if((o.images||[]).length) return false;
+    if((o.items||[]).some(itemHas)) return false;
+    for(var k in o){
+      if(!Object.prototype.hasOwnProperty.call(o,k) || EMPTY_IGNORES[k]) continue;
+      var v=o[k];
+      if(v===null || v===undefined || v===false || v===0 || v==='') continue;
+      if(typeof v==='string'){ if(v.trim()) return false; continue; }
+      if(Array.isArray(v)){ if(v.length) return false; continue; }
+      if(typeof v==='object'){ if(Object.keys(v).length) return false; continue; }
+      return false;
+    }
+    return true;
+  }
 
   function syncShow(t, kind){
     var el=$('sync');
@@ -1872,7 +1927,7 @@
   function toast(msg,undoFn){ var el=$('toast'); $('toastMsg').textContent=msg; var b=$('toastAction'); if(undoFn){b.style.display='block';b.textContent='Undo';toastUndo=undoFn;}else{b.style.display='none';toastUndo=null;} el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){el.classList.remove('show');},4500); }
   $('toastAction').addEventListener('click',function(){ if(toastUndo){toastUndo(); $('toast').classList.remove('show');} });
 
-  function daysLeft(o){ if(!o.trashedAt)return TRASH_DAYS; var d=TRASH_DAYS-Math.floor((Date.now()-o.trashedAt)/DAY); return d<0?0:d; }
+  function daysLeft(o){ if(!o.trashedAt)return TRASH_DAYS; var gone=Math.max(0,Math.floor((Date.now()-o.trashedAt)/DAY)); var d=TRASH_DAYS-gone; return d<0?0:Math.min(d,TRASH_DAYS); }
   function trashCount(){ var n=0; state.orders.forEach(function(o){if(o.trashed&&!o.isQuote)n++;}); return n; }
   function qTrashCount(){ var n=0; state.orders.forEach(function(o){if(o.trashed&&o.isQuote)n++;}); return n; }
 
@@ -1964,6 +2019,29 @@
     wireCards();
   }
 
+  /* ===== Placement =====
+     Front is the shop's everyday print. Anything else (left chest, back,
+     sleeve…) is easy to miss in the small print, so every card gets the
+     placement as its own line right under the title, and anything that is
+     not plain Front shows in orange with a warning sign. */
+  function isUsualPlace(t){ return /^front( chest)?$/i.test(String(t||'').trim()); }
+  function placeWords(t){ return String(t||'').trim().replace(/\S+/g,function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }); }
+  function placeTokens(str){ return String(str||'').split(',').map(function(x){ return x.trim(); }).filter(Boolean); }
+  function orderPlaces(o){
+    var seen={}, out=[];
+    (o.items||[]).filter(itemHas).forEach(function(it){
+      placeTokens(it.placement).forEach(function(t){ var k=t.toLowerCase(); if(!seen[k]){ seen[k]=1; out.push(t); } });
+    });
+    return out;
+  }
+  var PLACE_WARN='<svg class="pl-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 22 20.5H2z"/><path d="M12 10v4.6"/><circle cx="12" cy="17.6" r=".6" fill="currentColor"/></svg>';
+  function placeBlockHTML(o){
+    var ps=orderPlaces(o); if(!ps.length) return '';
+    var odd=ps.some(function(t){ return !isUsualPlace(t); });
+    // the dot travels with the word after it, so a line never ends on a dot
+    var words=ps.map(function(t,i){ return '<span'+(isUsualPlace(t)?'':' class="odd"')+'>'+(i?'<i>\u00b7</i> ':'')+esc(placeWords(t))+'</span>'; }).join(' ');
+    return '<div class="place '+(odd?'place-odd':'place-ok')+'" title="Print placement">'+(odd?PLACE_WARN:'')+'<span class="pl-words">'+words+'</span></div>';
+  }
   function itemLineHTML(it,count){
     var size=it.size||'', color=it.color||'', surface=it.surface||'', material=it.material||'', name=(it.name||'').trim();
     var used = size?'size':(surface?'surface':(material?'material':(color?'color':'')));
@@ -1972,7 +2050,8 @@
     if(color && used!=='color') rest.push(esc(color));
     if(surface && used!=='surface') rest.push(esc(surface));
     if(material && used!=='material') rest.push(esc(material));
-    if(it.placement) rest.push(esc(it.placement));
+    if(it.placement) rest.push(placeTokens(it.placement).map(function(t){
+      return isUsualPlace(t) ? esc(t) : '<b class="pl-odd">'+esc(t)+'</b>'; }).join(', '));
     var dot = color?('<span class="cdot" style="background:'+colorHex(color)+'"></span>'):'';
     var main='<div class="it-main">';
     if(used==='color' && dot) main+=dot;
@@ -2012,6 +2091,7 @@
       var _n=(o.type==='NOTE')?0:itemCount(o);
       var _in=(_n?'<span class="h3-n" title="'+_n+(_n===1?' item':' items')+'">'+_n+'</span>':'')+'<span class="h3-t">'+esc(_t)+'</span>';
       h+= o.isQuote ? ('<h3 class="has-n'+_nn+'">'+_in+'</h3>') : ('<h3 class="tinted has-n'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+_in+'</h3>'); }
+    h+=placeBlockHTML(o);
     var _ph=(o.custPhone||o.contact||''); if(_ph) h+='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     if(o.type==='NOTE'){ if(o.body) h+='<div class="ctext">'+esc(o.body)+'</div>'; }
     else {
@@ -2617,6 +2697,19 @@
       clearNewDraft(editing.type);
       hideOverlay();
       render();
+      return;
+    }
+    // Nothing left in it (a size tapped but never added, or everything
+    // typed then erased): it is not saved, and leaves the board.
+    if(!editing.isNew && orderIsEmpty(editing)){
+      var eid=editing.id;
+      clearNewDraft(editing.type);
+      for(var ei=state.orders.length-1;ei>=0;ei--){ if(state.orders[ei].id===eid){ state.orders.splice(ei,1); break; } }
+      _deletedIds[eid]=true;
+      persist();
+      hideOverlay();
+      render();
+      toast('Empty order not saved');
       return;
     }
 
