@@ -559,18 +559,19 @@
   .it-sub .cdot{ width:11px; height:11px; }
   .it-sub .pl-odd{ font-weight:700; color:#B4520F; }
   html[data-theme="dark"] .it-sub .pl-odd{ color:#F4A36B; }
-  /* placement line under the title */
-  .card .place{ display:flex; align-items:center; gap:7px; margin:0 0 8px; font-family:'Teko',sans-serif;
+  /* placement line under the title, and on the order's own screen */
+  .card .place, .vw-place .place{ display:flex; align-items:center; gap:7px; margin:0 0 8px; font-family:'Teko',sans-serif;
     line-height:1.1; letter-spacing:.02em; }
-  .card .place .pl-words{ display:flex; flex-wrap:wrap; align-items:baseline; column-gap:6px; row-gap:0; min-width:0; }
-  .card .place .pl-words i{ font-style:normal; font-weight:500; opacity:.55; }
-  .card .place-ok{ font-size:17px; font-weight:500; color:rgba(var(--ink-rgb),.6); }
-  .card .place-odd{ font-size:19px; font-weight:600; color:#8E3F0A; background:rgba(232,114,44,.13);
+  .card .place .pl-words, .vw-place .place .pl-words{ display:flex; flex-wrap:wrap; align-items:baseline; column-gap:6px; row-gap:0; min-width:0; }
+  .card .place .pl-words i, .vw-place .place .pl-words i{ font-style:normal; font-weight:500; opacity:.55; }
+  .card .place-ok, .vw-place .place-ok{ font-size:17px; font-weight:500; color:rgba(var(--ink-rgb),.6); }
+  .card .place-odd, .vw-place .place-odd{ font-size:19px; font-weight:600; color:#8E3F0A; background:rgba(232,114,44,.13);
     border:1.5px solid var(--orange); border-radius:10px; padding:6px 10px 4px 8px; }
-  .card .place-odd .odd{ font-weight:700; }
-  .card .place-odd span:not(.odd):not(.pl-words){ font-weight:500; opacity:.72; }   /* plain Front, beside the warning ones */
-  .card .place-odd .pl-ico{ flex:none; margin-top:-3px; color:var(--orange); }
-  html[data-theme="dark"] .card .place-odd{ color:#F7B07E; background:rgba(232,114,44,.16); }
+  .card .place-odd .odd, .vw-place .place-odd .odd{ font-weight:700; }
+  .card .place-odd span:not(.odd):not(.pl-words), .vw-place .place-odd span:not(.odd):not(.pl-words){ font-weight:500; opacity:.72; }
+  .card .place-odd .pl-ico, .vw-place .place-odd .pl-ico{ flex:none; margin-top:-3px; color:var(--orange); }
+  html[data-theme="dark"] .card .place-odd,
+  html[data-theme="dark"] .vw-place .place-odd{ color:#F7B07E; background:rgba(232,114,44,.16); }
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -777,6 +778,49 @@
   /* review */
   .wz-preview{ max-width:300px; margin:4px auto 16px; pointer-events:none; }
   .wz-preview .card{ margin:0; break-inside:auto; }
+  /* looking at an order (not editing it) */
+  .wz.viewing .wz-prog{ display:none; }
+  .wz.viewing .wz-top{ justify-content:flex-end; }
+  .vw-pane{ padding:0; overflow:hidden; display:flex; flex-direction:column; }
+  .vw-wrap{ flex:1; display:flex; flex-direction:column; min-height:0; }
+  .vw-strip{ flex:1; display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none; overscroll-behavior-x:contain; min-height:0; }
+  .vw-strip::-webkit-scrollbar{ display:none; }
+  .vw-slot{ flex:0 0 100%; width:100%; box-sizing:border-box; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    scroll-snap-align:center; scroll-snap-stop:always; padding:4px 18px 20px; }
+  .vw-dots{ flex:none; padding:10px 0 4px; }
+  .vw-lbl{ margin:16px 0 8px; font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.09em;
+    color:rgba(var(--ink-rgb),.55); }
+  .vw-shots{ display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; margin:0 -18px; padding:4px 18px; }
+  .vw-shots::-webkit-scrollbar{ display:none; }
+  .vw-shot{ flex:0 0 auto; scroll-snap-align:center; border-radius:16px; overflow:hidden; background:rgba(var(--ink-rgb),.08); }
+  .vw-shot img{ display:block; max-height:240px; max-width:82vw; width:auto; height:auto; }
+  .vw-shot .art-gone{ width:200px; height:150px; }
+  .vw-place{ margin:14px 0 2px; }
+  .vw-place .place{ margin:0; }
+  .vw-place .place-odd{ font-size:22px; }
+  .vw-items{ border-top:1px solid var(--line); }
+  .vw-item{ display:flex; gap:12px; align-items:baseline; padding:12px 2px; border-bottom:1px solid var(--line); }
+  .vw-item .q{ flex:none; min-width:46px; font-family:'Teko',sans-serif; font-weight:600; font-size:26px; color:var(--green); }
+  .vw-item .s{ flex:1; min-width:0; }
+  .vw-item .s b{ font-family:'Teko',sans-serif; font-weight:600; font-size:22px; color:var(--burgundy); }
+  .vw-item .s em{ margin-left:8px; font-style:normal; font-family:'Schadow','Teko',sans-serif; font-size:18px; color:var(--burgundy); }
+  .vw-item .sub{ margin-top:3px; font-size:14.5px; line-height:1.35; color:rgba(var(--ink-rgb),.65); }
+  .vw-item .sub .pl-odd{ font-weight:700; color:#B4520F; }
+  html[data-theme="dark"] .vw-item .sub .pl-odd{ color:#F4A36B; }
+  .vw-note{ white-space:pre-wrap; font-size:16px; line-height:1.5; color:var(--burgundy);
+    background:var(--note); border:1px solid var(--line); border-radius:15px; padding:14px 15px; }
+  .vw-none{ margin:22px 0; text-align:center; font-size:15px; color:rgba(var(--ink-rgb),.55); }
+  .vw-fact{ display:flex; align-items:baseline; gap:12px; padding:13px 2px; border-bottom:1px solid var(--line); }
+  .vw-fact .k{ flex:none; width:104px; font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.07em; color:rgba(var(--ink-rgb),.55); }
+  .vw-fact .v{ flex:1; min-width:0; font-family:'Schadow','Teko',sans-serif; font-size:20px; color:var(--burgundy); word-break:break-word; }
+  .vw-fact .v.tel{ color:var(--green); text-decoration:underline; text-underline-offset:4px; }
+  .vw-fact.warn .v{ color:var(--red); }
+  .vw-del{ display:block; width:100%; margin:26px 0 6px; height:52px; border-radius:15px; cursor:pointer;
+    border:1.5px solid rgba(214,69,69,.45); background:transparent; color:var(--red);
+    font-family:'Teko',sans-serif; font-size:20px; letter-spacing:.04em; }
+  .wz.viewing .wz-foot .wz-next{ font-size:22px; }
+  .wz.viewing .wz-foot .vw-edit{ flex:0 0 38%; }
   .wz-acts{ display:flex; gap:10px; margin-top:18px; }
   .wz-act{ flex:1; height:54px; border-radius:15px; cursor:pointer; font-family:'Teko',sans-serif; font-size:20px;
     letter-spacing:.04em; border:1.5px solid var(--line-strong); background:transparent; color:var(--burgundy); }
@@ -1039,7 +1083,7 @@
   </div>
   <div class="wz-head"><div class="wz-no" id="wzNo"></div><h2 class="wz-title" id="wzTitle"></h2></div>
   <div class="wz-body" id="wzBody"></div>
-  <div class="wz-foot"><button class="wz-next" id="wzNext" type="button"></button></div>
+  <div class="wz-foot" id="wzFoot"><button class="wz-next" id="wzNext" type="button"></button></div>
   <input type="file" id="wzFile" accept="image/*" multiple hidden>
   <div class="wz-ask" id="wzAsk">
     <div class="wz-ask-box">
@@ -2455,7 +2499,7 @@
      screen, a scroll wheel for every choice. It fills in exactly the same
      order the editor would, with the same autosave, so a half-made order is
      never lost. Opening an existing order still uses the regular editor. */
-  var wz={ open:false, type:'DTF', steps:[], i:0, b:null, pane:null, busy:0 };
+  var wz={ open:false, type:'DTF', steps:[], i:0, b:null, pane:null, busy:0, edit:false, view:null };
   var WZ_ROW=46;
   var WZ_TYPES=[{k:'Embroidery',label:'Embroidery'},{k:'DTF',label:'DTF'},{k:'Sublimation',label:'Sublimation'},
     {k:'Engraving',label:'Engraving'},{k:'Vinyl',label:'Vinyl'},{k:'NOTE',label:'Note'}];
@@ -2468,9 +2512,9 @@
      A size wheel only appears for the things that come in sizes. */
   var WZ_PATH={
     DTF:        { what:['T-Shirt','Polo','Long Sleeve','Sweatshirt'], mats:['Cotton','Poly'], color:true, place:true,
-                  whatLabel:'Garment', title:'What Are We Printing On?' },
-    Embroidery: { what:['Cap','Polo','T-Shirt'], mats:[], color:true, place:false,
-                  whatLabel:'Garment', title:'What Are We Embroidering On?' },
+                  whatLabel:'Garment', title:'What Are We Printing On?', where:'Where Does It Print?' },
+    Embroidery: { what:['Cap','Polo','T-Shirt'], mats:[], color:true, place:true,
+                  whatLabel:'Garment', title:'What Are We Embroidering On?', where:'Where Does It Go?' },
     Sublimation:{ what:['Mug','Tumbler','T-Shirt'], mats:[], color:false, place:false,
                   whatLabel:'Item', title:'What Are We Sublimating?' },
     Engraving:  { what:['Tumbler'], mats:[], color:true, place:false,
@@ -2481,6 +2525,8 @@
   var WZ_SIZED=/^(t-?shirt|shirt|polo|long ?sleeve|short ?sleeve|sweat ?shirt|hoodie|jacket|fishing shirt|apron)$/i;
   function wzPath(){ return WZ_PATH[wz.type]||WZ_PATH.DTF; }
   function wzNeedsSize(){ return WZ_SIZED.test((wz.b.surface||'').trim()); }
+  // A cap is stitched in one spot, so it never asks where.
+  function wzNeedsPlace(){ return !!wzPath().place && !/cap|beanie|hat|visor/i.test(wz.b.surface||''); }
   var WZ_ARROW='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   var WZ_CHECK='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>';
   function wzEl(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
@@ -2532,14 +2578,14 @@
   function wzSteps(){
     if(wz.type==='NOTE') return wz.edit?['note']:['type','note'];
     var s=wz.edit?['customer','garment']:['type','customer','garment'];
-    if(wzPath().place) s.push('placement');
+    if(wzNeedsPlace()) s.push('placement');
     s.push('sizes','photo','review');
     return s;
   }
   function wzTitle(k){
     return ({ type:'What Kind Of Order?', customer:'Customer And Due Date',
       customer2:'Customer And Due Date', garment: wzPath().title,
-      placement:'Where Does It Print?', sizes: wzNeedsSize()?'Sizes And How Many':'How Many?',
+      placement:(wzPath().where||'Where Does It Go?'), sizes: wzNeedsSize()?'Color, Size And How Many':'Color And How Many',
       photo:'Add A Photo', review:wz.edit?'Notes And Check':'Check It And Save', note:'Write The Note' })[k]||'';
   }
   function wzProgress(){
@@ -2547,27 +2593,146 @@
     $('wzBar').style.width=Math.round((wz.i+1)/wz.steps.length*100)+'%';
   }
 
-  function openWizard(existing){
-    wz.open=true; wz.i=0; wz.busy=0; wz.edit=!!existing;
+  /* ================= Phone: looking at an order =================
+     Tapping an order shows it, it does not open it for editing. Two pages,
+     swiped like the photos: what to make, and who it's for. Edit is a button. */
+  function wzViewPages(o){
+    var pa=(WZ_PATH[o.type]||WZ_PATH.DTF);
+    var pages=[];
+
+    // --- page 1: the job ---
+    var a=wzEl('div','vw-page');
+    var imgs=(o.images||[]).filter(Boolean);
+    if(imgs.length){
+      var strip=wzEl('div','vw-shots');
+      imgs.forEach(function(src){ var d=wzEl('div','vw-shot'); d.innerHTML='<img '+artImgSrc(src)+' alt="">'; strip.appendChild(d); });
+      a.appendChild(strip);
+    }
+    var ps=orderPlaces(o);
+    if(ps.length){
+      var pl=wzEl('div','vw-place'); pl.innerHTML=placeBlockHTML(o); a.appendChild(pl);
+    }
+    var items=(o.items||[]).filter(itemHas);
+    if(items.length){
+      a.appendChild(wzEl('div','vw-lbl','Items \u00b7 '+itemCount(o)+(itemCount(o)===1?' Piece':' Pieces')));
+      var groups={}, order=[];
+      items.forEach(function(it){ var k=itemKey(it)+'|'+((it.name||'').trim()); if(!groups[k]){ groups[k]={it:it,n:0}; order.push(k); } groups[k].n++; });
+      var list=wzEl('div','vw-items');
+      order.forEach(function(k){
+        var gr=groups[k], r=wzEl('div','vw-item');
+        r.appendChild(wzEl('span','q',gr.n+'\u00d7'));
+        var col=wzEl('span','s');
+        col.appendChild(wzEl('b',null,gr.it.size||gr.it.surface||'Item'));
+        if((gr.it.name||'').trim()) col.appendChild(wzEl('em',null,gr.it.name));
+        var sub=wzEl('div','sub'); sub.innerHTML=comboText(gr.it); col.appendChild(sub);
+        r.appendChild(col); list.appendChild(r);
+      });
+      a.appendChild(list);
+    } else if(o.type!=='NOTE'){
+      a.appendChild(wzEl('div','vw-none','No items on this order yet.'));
+    }
+    if(o.body){ a.appendChild(wzEl('div','vw-lbl','Notes')); a.appendChild(wzEl('div','vw-note',o.body)); }
+    pages.push({label:'Order', el:a});
+
+    // --- page 2: who, when, money ---
+    var b=wzEl('div','vw-page');
+    function fact(label,value,cls){
+      if(!value) return;
+      var f=wzEl('div','vw-fact'+(cls?' '+cls:''));
+      f.appendChild(wzEl('span','k',label)); f.appendChild(wzEl('span','v',value));
+      b.appendChild(f);
+    }
+    fact('Customer', o.custName||(o.type==='NOTE'?o.title:'')||'\u2014');
+    if(o.custPhone||o.contact){
+      var f=wzEl('div','vw-fact'); f.appendChild(wzEl('span','k','Phone'));
+      var tel=document.createElement('a'); tel.className='v tel'; tel.href='tel:'+String(o.custPhone||o.contact).replace(/[^0-9+]/g,'');
+      tel.textContent=(o.custPhone||o.contact); f.appendChild(tel); b.appendChild(f);
+    }
+    if(o.custEmail) fact('Email', o.custEmail);
+    fact('Kind', o.type==='NOTE'?'Note':o.type);
+    fact('Stage', o.stage||'New');
+    var di=dueInfo(o); if(di) fact('Due', di.txt, di.over?'warn':'');
+    var pay=''; PAYSTAGES.forEach(function(x){ if(x.k===(o.payStatus||'')) pay=x.label; });
+    if(pay) fact('Payment', pay);
+    if(o.balanceDue) fact('Balance', '$'+o.balanceDue);
+    if(o.source==='online') fact('Came From', 'The website');
+    var del=wzEl('button','vw-del','Delete This Order'); del.type='button';
+    del.addEventListener('click',function(){ var id=o.id; wzClose(); editing=null; toTrash(id,'deleted'); });
+    b.appendChild(del);
+    pages.push({label:'Details', el:b});
+    return pages;
+  }
+  function openView(o){
+    if(!o) return;
+    wz.open=true; wz.edit=false; wz.view=o; wz.i=0;
+    editing=null;
+    var el=$('wz'); el.classList.add('show','viewing'); el.setAttribute('aria-hidden','false');
+    document.body.classList.add('wz-open');
+    $('wzAsk').classList.remove('show');
+    $('wzBody').innerHTML=''; wz.pane=null;
+    $('wzBack').classList.add('hidden');
+    $('wzNo').textContent=(o.type==='NOTE'?'Note':o.type)+(o.stage&&o.stage!=='New'?' \u00b7 '+o.stage:'');
+    $('wzTitle').textContent=autoTitle(o)||'Order';
+    var pages=wzViewPages(o);
+    var wrap=wzEl('div','vw-wrap'), strip=wzEl('div','vw-strip');
+    pages.forEach(function(pg){ var slot=wzEl('div','vw-slot'); slot.appendChild(pg.el); strip.appendChild(slot); });
+    var dots=wzEl('div','info-dots vw-dots');
+    pages.forEach(function(pg,ix){ var d=wzEl('i',ix?'':'on'); d.title=pg.label;
+      d.addEventListener('click',function(){ strip.scrollTo({left:ix*strip.clientWidth,behavior:'smooth'}); }); dots.appendChild(d); });
+    var timer=null;
+    strip.addEventListener('scroll',function(){
+      clearTimeout(timer);
+      timer=setTimeout(function(){
+        var i=Math.round(strip.scrollLeft/(strip.clientWidth||1));
+        for(var k=0;k<dots.children.length;k++) dots.children[k].classList.toggle('on',k===i);
+      },90);
+    },{passive:true});
+    wrap.appendChild(strip); wrap.appendChild(dots);
+    var pane=wzEl('div','wz-pane vw-pane'); pane.appendChild(wrap);
+    $('wzBody').appendChild(pane); wz.pane=pane;
+    hydrateArt(pane);
+    // footer: move it along, or open it for editing
+    var foot=$('wzFoot'); foot.innerHTML='';
+    var nx=nextStageLabel(o), isDone=(nx==='Done');
+    var adv=wzEl('button','wz-next'+(isDone?'':' soft')); adv.type='button';
+    adv.innerHTML=(isDone?WZ_CHECK:WZ_ARROW)+nx;
+    adv.addEventListener('click',function(){ var id=o.id; wzClose(); advanceStage(id); });
+    var ed=wzEl('button','wz-next vw-edit'); ed.type='button'; ed.textContent='Edit';
+    ed.addEventListener('click',function(){ var id=o.id; wzClose(); openWizard(getOrder(id),true); });
+    foot.appendChild(adv); foot.appendChild(ed);
+  }
+  function openWizard(existing, atItems){
+    wz.open=true; wz.i=0; wz.busy=0; wz.edit=!!existing; wz.view=null;
     wz.b={surface:'',material:'',color:'',placement:'',size:'',qty:'1'};
     wz.type=existing?existing.type:'DTF';       // a new order always opens on the same spot
     editing=existing||null;
-    if(editing){ if(!editing.images)editing.images=[]; if(!editing.items)editing.items=[]; }
+    if(editing){
+      if(!editing.images)editing.images=[]; if(!editing.items)editing.items=[];
+      // start from what the order already is, so the wheels and titles match it
+      var seed=null; for(var si=editing.items.length-1;si>=0;si--){ if(itemHas(editing.items[si])){ seed=editing.items[si]; break; } }
+      if(seed){ wz.b.surface=seed.surface||''; wz.b.material=seed.material||''; wz.b.color=seed.color||''; wz.b.placement=seed.placement||''; wz.b.size=seed.size||''; }
+    }
     builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
     var el=$('wz'); el.classList.add('show'); el.setAttribute('aria-hidden','false');
     document.body.classList.add('wz-open');
     $('wzAsk').classList.remove('show');
     $('wzBody').innerHTML=''; wz.pane=null;
-    wzShow(0,0);
+    // editing an order starts on its items; swipe back for the customer
+    var st=wzSteps(), start=0;
+    if(existing && atItems){ var ix=st.indexOf('sizes'); if(ix>0) start=ix; }
+    wzShow(start,0);
   }
   function wzClose(){
-    wz.open=false; wz.edit=false;
+    wz.open=false; wz.edit=false; wz.view=null;
+    $('wz').classList.remove('viewing');
+    var ft=$('wzFoot'); if(ft && !$('wzNext')){ ft.innerHTML='<button class="wz-next" id="wzNext" type="button"></button>'; $('wzNext').addEventListener('click',wzNext); }
     var el=$('wz'); el.classList.remove('show'); el.setAttribute('aria-hidden','true');
     document.body.classList.remove('wz-open');
     $('wzAsk').classList.remove('show');
     $('wzBody').innerHTML=''; wz.pane=null;
   }
   function wzShow(i, dir){
+    if(wz.view) return;
     wz.steps=wzSteps();
     wz.i=Math.max(0,Math.min(i,wz.steps.length-1));
     var key=wz.steps[wz.i];
@@ -2583,7 +2748,7 @@
     wzFoot();
   }
   function wzFoot(){
-    if(!wz.open) return;
+    if(!wz.open || wz.view) return;
     var key=wz.steps[wz.i], btn=$('wzNext');
     if(wz.i===wz.steps.length-1){ btn.innerHTML=WZ_CHECK+(wz.edit?'Save & Close':(wz.type==='NOTE'?'Save Note':'Save Order')); btn.classList.remove('soft'); return; }
     var filled=wzFilled(key);
@@ -2610,6 +2775,8 @@
     wzShow(wz.i+1,1);
   }
   function wzBack(){ if(wz.open && wz.i>0) wzShow(wz.i-1,-1); }
+  // when editing, finishing goes back to looking at the order
+  function wzAfterEdit(id){ var o=getOrder(id); if(o && phoneBoard()) openView(o); }
 
   // The order itself starts once the type is picked — the same blank order
   // the regular editor starts with.
@@ -2620,7 +2787,7 @@
   function wzItem(){
     var pa=wzPath();
     return { size:wzNeedsSize()?(wz.b.size||''):'', color:pa.color?(wz.b.color||''):'', surface:wz.b.surface||'',
-      material:pa.mats.length?(wz.b.material||''):'', placement:pa.place?(wz.b.placement||''):'', name:'' };
+      material:pa.mats.length?(wz.b.material||''):'', placement:wzNeedsPlace()?(wz.b.placement||''):'', name:'' };
   }
   function wzAdd(){
     var it=wzItem();
@@ -2640,7 +2807,7 @@
 
   function wzFinish(){
     if(!editing){ wzClose(); return; }
-    if(wz.edit){ wzClose(); commitOrClose(); return; }           // an order already on the board: just save
+    if(wz.edit){ var _id=editing.id; wzClose(); commitOrClose(); wzAfterEdit(_id); return; }
     editing.items=(editing.items||[]).filter(itemHas);
     if(editing.type!=='NOTE') editing.title=autoTitle(editing);
     if(orderIsEmpty(editing)){ toast(wz.type==='NOTE'?'Write something first':'Add something first: a name, an item or a photo'); return; }
@@ -2659,6 +2826,7 @@
       setTimeout(function(){ c.classList.remove('wz-new'); },1800); }
   }
   function wzQuit(){
+    if(wz.view){ wzClose(); return; }                            // just looking: nothing to save
     if(wz.edit){ wzFinish(); return; }                           // nothing to discard: it was already saved
     if(editing){
       var probe=Object.assign({},editing,{items:(editing.items||[]).filter(itemHas)});
@@ -2739,7 +2907,6 @@
       });
       row.appendChild(f1.col); others.appendChild(f1.other);
       if(pa.mats.length){ var f2=wzField('Material', pa.mats, 'material'); row.appendChild(f2.col); others.appendChild(f2.other); }
-      if(pa.color){ var f3=wzField('Color', COLORS.map(function(c){ return c.n; }), 'color', colorHex); row.appendChild(f3.col); others.appendChild(f3.other); }
       if(row.children.length===1) row.classList.add('one');
       p.appendChild(row); p.appendChild(others);
       p.appendChild(wzEl('p','wz-hint','Not on the list? Pick Other\u2026 and type it \u2014 or leave it and put it in the note at the end.'));
@@ -2762,16 +2929,17 @@
         paintT(); grid.appendChild(t);
       });
       p.appendChild(grid);
-      p.appendChild(wzEl('p','wz-hint','Tap every spot that gets printed. Anything besides Front gets a warning on the order.'));
+      p.appendChild(wzEl('p','wz-hint','Tap every spot. Anything besides Front gets a warning on the order.'));
     },
     sizes:function(p){
       var sum=wzEl('div','wz-sum'), g=wzItem(), parts=[], needSize=wzNeedsSize();
-      if(g.color)parts.push(g.color); if(g.surface)parts.push(g.surface); if(g.material)parts.push(g.material); if(g.placement)parts.push(placeWords(g.placement.replace(/,\s*/g,' + ')));
+      if(g.surface)parts.push(g.surface); if(g.material)parts.push(g.material); if(g.placement)parts.push(placeWords(g.placement.replace(/,\s*/g,' + ')));
       sum.textContent=parts.length?parts.join(' \u00b7 '):'No garment picked';
       p.appendChild(sum);
       var row=wzEl('div','wz-wheels'), others=wzEl('div');
       var add=wzEl('button','wz-add'); add.type='button';
       function label(){ var it=wzItem(); add.textContent='Add '+(Math.max(1,parseInt(wz.b.qty,10)||1))+' \u00d7 '+(it.size||it.surface||'Item'); }
+      if(wzPath().color){ var fc=wzField('Color', COLORS.map(function(c){ return c.n; }), 'color', colorHex, label); row.appendChild(fc.col); others.appendChild(fc.other); }
       if(needSize){ var f=wzField('Size', wzSizeList(), 'size', null, label); row.appendChild(f.col); others.appendChild(f.other); }
       var qopts=[]; for(var q=1;q<=100;q++) qopts.push({k:String(q),label:String(q)});
       row.appendChild(wzCol('How Many', wzWheel(qopts, String(wz.b.qty||'1'), function(k){ wz.b.qty=k; label(); wzFoot(); })));
@@ -2877,7 +3045,6 @@
         var nx=nextStageLabel(editing), isDone=(nx==='Done');
         var adv=wzEl('button','wz-act go'+(isDone?' fin':'')); adv.type='button'; adv.textContent=nx;
         adv.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; advanceStage(id); });
-        adv.title='Move this order along';
         var del=wzEl('button','wz-act del'); del.type='button'; del.textContent='Delete';
         del.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; toTrash(id,'deleted'); });
         acts.appendChild(adv); acts.appendChild(del); p.appendChild(acts);
@@ -2935,6 +3102,7 @@
     },{passive:true});
     body.addEventListener('touchend',function(e){
       if(!ok) return; ok=false;
+      if(wz.view) return;                       // the view has its own side-to-side pages
       var t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
       if(Date.now()-st>700 || Math.abs(dx)<70 || Math.abs(dx)<Math.abs(dy)*2.2) return;
       if(dx<0){ if(wz.i<wz.steps.length-1) wzNext(); } else wzBack();
@@ -2946,7 +3114,7 @@
   });
 
   function openEditor(id){ var o=getOrder(id); if(!o)return;
-    if(phoneBoard() && !o.trashed){ openWizard(o); return; }     // phones: the same clean screens
+    if(phoneBoard() && !o.trashed){ openView(o); return; }       // phones: look at it first, edit on purpose
     editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
   function fillModal(o){
     var isNote=(o.type==='NOTE');
