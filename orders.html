@@ -651,13 +651,23 @@
   /* ================= Phone: new-order screen =================
      Phones only. One step per screen, big scroll wheels like the payment
      picker. Opening an existing order still uses the regular editor. */
-  .wz{ position:fixed; inset:0; z-index:110; display:none; flex-direction:column;
-    height:100vh; height:100dvh; background:var(--cream); color:var(--burgundy); }
+  /* It sits on a dimmed board, like a card lifted off it: a small gap on a
+     phone, a proper centred panel on a computer. */
+  .wz{ position:fixed; inset:0; z-index:110; display:none; align-items:center; justify-content:center;
+    padding:10px; box-sizing:border-box; background:rgba(20,18,14,.42); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
   .wz.show{ display:flex; }
+  .wz-card{ display:flex; flex-direction:column; width:100%; max-width:700px;
+    height:100%; max-height:100%; overflow:hidden; box-sizing:border-box;
+    border-radius:22px; background:var(--cream); color:var(--burgundy);
+    box-shadow:0 18px 60px rgba(0,0,0,.35); }
+  @media (min-width:700px){
+    .wz{ padding:28px; }
+    .wz-card{ height:min(780px, calc(100vh - 56px)); }   /* tall enough to show the slide, never taller than the window */
+  }
   body.wz-open{ overflow:hidden; }
   body.wz-open .sync, body.wz-open .fab{ display:none; }
   body.wz-open .toast{ bottom:calc(104px + env(safe-area-inset-bottom,0px)); }
-  .wz-top{ display:flex; align-items:center; gap:12px; padding:calc(10px + env(safe-area-inset-top,0px)) 14px 4px; }
+  .wz-top{ display:flex; align-items:center; gap:12px; padding:12px 14px 4px; }
   .wz-ib{ flex:none; width:42px; height:42px; border-radius:13px; border:1px solid var(--line-strong); background:var(--note);
     color:var(--green); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .wz-ib:active{ transform:scale(.94); }
@@ -667,19 +677,14 @@
   .wz-head{ padding:14px 22px 6px; }
   .wz-no{ font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.08em; color:rgba(var(--ink-rgb),.55); }
   .wz-title{ margin:2px 0 0; font-family:'Schadow','Teko',sans-serif; font-weight:normal; font-size:31px; line-height:1.05; color:var(--green); }
-  .wz-body{ position:relative; flex:1; overflow:hidden; }
+  .wz-body{ position:relative; flex:1 1 auto; min-height:0; overflow:hidden; }
   .wz-pane{ position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
     overscroll-behavior:contain; padding:14px 18px 24px; transition:transform .32s cubic-bezier(.3,.8,.3,1), opacity .32s; }
-  .wz-pane.mid{ display:flex; flex-direction:column; justify-content:center; padding-bottom:40px; }
-  .wz-pane.mid .wzw-list{ height:322px; padding:138px 0;
-    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 14%,#000 86%,transparent 100%);
-            mask-image:linear-gradient(to bottom,transparent 0,#000 14%,#000 86%,transparent 100%); }
-  .wz-pane.mid .wzw-band{ top:138px; }
   .wz-pane.from-right{ transform:translateX(38%); opacity:0; }
   .wz-pane.from-left{ transform:translateX(-38%); opacity:0; }
   .wz-pane.to-left{ transform:translateX(-30%); opacity:0; pointer-events:none; }
   .wz-pane.to-right{ transform:translateX(30%); opacity:0; pointer-events:none; }
-  .wz-foot{ display:flex; gap:10px; padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--line); background:var(--cream); }
+  .wz-foot{ display:flex; gap:10px; padding:10px 16px 14px; border-top:1px solid var(--line); background:var(--cream); }
   .wz-next{ flex:1; height:58px; border:none; border-radius:17px; background:var(--green); color:var(--cream); cursor:pointer;
     font-family:'Teko',sans-serif; font-size:24px; font-weight:600; letter-spacing:.04em; display:flex; align-items:center; justify-content:center; gap:10px;
     box-shadow:0 6px 18px rgba(31,77,62,.25); -webkit-tap-highlight-color:transparent; transition:transform .12s, opacity .2s; }
@@ -688,29 +693,41 @@
   .wz-lbl{ font-family:'Teko',sans-serif; font-size:16px; letter-spacing:.07em; color:rgba(var(--ink-rgb),.6); text-align:center; margin:0 0 6px; }
   .wz-hint{ font-size:14.5px; line-height:1.4; color:rgba(var(--ink-rgb),.6); text-align:center; margin:14px 6px 0; }
 
-  /* the wheel: five rows showing, the middle one is the pick */
-  .wzw{ position:relative; flex:1 1 0; min-width:0; }
-  .wzw-list{ position:relative; height:230px; overflow-y:auto; overflow-x:hidden; scroll-snap-type:y mandatory;
-    overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:92px 0;
-    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 70%,transparent 100%);
-            mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 70%,transparent 100%); }
-  .wzw-list::-webkit-scrollbar{ display:none; }
-  .wzw-band{ position:absolute; left:0; right:0; top:92px; height:46px; border-radius:14px; background:var(--note);
-    border:2px solid var(--line-strong); pointer-events:none; transition:border-color .18s; }
-  .wzw.big .wzw-band{ border-color:var(--green); }
-  .wzw-opt{ height:46px; scroll-snap-align:center; display:flex; align-items:center; justify-content:center; gap:8px;
-    padding:0 6px; font-family:'Teko',sans-serif; font-size:21px; line-height:1; color:var(--burgundy); cursor:pointer;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transform-origin:center; will-change:transform,opacity; }
-  .wzw-opt > span.t{ overflow:hidden; text-overflow:ellipsis; }
-  .wzw-opt.on{ color:var(--green); font-weight:600; }
-  .wzw-opt.none{ color:rgba(var(--ink-rgb),.45); }
-  .wzw-opt .sw{ flex:none; width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.18); }
-  .wzw.big .wzw-opt{ font-size:27px; letter-spacing:.02em; }
-  .wz-wheels{ display:flex; gap:8px; justify-content:center; }
-  .wz-wheels.one .wzw-col{ max-width:190px; }    /* a lone wheel doesn't stretch across the screen */
-  .wz-other{ display:none; margin-top:12px; }
+  /* the two slides are a plain form: a label, then a dropdown or a box */
+  .wz-row{ display:block; margin:0 0 14px; }
+  .wz-rlbl{ display:block; margin:0 0 6px; font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.09em;
+    text-transform:uppercase; color:rgba(var(--ink-rgb),.6); }
+  .wz-rhint{ display:block; margin-top:5px; font-size:13px; color:rgba(var(--ink-rgb),.5); }
+  .wz-two{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .wz-sel{ display:block; width:100%; box-sizing:border-box; padding:14px 40px 14px 14px; border-radius:14px;
+    border:1.5px solid var(--line-strong); background-color:var(--note); color:var(--burgundy);
+    font-family:'Teko',sans-serif; font-size:21px; letter-spacing:.02em; cursor:pointer;
+    -webkit-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%231F4D3E' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 15px center; }
+  .wz-sel:focus{ border-color:var(--green); outline:none; }
+  html[data-theme="dark"] .wz-sel{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23EFE6D4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+  .wz-other{ display:none; margin-top:8px; }
   .wz-other.show{ display:block; }
-
+  .wz-num{ display:flex; align-items:stretch; gap:8px; }
+  .wz-num button{ flex:none; width:54px; border-radius:14px; border:1.5px solid var(--line-strong);
+    background:var(--note); color:var(--green); font-size:22px; cursor:pointer; }
+  .wz-num button:active{ transform:scale(.96); }
+  .wz-num input{ flex:1; min-width:0; text-align:center; border-radius:14px; border:1.5px solid var(--line-strong);
+    background:var(--note); color:var(--burgundy); font-family:'Teko',sans-serif; font-size:26px; outline:none;
+    -moz-appearance:textfield; }
+  .wz-num input::-webkit-outer-spin-button,.wz-num input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .wz-photos{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .wz-photos .wz-shot{ flex:none; flex-direction:row; gap:8px; width:auto; min-height:0; padding:13px 16px;
+    border-radius:14px; border:1.5px dashed var(--line-strong); font-size:18px; }
+  .wz-photos .wz-thumbs{ display:flex; gap:8px; margin:0; }
+  .wz-photos .wz-th{ width:66px; height:66px; aspect-ratio:auto; }
+  .wz-none{ padding:14px 2px; font-size:15px; color:rgba(var(--ink-rgb),.55); }
+  /* a computer gets the same two slides, just centred and roomier */
+  @media (min-width:700px){
+    .wz-pane{ padding:20px 28px 26px; }
+    .wz-tiles{ grid-template-columns:repeat(4,1fr); }
+  }
   .wz-in{ display:block; width:100%; box-sizing:border-box; margin:0 0 12px; padding:15px 16px; border-radius:15px;
     border:1.5px solid var(--line-strong); background:var(--note); color:var(--burgundy); outline:none;
     font-family:'Teko',sans-serif; font-size:23px; letter-spacing:.02em; }
@@ -830,9 +847,9 @@
   .wz-empty{ text-align:center; padding:26px 10px; font-size:16px; color:rgba(var(--ink-rgb),.6); }
 
   /* leaving halfway */
-  .wz-ask{ position:absolute; inset:0; z-index:5; display:none; align-items:flex-end; background:rgba(20,18,14,.45); }
+  .wz-ask{ position:absolute; inset:0; z-index:5; display:none; align-items:flex-end; background:rgba(20,18,14,.45); border-radius:22px; overflow:hidden; }
   .wz-ask.show{ display:flex; }
-  .wz-ask-box{ width:100%; background:var(--note); border-radius:22px 22px 0 0; padding:22px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  .wz-ask-box{ width:100%; background:var(--note); border-radius:22px 22px 0 0; padding:22px 18px;
     display:flex; flex-direction:column; gap:10px; animation:wzup .25s ease; }
   @keyframes wzup{ from{ transform:translateY(40px); opacity:0; } }
   .wz-ask-box h3{ margin:0 0 6px; text-align:center; font-family:'Schadow','Teko',sans-serif; font-weight:normal; font-size:24px; color:var(--green); }
@@ -1076,6 +1093,7 @@
 
 <!-- Phone: new-order screen -->
 <div class="wz" id="wz" aria-hidden="true">
+ <div class="wz-card">
   <div class="wz-top">
     <button class="wz-ib" id="wzBack" type="button" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
     <div class="wz-prog"><div class="wz-bar" id="wzBar"></div></div>
@@ -1093,6 +1111,7 @@
       <button type="button" id="wzAskStay">Keep Going</button>
     </div>
   </div>
+ </div>
 </div>
 <div class="overlay" id="overlay">
   <div class="modal" id="modal" onclick="event.stopPropagation()">
@@ -2479,10 +2498,7 @@
 
   /* ===== chooser + editor ===== */
   var chooser=$('chooser'), overlay=$('overlay');
-  $('fab').addEventListener('click',function(){
-    if(phoneBoard()){ openWizard(); return; }       // phones: the step-by-step screen
-    chooser.classList.add('show');
-  });
+  $('fab').addEventListener('click',function(){ openWizard(); });   // the same two slides everywhere
   chooser.addEventListener('click',function(){ chooser.classList.remove('show'); });
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
@@ -2536,62 +2552,23 @@
 
   /* The wheel: five rows showing, the one in the middle is the pick. It
      settles a moment after you stop; tapping a row rolls it to the middle. */
-  function wzWheel(opts, cur, onLand, cls){
-    var w=wzEl('div','wzw'+(cls?' '+cls:'')), band=wzEl('div','wzw-band'), list=wzEl('div','wzw-list'), big=(cls==='big');
-    var rows=opts.map(function(o,ix){
-      var r=wzEl('div','wzw-opt'+(o.none?' none':''));
-      if(o.sw){ var s=wzEl('span','sw'); s.style.background=o.sw; r.appendChild(s); }
-      r.appendChild(wzEl('span','t',o.label));
-      r.addEventListener('click',function(){ list.scrollTo({top:ix*WZ_ROW,behavior:'smooth'}); });
-      r.style.opacity='.2';
-      list.appendChild(r); return r;
-    });
-    w.appendChild(band); w.appendChild(list);
-    var at=0; for(var i=0;i<opts.length;i++) if(opts[i].k===cur) at=i;
-    var settled=opts[at]?opts[at].k:'', last=-1, raf=0, idle=null, buzz=0;
-    function centre(){ return Math.max(0,Math.min(opts.length-1,Math.round(list.scrollTop/WZ_ROW))); }
-    function paint(){
-      raf=0;
-      var pos=list.scrollTop/WZ_ROW, c=centre(), lo=Math.max(0,c-4), hi=Math.min(opts.length-1,c+4);
-      if(last>=0) for(var j=Math.max(0,last-5);j<=Math.min(opts.length-1,last+5);j++){ if(j<lo||j>hi){ rows[j].style.opacity='.2'; rows[j].classList.remove('on'); } }
-      for(var k=lo;k<=hi;k++){
-        var d=Math.min(Math.abs(k-pos),3);
-        rows[k].style.opacity=String(Math.max(big?.38:.2,1-d*(big?.2:.3)));
-        rows[k].style.transform='scale('+(1-d*.07).toFixed(3)+')';
-        rows[k].classList.toggle('on',k===c);
-      }
-      if(c!==last && last!==-1){                      // a tiny tick as each row passes (Android)
-        var now=Date.now(); if(now-buzz>45 && navigator.vibrate){ try{ navigator.vibrate(3); }catch(_){} buzz=now; }
-      }
-      last=c;
-    }
-    list.addEventListener('scroll',function(){
-      if(!raf) raf=requestAnimationFrame(paint);
-      clearTimeout(idle);
-      idle=setTimeout(function(){ var k=opts[centre()].k; if(k!==settled){ settled=k; onLand(k); } },140);
-    },{passive:true});
-    w.sync=function(){ list.scrollTop=at*WZ_ROW; paint(); };
-    return w;
-  }
-  function wzCol(label, wheel){ var c=wzEl('div','wzw-col'); c.style.flex='1 1 0'; c.style.minWidth='0'; c.appendChild(wzEl('div','wz-lbl',label)); c.appendChild(wheel); return c; }
-
-  function wzSteps(){
-    if(wz.type==='NOTE') return wz.edit?['note']:['type','note'];
-    var s=wz.edit?['customer','garment']:['type','customer','garment'];
-    if(wzNeedsPlace()) s.push('placement');
-    s.push('sizes','photo','review');
-    return s;
-  }
+  function wzSteps(){ return wz.type==='NOTE' ? ['order'] : ['order','items']; }
   function wzTitle(k){
-    return ({ type:'What Kind Of Order?', customer:'Customer And Due Date',
-      customer2:'Customer And Due Date', garment: wzPath().title,
-      placement:(wzPath().where||'Where Does It Go?'), sizes: wzNeedsSize()?'Color, Size And How Many':'Color And How Many',
-      photo:'Add A Photo', review:wz.edit?'Notes And Check':'Check It And Save', note:'Write The Note' })[k]||'';
+    if(k==='items') return wzPath().itemsTitle||'The Items';
+    return wz.type==='NOTE' ? 'The Note' : 'Order Info';
   }
   function wzProgress(){
-    $('wzNo').textContent='Step '+(wz.i+1)+' Of '+wz.steps.length;
-    $('wzBar').style.width=Math.round((wz.i+1)/wz.steps.length*100)+'%';
+    var n=wz.steps.length;
+    $('wzNo').textContent = n>1 ? ('Step '+(wz.i+1)+' Of '+n) : (wz.edit?'Editing':'New Note');
+    $('wzBar').style.width=Math.round((wz.i+1)/n*100)+'%';
   }
+  function wzFilled(key){
+    var e=editing||{};
+    if(key==='items') return (e.items||[]).some(itemHas)||itemHas(wzItem());
+    if(wz.type==='NOTE') return !!((e.title||'').trim()||(e.body||'').trim());
+    return !!((e.custName||'').trim()||(e.custPhone||'').trim()||(e.custEmail||'').trim()||e.payStatus||e.due||(e.images||[]).length||(e.body||'').trim());
+  }
+
 
   /* ================= Phone: looking at an order =================
      Tapping an order shows it, it does not open it for editing. Two pages,
@@ -2719,7 +2696,7 @@
     $('wzBody').innerHTML=''; wz.pane=null;
     // editing an order starts on its items; swipe back for the customer
     var st=wzSteps(), start=0;
-    if(existing && atItems){ var ix=st.indexOf('sizes'); if(ix>0) start=ix; }
+    if(existing && atItems){ var ix=st.indexOf('items'); if(ix>0) start=ix; }
     wzShow(start,0);
   }
   function wzClose(){
@@ -2742,7 +2719,6 @@
     var pane=wzEl('div','wz-pane'+(dir>0?' from-right':(dir<0?' from-left':'')));
     WZ_BUILD[key](pane);
     var old=wz.pane; $('wzBody').appendChild(pane); wz.pane=pane;
-    pane.querySelectorAll('.wzw').forEach(function(w){ if(w.sync) w.sync(); });
     if(old){ old.classList.add(dir<0?'to-right':'to-left'); setTimeout(function(){ if(old.parentNode) old.parentNode.removeChild(old); },340); }
     if(dir){ void pane.offsetWidth; pane.classList.remove('from-right','from-left'); }
     wzFoot();
@@ -2755,28 +2731,16 @@
     btn.innerHTML=(filled?'Next':'Skip')+WZ_ARROW;
     btn.classList.toggle('soft',!filled);
   }
-  function wzFilled(key){
-    var e=editing||{};
-    if(key==='type') return true;
-    if(key==='customer') return !!((e.custName||'').trim()||(e.custPhone||'').trim()||(e.custEmail||'').trim()||e.payStatus||e.due);
-    if(key==='garment') return !!(wz.b.surface||wz.b.material||wz.b.color);
-    if(key==='placement') return !!wz.b.placement;
-    if(key==='sizes') return (e.items||[]).some(itemHas) || itemHas(wzItem());
-    if(key==='photo') return !!((e.images||[]).length);
-    if(key==='paydue') return !!(e.payStatus||e.due||parseFloat(e.balanceDue)>0);
-    return true;
-  }
   function wzNext(){
     if(!wz.open) return;
     var key=wz.steps[wz.i];
-    if(key==='type') wzBegin();
-    if(key==='sizes') wzAutoAdd();
+    if(key==='items') wzAutoAdd();
     if(wz.i>=wz.steps.length-1){ wzFinish(); return; }
     wzShow(wz.i+1,1);
   }
   function wzBack(){ if(wz.open && wz.i>0) wzShow(wz.i-1,-1); }
   // when editing, finishing goes back to looking at the order
-  function wzAfterEdit(id){ var o=getOrder(id); if(o && phoneBoard()) openView(o); }
+  function wzAfterEdit(id){ var o=getOrder(id); if(o) openView(o); }
 
   // The order itself starts once the type is picked — the same blank order
   // the regular editor starts with.
@@ -2853,147 +2817,136 @@
       .concat(list.map(function(v){ return {k:v,label:v,sw:sw?sw(v):null}; }))
       .concat([{k:'__other',label:'Other\u2026',none:true}]);
   }
-  // one wheel for one field, with a type-your-own box when "Other…" is picked
-  function wzField(label, list, field, sw, onChange){
-    var cur=wz.b[field]||'', isOther=!!cur && list.indexOf(cur)<0;
-    var box=wzEl('div','wz-other'+(isOther?' show':''));
-    var oin=wzEl('input','wz-in'); oin.placeholder='Other '+label; oin.value=isOther?cur:''; oin.autocapitalize='words';
-    oin.addEventListener('input',function(){ wz.b[field]=oin.value.trim(); if(onChange)onChange(); wzFoot(); });
-    box.appendChild(oin);
-    var w=wzWheel(wzOptList(list,null,sw), isOther?'__other':cur, function(k){
-      if(k==='__other'){ box.classList.add('show'); wz.b[field]=oin.value.trim(); setTimeout(function(){ oin.focus(); },60); }
-      else { box.classList.remove('show'); wz.b[field]=k; }
+  /* ---- the small pieces the two slides are built from ---- */
+  function wzRow(label, control, hint){
+    var r=wzEl('label','wz-row');
+    r.appendChild(wzEl('span','wz-rlbl',label));
+    r.appendChild(control);
+    if(hint) r.appendChild(wzEl('span','wz-rhint',hint));
+    return r;
+  }
+  function wzSelect(list, cur, onPick, opts){
+    opts=opts||{};
+    var sel=document.createElement('select'); sel.className='wz-sel';
+    var found=false;
+    if(opts.blank!==false){ var b=document.createElement('option'); b.value=''; b.textContent=opts.blank||'\u2014'; sel.appendChild(b); }
+    list.forEach(function(o){
+      var v=(typeof o==='string')?o:o.k, t=(typeof o==='string')?o:o.label;
+      var op=document.createElement('option'); op.value=v; op.textContent=t;
+      if(v===cur){ op.selected=true; found=true; }
+      sel.appendChild(op);
+    });
+    if(opts.other!==false){
+      var oo=document.createElement('option'); oo.value='__other'; oo.textContent='Other\u2026';
+      if(cur&&!found){ oo.selected=true; }
+      sel.appendChild(oo);
+    }
+    sel.addEventListener('change',function(){ onPick(sel.value); });
+    return sel;
+  }
+  // a dropdown that turns into a text box when "Other…" is picked
+  function wzPick(label, list, field, onChange, hint){
+    var wrap=wzEl('div','wz-pickwrap');
+    var cur=wz.b[field]||'';
+    var isOther=!!cur && list.indexOf(cur)<0;
+    var box=wzEl('input','wz-in wz-other'+(isOther?' show':''));
+    box.placeholder='Type the '+label.toLowerCase(); box.autocapitalize='words'; box.value=isOther?cur:'';
+    box.addEventListener('input',function(){ wz.b[field]=box.value.trim(); if(onChange)onChange(); wzFoot(); });
+    var sel=wzSelect(list, isOther?'__other':cur, function(v){
+      if(v==='__other'){ box.classList.add('show'); wz.b[field]=box.value.trim(); setTimeout(function(){ box.focus(); },50); }
+      else { box.classList.remove('show'); wz.b[field]=v; }
       if(onChange)onChange(); wzFoot();
     });
-    return { col:wzCol(label,w), other:box };
+    wrap.appendChild(sel); wrap.appendChild(box);
+    return wzRow(label, wrap, hint);
+  }
+  function wzNum(value, onChange){
+    var w=wzEl('div','wz-num');
+    var minus=wzEl('button',null,'\u2212'); minus.type='button'; minus.setAttribute('aria-label','One fewer');
+    var inp=wzEl('input'); inp.type='number'; inp.inputMode='numeric'; inp.min='1'; inp.max='999'; inp.value=String(value);
+    var plus=wzEl('button',null,'+'); plus.type='button'; plus.setAttribute('aria-label','One more');
+    function set(v){ v=Math.max(1,Math.min(999,parseInt(v,10)||1)); inp.value=String(v); onChange(v); }
+    minus.onclick=function(){ set((parseInt(inp.value,10)||1)-1); };
+    plus.onclick=function(){ set((parseInt(inp.value,10)||1)+1); };
+    inp.addEventListener('input',function(){ onChange(Math.max(1,parseInt(inp.value,10)||1)); });
+    inp.addEventListener('blur',function(){ set(inp.value); });
+    w.appendChild(minus); w.appendChild(inp); w.appendChild(plus);
+    return w;
   }
 
   var WZ_BUILD={
-    type:function(p){
-      p.classList.add('mid');
-      p.appendChild(wzWheel(WZ_TYPES, wz.type, function(k){
-        wz.type=k; wz.steps=wzSteps(); wzProgress(); wzFoot();
-      },'big'));
-      p.appendChild(wzEl('p','wz-hint','Scroll to the kind of order, then tap Next.'));
-    },
-    customer:function(p){
-      var n=wzEl('input','wz-in name'); n.placeholder='Customer Name'; n.autocapitalize='words'; n.autocomplete='off'; n.enterKeyHint='next';
-      n.value=editing.custName||'';
-      var cap=wzEl('div','wz-cap');
-      n.addEventListener('input',function(){
-        var tried=n.value, was=editing.custName||'';
-        editing.custName=capTitle(n,was,'Two words max');
-        if(n.value!==tried && wordCount(tried)>MAX_TITLE_WORDS){ cap.textContent='Two words max \u2014 put the details in the notes at the end.'; cap.classList.add('show'); clearTimeout(cap._t); cap._t=setTimeout(function(){ cap.classList.remove('show'); },4000); }
-        livePersist(); wzFoot();
-      });
-      var ph=wzEl('input','wz-in'); ph.type='tel'; ph.inputMode='tel'; ph.autocomplete='tel'; ph.placeholder='Phone'; ph.enterKeyHint='next'; ph.value=editing.custPhone||'';
-      ph.addEventListener('input',function(){ editing.custPhone=ph.value; editing.contact=ph.value; livePersist(); wzFoot(); });
-      var em=wzEl('input','wz-in'); em.type='email'; em.inputMode='email'; em.autocomplete='email'; em.placeholder='Email (Optional)'; em.enterKeyHint='done'; em.value=editing.custEmail||'';
-      em.addEventListener('input',function(){ editing.custEmail=em.value; livePersist(); wzFoot(); });
-      n.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); ph.focus(); } });
-      ph.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); em.focus(); } });
-      em.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); em.blur(); wzNext(); } });
-      p.appendChild(n); p.appendChild(cap); p.appendChild(ph); p.appendChild(em);
-      WZ_BUILD.paydue(p);                       // payment and due date live here too now
-      p.appendChild(wzEl('p','wz-hint','All optional \u2014 tap Skip if you don\u2019t have it yet.'));
-    },
-    garment:function(p){
-      var pa=wzPath(), row=wzEl('div','wz-wheels'), others=wzEl('div');
-      var placeWas=wzPlaceListId();
-      var f1=wzField(pa.whatLabel, pa.what, 'surface', null, function(){
-        var now=wzPlaceListId(); if(now!==placeWas){ wz.b.placement=''; placeWas=now; }   // caps have their own spots
-        if(!wzNeedsSize()) wz.b.size='';                                                  // caps and tumblers have no size
-        $('wzTitle').textContent=wzTitle(wz.steps[wz.i]);
-      });
-      row.appendChild(f1.col); others.appendChild(f1.other);
-      if(pa.mats.length){ var f2=wzField('Material', pa.mats, 'material'); row.appendChild(f2.col); others.appendChild(f2.other); }
-      if(row.children.length===1) row.classList.add('one');
-      p.appendChild(row); p.appendChild(others);
-      p.appendChild(wzEl('p','wz-hint','Not on the list? Pick Other\u2026 and type it \u2014 or leave it and put it in the note at the end.'));
-    },
-    placement:function(p){
-      var list=wzList(wzPlaceListId()), grid=wzEl('div','wz-tiles');
-      function chosen(){ return placeTokens(wz.b.placement); }
-      list.forEach(function(v){
-        var t=wzEl('button','wz-tile'+(isUsualPlace(v)?'':' odd')); t.type='button';
-        t.innerHTML=PLACE_WARN+'<span>'+esc(placeWords(v))+'</span><span class="tick">\u2713</span>';
-        function paintT(){ t.classList.toggle('on', chosen().some(function(x){ return x.toLowerCase()===v.toLowerCase(); })); }
-        t.addEventListener('click',function(){
-          var sel=chosen(), ix=-1; sel.forEach(function(x,i){ if(x.toLowerCase()===v.toLowerCase()) ix=i; });
-          if(ix>=0) sel.splice(ix,1); else sel.push(v);
-          // keep the list's own order, whatever order they were tapped in
-          sel.sort(function(a,b){ return list.indexOf(a)-list.indexOf(b); });
-          wz.b.placement=sel.join(', '); paintT(); wzFoot();
-          if(navigator.vibrate){ try{ navigator.vibrate(6); }catch(_){} }
-        });
-        paintT(); grid.appendChild(t);
-      });
-      p.appendChild(grid);
-      p.appendChild(wzEl('p','wz-hint','Tap every spot. Anything besides Front gets a warning on the order.'));
-    },
-    sizes:function(p){
-      var sum=wzEl('div','wz-sum'), g=wzItem(), parts=[], needSize=wzNeedsSize();
-      if(g.surface)parts.push(g.surface); if(g.material)parts.push(g.material); if(g.placement)parts.push(placeWords(g.placement.replace(/,\s*/g,' + ')));
-      sum.textContent=parts.length?parts.join(' \u00b7 '):'No garment picked';
-      p.appendChild(sum);
-      var row=wzEl('div','wz-wheels'), others=wzEl('div');
-      var add=wzEl('button','wz-add'); add.type='button';
-      function label(){ var it=wzItem(); add.textContent='Add '+(Math.max(1,parseInt(wz.b.qty,10)||1))+' \u00d7 '+(it.size||it.surface||'Item'); }
-      if(wzPath().color){ var fc=wzField('Color', COLORS.map(function(c){ return c.n; }), 'color', colorHex, label); row.appendChild(fc.col); others.appendChild(fc.other); }
-      if(needSize){ var f=wzField('Size', wzSizeList(), 'size', null, label); row.appendChild(f.col); others.appendChild(f.other); }
-      var qopts=[]; for(var q=1;q<=100;q++) qopts.push({k:String(q),label:String(q)});
-      row.appendChild(wzCol('How Many', wzWheel(qopts, String(wz.b.qty||'1'), function(k){ wz.b.qty=k; label(); wzFoot(); })));
-      if(row.children.length===1) row.classList.add('one');
-      p.appendChild(row); p.appendChild(others);
-      label(); p.appendChild(add);
-      var list=wzEl('div','wz-items'); p.appendChild(list);
-      function paintList(){
-        list.innerHTML='';
-        var groups={}, order=[];
-        (editing.items||[]).forEach(function(it,ix){ if(!itemHas(it))return; var k=itemKey(it)+'|'+((it.name||'').trim()); if(!groups[k]){ groups[k]={it:it,ix:[]}; order.push(k); } groups[k].ix.push(ix); });
-        order.forEach(function(k){
-          var gr=groups[k], r=wzEl('div','wz-item'+(wz.fresh&&k.indexOf(wz.fresh)===0?' fresh':''));
-          r.appendChild(wzEl('span','q',gr.ix.length+'\u00d7'));
-          var s=wzEl('span','s'); s.textContent=comboText(gr.it); r.appendChild(s);
-          if((gr.it.name||'').trim()){ var nmv=wzEl('span','nm',gr.it.name); r.appendChild(nmv); }
-          else {
-            var nb=wzEl('button','nmb','+ name'); nb.type='button';
-            nb.addEventListener('click',function(){
-              var one=editing.items[gr.ix[gr.ix.length-1]];
-              var v=prompt('Name on this one:',''); if(v===null) return;
-              one.name=v.trim(); livePersist(); paintList(); wzFoot();
-            });
-            r.appendChild(nb);
-          }
-          var x=wzEl('button','x','\u00d7'); x.type='button'; x.setAttribute('aria-label','Remove');
-          x.addEventListener('click',function(){
-            var gone=gr.ix.map(function(i){ return editing.items[i]; });
-            editing.items=editing.items.filter(function(_it,i){ return gr.ix.indexOf(i)<0; });
-            livePersist(); paintList(); wzFoot();
-            toast('Removed '+gone.length, function(){ if(!editing)return; editing.items=editing.items.concat(gone); livePersist(); paintList(); wzFoot(); });
-          });
-          r.appendChild(x); list.appendChild(r);
-        });
-        wz.fresh='';
+    /* ---------- slide 1: the order ---------- */
+    order:function(p){
+      var isNote=(wz.type==='NOTE');
+      if(!wz.edit){
+        p.appendChild(wzRow('Kind Of Order', wzSelect(WZ_TYPES, wz.type, function(v){
+          wz.type=v; wzBegin(); wz.steps=wzSteps(); wzProgress(); wzShow(wz.i,0);
+        }, {blank:false, other:false})));
       }
-      add.addEventListener('click',function(){
-        var n=wzAdd(); if(!n) return;
-        add.classList.remove('pop'); void add.offsetWidth; add.classList.add('pop');
-        if(navigator.vibrate){ try{ navigator.vibrate(12); }catch(_){} }
-        paintList(); wzFoot();
-      });
-      paintList();
-      var more=wzEl('button','wz-link','+ A Different '+wzPath().whatLabel); more.type='button';
-      more.addEventListener('click',function(){ wzShow(wz.steps.indexOf('garment'),-1); });
-      p.appendChild(more);
-    },
-    photo:function(p){
+      wzBegin();
+      if(isNote){
+        var ti=wzEl('input','wz-in'); ti.placeholder='Two words, like "Call Supplier"'; ti.autocapitalize='words'; ti.value=editing.title||'';
+        var cap=wzEl('div','wz-cap');
+        ti.addEventListener('input',function(){
+          var tried=ti.value, was=editing.title||'';
+          editing.title=capTitle(ti,was,'Two words max');
+          if(ti.value!==tried&&wordCount(tried)>MAX_TITLE_WORDS){ cap.textContent='Two words max \u2014 the rest goes in the note below.'; cap.classList.add('show'); }
+          livePersist(); wzFoot();
+        });
+        p.appendChild(wzRow('Note Title', ti)); p.appendChild(cap);
+      } else {
+        var n=wzEl('input','wz-in'); n.placeholder='Two words, like "Quality Home"'; n.autocapitalize='words'; n.autocomplete='off'; n.value=editing.custName||'';
+        var cap2=wzEl('div','wz-cap');
+        n.addEventListener('input',function(){
+          var tried=n.value, was=editing.custName||'';
+          editing.custName=capTitle(n,was,'Two words max');
+          if(n.value!==tried&&wordCount(tried)>MAX_TITLE_WORDS){ cap2.textContent='Two words max \u2014 put the details in the notes below.'; cap2.classList.add('show'); }
+          livePersist(); wzFoot();
+        });
+        p.appendChild(wzRow('Customer', n)); p.appendChild(cap2);
+
+        var two=wzEl('div','wz-two');
+        var ph=wzEl('input','wz-in'); ph.type='tel'; ph.inputMode='tel'; ph.autocomplete='tel'; ph.placeholder='Phone'; ph.value=editing.custPhone||'';
+        ph.addEventListener('input',function(){ editing.custPhone=ph.value; editing.contact=ph.value; livePersist(); wzFoot(); });
+        var em=wzEl('input','wz-in'); em.type='email'; em.inputMode='email'; em.autocomplete='email'; em.placeholder='Email'; em.value=editing.custEmail||'';
+        em.addEventListener('input',function(){ editing.custEmail=em.value; livePersist(); wzFoot(); });
+        two.appendChild(wzRow('Phone', ph)); two.appendChild(wzRow('Email', em));
+        p.appendChild(two);
+
+        var money=wzEl('div','wz-two');
+        var bal=wzEl('input','wz-in'); bal.inputMode='decimal'; bal.placeholder='0.00'; bal.value=editing.balanceDue||'';
+        bal.addEventListener('input',function(){ editing.balanceDue=bal.value.replace(/[^0-9.]/g,''); if(bal.value!==editing.balanceDue)bal.value=editing.balanceDue; livePersist(); });
+        var balRow=wzRow('Balance Due $', bal);
+        function syncBal(){ var k=editing.payStatus||'unpaid'; balRow.style.display=(k==='unpaid'||k==='deposit')?'':'none'; }
+        money.appendChild(wzRow('Payment', wzSelect(PAYSTAGES, editing.payStatus||'unpaid', function(v){
+          editing.payStatus=v; syncBal(); livePersist(); wzFoot();
+        }, {blank:false, other:false})));
+        money.appendChild(balRow);
+        p.appendChild(money);
+        syncBal();
+
+        var dopts=dueChoices().map(function(d){ return {k:d.k,label:d.label}; });
+        var cur=''; for(var i=0;i<dopts.length;i++){ if(computeDue(dopts[i].k)===editing.due){ cur=dopts[i].k; break; } }
+        p.appendChild(wzRow('Due', wzSelect(dopts, cur, function(v){
+          editing.duePreset=v; editing.due=v?computeDue(v):'';
+          editing.urgency=v?(effUrgency(editing)||'norush'):'norush';
+          livePersist(); wzFoot();
+        }, {blank:'No date', other:false})));
+      }
+
+      var nt=wzEl('textarea','wz-in'); nt.placeholder=isNote?'Write the note\u2026':'Anything else about this order\u2026'; nt.value=editing.body||'';
+      if(isNote)nt.style.minHeight='170px';
+      nt.addEventListener('input',function(){ editing.body=nt.value; livePersist(); wzFoot(); });
+      p.appendChild(wzRow(isNote?'Note':'Notes', nt));
+
+      // photos
+      var ph2=wzEl('div','wz-photos');
       var shot=wzEl('button','wz-shot'); shot.type='button';
-      shot.innerHTML='<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg><span>Take Or Choose A Photo</span>';
+      shot.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg><span>Add A Photo</span>';
       shot.addEventListener('click',function(){ if((editing.images||[]).length+wz.busy>=3){ toast('Up to 3 photos'); return; } $('wzFile').click(); });
       var th=wzEl('div','wz-thumbs');
-      p.appendChild(shot); p.appendChild(th);
-      p.appendChild(wzEl('p','wz-hint','Up to 3. The design, the shirt, or the customer\u2019s picture.'));
+      ph2.appendChild(shot); ph2.appendChild(th);
+      p.appendChild(wzRow('Photos', ph2, 'Up to 3'));
       wz.paintPhotos=function(){
         th.innerHTML='';
         (editing.images||[]).forEach(function(src,i){
@@ -3006,64 +2959,94 @@
         hydrateArt(th);
       };
       wz.paintPhotos();
+
+      if(wz.edit) p.appendChild(wzEditActions());
     },
-    paydue:function(p){
-      var row=wzEl('div','wz-wheels');
-      var bal=wzEl('div','wz-bal'); bal.appendChild(wzEl('span','','Balance Due $'));
-      var bi=wzEl('input','wz-in'); bi.inputMode='decimal'; bi.placeholder='0.00'; bi.value=editing.balanceDue||'';
-      bi.addEventListener('input',function(){ editing.balanceDue=bi.value.replace(/[^0-9.]/g,''); if(bi.value!==editing.balanceDue) bi.value=editing.balanceDue; livePersist(); wzFoot(); });
-      bal.appendChild(bi);
-      function syncBal(){ var k=editing.payStatus||'unpaid'; bal.classList.toggle('show',k==='unpaid'||k==='deposit'); }
-      var pay=wzWheel(PAYSTAGES.map(function(s){ return {k:s.k,label:s.label,sw:s.color}; }), editing.payStatus||'unpaid', function(k){
-        editing.payStatus=k; syncBal(); livePersist(); wzFoot();
-      });
-      var cur='', dopts=[{k:'',label:'No Date',sw:URGENCY.norush.color}].concat(dueChoices().map(function(d){ return {k:d.k,label:d.label,sw:d.color}; }));
-      for(var i=0;i<dopts.length;i++){ if(dopts[i].k ? (computeDue(dopts[i].k)===editing.due) : !editing.due){ cur=dopts[i].k; break; } }
-      var due=wzWheel(dopts, cur, function(k){
-        editing.duePreset=k; editing.due=k?computeDue(k):'';
-        editing.urgency=k?(effUrgency(editing)||'norush'):'norush';
-        livePersist(); wzFoot();
-      });
-      row.appendChild(wzCol('Payment',pay)); row.appendChild(wzCol('Due',due));
-      p.appendChild(row); p.appendChild(bal); syncBal();
-    },
-    review:function(p){
-      var nt=wzEl('textarea','wz-in'); nt.placeholder='Notes (Optional)'; nt.value=editing.body||'';
-      var prev=wzEl('div','wz-preview');
-      function paintPrev(){
-        var probe=Object.assign({},editing,{items:(editing.items||[]).filter(itemHas),drafting:false,isNew:false});
-        if(orderIsEmpty(probe)){ prev.innerHTML='<div class="wz-empty">Nothing added yet. Go back and add a name, an item or a photo.</div>'; return; }
-        prev.innerHTML=cardHTML(probe,{flat:true}); hydrateArt(prev);
+
+    /* ---------- slide 2: the items ---------- */
+    items:function(p){
+      var pa=wzPath();
+      p.appendChild(wzPick(pa.whatLabel, pa.what, 'surface', function(){
+        if(!wzNeedsSize()) wz.b.size='';
+        wzShow(wz.i,0);                       // the rest of the slide depends on this
+      }));
+      if(pa.mats.length) p.appendChild(wzPick('Material', pa.mats, 'material'));
+      if(pa.color) p.appendChild(wzPick('Color', COLORS.map(function(c){ return c.n; }), 'color'));
+      if(wzNeedsSize()) p.appendChild(wzPick('Size', wzSizeList(), 'size'));
+
+      if(wzNeedsPlace()){
+        var list=wzList(wzPlaceListId()), grid=wzEl('div','wz-tiles');
+        function chosen(){ return placeTokens(wz.b.placement); }
+        list.forEach(function(v){
+          var t=wzEl('button','wz-tile'+(isUsualPlace(v)?'':' odd')); t.type='button';
+          t.innerHTML=PLACE_WARN+'<span>'+esc(placeWords(v))+'</span><span class="tick">\u2713</span>';
+          function paintT(){ t.classList.toggle('on', chosen().some(function(x){ return x.toLowerCase()===v.toLowerCase(); })); }
+          t.addEventListener('click',function(){
+            var sel=chosen(), ix=-1; sel.forEach(function(x,i){ if(x.toLowerCase()===v.toLowerCase()) ix=i; });
+            if(ix>=0) sel.splice(ix,1); else sel.push(v);
+            sel.sort(function(a,b){ return list.indexOf(a)-list.indexOf(b); });
+            wz.b.placement=sel.join(', '); paintT(); wzFoot();
+          });
+          paintT(); grid.appendChild(t);
+        });
+        p.appendChild(wzRow(pa.where||'Where Does It Go?', grid, 'Tap every spot'));
       }
-      var t=null;
-      nt.addEventListener('input',function(){ editing.body=nt.value; livePersist(); clearTimeout(t); t=setTimeout(paintPrev,250); });
-      p.appendChild(nt);
-      p.appendChild(wzEl('div','wz-lbl',wz.edit?'On The Board':'How It Will Look'));
-      p.appendChild(prev); paintPrev();
-      if(wz.edit){
-        var acts=wzEl('div','wz-acts');
-        var nx=nextStageLabel(editing), isDone=(nx==='Done');
-        var adv=wzEl('button','wz-act go'+(isDone?' fin':'')); adv.type='button'; adv.textContent=nx;
-        adv.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; advanceStage(id); });
-        var del=wzEl('button','wz-act del'); del.type='button'; del.textContent='Delete';
-        del.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; toTrash(id,'deleted'); });
-        acts.appendChild(adv); acts.appendChild(del); p.appendChild(acts);
+
+      var add=wzEl('button','wz-add'); add.type='button';
+      function label(){ var it=wzItem(); add.textContent='Add '+(Math.max(1,parseInt(wz.b.qty,10)||1))+' \u00d7 '+(it.size||it.surface||'Item'); }
+      p.appendChild(wzRow('How Many', wzNum(Math.max(1,parseInt(wz.b.qty,10)||1), function(v){ wz.b.qty=String(v); label(); wzFoot(); })));
+      label(); p.appendChild(add);
+
+      var list2=wzEl('div','wz-items'); p.appendChild(list2);
+      function paintList(){
+        list2.innerHTML='';
+        var groups={}, order=[];
+        (editing.items||[]).forEach(function(it,ix){ if(!itemHas(it))return; var k=itemKey(it)+'|'+((it.name||'').trim()); if(!groups[k]){ groups[k]={it:it,ix:[]}; order.push(k); } groups[k].ix.push(ix); });
+        if(!order.length){ list2.appendChild(wzEl('div','wz-none','Nothing added yet.')); return; }
+        order.forEach(function(k){
+          var gr=groups[k], r=wzEl('div','wz-item'+(wz.fresh&&k.indexOf(wz.fresh)===0?' fresh':''));
+          r.appendChild(wzEl('span','q',gr.ix.length+'\u00d7'));
+          var s=wzEl('span','s'); s.textContent=comboText(gr.it); r.appendChild(s);
+          if((gr.it.name||'').trim()) r.appendChild(wzEl('span','nm',gr.it.name));
+          else {
+            var nb=wzEl('button','nmb','+ name'); nb.type='button';
+            nb.addEventListener('click',function(){
+              var one=editing.items[gr.ix[gr.ix.length-1]];
+              var v=prompt('Name on this one:',''); if(v===null)return;
+              one.name=v.trim(); livePersist(); paintList(); wzFoot();
+            });
+            r.appendChild(nb);
+          }
+          var x=wzEl('button','x','\u00d7'); x.type='button'; x.setAttribute('aria-label','Remove');
+          x.addEventListener('click',function(){
+            var gone=gr.ix.map(function(i){ return editing.items[i]; });
+            editing.items=editing.items.filter(function(_it,i){ return gr.ix.indexOf(i)<0; });
+            livePersist(); paintList(); wzFoot();
+            toast('Removed '+gone.length, function(){ if(!editing)return; editing.items=editing.items.concat(gone); livePersist(); paintList(); wzFoot(); });
+          });
+          r.appendChild(x); list2.appendChild(r);
+        });
+        wz.fresh='';
       }
-    },
-    note:function(p){
-      var ti=wzEl('input','wz-in name'); ti.placeholder='Note Title'; ti.autocapitalize='words'; ti.value=editing.title||'';
-      var cap=wzEl('div','wz-cap');
-      ti.addEventListener('input',function(){
-        var tried=ti.value, was=editing.title||'';
-        editing.title=capTitle(ti,was,'Two words max');
-        if(ti.value!==tried && wordCount(tried)>MAX_TITLE_WORDS){ cap.textContent='Two words max \u2014 put the details in the note below.'; cap.classList.add('show'); clearTimeout(cap._t); cap._t=setTimeout(function(){ cap.classList.remove('show'); },4000); }
-        livePersist(); wzFoot();
+      add.addEventListener('click',function(){
+        var n=wzAdd(); if(!n)return;
+        add.classList.remove('pop'); void add.offsetWidth; add.classList.add('pop');
+        paintList(); wzFoot();
       });
-      var bd=wzEl('textarea','wz-in'); bd.placeholder='Write your note\u2026'; bd.value=editing.body||''; bd.style.minHeight='200px';
-      bd.addEventListener('input',function(){ editing.body=bd.value; livePersist(); wzFoot(); });
-      p.appendChild(ti); p.appendChild(cap); p.appendChild(bd);
+      paintList();
+      if(wz.edit) p.appendChild(wzEditActions());
     }
   };
+  function wzEditActions(){
+    var acts=wzEl('div','wz-acts');
+    var nx=nextStageLabel(editing), isDone=(nx==='Done');
+    var adv=wzEl('button','wz-act go'+(isDone?' fin':'')); adv.type='button'; adv.textContent=nx;
+    adv.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; advanceStage(id); });
+    var del=wzEl('button','wz-act del'); del.type='button'; del.textContent='Delete';
+    del.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; toTrash(id,'deleted'); });
+    acts.appendChild(adv); acts.appendChild(del);
+    return acts;
+  }
 
   // photos: shrunk in the phone, sent to the NAS, the same way the editor does it
   $('wzFile').addEventListener('change',function(e){
@@ -3114,7 +3097,7 @@
   });
 
   function openEditor(id){ var o=getOrder(id); if(!o)return;
-    if(phoneBoard() && !o.trashed){ openView(o); return; }       // phones: look at it first, edit on purpose
+    if(!o.trashed){ openView(o); return; }                       // look at it first, edit on purpose
     editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
   function fillModal(o){
     var isNote=(o.type==='NOTE');
