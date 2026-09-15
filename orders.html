@@ -707,8 +707,22 @@
     background-repeat:no-repeat; background-position:right 15px center; }
   .wz-sel:focus{ border-color:var(--green); outline:none; }
   html[data-theme="dark"] .wz-sel{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23EFE6D4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
-  .wz-other{ display:none; margin-top:8px; }
-  .wz-other.show{ display:block; }
+  /* the typing box and the dropdown button share one row */
+  .wz-combo{ display:flex; align-items:stretch; border-radius:14px; overflow:hidden;
+    border:1.5px solid var(--line-strong); background:var(--note); }
+  .wz-combo:focus-within{ border-color:var(--green); }
+  .wz-dot{ flex:none; align-self:center; width:22px; height:22px; margin-left:12px; border-radius:50%;
+    border:1.5px solid rgba(var(--ink-rgb),.3); }
+  .wz-combo.has-dot .wz-cin{ padding-left:10px; }
+  .wz-cin{ flex:1 1 auto; min-width:0; border:none; background:transparent; color:var(--burgundy); outline:none;
+    padding:14px 14px; font-family:'Teko',sans-serif; font-size:21px; letter-spacing:.02em; }
+  .wz-csel{ flex:0 0 26%; min-width:76px; border:none; border-left:1.5px solid var(--line-strong); cursor:pointer;
+    color:transparent; background-color:var(--burgundy); padding:0; font-size:1px;
+    -webkit-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23F2EADD' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:center; }
+  .wz-csel option{ color:var(--burgundy); font-size:16px; }   /* the list itself stays readable */
+  .wz-csel:focus{ outline:none; }
   .wz-num{ display:flex; align-items:stretch; gap:8px; }
   .wz-num button{ flex:none; width:54px; border-radius:14px; border:1.5px solid var(--line-strong);
     background:var(--note); color:var(--green); font-size:22px; cursor:pointer; }
@@ -1157,7 +1171,7 @@
 </div>
 
 <datalist id="sizeList"><option>Adult S</option><option>Adult M</option><option>Adult L</option><option>Adult XL</option><option>Adult 2XL</option><option>Adult 3XL</option><option>Youth S</option><option>Youth M</option><option>Youth L</option><option>One Size</option></datalist>
-<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="vinylSurfList"><option>Decal</option><option>Sign</option><option>Banner</option><option>Shirt</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Full front</option><option>Back</option><option>Full back</option><option>Sleeve</option><option>Nape</option></datalist>
+<datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="vinylSurfList"><option>Decal</option><option>Sign</option><option>Banner</option><option>Shirt</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Right chest</option><option>Front</option><option>Back</option><option>Sleeve</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
 <div class="overlay" id="goalsOverlay">
@@ -2845,19 +2859,36 @@
     return sel;
   }
   // a dropdown that turns into a text box when "Other…" is picked
-  function wzPick(label, list, field, onChange, hint){
-    var wrap=wzEl('div','wz-pickwrap');
-    var cur=wz.b[field]||'';
-    var isOther=!!cur && list.indexOf(cur)<0;
-    var box=wzEl('input','wz-in wz-other'+(isOther?' show':''));
-    box.placeholder='Type the '+label.toLowerCase(); box.autocapitalize='words'; box.value=isOther?cur:'';
-    box.addEventListener('input',function(){ wz.b[field]=box.value.trim(); if(onChange)onChange(); wzFoot(); });
-    var sel=wzSelect(list, isOther?'__other':cur, function(v){
-      if(v==='__other'){ box.classList.add('show'); wz.b[field]=box.value.trim(); setTimeout(function(){ box.focus(); },50); }
-      else { box.classList.remove('show'); wz.b[field]=v; }
-      if(onChange)onChange(); wzFoot();
+  /* One row: type it on the left, or tap the brown button on the right and
+     pick from the list. Picking fills the box, so both ends stay in step. */
+  function wzPick(label, list, field, onChange, hint, swatch){
+    var wrap=wzEl('div','wz-combo');
+    var dot=null;
+    if(swatch){
+      dot=wzEl('span','wz-dot'); wrap.appendChild(dot);
+      wrap.classList.add('has-dot');
+    }
+    function paintDot(){
+      if(!dot) return;
+      var hex=swatch(wz.b[field]||'');
+      dot.style.background=hex||'transparent';
+      dot.style.borderStyle=hex?'solid':'dashed';
+    }
+    var box=wzEl('input','wz-cin');
+    box.placeholder=label; box.autocapitalize='words'; box.autocomplete='off'; box.value=wz.b[field]||'';
+    box.addEventListener('input',function(){ wz.b[field]=box.value.trim(); sync(); paintDot(); if(onChange)onChange(); wzFoot(); });
+    var sel=document.createElement('select'); sel.className='wz-csel'; sel.setAttribute('aria-label',label);
+    var ph=document.createElement('option'); ph.value=''; ph.textContent=''; sel.appendChild(ph);
+    list.forEach(function(v){ var o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+    // the button always reads "Pick"; what you chose shows in the box beside it
+    function sync(){ sel.value=''; }
+    sel.addEventListener('change',function(){
+      if(!sel.value) return;
+      wz.b[field]=sel.value; box.value=sel.value; sel.value='';
+      paintDot(); if(onChange)onChange(); wzFoot();
     });
-    wrap.appendChild(sel); wrap.appendChild(box);
+    sync(); paintDot();
+    wrap.appendChild(box); wrap.appendChild(sel);
     return wzRow(label, wrap, hint);
   }
   function wzNum(value, onChange){
@@ -2895,7 +2926,7 @@
         });
         p.appendChild(wzRow('Note Title', ti)); p.appendChild(cap);
       } else {
-        var n=wzEl('input','wz-in'); n.placeholder='Two words, like "Quality Home"'; n.autocapitalize='words'; n.autocomplete='off'; n.value=editing.custName||'';
+        var n=wzEl('input','wz-in'); n.placeholder=wz.edit?'Title':'Two words, like "Quality Home"'; n.autocapitalize='words'; n.autocomplete='off'; n.value=editing.custName||'';
         var cap2=wzEl('div','wz-cap');
         n.addEventListener('input',function(){
           var tried=n.value, was=editing.custName||'';
@@ -2903,7 +2934,7 @@
           if(n.value!==tried&&wordCount(tried)>MAX_TITLE_WORDS){ cap2.textContent='Two words max \u2014 put the details in the notes below.'; cap2.classList.add('show'); }
           livePersist(); wzFoot();
         });
-        p.appendChild(wzRow('Customer', n)); p.appendChild(cap2);
+        p.appendChild(wzRow(wz.edit?'Title':'Customer', n)); p.appendChild(cap2);
 
         var two=wzEl('div','wz-two');
         var ph=wzEl('input','wz-in'); ph.type='tel'; ph.inputMode='tel'; ph.autocomplete='tel'; ph.placeholder='Phone'; ph.value=editing.custPhone||'';
@@ -2971,7 +3002,7 @@
         wzShow(wz.i,0);                       // the rest of the slide depends on this
       }));
       if(pa.mats.length) p.appendChild(wzPick('Material', pa.mats, 'material'));
-      if(pa.color) p.appendChild(wzPick('Color', COLORS.map(function(c){ return c.n; }), 'color'));
+      if(pa.color) p.appendChild(wzPick('Color', COLORS.map(function(c){ return c.n; }), 'color', null, null, colorHex));
       if(wzNeedsSize()) p.appendChild(wzPick('Size', wzSizeList(), 'size'));
 
       if(wzNeedsPlace()){
