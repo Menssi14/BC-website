@@ -1236,7 +1236,7 @@
         if (!error && data) {
           const text = await data.text();
           const parsed = JSON.parse(text);
-          if (Array.isArray(parsed)) { products = parsed; renderProducts(); return; }
+          if (Array.isArray(parsed)) { products = parsed; renderProducts(); primeProductPhotos(); return; }
         }
       } catch (e) { /* fall through to file */ }
     }
@@ -1246,6 +1246,7 @@
       if (res.ok) products = await res.json();
     } catch (e) { products = []; }
     renderProducts();
+    primeProductPhotos();
   }
 
   // ── Save products to Supabase (instant, no push) ────────
@@ -1266,6 +1267,17 @@
       .catch(e => { if (badge) badge.textContent = 'Save failed'; console.error(e); });
   }
 
+  // one call covers every product picture on the page
+  async function primeProductPhotos() {
+    try {
+      await resolveProductLinks([
+        ...products.map(p => p && p.photo),
+        ...cart.map(c => c && c.photo)
+      ]);
+      renderProducts();
+      if (typeof renderCart === 'function') renderCart();
+    } catch (err) { console.warn('Product photos unavailable', err); renderProducts(); }
+  }
   function renderProducts() {
     const grid = $('product-grid');
     grid.innerHTML = '';
@@ -1283,8 +1295,11 @@
     card.className = 'card';
     card.id = 'card-' + p.id;
     const bgCls = p.photoBg ? ' bg-' + p.photoBg : '';
-    const img = p.photo
-      ? `<img class="card-img${bgCls}" src="${p.photo}" alt="${escapeHtml(p.name)}" onclick="openPhoto('${p.id}')">`
+    const psrc = photoSrc(p.photo);
+    const img = (p.photo && !psrc)
+      ? `<div class="card-img placeholder${bgCls}">Photo unavailable — storage offline</div>`
+      : p.photo
+      ? `<img class="card-img${bgCls}" src="${psrc}" alt="${escapeHtml(p.name)}" onclick="openPhoto('${p.id}')">`
       : `<div class="card-img placeholder${bgCls}">No photo</div>`;
     let variants = '';
     const mkOpts = a => (a || []).map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
@@ -1439,7 +1454,7 @@
     cart.forEach(c => {
       const row = document.createElement('div');
       row.className = 'cart-item';
-      const img = c.photo ? `<img src="${c.photo}" alt="">` : '<div class="cart-item img" style="width:54px;height:54px;background:var(--cream-warm);border-radius:4px;"></div>';
+      const img = c.photo ? `<img src="${photoSrc(c.photo)}" alt="">` : '<div class="cart-item img" style="width:54px;height:54px;background:var(--cream-warm);border-radius:4px;"></div>';
       row.innerHTML = `
         ${img}
         <div class="cart-item-info">
@@ -2194,14 +2209,24 @@
       catch (e) { alert('That file doesn\'t look like one from the 3D builder\'s "Make a shareable file". Please make it there and upload that exact file.'); return; }
     }
 
+    const newId = editingId || ('p' + Date.now().toString(36));
+    // a fresh picture goes to storage; products.json only keeps its key
+    if (photo && !isProductKey(photo)) {
+      try { photo = await putProductPhoto(photo, newId); }
+      catch (err) {
+        console.error('[product photo]', err);
+        alert('The photo could not be saved to storage, so it was kept with the product instead. Check the NAS and save again once it is back.');
+      }
+    }
     if (editingId) {
       Object.assign(existing, { name, price, desc, sizes, colors, materials, sleeves, weightLb, photo, photoBg, mock3dState });
     } else {
-      products.push({ id: 'p' + Date.now().toString(36), name, price, desc, sizes, colors, materials, sleeves, weightLb, photo, photoBg, mock3dState });
+      products.push({ id: newId, createdAt: Date.now(), name, price, desc, sizes, colors, materials, sleeves, weightLb, photo, photoBg, mock3dState });
     }
     $('product-dialog').close();
     renderProducts();
     saveProductsToCloud();
+    primeProductPhotos();
   }
 
   // Compress uploaded image to a small embedded WebP/JPEG
@@ -3136,6 +3161,35 @@
      "_designs/d12ab.webp". Keys are resolved to short-lived links for the
      thumbnails, and turned back into real bytes when a design is chosen —
      an order must not carry a link that expires. */
+  /* Product photos live on the NAS too, so products.json stays small: it
+     holds a short key like "_store/art/p123-ab12.webp" instead of the whole
+     picture. Links are short-lived, so they're resolved when we draw. */
+  const PRODUCT_PREFIX = '_store/art/';
+  const productLink = new Map();
+  const isProductKey = v => typeof v === 'string' && v.startsWith(PRODUCT_PREFIX);
+  async function resolveProductLinks(keys) {
+    const need = [...new Set((keys || []).filter(k => isProductKey(k) && !productLink.has(k)))];
+    if (!need.length) return;
+    for (let i = 0; i < need.length; i += 500) {
+      const d = await nasCall({ action: 'view-urls', keys: need.slice(i, i + 500) });
+      Object.entries(d.urls || {}).forEach(([k, u]) => productLink.set(k, u));
+    }
+  }
+  // what to put in an <img>: an old inline photo as-is, or the resolved link
+  function photoSrc(v) { return isProductKey(v) ? (productLink.get(v) || '') : (v || ''); }
+  // send a picture to the NAS and hand back its key
+  async function putProductPhoto(dataUrl, productId) {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const type = blob.type || 'image/webp';
+    const ext = type.includes('png') ? 'png' : (type.includes('webp') ? 'webp' : 'jpg');
+    const key = PRODUCT_PREFIX + productId + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '.' + ext;
+    const d = await nasCall({ action: 'upload-url', key, contentType: type });
+    const up = await fetch(d.url, { method: 'PUT', headers: { 'Content-Type': type }, body: blob });
+    if (!up.ok) throw new Error('Storage refused the photo (HTTP ' + up.status + ')');
+    productLink.set(key, dataUrl);            // show it straight away, no round trip
+    return key;
+  }
   const DESIGN_PREFIX = '_designs/';
   const designLink = new Map();          // storage key -> signed link, this visit
   const isDesignKey = v => typeof v === 'string' && v.startsWith(DESIGN_PREFIX);
@@ -3388,7 +3442,7 @@
     const p = products.find(x => x.id === id);
     if (!p || !p.photo) return;
     $('photo-lb-box').className = 'lb-box' + (p.photoBg ? ' bg-' + p.photoBg : '');
-    $('photo-lb-img').src = p.photo;
+    $('photo-lb-img').src = photoSrc(p.photo);
     $('photo-lightbox').classList.add('open');
   }
   function closePhoto() {
