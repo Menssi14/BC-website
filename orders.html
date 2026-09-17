@@ -2842,11 +2842,28 @@
     if(pay) fact('Payment', pay);
     if(o.balanceDue) fact('Balance', '$'+o.balanceDue);
     if(o.source==='online') fact('Came From', 'The website');
+    fact('Started', orderStamp(o));
     var del=wzEl('button','vw-del','Delete This Order'); del.type='button';
     del.addEventListener('click',function(){ var id=o.id; wzClose(); editing=null; toTrash(id,'deleted'); });
     b.appendChild(del);
     pages.push({label:'Details', el:b});
     return pages;
+  }
+  // when it was started, and when it was last touched
+  function orderStamp(o){
+    var t=o.createdAt; if(!t) return '';
+    var d=new Date(t), now=new Date();
+    function when(x){
+      var dd=new Date(x);
+      var time=dd.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+      if(dd.toDateString()===now.toDateString()) return 'today at '+time;
+      var year=(dd.getFullYear()!==now.getFullYear()) ? (', '+dd.getFullYear()) : '';
+      return dd.toLocaleDateString([], {month:'short', day:'numeric'})+year+' at '+time;
+    }
+    var out=when(t);
+    var u=o.updatedAt;
+    if(u && u-t>60000) out+=' \u00b7 edited '+when(u);
+    return out;
   }
   function openView(o){
     if(!o) return;
