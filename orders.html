@@ -154,6 +154,45 @@
   /* the title carries the urgency color — a full-width band, edge to edge */
   .card h3.tinted{ padding:9px 13px 8px; border-radius:0; color:#2C2620;
     margin:-11px -13px 9px; }
+  /* ---- shirt stock: one shelf per fabric, black and white side by side ---- */
+  .inv-box{ display:flex; flex-direction:column; max-height:88vh; }
+  .inv-tabs{ display:flex; gap:8px; padding:10px 14px 0; }
+  .inv-tab{ flex:1; padding:12px 8px; border-radius:12px; border:1.5px solid var(--line-strong); background:var(--note);
+    color:var(--burgundy); font-family:'Teko',sans-serif; font-size:18px; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; }
+  .inv-tab.on{ background:var(--green); border-color:var(--green); color:var(--cream); }
+  .inv-count{ padding:12px 14px 2px; font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.07em;
+    text-transform:uppercase; color:rgba(var(--ink-rgb),.55); }
+  .inv-list{ flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    padding:0 12px 10px; }
+  .inv-head{ position:sticky; top:0; z-index:1; display:flex; align-items:center; gap:6px; padding:8px 0 6px;
+    background:var(--note); font-family:'Teko',sans-serif; font-size:14px; letter-spacing:.1em; text-transform:uppercase;
+    color:rgba(var(--ink-rgb),.5); }
+  .inv-head > span:not(.inv-size){ flex:1 1 0; text-align:center; }
+  .inv-row{ display:flex; align-items:center; gap:6px; padding:6px 0; border-bottom:1px solid var(--line); }
+  .inv-size{ flex:0 0 72px; text-align:center; font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.03em;
+    color:var(--burgundy); }
+  .inv-cell{ flex:1 1 0; min-width:0; display:flex; align-items:center; justify-content:center; gap:5px; }
+  /* the box is the shirt: black box with white numbers, white box with black */
+  .inv-cell.c-black .inv-n{ background:#151515; color:#FFFFFF; border-color:#151515; }
+  .inv-cell.c-white .inv-n{ background:#FFFFFF; color:#151515; border-color:rgba(0,0,0,.28); }
+  .inv-cell.c-black.out .inv-n{ background:#151515; color:rgba(255,255,255,.4); }
+  .inv-cell.c-white.out .inv-n{ color:rgba(0,0,0,.32); }
+  .inv-cell.edited .inv-n{ box-shadow:0 0 0 2px var(--orange); }
+  .inv-b{ flex:none; width:36px; height:38px; border-radius:10px; border:1.5px solid var(--line-strong); background:var(--note);
+    color:var(--green); font-size:18px; cursor:pointer; padding:0; }
+  .inv-b:active{ transform:scale(.94); }
+  .inv-n{ flex:1 1 0; min-width:0; width:100%; height:38px; text-align:center; border-radius:10px;
+    border:1.5px solid var(--line-strong); background:var(--note); color:var(--burgundy);
+    font-family:'Teko',sans-serif; font-size:20px; outline:none; -moz-appearance:textfield; padding:0; }
+  .inv-n::-webkit-outer-spin-button,.inv-n::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .inv-foot{ flex:none; padding:12px 14px calc(14px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--line); }
+  .inv-save{ width:100%; padding:16px; border:none; border-radius:14px; background:var(--green); color:var(--cream);
+    font-family:'Teko',sans-serif; font-size:20px; letter-spacing:.07em; text-transform:uppercase; cursor:pointer; }
+  .inv-save:disabled{ background:rgba(var(--ink-rgb),.12); color:rgba(var(--ink-rgb),.45); cursor:default; }
+  html[data-theme="dark"] .inv-tab, html[data-theme="dark"] .inv-n, html[data-theme="dark"] .inv-b{ background:var(--note); color:var(--burgundy); }
+  html[data-theme="dark"] .inv-tab.on{ background:var(--green); color:var(--cream); }
+  html[data-theme="dark"] .inv-head{ background:var(--note); }
+
   /* the item count sits at the right end of the title */
   /* The title wraps around it word by word, so a narrow phone card never
      splits a name in the middle of a word just to make room. */
@@ -894,33 +933,40 @@
 <header>
   <a class="wordmark" href="/" title="Broch Custom home">BROCH CUSTOM<small>ORDERS</small></a>
   <span class="view-title" id="viewTitle"></span>
-  <button class="hbtn" id="linksBtn" title="Links" aria-label="Links"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9.5 14.5a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14.5 9.5a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
-  <button class="hbtn" id="goalsBtn" title="Today's goals" aria-label="Today's goals" aria-haspopup="dialog">
-    <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M9 11l3 3 8-8"></path>
-      <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"></path>
-    </svg>
-    <span class="badge" id="goalsBadge" hidden>0</span>
-  </button>
+  <button class="hbtn" id="linksBtn" title="Tools" aria-label="Tools"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9.5 14.5a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14.5 9.5a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
   <button class="hbtn" id="viewToggle" title="Trash"></button>
 </header>
+
+<!-- SHIRT STOCK -->
+<div class="overlay" id="invOverlay">
+  <div class="hist-box inv-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Shirt Stock</span>
+      <button class="icon-btn" id="invClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="inv-tabs" id="invMatTabs" role="group" aria-label="Fabric"></div>
+    <div class="inv-count" id="invTotal"></div>
+    <div class="inv-list" id="invList"></div>
+    <div class="inv-foot"><button class="inv-save" id="invSave" type="button" disabled>Saved</button></div>
+  </div>
+</div>
 
 <!-- LINKS -->
 <div class="overlay" id="linksOverlay">
   <div class="hist-box" onclick="event.stopPropagation()">
     <div class="hist-head">
-      <span class="hist-title">Links</span>
+      <span class="hist-title">Tools</span>
       <button class="icon-btn" id="linksClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="edit-opts">
-      <a class="edit-opt" href="https://brochcustom.com/store.html">
-        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMUY0RDNFIi8+PHBhdGggZD0iTTM4IDQyIHYtNSBhMTIgMTIgMCAwIDEgMjQgMCB2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjJFQUREIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjI3IiB5PSI0MCIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjM2IiByeD0iNyIgZmlsbD0iI0YyRUFERCIvPjwvc3ZnPg==" alt="">
-        <span class="eo-t">The shop</span>
-      </a>
-      <a class="edit-opt" href="https://tools.brochcustom.com/">
-        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMUY0RDNFIi8+PGcgZmlsbD0iI0YyRUFERCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIj48cmVjdCB4PSItNyIgeT0iLTM0IiB3aWR0aD0iMTQiIGhlaWdodD0iMTUiIHJ4PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgwKSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDQ1KSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDkwKSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDEzNSkiLz48cmVjdCB4PSItNyIgeT0iLTM0IiB3aWR0aD0iMTQiIGhlaWdodD0iMTUiIHJ4PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgxODApIi8+PHJlY3QgeD0iLTciIHk9Ii0zNCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE1IiByeD0iMyIgdHJhbnNmb3JtPSJyb3RhdGUoMjI1KSIvPjxyZWN0IHg9Ii03IiB5PSItMzQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNSIgcng9IjMiIHRyYW5zZm9ybT0icm90YXRlKDI3MCkiLz48cmVjdCB4PSItNyIgeT0iLTM0IiB3aWR0aD0iMTQiIGhlaWdodD0iMTUiIHJ4PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgzMTUpIi8+PGNpcmNsZSByPSIyNCIvPjwvZz48L2c+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iMTEiIGZpbGw9IiMxRjREM0UiLz48L3N2Zz4=" alt="">
-        <span class="eo-t">The catalog</span>
-      </a>
+      <button class="edit-opt" id="goalsOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"></path><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"></path></svg></span>
+        <span class="eo-t">Today's Goals <span id="goalsCount" style="opacity:.55;text-transform:none;letter-spacing:0"></span></span>
+      </button>
+      <button class="edit-opt" id="invOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path></svg></span>
+        <span class="eo-t">Shirt Stock <span id="invCount" style="opacity:.55;text-transform:none;letter-spacing:0"></span></span>
+      </button>
       <button class="edit-opt" id="histOpen" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
         <span class="eo-t">Payment history</span>
@@ -1468,7 +1514,7 @@
   var TYPES=['Embroidery','DTF','Sublimation','Engraving','Vinyl','NOTE'];
   var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
-  var state={orders:[],daily:{date:'',tasks:[],carried:0,updatedAt:0}}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
+  var state={orders:[],daily:{date:'',tasks:[],carried:0,updatedAt:0},inv:{lines:[],updatedAt:0}}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
   var DRAFT_PREFIX='bc-order-draft-v1:', _draftTimer=null;
 
   function draftKey(type){ return DRAFT_PREFIX+String(type||'NOTE'); }
@@ -1631,6 +1677,138 @@
     else if(days<7) txt='Due '+DOW_NAMES[d.getDay()];
     else txt='Due '+MON_NAMES[d.getMonth()]+' '+d.getDate();
     return { txt:txt, level:lvl, red:(lvl==='asap'), over:(lvl==='asap') };
+  }
+
+  /* ================= Shirt stock =================
+     A fixed shelf: cotton or poly, black or white, every size we carry.
+     Numbers are typed freely and nothing is stored until Save is tapped, so
+     a stray tap never changes the count. Saved counts ride along in the
+     orders file, and the newest change to a line wins across devices. */
+  // biggest adult first, then down; youth carries the Y, toddler is 5T–2T
+  var INV_SIZES=['XL','Large','Medium','Small','XS','2XL','3XL',
+                 'YXL','YLarge','YMedium','YSmall','YXS',
+                 '5T','4T','3T','2T'];
+  var INV_MATS=['Cotton','Poly'];
+  var INV_COLORS=['Black','White'];
+  var invTab={ mat:'Cotton' };
+  var invDraft=null;                       // what's on screen but not saved yet
+  function invKey(mat,color,size){ return mat+'|'+color+'|'+size; }
+  function normalizeInv(v){
+    var o=(v&&typeof v==='object')?v:{};
+    var lines=Array.isArray(o.lines)?o.lines:[];
+    return { lines:lines.filter(function(l){ return l&&l.id; }), updatedAt:+o.updatedAt||0 };
+  }
+  function mergeInv(cloud){
+    var c=normalizeInv(cloud), mine={};
+    state.inv.lines.forEach(function(l){ mine[l.id]=l; });
+    c.lines.forEach(function(l){
+      var m=mine[l.id];
+      if(!m){ state.inv.lines.push(l); return; }
+      if((l.updatedAt||0)>(m.updatedAt||0)) state.inv.lines[state.inv.lines.indexOf(m)]=l;
+    });
+  }
+  function invQty(mat,color,size){
+    var id=invKey(mat,color,size);
+    for(var i=0;i<state.inv.lines.length;i++) if(state.inv.lines[i].id===id) return Math.max(0,+state.inv.lines[i].qty||0);
+    return 0;
+  }
+  function invTotal(){ var n=0; state.inv.lines.forEach(function(l){ n+=Math.max(0,+l.qty||0); }); return n; }
+  function invTabTotal(){
+    var n=0; INV_SIZES.forEach(function(sz){ INV_COLORS.forEach(function(c){
+      n+=(invDraft?(+invDraft[c+'|'+sz]||0):invQty(invTab.mat,c,sz)); }); });
+    return n;
+  }
+  function invLoadDraft(){
+    invDraft={};
+    INV_SIZES.forEach(function(sz){ INV_COLORS.forEach(function(c){ invDraft[c+'|'+sz]=invQty(invTab.mat,c,sz); }); });
+  }
+  function invDirty(){
+    if(!invDraft) return false;
+    return INV_SIZES.some(function(sz){ return INV_COLORS.some(function(c){
+      return (+invDraft[c+'|'+sz]||0)!==invQty(invTab.mat,c,sz); }); });
+  }
+  function openInv(open){
+    var ov=$('invOverlay');
+    if(open){ invLoadDraft(); renderInv(); }
+    ov.classList.toggle('show',!!open);
+    if(!open) invDraft=null;
+  }
+  function invTryClose(){
+    if(invDirty() && !confirm('You have changes that are not saved. Close anyway?')) return;
+    openInv(false);
+  }
+  function invSetDraft(color,size,qty){
+    invDraft[color+'|'+size]=Math.max(0,Math.min(9999,parseInt(qty,10)||0));
+    renderInv();
+  }
+  function invSwitch(which,value){
+    if(invDirty() && !confirm('You have changes that are not saved. Switch anyway?')) return;
+    invTab[which]=value; invLoadDraft(); renderInv();
+  }
+  function invSave(){
+    var now=Date.now(), changed=0;
+    INV_SIZES.forEach(function(sz){
+      INV_COLORS.forEach(function(c){
+        var id=invKey(invTab.mat,c,sz), want=Math.max(0,+invDraft[c+'|'+sz]||0), found=null;
+        for(var i=0;i<state.inv.lines.length;i++) if(state.inv.lines[i].id===id){ found=state.inv.lines[i]; break; }
+        if(found){ if(found.qty!==want){ found.qty=want; found.updatedAt=now; changed++; } }
+        else if(want>0){ state.inv.lines.push({ id:id, mat:invTab.mat, color:c, size:sz, qty:want, updatedAt:now }); changed++; }
+      });
+    });
+    state.inv.updatedAt=now;
+    renderInv(); persist();
+    toast(changed?('Stock saved \u00b7 '+invTabTotal()+' '+invTab.mat.toLowerCase()):'Nothing to save');
+  }
+  function renderInv(){
+    var wrap=$('invList'); if(!wrap || !invDraft) return;
+    var host=$('invMatTabs');
+    if(host && host.children.length!==INV_MATS.length){
+      host.innerHTML='';
+      INV_MATS.forEach(function(v){
+        var b=document.createElement('button'); b.type='button'; b.className='inv-tab'; b.dataset.v=v; b.textContent=v;
+        b.onclick=function(){ invSwitch('mat',v); };
+        host.appendChild(b);
+      });
+    }
+    if(host) [].forEach.call(host.children,function(b){ b.classList.toggle('on', b.dataset.v===invTab.mat); });
+    var black=0, white=0;
+    INV_SIZES.forEach(function(sz){ black+=+invDraft['Black|'+sz]||0; white+=+invDraft['White|'+sz]||0; });
+    $('invTotal').textContent=invTab.mat+' \u00b7 '+black+' black, '+white+' white \u00b7 '+invTotal()+' in all';
+    wrap.innerHTML='';
+    var head=document.createElement('div'); head.className='inv-head';
+    head.innerHTML='<span>Black</span><span class="inv-size"></span><span>White</span>';
+    wrap.appendChild(head);
+    INV_SIZES.forEach(function(sz){
+      var row=document.createElement('div'); row.className='inv-row';
+      var lbl=document.createElement('span'); lbl.className='inv-size'; lbl.textContent=sz;
+      INV_COLORS.forEach(function(c,ci){
+        if(ci===1) row.appendChild(lbl);        // the size label rides in the middle
+        var q=+invDraft[c+'|'+sz]||0, saved=invQty(invTab.mat,c,sz);
+        var cell=document.createElement('span'); cell.className='inv-cell c-'+c.toLowerCase()+(q===0?' out':'')+(q!==saved?' edited':'');
+        var minus=document.createElement('button'); minus.type='button'; minus.className='inv-b'; minus.textContent='\u2212';
+        minus.setAttribute('aria-label','One fewer '+c+' '+sz);
+        minus.onclick=function(){ invSetDraft(c,sz,q-1); };
+        var num=document.createElement('input'); num.className='inv-n'; num.type='number'; num.inputMode='numeric'; num.min='0';
+        num.value=String(q); num.setAttribute('aria-label',c+' '+sz);
+        num.addEventListener('change',function(){ invSetDraft(c,sz,num.value); });
+        var plus=document.createElement('button'); plus.type='button'; plus.className='inv-b'; plus.textContent='+';
+        plus.setAttribute('aria-label','One more '+c+' '+sz);
+        plus.onclick=function(){ invSetDraft(c,sz,q+1); };
+        cell.appendChild(minus); cell.appendChild(num); cell.appendChild(plus);
+        row.appendChild(cell);
+      });
+      wrap.appendChild(row);
+    });
+    var dirty=invDirty();
+    $('invSave').disabled=!dirty;
+    $('invSave').textContent=dirty?'Save changes':'Saved';
+  }
+  function wireInv(){
+    if($('invOverlay')._wired) return;
+    $('invOverlay')._wired=true;
+    $('invOverlay').addEventListener('click',function(e){ if(e.target===$('invOverlay')) invTryClose(); });
+    $('invClose').addEventListener('click',invTryClose);
+    $('invSave').addEventListener('click',invSave);
   }
 
   function normalizeDaily(d){
@@ -1818,7 +1996,7 @@
   }
 
   function wireGoals(){
-    $('goalsBtn').addEventListener('click', function(){ openGoals(!$('goalsOverlay').classList.contains('show')); });
+    $('goalsOpen').addEventListener('click', function(){ $('linksOverlay').classList.remove('show'); openGoals(true); });
     $('goalsClose').addEventListener('click', function(){ openGoals(false); });
     $('goalsOverlay').addEventListener('click', function(){ openGoals(false); });
     $('goalAdd').addEventListener('click', function(){
@@ -1996,6 +2174,7 @@
           var s=JSON.parse(t);
           if(s && Array.isArray(s.orders)) cloud=s.orders;
           if(s && s.daily) _cloudDaily=s.daily;
+          if(s && s.inv) _cloudInv=s.inv;
           _loadOk=true;
         }catch(e){}
         _mergeAndUpload(cloud,done);
@@ -2003,7 +2182,7 @@
       _mergeAndUpload(cloud,done);   // no cloud file yet — just write ours
     }).catch(function(){ _mergeAndUpload(null,done); });
   }
-  var _cloudDaily=null;
+  var _cloudDaily=null, _cloudInv=null;
   function _mergeAndUpload(cloud,done){
     try{
       // SAFETY: if we couldn't read the cloud file (download errored) AND we've never
@@ -2031,8 +2210,9 @@
         state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
         render();
         if(_cloudDaily){ mergeDaily(_cloudDaily); renderGoals(); }
+        if(_cloudInv){ mergeInv(_cloudInv); if($('invOverlay')&&$('invOverlay').classList.contains('show')) renderInv(); }
       }
-      var blob=new Blob([JSON.stringify({v:10,orders:state.orders,daily:state.daily})],{type:'application/json'});
+      var blob=new Blob([JSON.stringify({v:10,orders:state.orders,daily:state.daily,inv:state.inv})],{type:'application/json'});
       sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
         _saving=false;
         if(r&&r.error){
@@ -2078,6 +2258,7 @@
           if(!(s&&Array.isArray(s.orders)))throw new Error('Invalid orders file');
           state.orders=s.orders.map(migrate);
           state.daily=normalizeDaily(s.daily);
+          state.inv=normalizeInv(s.inv);
           var rolled=rollDaily();
           _loadOk=true; _loaded=true; purgeOld();
           var recovered=recoverDraftsToBoard();
@@ -3732,7 +3913,13 @@
   }
   function closeHist(){ $('histOverlay').classList.remove('show'); }
   // ── Links (shop, catalog, payment history) ──
-  $('linksBtn').addEventListener('click',function(){ $('linksOverlay').classList.add('show'); });
+  $('linksBtn').addEventListener('click',function(){
+    var n=state.daily.tasks.filter(function(t){ return !t.done && !t.deleted; }).length;
+    $('goalsCount').textContent=n?('· '+n+' left'):'';
+    $('invCount').textContent=invTotal()?('· '+invTotal()):'';
+    $('linksOverlay').classList.add('show');
+  });
+  $('invOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); wireInv(); openInv(true); });
   $('linksClose').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); });
   $('linksOverlay').addEventListener('click',function(e){ if(e.target===$('linksOverlay')) $('linksOverlay').classList.remove('show'); });
   $('histOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); openHist(); });
