@@ -2379,6 +2379,13 @@
   $('toastAction').addEventListener('click',function(){ if(toastUndo){toastUndo(); $('toast').classList.remove('show');} });
 
   function daysLeft(o){ if(!o.trashedAt)return TRASH_DAYS; var gone=Math.max(0,Math.floor((Date.now()-o.trashedAt)/DAY)); var d=TRASH_DAYS-gone; return d<0?0:Math.min(d,TRASH_DAYS); }
+  // spelled out, because "10d" reads like "100" in this font
+  function trashWords(o){
+    var d=daysLeft(o);
+    if(d<=0) return 'Deletes today';
+    if(d===1) return 'Deletes in 1 day';
+    return 'Deletes in '+d+' days';
+  }
   function trashCount(){ var n=0; state.orders.forEach(function(o){if(o.trashed&&!o.isQuote)n++;}); return n; }
   function qTrashCount(){ var n=0; state.orders.forEach(function(o){if(o.trashed&&o.isQuote)n++;}); return n; }
 
@@ -2558,7 +2565,7 @@
     if(!o.trashed && !o.isQuote && o.balanceDue) tags+='<span class="tag pay-bal">Bal $'+esc(o.balanceDue)+'</span>';
     if(o.type&&o.type!=='NOTE') tags+='<span class="tag">'+esc(o.type)+'</span>';
     if(o.source==='online') tags+='<span class="tag online">Online</span>';
-    if(o.trashed) tags+='<span class="tag countdown">Deletes in '+daysLeft(o)+'d</span>';
+    if(o.trashed) tags+='<span class="tag countdown">'+trashWords(o)+'</span>';
     var tagsH = tags ? '<div class="card-tags">'+tags+'</div>' : '';
     /* Phones: the lower half of the card swipes like the photos do. Tags and
        warnings (due, payment, balance, notes, phone) come first; sizes and
