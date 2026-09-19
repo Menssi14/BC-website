@@ -1883,7 +1883,9 @@
           address: coAddressText(),
           mockups: builtMockups(),
           artwork: builtOriginals(),
-          hasDtf: hasDtfInCart()
+          hasDtf: hasDtfInCart(),
+          orderItems: dropOrderItems(),
+          orderType: dropOrderType()
         })
       });
       const data = await res.json();
@@ -2000,7 +2002,9 @@
           address: coAddressText(),
           mockups: builtMockups(),
           artwork: builtOriginals(),
-          hasDtf: hasDtfInCart()
+          hasDtf: hasDtfInCart(),
+          orderItems: dropOrderItems(),
+          orderType: dropOrderType()
         })
       });
       const data = await res.json();
@@ -2055,7 +2059,7 @@
       const oid = 'o' + now.toString(36) + Math.random().toString(36).slice(2, 6);
       store.orders.push({
         id: oid,
-        type: hasDtfInCart() ? 'DTF' : 'NOTE',
+        type: dropOrderType() || (hasDtfInCart() ? 'DTF' : 'NOTE'),
         title: '\ud83c\udfec Website order' + (phonePretty ? ' \u00b7 ' + phonePretty : ''),
         custName: 'Website order' + (phonePretty ? ' \u00b7 ' + phonePretty : ''),
         custPhone: phone10,
@@ -2069,8 +2073,8 @@
         payLocked: false,
         balanceDue: (t.total).toFixed(2),
         fulfillment: ful,
-        items: [],
-        images: builtMockups().concat(builtOriginals().map(o=>o.dataUrl)),
+        items: dropOrderItems(),
+        images: await dropStashImages(builtMockups().concat(builtOriginals().map(o=>o.dataUrl)), oid),
         artwork: builtOriginals(),
         due: '', duePreset: '',
         trashed: false, trashedAt: null,
@@ -3778,9 +3782,9 @@
   // The builder's lighting pushes a bright orange past what the screen can show,
   // so red maxes out and the shirt drifts toward tan (and white comes out grey). Here the page measures the
   // orange it actually drew on the shirt's lower front and nudges the fabric color
-  // until what you SEE matches UTRGV orange (#F05023) or a clean white. Done once per color and fabric.
+  // until what you SEE matches a warm UTRGV orange (#F06C26) or a clean white. Done once per color and fabric.
   // what the lit front of the shirt should look like on screen
-  const DROP_TARGETS = { orange: [240, 80, 35], white: [243, 243, 240] };
+  const DROP_TARGETS = { orange: [240, 108, 38], white: [243, 243, 240] };
   const dropOrangeFix = {};                // color|fabric → calibrated THREE.Color
   const toLin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
   function dropSampleBody() {
@@ -4035,7 +4039,9 @@
     else {
       let photo = '';
       try { photo = await dropMockup(d); } catch (e) { console.warn('UTRGV mockup', e); }
-      cart.push({ key, id:'utrgv-shirt', name:'UTRGV Shirt \u2014 ' + d.name, price, photo, mockups: photo ? [photo] : [], variant, qty:1, weightLb:0.75, built:true });
+      cart.push({ key, id:'utrgv-shirt', name:'UTRGV Shirt \u2014 ' + d.name, price, photo, mockups: photo ? [photo] : [], variant, qty:1, weightLb:0.75, built:true,
+        // exactly the fields the Orders app uses for an item
+        oi: { size: dropSize, color: col ? col.label : dropColor, surface: 'Shirt', material: dropMat, placement: 'Front' } });
     }
     updateCartCount(); flashCart();
     btn.disabled = false; btn.textContent = 'Add to cart';
@@ -4077,6 +4083,44 @@
     if (drop3D === 'flat') dropShowFlat();
     await boot;
     dropApply(false);
+  }
+
+
+  // ══════════════ ORDERS APP HAND-OFF ══════════════
+  // UTRGV shirts land in the Orders app as a real DTF order: one item per shirt
+  // (size · color · Shirt · fabric · Front), and the order photos go to the NAS
+  // under _orders/art/ with only the key kept in orders.json — the same way the
+  // Orders app saves its own photos. Carts without UTRGV shirts are unchanged.
+  function dropOrderItems() {
+    const out = [];
+    cart.forEach(c => {
+      if (!c || !c.oi) return;
+      const n = Math.max(1, Math.min(200, c.qty || 1));
+      for (let i = 0; i < n; i++) out.push({ size: c.oi.size || '', color: c.oi.color || '', surface: c.oi.surface || 'Shirt',
+        material: c.oi.material || '', placement: c.oi.placement || 'Front', name: '' });
+    });
+    return out;
+  }
+  function dropOrderType() { return cart.some(c => c && c.oi) ? 'DTF' : ''; }
+  async function dropStashImages(images, oid) {
+    const out = [];
+    for (const src of (images || []).filter(Boolean).slice(0, 6)) {
+      if (!/^data:/.test(src)) { out.push(src); continue; }
+      try {
+        const blob = await (await fetch(src)).blob();
+        const type = blob.type || 'image/jpeg';
+        const ext = /png/.test(type) ? 'png' : /webp/.test(type) ? 'webp' : /svg/.test(type) ? 'svg' : 'jpg';
+        const key = '_orders/art/' + oid + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '.' + ext;
+        const d = await nasCall({ action: 'upload-url', key, contentType: type });
+        const up = await fetch(d.url, { method: 'PUT', headers: { 'Content-Type': type }, body: blob });
+        if (!up.ok) throw new Error('HTTP ' + up.status);
+        out.push(key);
+      } catch (e) {
+        console.warn('order photo kept inline (NAS unreachable)', e);
+        out.push(src);                          // never lose the picture
+      }
+    }
+    return out;
   }
 
   (async function initStore(){
