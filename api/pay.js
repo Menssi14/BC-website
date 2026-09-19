@@ -40,12 +40,24 @@ function websiteOrderType(items, hasDtf) {
 
 import { stashOrderImages } from '../lib/nas-art.js';
 
+// Structured items from the store (e.g. UTRGV shirts): one entry per piece,
+// in the exact shape the Orders app uses. Anything odd is dropped.
+const ORDER_TYPES = ['Embroidery', 'DTF', 'Sublimation', 'Engraving', 'Vinyl', 'NOTE'];
+function cleanOrderItems(list) {
+  if (!Array.isArray(list)) return [];
+  const f = v => String(v == null ? '' : v).slice(0, 40);
+  return list.slice(0, 200).filter(it => it && typeof it === 'object').map(it => ({
+    size: f(it.size), color: f(it.color), surface: f(it.surface),
+    material: f(it.material), placement: f(it.placement), name: f(it.name)
+  })).filter(it => it.size || it.color || it.surface || it.material || it.placement || it.name);
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const { sourceId, amountCents, email, phone, items, fulfillment, shippingCents, address, mockups, hasDtf } = req.body || {};
+  const { sourceId, amountCents, email, phone, items, fulfillment, shippingCents, address, mockups, hasDtf, orderItems, orderType } = req.body || {};
 
   // Basic validation — never trust the browser blindly
   if (!sourceId || !Number.isInteger(amountCents) || amountCents < 50) {
@@ -150,7 +162,7 @@ export default async function handler(req, res) {
 
           store.orders.push({
             id: orderId,
-            type: websiteOrderType(items, hasDtf),
+            type: ORDER_TYPES.includes(orderType) ? orderType : websiteOrderType(items, hasDtf),
             title: (isShip ? '📦 ' : '') + 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
             custName: 'Website order' + (phonePretty ? ' · ' + phonePretty : ''),
             custPhone: phone10,
@@ -164,7 +176,7 @@ export default async function handler(req, res) {
             payLocked: true,
             balanceDue: '',
             fulfillment: fulfillment || 'pickup',
-            items: [],
+            items: cleanOrderItems(orderItems),
             images: orderImages,   // shirt-builder mockups → the order card
             due: '', duePreset: '',
             trashed: false, trashedAt: null,
