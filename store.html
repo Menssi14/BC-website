@@ -920,7 +920,6 @@
       <div class="ut-kicker"><i></i>Vaqueros Game Day<i></i></div>
       <h1 id="drop-heading">UTRGV Football <span>Season</span></h1>
       <div class="ut-stripe"></div>
-      <p>Game-day tees printed right here in the Valley &mdash; orange, black or white, in cotton or poly.</p>
     </header>
 
     <div class="drop-stage" id="drop-stage" tabindex="0" aria-roledescription="carousel" aria-label="UTRGV shirt designs">
@@ -2783,7 +2782,7 @@
           const w=dw, hh=dh;
           const depth=Math.min(0.35,Math.max(0.18,BASE*1.2));
           const geo=new THREE.DecalGeometry(SHIRT3D.mergedMesh||hit.object, wp, orient, new THREE.Vector3(w,hh,depth));
-          const mat=new THREE.MeshStandardMaterial({ map:tex, transparent:true, depthTest:true, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-6, polygonOffsetUnits:-10, side:THREE.FrontSide, roughness:0.92, metalness:0.0, envMapIntensity:0.12, emissive:0xffffff, emissiveMap:tex, emissiveIntensity:0.10 });
+          const mat=new THREE.MeshStandardMaterial({ map:tex, transparent:true, depthTest:true, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-6, polygonOffsetUnits:-10, side:THREE.FrontSide, roughness:0.92, metalness:0.0, envMapIntensity:0.12, emissive:0xffffff, emissiveMap:tex, emissiveIntensity:(document.body.classList.contains('store-paused')?0.55:0.10) });   // UTRGV page: brighter print so whites read white
           if(SHIRT3D.ink){ mat.normalMap=SHIRT3D.ink; mat.normalScale=new THREE.Vector2(0.07,0.07); }
           const mesh=new THREE.Mesh(geo,mat); mesh.renderOrder=10; mesh.visible=(bldSide===side); SHIRT3D.decals[side]=mesh; grp.add(mesh);
         }
@@ -3775,6 +3774,59 @@
     im.src = u; live.appendChild(im);
   }
 
+  // ── Orange calibration ──
+  // The builder's lighting pushes a bright orange past what the screen can show,
+  // so red maxes out and the shirt drifts toward tan (and white comes out grey). Here the page measures the
+  // orange it actually drew on the shirt's lower front and nudges the fabric color
+  // until what you SEE matches UTRGV orange (#F05023) or a clean white. Done once per color and fabric.
+  // what the lit front of the shirt should look like on screen
+  const DROP_TARGETS = { orange: [240, 80, 35], white: [243, 243, 240] };
+  const dropOrangeFix = {};                // color|fabric → calibrated THREE.Color
+  const toLin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  function dropSampleBody() {
+    const sz = SHIRT3D.size, grp = SHIRT3D.group, cam = SHIRT3D.camera;
+    grp.updateMatrixWorld(true);
+    const ray = new THREE.Raycaster(new THREE.Vector3(sz.x * 0.08, -sz.y * 0.3, sz.z * 4), new THREE.Vector3(0, 0, -1));
+    const hit = ray.intersectObjects(SHIRT3D.meshes, true)[0];
+    if (!hit) return null;
+    const p = hit.point.clone().project(cam);
+    const cv = SHIRT3D.canvas, W = cv.width, H = cv.height;
+    const x = Math.round((p.x + 1) / 2 * W), y = Math.round((1 - p.y) / 2 * H), r = Math.max(3, Math.round(W * 0.012));
+    const c2 = document.createElement('canvas'); c2.width = W; c2.height = H;
+    const g = c2.getContext('2d'); g.drawImage(cv, 0, 0);
+    const d = g.getImageData(x - r, y - r, r * 2 + 1, r * 2 + 1).data;
+    let R = 0, G = 0, B = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) { R += d[i]; G += d[i + 1]; B += d[i + 2]; n++; }
+    return n ? [R / n, G / n, B / n] : null;
+  }
+  function dropFixOrange() {
+    const T = DROP_TARGETS[dropColor];
+    if (drop3D !== 'ok' || !T) return;
+    const key = dropColor + '|' + dropMat;
+    const mats = SHIRT3D.mats, fix = dropOrangeFix[key];
+    if (fix) { mats.forEach(m => { m.color.copy(fix); m.needsUpdate = true; }); render3D(); return; }
+    const grp = SHIRT3D.group, savedRot = grp.rotation.y;
+    const decal = SHIRT3D.decals && SHIRT3D.decals.front, dv = decal ? decal.visible : false;
+    grp.rotation.y = 0; if (decal) decal.visible = false;
+    try {
+      const col = mats[0].color.clone();
+      for (let k = 0; k < 6; k++) {
+        render3D();
+        const s = dropSampleBody(); if (!s) break;
+        const err = Math.max(...s.map((v, i) => Math.abs(v - T[i])));
+        if (err < 6) break;
+        ['r', 'g', 'b'].forEach((ch, i) => {
+          const f = toLin(Math.max(1, T[i])) / toLin(Math.max(1, s[i]));
+          col[ch] = Math.min(2, Math.max(0.0005, col[ch] * Math.min(4, Math.max(0.25, f))));
+        });
+        mats.forEach(m => { m.color.copy(col); m.needsUpdate = true; });
+      }
+      dropOrangeFix[key] = mats[0].color.clone();
+    } catch (e) { console.warn('UTRGV orange calibration', e); }
+    grp.rotation.y = savedRot; if (decal) decal.visible = dv;
+    render3D();
+  }
+
   // Put the current design + color + fabric on the shirt. spin=true turns the
   // shirt a full circle and swaps the design while its back is to you.
   async function dropApply(spin, dir) {
@@ -3789,11 +3841,12 @@
     const swap = () => {
       bldFront = art ? { src: art, name: d.name } : null;
       apply3DColor();
+      dropFixOrange();
       if (SHIRT3D.curFront !== (art || null)) { SHIRT3D.curFront = art || null; placeDecal('front'); }
     };
     if (dropSpin) { cancelAnimationFrame(dropSpin); dropSpin = null; }
     if (!spin) { swap(); SHIRT3D.group.rotation.y = 0; render3D(); return; }
-    const grp = SHIRT3D.group, dur = 900, t0 = performance.now(), sgn = dir < 0 ? -1 : 1;
+    const grp = SHIRT3D.group, dur = 900, t0 = performance.now(), sgn = dir < 0 ? 1 : -1;
     let swapped = false;
     const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     const step = now => {
