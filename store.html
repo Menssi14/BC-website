@@ -190,8 +190,6 @@
   .utrgv-drop { display:none; }
   .foot-tag { display:contents; }
   body.store-paused #product-grid-wrap,
-  body.store-paused #shirt-builder-section,
-  body.store-paused #uniform-builder-section,
   body.store-paused .dtf-nav-link { display:none !important; }
   body.store-paused .utrgv-drop { display:block; }
 
@@ -209,11 +207,11 @@
   .ut-hero p { max-width:540px; margin:0 auto; color:var(--ink-soft); font-size:clamp(17px,2.4vw,20px); line-height:1.3; }
 
   /* the shirt rack */
-  .drop-stage { position:relative; height:min(96vw,620px); outline:none;
+  .drop-stage { position:relative; height:min(96vw,500px); outline:none;
     touch-action:pan-y; user-select:none; -webkit-user-select:none;
     background:radial-gradient(ellipse 40% 56% at 50% 50%, rgba(255,255,255,.8), rgba(255,255,255,0) 72%); }
   .drop-live { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:min(96vw,620px); height:min(96vw,620px); }
+    width:min(96vw,500px); height:min(96vw,500px); }
   .drop-live canvas { width:100% !important; height:100% !important; display:block; }
   .drop-live .glb-loader { background:transparent; border-radius:16px; }
   .drop-flat { width:100%; height:100%; object-fit:contain; padding:12%; display:block; }
@@ -314,6 +312,27 @@
   body.store-paused .note-ship { display:none; }
   body.store-paused .note-pickup { display:inline; }
   body.store-paused #ful-ship { display:none; }
+
+  /* Contact + QR dialogs — same as the main page's Contact us */
+  #contact-dialog .dialog-opts { display:flex; flex-direction:column; gap:12px; margin-top:6px; }
+  #contact-dialog .dialog-opt { display:flex; align-items:center; gap:16px; padding:16px 20px; background:#fff; border:0.5px solid rgba(31,77,62,0.2);
+    color:var(--ink); text-decoration:none; transition:background .2s, border-color .2s, transform .15s; }
+  #contact-dialog .dialog-opt:hover { background:var(--green); color:var(--cream); border-color:var(--green); transform:translateX(4px); }
+  #contact-dialog .dialog-opt i { font-size:28px; color:var(--green); transition:color .2s; flex-shrink:0; }
+  #contact-dialog .dialog-opt:hover i { color:var(--pink, #F4B5B0); }
+  #contact-dialog .dialog-opt-text { display:flex; flex-direction:column; text-align:left; }
+  #contact-dialog .dialog-opt-label { font-family:'Schadow','Teko',sans-serif; font-size:16px; font-style:italic; }
+  #contact-dialog .dialog-opt-sub { font-family:'Teko','Oswald',Impact,sans-serif; font-size:19px; letter-spacing:.04em; color:var(--burgundy); margin-top:2px; transition:color .2s; }
+  #contact-dialog .dialog-opt:hover .dialog-opt-sub { color:var(--pink, #F4B5B0); }
+  #contact-dialog .dialog-note { font-family:'Schadow','Teko',sans-serif; font-size:16px; color:var(--ink-soft); margin:18px 0 0; line-height:1.6; text-align:center; }
+  #contact-dialog .contact-icons { display:flex; gap:16px; margin-top:20px; justify-content:center; }
+  #contact-dialog .contact-icons a, #contact-dialog .contact-icons button { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px;
+    border-radius:50%; border:0.5px solid rgba(31,77,62,0.25); color:var(--green); background:transparent; cursor:pointer; text-decoration:none; transition:background .2s, color .2s, transform .15s; }
+  #contact-dialog .contact-icons a:hover, #contact-dialog .contact-icons button:hover { background:var(--green); color:var(--cream); transform:translateY(-2px); }
+  #contact-dialog .contact-icons i { font-size:26px; }
+  #contact-dialog .dialog-card, #qr-dialog .dialog-card { text-align:center; }
+  #qr-svg svg { display:block; width:min(280px,72vw); height:auto; margin:16px auto 8px; border-radius:12px; box-shadow:0 6px 22px rgba(36,27,18,.18); }
+  #qr-dialog .qr-url { font-size:.95rem; letter-spacing:.04em; color:#4A3424; margin-top:2px; }
   /* ── FOOTER ──────────────────────────────────────── */
   /* ── shared footer (same in the shop, the orders app and the tools app) ── */
   .bc-foot{ background:#163829; color:rgba(242,234,221,.82); text-align:center;
@@ -441,7 +460,6 @@
 
 
   /* ── Shirt builder ── */
-  #shirt-builder-section .dialog-card{padding:20px 20px 16px}
   .sb-line{display:flex;align-items:center;gap:12px;margin-top:10px}
   .sb-lbl{flex:0 0 62px;font-family:'Teko','Oswald',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--green)}
   .sb-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -450,7 +468,6 @@
   .sb-chip.on{background:var(--green);border-color:var(--green);color:#F2EADD}
   .sb-select{flex:1;padding:7px 10px;border:1px solid #d9cfb8;border-radius:8px;background:#fffdf8;font-family:'Teko','Oswald',sans-serif;font-size:16px;letter-spacing:.05em;color:#4A3424;text-transform:uppercase;cursor:pointer}
   .sb-select:focus{outline:none;border-color:var(--green)}
-  .sb-preview{position:relative;width:100%;max-width:min(380px, calc(90vh - 300px));margin:0 auto;aspect-ratio:1/1;background:#F2EADD;border:1px solid #e2dac8;border-radius:8px;overflow:hidden;cursor:pointer}
   .sb-tap{position:absolute;left:0;right:0;bottom:0;padding:7px 6px;background:rgba(31,77,62,.9);color:#F2EADD;font-family:'Teko','Oswald',sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;text-align:center}
   .sb-note{font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;font-size:15px;color:rgba(74,52,36,.6);margin:7px 0 0;text-align:center;min-height:16px}
   .sb-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid #e2dac8}
@@ -468,8 +485,6 @@
   .sb-card .sbc-cta{display:inline-block;background:var(--green);color:#F2EADD;font-family:'Teko','Oswald',sans-serif;font-size:15px;letter-spacing:.1em;text-transform:uppercase;padding:8px 20px;border-radius:999px}
   /* short screens (iPhone SE and older): tighten so nothing needs scrolling */
   @media (max-height: 720px){
-    #shirt-builder-section .dialog-card{padding:15px 16px 12px}
-    #shirt-builder-section .label{margin-bottom:2px}
     .sb-line{margin-top:8px}
     .sb-note{margin-top:5px;min-height:14px}
     .sb-foot{margin-top:10px;padding-top:9px}
@@ -543,76 +558,7 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* Build Your Own = permanent section inside the shop */
-  #shirt-builder-section,
-  #uniform-builder-section{
-    position:relative; z-index:1;
-    width:100%; max-width:1080px;
-    margin:18px auto 34px; padding:0 18px;
-    background:transparent;
-  }
-  #uniform-builder-section{ margin-top:42px; margin-bottom:48px; }
-  #shirt-builder-section[hidden]{display:none!important}
-  .shirt-builder-shell{
-    background:transparent;
-    border:0;
-    border-radius:0;
-    box-shadow:none;
-    overflow:visible;
-  }
-  .shirt-builder-head{
-    text-align:center;
-    padding:30px 24px 8px;
-  }
-  .shirt-builder-head .overline{
-    font-family:'Teko','Oswald',sans-serif;
-    text-transform:uppercase;
-    letter-spacing:.24em;
-    font-size:14px;
-    color:var(--khaki);
-    margin-bottom:5px;
-  }
-  .shirt-builder-head h2{
-    font-family:'Schadow','Teko',sans-serif;
-    font-weight:normal;
-    font-size:clamp(30px,5vw,42px);
-    line-height:1.05;
-    color:var(--green);
-    text-transform:uppercase;
-    letter-spacing:.015em;
-  }
-  .shirt-builder-head h2 em{font-style:normal;color:var(--burgundy)}
-  .shirt-builder-head p:last-child{
-    max-width:560px;
-    margin:9px auto 0;
-    color:var(--ink-soft);
-    font-family:'Teko','Oswald',sans-serif;
-    font-size:19px;
-    font-weight:300;
-    line-height:1.35;
-  }
-  #sb-body,
-  #ub-body{
-    padding:10px 24px 30px;
-    overflow:visible;
-  }
-  .byo-grid{
-    max-width:100%;
-    margin:0 auto;
-    display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    gap:28px;
-    align-items:start;
-  }
-  @media(min-width:761px){
-    .byo-stagewrap{position:sticky;top:82px}
-  }
-  .byo-stagewrap .sb-preview{
-    aspect-ratio:1/1;
-    width:100%;
-    max-width:480px;
-    margin:0 auto;
-  }
+  /* Swatches, fabric pills and labels (used by the UTRGV collection + shirt settings) */
   .byo-lbl{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:13px; color:#5A4E3F; margin:16px 0 8px; display:flex; justify-content:space-between; align-items:baseline; }
   .byo-lbl span{ color:#4A3424; }
   .byo-swatches{ display:flex; flex-wrap:wrap; gap:9px; }
@@ -624,74 +570,8 @@
   .ss-cols{ display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; }
   .ss-chk{ display:flex; align-items:center; gap:7px; font-size:14px; color:#4A3424; }
   .ss-dot{ width:15px; height:15px; border-radius:50%; border:1px solid rgba(0,0,0,.18); display:inline-block; }
-  .byo-step{ display:flex; align-items:center; gap:9px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:17px; color:#1F4D3E; margin:18px 0 4px; }
-  .byo-step:first-child{ margin-top:0; }
-  .byo-step b{ width:22px; height:22px; border-radius:50%; background:#1F4D3E; color:#F2EADD; font-size:14px; display:flex; align-items:center; justify-content:center; }
-  .byo-two{ display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
-  .byo-add{ width:100%; border:1.5px dashed #1F4D3E; background:rgba(31,77,62,.05); border-radius:12px; padding:16px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:17px; color:#1F4D3E; cursor:pointer; margin-top:8px; }
-  .byo-add i{ font-style:normal; font-size:13px; color:#7B6F50; }
-  .byo-dcard{ display:flex; align-items:center; gap:11px; border:1.5px solid rgba(74,52,36,.2); border-radius:12px; padding:10px; background:#fffdf8; margin-top:8px; cursor:pointer; }
-  .byo-dcard.on{ border-color:#1F4D3E; box-shadow:0 0 0 2px rgba(31,77,62,.15); background:#fff; }
-  .byo-dcard img{ width:52px; height:52px; object-fit:contain; flex:none; }
-  .byo-dmeta{ flex:1; display:flex; flex-direction:column; gap:2px; }
-  .byo-dmeta b{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:15px; color:#1F4D3E; }
-  .byo-dmeta b i{ font-style:normal; font-size:11px; color:#8a7f6d; }
-  .byo-dmeta span{ font-size:12px; color:#8a7f6d; }
-  .byo-drm{ border:none; background:none; color:#B4453B; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; cursor:pointer; }
-  .byo-choose{ display:grid; gap:10px; margin-top:6px; }
-  .byo-choose button{ text-align:left; border:1.5px solid rgba(74,52,36,.22); background:#fffdf8; border-radius:12px; padding:14px 16px; cursor:pointer; display:flex; flex-direction:column; gap:3px; }
-  .byo-choose button b{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:18px; color:#1F4D3E; }
-  .byo-choose button span{ font-size:13px; color:#6d6252; }
-  .byo-hint{ font-family:'Teko','Oswald',sans-serif; font-style:normal; text-transform:none; letter-spacing:0; font-size:15px; font-weight:300; color:#8a7f6d; }
-  .byo-slot{ display:flex; align-items:center; gap:10px; padding:9px 11px; border:1px solid rgba(74,52,36,.2); border-radius:10px; margin-top:8px; background:#fffdf8; }
-  .byo-slot img{ width:38px; height:38px; object-fit:contain; border-radius:6px; flex:none; }
-  .byo-slot span{ flex:1; font-size:13px; text-transform:uppercase; letter-spacing:.03em; color:#4A3424; }
-  .byo-slot button{ border:none; background:none; color:#c0392b; font-size:20px; line-height:1; cursor:pointer; }
-  .byo-slot.empty span{ color:#8a7f6d; }
-  .byo-bk{ display:block; font-size:11px; font-style:italic; color:#7B6F50; }
-  .byo-step .byo-fee{margin-left:auto;font-style:normal;font-size:13px;letter-spacing:.06em;color:var(--burgundy);}
-  .ub-name-input{width:100%;margin-top:8px;padding:11px 13px;border:1px solid rgba(74,52,36,.24);border-radius:9px;background:#fffdf8;color:#4A3424;font-family:'Teko','Oswald',sans-serif;font-size:18px;font-weight:400;letter-spacing:.04em;}
-  .ub-name-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(31,77,62,.10);}
-  .ub-name-input::placeholder{color:rgba(74,52,36,.46);}
-  .ub-font-select{margin-top:8px;width:100%;}
-  .ub-font-note{font-family:'Teko','Oswald',sans-serif;font-size:13px;font-weight:300;color:#8a7f6d;margin-top:5px;min-height:1em;}
-  .ub-preview-wrap{position:relative;width:100%;max-width:480px;margin:0 auto;}
-  .ub-preview-wrap .sb-preview{max-width:none!important;width:100%;margin:0;}
-  .ub-name-vector{position:absolute;left:28%;top:29%;width:18%;height:8%;z-index:14;pointer-events:none;overflow:visible;}
-  .ub-name-vector text{paint-order:normal;text-rendering:geometricPrecision;}
-  .ub-zoom-btn{position:absolute;right:12px;bottom:12px;z-index:16;width:44px;height:44px;border:1px solid rgba(242,234,221,.58);border-radius:50%;background:rgba(31,77,62,.94);color:#F2EADD;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:transform .14s ease,background .14s ease;}
-  .ub-zoom-btn:hover{transform:scale(1.06);background:var(--green-dark);}
-  .ub-zoom-btn svg{width:21px;height:21px;display:block;}
-  .ub-zoom-overlay{position:fixed;inset:0;z-index:270;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(22,56,41,.68);backdrop-filter:blur(3px);}
-  .ub-zoom-overlay.open{display:flex;}
-  .ub-zoom-box{width:min(920px,96vw);background:#F2EADD;border-radius:10px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.38);}
-  .ub-zoom-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--green);color:var(--cream);font-family:'Teko',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:16px;}
-  .ub-zoom-close{width:34px;height:34px;border-radius:50%;border:1px solid rgba(242,234,221,.75);background:transparent;color:var(--cream);font-size:23px;line-height:1;cursor:pointer;}
-  .ub-zoom-stage{position:relative;width:100%;background:#F2EADD;}
-.ub-zoom-img{display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;background:#F2EADD;}
-  .ub-zoom-name-vector{position:absolute;left:24%;top:48.5%;width:21%;height:12%;z-index:2;pointer-events:none;overflow:visible;}
-  .ub-zoom-name-vector text{paint-order:normal;text-rendering:geometricPrecision;}
   .store-made-in{font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:1;}
-  .sb-preview-wrap{position:relative;width:100%;}
-  .sb-preview-wrap .sb-preview{max-width:none!important;width:100%;margin:0;}
-  .sb-zoom-overlay{position:fixed;inset:0;z-index:270;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(22,56,41,.68);backdrop-filter:blur(3px);}
-  .sb-zoom-overlay.open{display:flex;}
-  .sb-zoom-box{width:min(920px,96vw);background:#F2EADD;border-radius:10px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.38);}
-  .sb-zoom-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--green);color:var(--cream);font-family:'Teko',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:16px;}
-  .sb-zoom-close{width:34px;height:34px;border-radius:50%;border:1px solid rgba(242,234,221,.75);background:transparent;color:var(--cream);font-size:23px;line-height:1;cursor:pointer;}
-  .sb-zoom-img{display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;background:#F2EADD;}
 
-  @media(max-width:760px){
-    #shirt-builder-section, #uniform-builder-section{margin:10px auto 28px;padding:0 12px}
-    .shirt-builder-head{padding:24px 18px 4px}
-    #sb-body, #ub-body{padding:8px 14px 24px}
-    .byo-grid{grid-template-columns:1fr;gap:20px}
-    .byo-stagewrap .sb-preview{max-width:520px}
-  }
-  @media(max-width:420px){
-    .byo-two{grid-template-columns:1fr}
-    .shirt-builder-head p:last-child{font-size:18px}
-  }
 </style>
 
 
@@ -853,6 +733,7 @@
     .bc-foot a[href^="tel:"]{ padding:13px 10px; margin:2px 0; font-size:1.05em; }
   }
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
 </head>
 <body class="store-paused">
 <svg class="svg-defs" aria-hidden="true">
@@ -893,6 +774,7 @@
     <a href="/" class="nav-brand">Broch Custom<small>The Shop</small></a>
     <div class="nav-right">
       <button class="nav-link dtf-nav-link" type="button" onclick="openDtfOrder()">Order DTF</button>
+      <button class="nav-cart" onclick="document.getElementById('contact-dialog').showModal()" aria-label="Contact us" title="Contact us"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 7 0 1 1 3.4 5.7L3.5 19l1.3-3.4A6.8 6.8 0 0 1 4 12z"/></svg></button>
       <button class="nav-cart nav-share" onclick="shareStore()" aria-label="Share the shop" title="Share the shop"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5"/><path d="M8 7l4-4 4 4"/><path d="M5 13v6.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg></button>
       <button class="nav-cart" onclick="openCart()" aria-label="Cart" title="Cart">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -964,97 +846,318 @@
     </div>
   </section>
 
-  <!-- THE BUILDERS — below the products -->
-  <section id="shirt-builder-section" class="shirt-builder-section" hidden aria-labelledby="shirt-builder-heading">
-    <div class="shirt-builder-shell">
-      <div class="shirt-builder-head">
-        <h2 id="shirt-builder-heading">Shirt Builder</h2>
-        <p>Choose your shirt, size and design &mdash; see it before you add it to your bag.</p>
-      </div>
-      <div id="sb-body">
-        <div class="byo-grid">
-          <div class="byo-stagewrap">
-            <div class="sb-preview-wrap">
-              <div class="sb-preview" id="sb-preview"></div>
-              <button class="ub-zoom-btn" type="button" onclick="openShirtZoom()" aria-label="Zoom shirt design" title="Zoom shirt design">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="M11 8v6M8 11h6"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="byo-controls">
-            <div class="byo-step"><b>1</b> Pick your shirt</div>
-            <div class="byo-lbl">Color <span id="byo-colname"></span></div>
-            <div class="byo-swatches" id="sb-cols"></div>
-            <div class="byo-two">
-              <div>
-                <div class="byo-lbl">Size</div>
-                <select id="sb-size" class="sb-select" onchange="bldSize=this.value;renderBuilder()"></select>
-              </div>
-              <div>
-                <div class="byo-lbl">Fabric</div>
-                <div class="byo-pills" id="sb-mats"></div>
-              </div>
-            </div>
-            <div class="byo-step"><b>2</b> Add your design</div>
-            <div id="byo-designs"></div>
-            <div class="sb-foot"><div class="sb-price" id="sb-price">&mdash;<small>each</small></div><button class="dialog-cta" style="margin:0" id="sb-add">Add to cart</button></div>
-          </div>
-        </div>
-        <input type="file" id="byo-upl" accept="image/*" style="display:none" onchange="onBuildUpload(event)">
-      </div>
-    </div>
-  </section>
 
-  <section id="uniform-builder-section" aria-labelledby="uniform-builder-heading">
-    <div class="shirt-builder-shell">
-      <div class="shirt-builder-head">
-        <h2 id="uniform-builder-heading">Uniform Builder</h2>
-        <p>Choose your uniform, add one embroidery logo on the left chest, and optionally add a name on the right chest.</p>
-      </div>
-      <div id="ub-body">
-        <div class="byo-grid">
-          <div class="byo-stagewrap">
-            <div class="ub-preview-wrap">
-              <div class="sb-preview" id="ub-preview"></div>
-              <svg class="ub-name-vector" id="ub-name-svg" viewBox="0 0 300 80" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><text id="ub-name-text" x="150" y="42" text-anchor="middle" dominant-baseline="middle"></text></svg>
-              <button class="ub-zoom-btn" type="button" onclick="openUniformChestZoom()" aria-label="Zoom left and right chest" title="Zoom chest details">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="M11 8v6M8 11h6"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="byo-controls">
-            <div class="byo-step"><b>1</b> Pick your uniform</div>
-            <div class="byo-lbl">Color <span id="ub-colname"></span></div>
-            <div class="byo-swatches" id="ub-cols"></div>
-            <div class="byo-two">
-              <div>
-                <div class="byo-lbl">Size</div>
-                <select id="ub-size" class="sb-select" onchange="uniSize=this.value;renderUniformBuilder()"></select>
-              </div>
-              <div>
-                <div class="byo-lbl">Fabric</div>
-                <div class="byo-pills" id="ub-mats"></div>
-              </div>
-            </div>
-            <div class="byo-step"><b>2</b> Left chest embroidery</div>
-            <p class="byo-hint">Embroidery logos only &middot; left chest placement is fixed.</p>
-            <div id="ub-designs"></div>
-            <button type="button" class="byo-add" id="ub-name-add" onclick="openUniformNameFeature()">+ Add right chest name &nbsp;<i>+$5</i></button>
-            <div id="ub-name-panel" hidden>
-              <div class="byo-step"><b>3</b> Right chest name <i class="byo-fee">+$5</i></div>
-              <p class="byo-hint">Optional &middot; embroidered on the wearer&rsquo;s right chest.</p>
-              <input id="ub-name" class="ub-name-input" type="text" maxlength="24" autocomplete="off" placeholder="Name (optional)" oninput="setUniformName(this.value)">
-              <div class="byo-lbl">Name font <span id="ub-font-count"></span></div>
-              <select id="ub-font" class="sb-select ub-font-select" onchange="setUniformFont(this.value)"><option value="">Loading left-chest fonts…</option></select>
-              <div class="ub-font-note" id="ub-font-note">Only fonts marked Left Chest in the Font Viewer are shown.</div>
-              <button type="button" class="byo-drm" style="margin-top:9px" onclick="removeUniformNameFeature()">Remove name</button>
-            </div>
-            <div class="sb-foot"><div class="sb-price" id="ub-price">&mdash;<small>each</small></div><button class="dialog-cta" style="margin:0" id="ub-add">Add to cart</button></div>
-          </div>
-        </div>
-      </div>
+<!-- CONTACT — same as the main page's "Contact us" -->
+<dialog id="contact-dialog">
+  <div class="dialog-card">
+    <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
+    <p class="label">Get in touch</p>
+    <h3 class="dialog-title">Reach us <em>any way</em></h3>
+    <div class="dialog-opts">
+      <a class="dialog-opt" href="https://www.google.com/maps/search/?api=1&amp;query=Broch%20Custom%20Edinburg%20TX" target="_blank" rel="noopener">
+        <i class="ti ti-map-pin" aria-hidden="true"></i>
+        <span class="dialog-opt-text"><span class="dialog-opt-label">Drop by</span><span class="dialog-opt-sub">Edinburg, Texas</span></span>
+      </a>
+      <a class="dialog-opt" href="tel:9562255859">
+        <i class="ti ti-phone" aria-hidden="true"></i>
+        <span class="dialog-opt-text"><span class="dialog-opt-label">Call or text</span><span class="dialog-opt-sub">(956) 225-5859</span></span>
+      </a>
+      <a class="dialog-opt" href="mailto:brochcustom@gmail.com">
+        <i class="ti ti-mail" aria-hidden="true"></i>
+        <span class="dialog-opt-text"><span class="dialog-opt-label">Email</span><span class="dialog-opt-sub">brochcustom@gmail.com</span></span>
+      </a>
     </div>
-  </section>
+    <p class="dialog-note">Send a photo, sketch, or rough idea &mdash; we&rsquo;ll take it from there.</p>
+    <div class="contact-icons">
+      <a href="https://www.facebook.com/BrochCustom" target="_blank" rel="noopener" aria-label="Facebook"><i class="ti ti-brand-facebook" aria-hidden="true"></i></a>
+      <button type="button" onclick="document.getElementById('qr-dialog').showModal()" aria-label="Share this page with QR code" title="Share QR"><i class="ti ti-qrcode" aria-hidden="true"></i></button>
+      <a href="https://wa.me/19562255859" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></a>
+    </div>
+  </div>
+</dialog>
+<dialog id="qr-dialog">
+  <div class="dialog-card">
+    <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
+    <p class="label">Share</p>
+    <h3 class="dialog-title">Scan <em>me</em></h3>
+    <div id="qr-svg"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 370">
+<rect width="370" height="370" fill="#ffffff"/>
+<g fill="#000000">
+<circle cx="125.00" cy="45.00" r="4.50"/>
+<circle cx="155.00" cy="45.00" r="4.50"/>
+<circle cx="165.00" cy="45.00" r="4.50"/>
+<circle cx="185.00" cy="45.00" r="4.50"/>
+<circle cx="195.00" cy="45.00" r="4.50"/>
+<circle cx="205.00" cy="45.00" r="4.50"/>
+<circle cx="215.00" cy="45.00" r="4.50"/>
+<circle cx="225.00" cy="45.00" r="4.50"/>
+<circle cx="235.00" cy="45.00" r="4.50"/>
+<circle cx="245.00" cy="45.00" r="4.50"/>
+<circle cx="145.00" cy="55.00" r="4.50"/>
+<circle cx="155.00" cy="55.00" r="4.50"/>
+<circle cx="165.00" cy="55.00" r="4.50"/>
+<circle cx="195.00" cy="55.00" r="4.50"/>
+<circle cx="225.00" cy="55.00" r="4.50"/>
+<circle cx="235.00" cy="55.00" r="4.50"/>
+<circle cx="245.00" cy="55.00" r="4.50"/>
+<circle cx="135.00" cy="65.00" r="4.50"/>
+<circle cx="165.00" cy="65.00" r="4.50"/>
+<circle cx="195.00" cy="65.00" r="4.50"/>
+<circle cx="205.00" cy="65.00" r="4.50"/>
+<circle cx="125.00" cy="75.00" r="4.50"/>
+<circle cx="135.00" cy="75.00" r="4.50"/>
+<circle cx="145.00" cy="75.00" r="4.50"/>
+<circle cx="165.00" cy="75.00" r="4.50"/>
+<circle cx="175.00" cy="75.00" r="4.50"/>
+<circle cx="195.00" cy="75.00" r="4.50"/>
+<circle cx="225.00" cy="75.00" r="4.50"/>
+<circle cx="145.00" cy="85.00" r="4.50"/>
+<circle cx="155.00" cy="85.00" r="4.50"/>
+<circle cx="175.00" cy="85.00" r="4.50"/>
+<circle cx="205.00" cy="85.00" r="4.50"/>
+<circle cx="215.00" cy="85.00" r="4.50"/>
+<circle cx="225.00" cy="85.00" r="4.50"/>
+<circle cx="235.00" cy="85.00" r="4.50"/>
+<circle cx="135.00" cy="95.00" r="4.50"/>
+<circle cx="145.00" cy="95.00" r="4.50"/>
+<circle cx="155.00" cy="95.00" r="4.50"/>
+<circle cx="165.00" cy="95.00" r="4.50"/>
+<circle cx="175.00" cy="95.00" r="4.50"/>
+<circle cx="185.00" cy="95.00" r="4.50"/>
+<circle cx="225.00" cy="95.00" r="4.50"/>
+<circle cx="235.00" cy="95.00" r="4.50"/>
+<circle cx="125.00" cy="105.00" r="4.50"/>
+<circle cx="145.00" cy="105.00" r="4.50"/>
+<circle cx="165.00" cy="105.00" r="4.50"/>
+<circle cx="185.00" cy="105.00" r="4.50"/>
+<circle cx="205.00" cy="105.00" r="4.50"/>
+<circle cx="225.00" cy="105.00" r="4.50"/>
+<circle cx="245.00" cy="105.00" r="4.50"/>
+<circle cx="135.00" cy="115.00" r="4.50"/>
+<circle cx="175.00" cy="115.00" r="4.50"/>
+<circle cx="185.00" cy="115.00" r="4.50"/>
+<circle cx="195.00" cy="115.00" r="4.50"/>
+<circle cx="215.00" cy="115.00" r="4.50"/>
+<circle cx="225.00" cy="115.00" r="4.50"/>
+<circle cx="65.00" cy="125.00" r="4.50"/>
+<circle cx="85.00" cy="125.00" r="4.50"/>
+<circle cx="95.00" cy="125.00" r="4.50"/>
+<circle cx="105.00" cy="125.00" r="4.50"/>
+<circle cx="125.00" cy="125.00" r="4.50"/>
+<circle cx="135.00" cy="125.00" r="4.50"/>
+<circle cx="175.00" cy="125.00" r="4.50"/>
+<circle cx="185.00" cy="125.00" r="4.50"/>
+<circle cx="195.00" cy="125.00" r="4.50"/>
+<circle cx="225.00" cy="125.00" r="4.50"/>
+<circle cx="245.00" cy="125.00" r="4.50"/>
+<circle cx="255.00" cy="125.00" r="4.50"/>
+<circle cx="295.00" cy="125.00" r="4.50"/>
+<circle cx="325.00" cy="125.00" r="4.50"/>
+<circle cx="45.00" cy="135.00" r="4.50"/>
+<circle cx="55.00" cy="135.00" r="4.50"/>
+<circle cx="75.00" cy="135.00" r="4.50"/>
+<circle cx="95.00" cy="135.00" r="4.50"/>
+<circle cx="115.00" cy="135.00" r="4.50"/>
+<circle cx="245.00" cy="135.00" r="4.50"/>
+<circle cx="255.00" cy="135.00" r="4.50"/>
+<circle cx="265.00" cy="135.00" r="4.50"/>
+<circle cx="295.00" cy="135.00" r="4.50"/>
+<circle cx="325.00" cy="135.00" r="4.50"/>
+<circle cx="45.00" cy="145.00" r="4.50"/>
+<circle cx="55.00" cy="145.00" r="4.50"/>
+<circle cx="65.00" cy="145.00" r="4.50"/>
+<circle cx="75.00" cy="145.00" r="4.50"/>
+<circle cx="85.00" cy="145.00" r="4.50"/>
+<circle cx="105.00" cy="145.00" r="4.50"/>
+<circle cx="125.00" cy="145.00" r="4.50"/>
+<circle cx="275.00" cy="145.00" r="4.50"/>
+<circle cx="295.00" cy="145.00" r="4.50"/>
+<circle cx="315.00" cy="145.00" r="4.50"/>
+<circle cx="325.00" cy="145.00" r="4.50"/>
+<circle cx="55.00" cy="155.00" r="4.50"/>
+<circle cx="115.00" cy="155.00" r="4.50"/>
+<circle cx="245.00" cy="155.00" r="4.50"/>
+<circle cx="255.00" cy="155.00" r="4.50"/>
+<circle cx="265.00" cy="155.00" r="4.50"/>
+<circle cx="285.00" cy="155.00" r="4.50"/>
+<circle cx="315.00" cy="155.00" r="4.50"/>
+<circle cx="45.00" cy="165.00" r="4.50"/>
+<circle cx="55.00" cy="165.00" r="4.50"/>
+<circle cx="75.00" cy="165.00" r="4.50"/>
+<circle cx="85.00" cy="165.00" r="4.50"/>
+<circle cx="105.00" cy="165.00" r="4.50"/>
+<circle cx="115.00" cy="165.00" r="4.50"/>
+<circle cx="125.00" cy="165.00" r="4.50"/>
+<circle cx="265.00" cy="165.00" r="4.50"/>
+<circle cx="275.00" cy="165.00" r="4.50"/>
+<circle cx="295.00" cy="165.00" r="4.50"/>
+<circle cx="45.00" cy="175.00" r="4.50"/>
+<circle cx="55.00" cy="175.00" r="4.50"/>
+<circle cx="65.00" cy="175.00" r="4.50"/>
+<circle cx="125.00" cy="175.00" r="4.50"/>
+<circle cx="245.00" cy="175.00" r="4.50"/>
+<circle cx="255.00" cy="175.00" r="4.50"/>
+<circle cx="265.00" cy="175.00" r="4.50"/>
+<circle cx="275.00" cy="175.00" r="4.50"/>
+<circle cx="315.00" cy="175.00" r="4.50"/>
+<circle cx="325.00" cy="175.00" r="4.50"/>
+<circle cx="55.00" cy="185.00" r="4.50"/>
+<circle cx="65.00" cy="185.00" r="4.50"/>
+<circle cx="75.00" cy="185.00" r="4.50"/>
+<circle cx="95.00" cy="185.00" r="4.50"/>
+<circle cx="105.00" cy="185.00" r="4.50"/>
+<circle cx="245.00" cy="185.00" r="4.50"/>
+<circle cx="255.00" cy="185.00" r="4.50"/>
+<circle cx="275.00" cy="185.00" r="4.50"/>
+<circle cx="305.00" cy="185.00" r="4.50"/>
+<circle cx="315.00" cy="185.00" r="4.50"/>
+<circle cx="325.00" cy="185.00" r="4.50"/>
+<circle cx="45.00" cy="195.00" r="4.50"/>
+<circle cx="85.00" cy="195.00" r="4.50"/>
+<circle cx="115.00" cy="195.00" r="4.50"/>
+<circle cx="275.00" cy="195.00" r="4.50"/>
+<circle cx="315.00" cy="195.00" r="4.50"/>
+<circle cx="45.00" cy="205.00" r="4.50"/>
+<circle cx="55.00" cy="205.00" r="4.50"/>
+<circle cx="65.00" cy="205.00" r="4.50"/>
+<circle cx="85.00" cy="205.00" r="4.50"/>
+<circle cx="105.00" cy="205.00" r="4.50"/>
+<circle cx="125.00" cy="205.00" r="4.50"/>
+<circle cx="245.00" cy="205.00" r="4.50"/>
+<circle cx="265.00" cy="205.00" r="4.50"/>
+<circle cx="295.00" cy="205.00" r="4.50"/>
+<circle cx="65.00" cy="215.00" r="4.50"/>
+<circle cx="75.00" cy="215.00" r="4.50"/>
+<circle cx="95.00" cy="215.00" r="4.50"/>
+<circle cx="115.00" cy="215.00" r="4.50"/>
+<circle cx="125.00" cy="215.00" r="4.50"/>
+<circle cx="245.00" cy="215.00" r="4.50"/>
+<circle cx="255.00" cy="215.00" r="4.50"/>
+<circle cx="265.00" cy="215.00" r="4.50"/>
+<circle cx="315.00" cy="215.00" r="4.50"/>
+<circle cx="325.00" cy="215.00" r="4.50"/>
+<circle cx="45.00" cy="225.00" r="4.50"/>
+<circle cx="95.00" cy="225.00" r="4.50"/>
+<circle cx="105.00" cy="225.00" r="4.50"/>
+<circle cx="255.00" cy="225.00" r="4.50"/>
+<circle cx="285.00" cy="225.00" r="4.50"/>
+<circle cx="295.00" cy="225.00" r="4.50"/>
+<circle cx="305.00" cy="225.00" r="4.50"/>
+<circle cx="315.00" cy="225.00" r="4.50"/>
+<circle cx="325.00" cy="225.00" r="4.50"/>
+<circle cx="55.00" cy="235.00" r="4.50"/>
+<circle cx="65.00" cy="235.00" r="4.50"/>
+<circle cx="85.00" cy="235.00" r="4.50"/>
+<circle cx="95.00" cy="235.00" r="4.50"/>
+<circle cx="265.00" cy="235.00" r="4.50"/>
+<circle cx="315.00" cy="235.00" r="4.50"/>
+<circle cx="45.00" cy="245.00" r="4.50"/>
+<circle cx="75.00" cy="245.00" r="4.50"/>
+<circle cx="95.00" cy="245.00" r="4.50"/>
+<circle cx="105.00" cy="245.00" r="4.50"/>
+<circle cx="145.00" cy="245.00" r="4.50"/>
+<circle cx="155.00" cy="245.00" r="4.50"/>
+<circle cx="165.00" cy="245.00" r="4.50"/>
+<circle cx="195.00" cy="245.00" r="4.50"/>
+<circle cx="225.00" cy="245.00" r="4.50"/>
+<circle cx="245.00" cy="245.00" r="4.50"/>
+<circle cx="255.00" cy="245.00" r="4.50"/>
+<circle cx="265.00" cy="245.00" r="4.50"/>
+<circle cx="275.00" cy="245.00" r="4.50"/>
+<circle cx="285.00" cy="245.00" r="4.50"/>
+<circle cx="295.00" cy="245.00" r="4.50"/>
+<circle cx="125.00" cy="255.00" r="4.50"/>
+<circle cx="135.00" cy="255.00" r="4.50"/>
+<circle cx="145.00" cy="255.00" r="4.50"/>
+<circle cx="165.00" cy="255.00" r="4.50"/>
+<circle cx="175.00" cy="255.00" r="4.50"/>
+<circle cx="185.00" cy="255.00" r="4.50"/>
+<circle cx="195.00" cy="255.00" r="4.50"/>
+<circle cx="205.00" cy="255.00" r="4.50"/>
+<circle cx="235.00" cy="255.00" r="4.50"/>
+<circle cx="245.00" cy="255.00" r="4.50"/>
+<circle cx="285.00" cy="255.00" r="4.50"/>
+<circle cx="315.00" cy="255.00" r="4.50"/>
+<circle cx="325.00" cy="255.00" r="4.50"/>
+<circle cx="145.00" cy="265.00" r="4.50"/>
+<circle cx="165.00" cy="265.00" r="4.50"/>
+<circle cx="195.00" cy="265.00" r="4.50"/>
+<circle cx="235.00" cy="265.00" r="4.50"/>
+<circle cx="245.00" cy="265.00" r="4.50"/>
+<circle cx="265.00" cy="265.00" r="4.50"/>
+<circle cx="285.00" cy="265.00" r="4.50"/>
+<circle cx="305.00" cy="265.00" r="4.50"/>
+<circle cx="315.00" cy="265.00" r="4.50"/>
+<circle cx="325.00" cy="265.00" r="4.50"/>
+<circle cx="125.00" cy="275.00" r="4.50"/>
+<circle cx="155.00" cy="275.00" r="4.50"/>
+<circle cx="185.00" cy="275.00" r="4.50"/>
+<circle cx="195.00" cy="275.00" r="4.50"/>
+<circle cx="205.00" cy="275.00" r="4.50"/>
+<circle cx="245.00" cy="275.00" r="4.50"/>
+<circle cx="285.00" cy="275.00" r="4.50"/>
+<circle cx="325.00" cy="275.00" r="4.50"/>
+<circle cx="125.00" cy="285.00" r="4.50"/>
+<circle cx="155.00" cy="285.00" r="4.50"/>
+<circle cx="175.00" cy="285.00" r="4.50"/>
+<circle cx="185.00" cy="285.00" r="4.50"/>
+<circle cx="225.00" cy="285.00" r="4.50"/>
+<circle cx="245.00" cy="285.00" r="4.50"/>
+<circle cx="255.00" cy="285.00" r="4.50"/>
+<circle cx="265.00" cy="285.00" r="4.50"/>
+<circle cx="275.00" cy="285.00" r="4.50"/>
+<circle cx="285.00" cy="285.00" r="4.50"/>
+<circle cx="295.00" cy="285.00" r="4.50"/>
+<circle cx="325.00" cy="285.00" r="4.50"/>
+<circle cx="145.00" cy="295.00" r="4.50"/>
+<circle cx="155.00" cy="295.00" r="4.50"/>
+<circle cx="185.00" cy="295.00" r="4.50"/>
+<circle cx="195.00" cy="295.00" r="4.50"/>
+<circle cx="205.00" cy="295.00" r="4.50"/>
+<circle cx="245.00" cy="295.00" r="4.50"/>
+<circle cx="255.00" cy="295.00" r="4.50"/>
+<circle cx="285.00" cy="295.00" r="4.50"/>
+<circle cx="295.00" cy="295.00" r="4.50"/>
+<circle cx="125.00" cy="305.00" r="4.50"/>
+<circle cx="135.00" cy="305.00" r="4.50"/>
+<circle cx="155.00" cy="305.00" r="4.50"/>
+<circle cx="185.00" cy="305.00" r="4.50"/>
+<circle cx="195.00" cy="305.00" r="4.50"/>
+<circle cx="235.00" cy="305.00" r="4.50"/>
+<circle cx="275.00" cy="305.00" r="4.50"/>
+<circle cx="285.00" cy="305.00" r="4.50"/>
+<circle cx="295.00" cy="305.00" r="4.50"/>
+<circle cx="325.00" cy="305.00" r="4.50"/>
+<circle cx="165.00" cy="315.00" r="4.50"/>
+<circle cx="175.00" cy="315.00" r="4.50"/>
+<circle cx="185.00" cy="315.00" r="4.50"/>
+<circle cx="205.00" cy="315.00" r="4.50"/>
+<circle cx="215.00" cy="315.00" r="4.50"/>
+<circle cx="235.00" cy="315.00" r="4.50"/>
+<circle cx="245.00" cy="315.00" r="4.50"/>
+<circle cx="265.00" cy="315.00" r="4.50"/>
+<circle cx="275.00" cy="315.00" r="4.50"/>
+<circle cx="315.00" cy="315.00" r="4.50"/>
+<circle cx="145.00" cy="325.00" r="4.50"/>
+<circle cx="155.00" cy="325.00" r="4.50"/>
+<circle cx="195.00" cy="325.00" r="4.50"/>
+<circle cx="225.00" cy="325.00" r="4.50"/>
+<circle cx="235.00" cy="325.00" r="4.50"/>
+<circle cx="245.00" cy="325.00" r="4.50"/>
+<circle cx="285.00" cy="325.00" r="4.50"/>
+<circle cx="295.00" cy="325.00" r="4.50"/>
+<circle cx="315.00" cy="325.00" r="4.50"/>
+<circle cx="325.00" cy="325.00" r="4.50"/>
+</g>
+<rect x="40" y="40" width="70" height="70" rx="19.0" ry="19.0" fill="#000000"/><rect x="50" y="50" width="50" height="50" rx="14.0" ry="14.0" fill="#ffffff"/><rect x="60" y="60" width="30" height="30" rx="10.0" ry="10.0" fill="#000000"/>
+<rect x="260" y="40" width="70" height="70" rx="19.0" ry="19.0" fill="#000000"/><rect x="270" y="50" width="50" height="50" rx="14.0" ry="14.0" fill="#ffffff"/><rect x="280" y="60" width="30" height="30" rx="10.0" ry="10.0" fill="#000000"/>
+<rect x="40" y="260" width="70" height="70" rx="19.0" ry="19.0" fill="#000000"/><rect x="50" y="270" width="50" height="50" rx="14.0" ry="14.0" fill="#ffffff"/><rect x="60" y="280" width="30" height="30" rx="10.0" ry="10.0" fill="#000000"/>
+<rect x="135.35" y="135.35" width="99.31" height="99.31" rx="13.90" ry="13.90" fill="#ffffff"/>
+<g transform="translate(-2.554,-11.100) scale(1.04225)"><path d="M157.51719480821876,159.3054351961934C157.94046436810223,159.3054351961934 158.3252548770872,159.42087234888888 158.71004538607215,159.42087234888888C163.2890524429932,159.42087234888888 164.7512563771361,161.19090869021971 164.7512563771361,165.2696880854603L164.7512563771361,177.19819386399416C164.7512563771361,182.27742858259566 163.2890524429932,184.04746492392647 157.51719480821876,184.16290207662195ZM140.93272387096684,223.14218063679866L161.24966274537292,223.14218063679866C175.21755822152707,223.14218063679866 179.83504432934663,220.21777276851293 179.83504432934663,209.17428516064453L179.83504432934663,197.93840229828362C179.83504432934663,189.62692730420844 176.67976215566995,186.9718727922122 166.25193936217744,186.58708228322723C174.75580961074513,185.50966885806935 177.75717558082783,182.39286573529114 177.75717558082783,174.96640891188136L177.75717558082783,164.88489757647534C177.75717558082783,155.68840441173472 173.75535428738422,153.2642242051295 163.78928010467368,153.2642242051295L140.93272387096684,153.2642242051295L140.93272387096684,159.61326760338136L144.357359400933,159.61326760338136L144.357359400933,216.79313723854676L140.93272387096684,216.79313723854676ZM166.6367298711624,208.98188990615205C166.6367298711624,215.02310089721595 165.05908878432405,216.87009534034377 157.51719480821876,217.10096964573475L157.51719480821876,190.08867591499038C157.51719480821876,190.08867591499038 157.82502721540675,190.08867591499038 158.90244064056463,190.08867591499038C163.98167535916616,190.08867591499038 166.6367298711624,192.66677232518964 166.6367298711624,197.55361178929866ZM218.5126471304792,153.2642242051295L210.00877688191153,153.2642242051295L210.00877688191153,157.76627316025355C207.27676426811828,154.1492423757949 203.8521287381521,152.30224793266706 199.15768452853555,152.30224793266706C191.1540419416483,152.30224793266706 186.26720247753929,157.07365024408062 186.26720247753929,165.3851252381558L186.26720247753929,207.98143458279114C186.26720247753929,219.7175451068325 189.88423326199793,224.02719880746406 202.58232005850175,224.02719880746406C214.5108258370356,224.02719880746406 219.01287479215966,219.90994036132497 219.01287479215966,208.78949465165957L219.01287479215966,190.9736940856558L212.85622664840025,190.9736940856558L212.85622664840025,208.3662250917761C212.85622664840025,214.33047798104303 211.66337607054686,217.6781554092122 206.58414135194533,217.6781554092122C201.31251137885135,217.6781554092122 200.35053510638895,214.4459151337385 200.35053510638895,208.3662250917761L200.35053510638895,165.88535289983625C200.35053510638895,161.65265730100165 200.8507627680694,158.72824943271596 205.04497931600548,158.72824943271596C209.04680060944912,158.72824943271596 209.73942352562204,161.3833039447122 209.73942352562204,165.88535289983625L209.73942352562204,178.08321203465954L218.5126471304792,178.08321203465954Z" fill="#000000"/></g>
+</svg></div>
+    <p class="qr-url">brochcustom.com</p>
+  </div>
+</dialog>
 
   <!-- FOOTER -->
   <footer class="bc-foot">
@@ -2534,13 +2637,6 @@
   const BACK_FEE=5;
   const BYO_COLORS=[{k:'black',hex:'#141414',label:'Black'},{k:'grey',hex:'#77797c',label:'Grey'},{k:'lightgrey',hex:'#c7cac9',label:'Light Grey'},{k:'white',hex:'#f4f4f2',label:'White'},{k:'purple',hex:'#552a80',label:'Purple'},{k:'navy',hex:'#172a55',label:'Navy Blue'},{k:'royal',hex:'#274ba0',label:'Royal'},{k:'powder',hex:'#9ec7e8',label:'Powder Blue'},{k:'darkgreen',hex:'#123f2d',label:'Dark Green'},{k:'green',hex:'#2f8f4e',label:'Green'},{k:'yellow',hex:'#f0b81c',label:'Yellow'},{k:'orange',hex:'#cf4e1c',label:'Orange'},{k:'red',hex:'#b52a2d',label:'Red'},{k:'maroon',hex:'#6e2822',label:'Maroon'},{k:'brown',hex:'#5b3a29',label:'Brown'},{k:'khaki',hex:'#b39a6d',label:'Khaki'},{k:'pink',hex:'#e79bb6',label:'Pink'}];
   const BYO_FABRICS=[{k:'Cotton',up:0},{k:'Polyester',up:2}];
-  // Uniform Builder shares the Shirt Builder inventory, sizes, colors and fabric behavior.
-  let uniColor='', uniSize='', uniMat='', uniDesign=null, uniName='', uniFont='', uniNameOpen=false;
-  const UNIFORM_FONT_FOLDER='_fonts';
-  const UNIFORM_FONT_CAT_FILE='_settings/font-categories.json';
-  const UNIFORM_FONT_ORDER_FILE='_settings/font-order.json';
-  let uniformFonts=[], uniformFontsMetaLoaded=false, uniformFontsMetaLoading=false;
-  const uniformFontFamilies=Object.create(null), uniformFontUrls=Object.create(null);
 
   async function loadShirtCfg() {
     if (!sb) return;
@@ -2564,14 +2660,7 @@
       if (error) throw error;
       $('ss-status').textContent = 'Saved.';
       renderProducts();
-      if (!STORE_PAUSED) {
-        const section = $('shirt-builder-section');
-        if (section) {
-          section.hidden = !SHIRT.on;
-          if (SHIRT.on) openShirtBuilder(false);
-        }
-        renderUniformBuilder();
-      }
+
       setTimeout(() => $('shirt-admin-dialog').close(), 700);
     } catch (e) { $('ss-status').textContent = "Couldn't save — try again."; }
   }
@@ -2609,43 +2698,8 @@
     return Object.entries(SHIRT.colors).filter(([k, c]) => c.on && c.material === mat);
   }
 
-  async function openShirtBuilder(scrollToBuilder = true) {
-    if (!bldMat) bldMat = 'Cotton';
-    const inStock = stockColors();
-    if (!inStock.find(c => c.k === bldColor)) bldColor = inStock.length ? inStock[0].k : '';
-    bldSide = 'front';
-    const onSizes = SHIRT.sizes.filter(s => s.on);
-    // Start on Adult M — the size most people want. Fall back only if it's switched off.
-    if (!sizeObj(bldSize) || !sizeObj(bldSize).on) {
-      const preferred = onSizes.find(s => s.k === 'Adult M');
-      bldSize = preferred ? preferred.k : (onSizes.length ? onSizes[0].k : '');
-    }
-    const section = $('shirt-builder-section');
-    if (section) section.hidden = !SHIRT.on;
-    renderBuilder();
-    if (section && scrollToBuilder) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
 
-  function renderBuilder() {
-    const cw=$('sb-cols'); if(cw){ cw.innerHTML='';
-      stockColors().forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-sw'+(c.k===bldColor?' on':''); b.style.background=c.hex; b.title=c.label; b.onclick=()=>{ bldColor=c.k; renderBuilder(); }; cw.appendChild(b); }); }
-    const cn=$('byo-colname'); if(cn){ const c=BYO_COLORS.find(x=>x.k===bldColor); cn.textContent=c?c.label:''; }
-    const mw=$('sb-mats'); if(mw){ mw.innerHTML='';
-      BYO_FABRICS.forEach(f=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-pill'+(f.k===bldMat?' on':''); b.textContent=f.k+(f.up?' +$'+f.up:''); b.onclick=()=>{ bldMat=f.k; renderBuilder(); }; mw.appendChild(b); }); }
-    renderDesigns();
-    const sel=$('sb-size'); if(sel){ sel.innerHTML=''; SHIRT.sizes.filter(s=>s.on).forEach(s=>{ const o=document.createElement('option'); o.value=s.k; o.textContent=s.k; if(s.k===bldSize)o.selected=true; sel.appendChild(o); }); }
-    renderBuilderPreview();
-    const price=builtPrice();
-    const pe=$('sb-price'); if(pe){ pe.innerHTML=(price!=null?fmt(price):'&mdash;')+'<small>each</small>'+(bldBack?'<span class="byo-bk">incl. $'+BACK_FEE+' back design</span>':''); }
-    const addBtn=$('sb-add'); if(addBtn){ addBtn.textContent='Add to cart'; addBtn.onclick=addBuiltToCart; addBtn.disabled=!(bldColor&&bldSize&&(bldFront||bldBack)); }
-  }
 
-  function builtPrice() {
-    if (!bldColor || !bldSize) return null;
-    return SHIRT.basePrice + sizeUpcharge(bldSize) + materialUpcharge(bldMat) + (bldBack ? BACK_FEE : 0);
-  }
 
 
   /* shirt model loads on demand from /shirt.glb */
@@ -2772,7 +2826,14 @@
         const BASE=(front?0.295:0.32)*DROP_UP;
         let dw,dh; if(asp>=1){dw=BASE;dh=BASE/asp;}else{dh=BASE;dw=BASE*asp;}
         const inch=sz.y/28;                                   // shirt body reads as ~28 in tall
-        const yl=front? (sz.y*0.105 - (dh - dh/DROP_UP)/2) : (sz.y*0.5 - 4*inch - dh/2);   // back: top of print sits 4 in below the collar
+        let yl;
+        if(front&&DROP_UP>1){
+          // UTRGV page: wide art is trimmed a little, and every print hangs from the same top line
+          // (where a square design's top sits), so short designs ride up instead of floating low.
+          if(asp>1){ const k=Math.pow(asp,-0.18); dw*=k; dh*=k; }
+          const topLine=sz.y*0.105-(BASE-BASE/DROP_UP)/2+BASE/2;
+          yl=topLine-dh/2;
+        } else yl=front? sz.y*0.105 : (sz.y*0.5 - 4*inch - dh/2);   // back: top of print sits 4 in below the collar
         const zs=front? sz.z*4 : -sz.z*4, dir=front? new THREE.Vector3(0,0,-1):new THREE.Vector3(0,0,1);
         const ray=new THREE.Raycaster(new THREE.Vector3(0,yl,zs), dir);
         const hits=ray.intersectObjects(SHIRT3D.meshes,true);
@@ -2807,432 +2868,10 @@
     if(SHIRT3D.decals){ if(SHIRT3D.decals.front)SHIRT3D.decals.front.visible=(bldSide==='front'); if(SHIRT3D.decals.back)SHIRT3D.decals.back.visible=(bldSide==='back'); }
     render3D();
   }
-  function capture3DSide(side){
-    if(!SHIRT3D.ok) return '';
-    const grp=SHIRT3D.group, saved=grp.rotation.y; grp.rotation.y=(side==='back')?Math.PI:0;
-    if(SHIRT3D.decals){ if(SHIRT3D.decals.front)SHIRT3D.decals.front.visible=(side==='front'); if(SHIRT3D.decals.back)SHIRT3D.decals.back.visible=(side==='back'); }
-    render3D();
-    const cnv=SHIRT3D.canvas,S=820,out=document.createElement('canvas'); out.width=S;out.height=S; const g=out.getContext('2d');
-    g.fillStyle='#F2EADD'; g.fillRect(0,0,S,S); g.drawImage(cnv,0,0,cnv.width,cnv.height,0,0,S,S);
-    grp.rotation.y=saved;
-    return out.toDataURL('image/jpeg',0.76);
-  }
-  function builtBothMockups(){ const o=[]; if(SHIRT3D.ok){ try{ if(bldFront)o.push(capture3DSide('front')); if(bldBack)o.push(capture3DSide('back')); refresh3D(); }catch(e){} } return o.filter(Boolean); }
-  function setBuildSide(s){ bldSide=s; renderBuilder(); }
-  function uploadBuildDesign(){ const el=$('byo-upl'); if(el) el.click(); }
-  function onBuildUpload(e){ const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=function(){ const d={name:f.name.replace(/\.[^.]+$/,''), src:rd.result, custom:true}; if(bldSide==='back') bldBack=d; else bldFront=d; renderBuilder(); }; rd.readAsDataURL(f); e.target.value=''; }
-  function clearBuildDesign(side){ if(side==='back') bldBack=null; else bldFront=null; renderBuilder(); }
-  function openDesignChooser(side){
-    bldSide = side;
-    const t=$('dc-title'); if(t) t.textContent = (side==='back' ? 'Add a back design' : 'Add your design');
-    renderBuilder();
-    $('design-choose').showModal();
-  }
-  function chooseCatalog(){ $('design-choose').close(); openDesignPicker('builder'); }
-  function chooseUpload(){ $('design-choose').close(); uploadBuildDesign(); }
 
-  // ══════════════ UNIFORM BUILDER ══════════════
-  // This intentionally shares SHIRT.sizes, BYO_COLORS and BYO_FABRICS so both
-  // builders stay synchronized. The 3D renderer is separate so both previews
-  // can live on the page at the same time.
-  const UNIFORM3D = { ok:false, booting:false, failed:false, renderer:null, scene:null, camera:null, group:null,
-                      mats:[], meshes:[], size:null, ink:null, decal:null, nameDecal:null, canvas:null, mergedMesh:null, curDesign:null, curNameKey:null };
-  const UNIFORM_VIEW_Y = -0.075; // compensate for the Polo model's built-in rightward stance
-  const UNIFORM_NAME_FEE = 5;
-  /* polo model loads on demand from /polo.glb */
-  let uniformBootObserver = null;
 
-  function uniformFontDisplay(file){ return String(file||'').replace(/\.(ttf|otf|woff2?)$/i,''); }
-  function uniformFontFamilyId(file){ return 'BCUF_'+String(file||'font').replace(/[^A-Za-z0-9]/g,'_'); }
-  function uniformFontIsLeftChest(raw){
-    if(!raw || typeof raw!=='object' || Array.isArray(raw)) return false;
-    if(raw.leftChest===true || raw.left_chest===true || raw.leftChestCompatible===true || raw.left_chest_compatible===true) return true;
-    if(raw.placements && !Array.isArray(raw.placements) && (raw.placements.leftChest===true || raw.placements.left_chest===true)) return true;
-    const lists=[raw.compatibility,raw.compatible,raw.tags,raw.placements];
-    for(const list of lists){ if(!Array.isArray(list)) continue; for(const item of list){ const v=String(item).toLowerCase().replace(/[ _]+/g,'-'); if(v==='left-chest'||v==='leftchest') return true; } }
-    return false;
-  }
-  async function loadUniformFontMeta(){
-    if(uniformFontsMetaLoaded || uniformFontsMetaLoading || !sb) return;
-    uniformFontsMetaLoading=true;
-    try{
-      const [catRes,orderRes,listRes]=await Promise.all([
-        sb.storage.from(PRODUCTS_BUCKET).download(UNIFORM_FONT_CAT_FILE),
-        sb.storage.from(PRODUCTS_BUCKET).download(UNIFORM_FONT_ORDER_FILE),
-        sb.storage.from(PRODUCTS_BUCKET).list(UNIFORM_FONT_FOLDER,{limit:1000,sortBy:{column:'name',order:'asc'}})
-      ]);
-      let cats={}, order=[];
-      if(!catRes.error&&catRes.data){try{cats=JSON.parse(await catRes.data.text())||{};}catch(_){}}
-      if(!orderRes.error&&orderRes.data){try{const p=JSON.parse(await orderRes.data.text());order=Array.isArray(p)?p:[];}catch(_){}}
-      const files=(listRes.data||[]).map(f=>f&&f.name).filter(n=>n&&/\.(ttf|otf|woff2?)$/i.test(n));
-      const rank=new Map(order.map((n,i)=>[n,i]));
-      uniformFonts=files.filter(n=>uniformFontIsLeftChest(cats[n])).sort((a,b)=>{
-        const ar=rank.has(a)?rank.get(a):1e9, br=rank.has(b)?rank.get(b):1e9;
-        return ar===br?a.localeCompare(b):ar-br;
-      }).map(file=>({file,name:uniformFontDisplay(file),family:uniformFontFamilyId(file)}));
-      if(!uniformFonts.some(f=>f.file===uniFont)) uniFont=uniformFonts.length?uniformFonts[0].file:'';
-      uniformFontsMetaLoaded=true; uniformFontsMetaLoading=false;
-      renderUniformFontSelect();
-      if(uniFont){ await ensureUniformFontLoaded(uniFont); UNIFORM3D.curNameKey=null; refreshUniform3D(); }
-    }catch(_){ uniformFonts=[]; uniformFontsMetaLoaded=true; uniformFontsMetaLoading=false; renderUniformFontSelect(); }
-  }
-  function renderUniformFontSelect(){
-    const sel=$('ub-font'), count=$('ub-font-count'), note=$('ub-font-note');
-    if(count) count.textContent=uniformFonts.length?uniformFonts.length+' available':'';
-    if(!sel) return;
-    sel.innerHTML='';
-    if(!uniformFonts.length){
-      const o=document.createElement('option');o.value='';o.textContent=uniformFontsMetaLoaded?'No Left Chest fonts available':'Loading left-chest fonts…';sel.appendChild(o);sel.disabled=true;
-      if(note&&uniformFontsMetaLoaded) note.textContent='No fonts are currently marked Left Chest in the Font Viewer.';
-      return;
-    }
-    sel.disabled=false;
-    uniformFonts.forEach(f=>{const o=document.createElement('option');o.value=f.file;o.textContent=f.name;if(f.file===uniFont)o.selected=true;sel.appendChild(o);});
-    if(note) note.textContent='Only fonts marked Left Chest in the Font Viewer are shown.';
-    const inp=$('ub-name'), fam=uniformFontFamilies[uniFont]; if(inp&&fam) inp.style.fontFamily='"'+fam+'", Teko, sans-serif';
-  }
-  async function ensureUniformFontLoaded(file){
-    if(!file) return 'Teko';
-    if(uniformFontFamilies[file]) return uniformFontFamilies[file];
-    const rec=uniformFonts.find(f=>f.file===file); if(!rec||!sb) return 'Teko';
-    try{
-      const dl=await sb.storage.from(PRODUCTS_BUCKET).download(UNIFORM_FONT_FOLDER+'/'+file); if(dl.error||!dl.data) throw dl.error||new Error('font');
-      const url=URL.createObjectURL(dl.data), family=rec.family, style=document.createElement('style');
-      style.id='uniform-font-'+family; style.textContent='@font-face{font-family:"'+family+'";src:url("'+url+'");font-display:swap;}'; document.head.appendChild(style);
-      uniformFontUrls[file]=url; uniformFontFamilies[file]=family;
-      try{await document.fonts.load('32px "'+family+'"');}catch(_){}
-      const inp=$('ub-name'); if(inp&&uniFont===file) inp.style.fontFamily='"'+family+'", Teko, sans-serif';
-      if(uniFont===file){syncUniformNameSvg('main');syncUniformNameSvg('zoom');}
-      return family;
-    }catch(_){return 'Teko';}
-  }
-  async function setUniformFont(file){
-    uniFont=String(file||''); renderUniformFontSelect(); await ensureUniformFontLoaded(uniFont); UNIFORM3D.curNameKey=null; syncUniformNameSvg('main');syncUniformNameSvg('zoom'); refreshUniform3D();
-  }
+  function renderBuilderPreview(){}   // the old Shirt Builder is gone; the UTRGV page drives the 3D shirt
 
-  function uniformHex(){ const c=BYO_COLORS.find(x=>x.k===uniColor); return c?c.hex:'#f4f4f2'; }
-  function uniformPrice(){
-    if(!uniColor || !uniSize) return null;
-    // Pricing follows the Shirt Builder base/size/fabric rules, plus the optional
-    // right-chest embroidered name requested for uniforms.
-    return SHIRT.basePrice + sizeUpcharge(uniSize) + materialUpcharge(uniMat) + (uniName.trim() ? UNIFORM_NAME_FEE : 0);
-  }
-
-  function initUniformBuilder(){
-    if(!uniMat) uniMat='Cotton';
-    const inStock=stockColors();
-    if(!inStock.find(c=>c.k===uniColor)) uniColor=inStock.length?inStock[0].k:'';
-    const onSizes=SHIRT.sizes.filter(s=>s.on);
-    if(!sizeObj(uniSize) || !sizeObj(uniSize).on){
-      const preferred=onSizes.find(s=>s.k==='Adult M');
-      uniSize=preferred?preferred.k:(onSizes.length?onSizes[0].k:'');
-    }
-    renderUniformBuilder();
-  }
-
-  function renderUniformBuilder(){
-    const cw=$('ub-cols'); if(cw){ cw.innerHTML='';
-      stockColors().forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-sw'+(c.k===uniColor?' on':''); b.style.background=c.hex; b.title=c.label; b.onclick=()=>{uniColor=c.k;renderUniformBuilder();}; cw.appendChild(b); }); }
-    const cn=$('ub-colname'); if(cn){ const c=BYO_COLORS.find(x=>x.k===uniColor); cn.textContent=c?c.label:''; }
-    const mw=$('ub-mats'); if(mw){ mw.innerHTML='';
-      BYO_FABRICS.forEach(f=>{ const b=document.createElement('button'); b.type='button'; b.className='byo-pill'+(f.k===uniMat?' on':''); b.textContent=f.k+(f.up?' +$'+f.up:''); b.onclick=()=>{uniMat=f.k;renderUniformBuilder();}; mw.appendChild(b); }); }
-    const sel=$('ub-size'); if(sel){ sel.innerHTML=''; SHIRT.sizes.filter(s=>s.on).forEach(sz=>{ const o=document.createElement('option'); o.value=sz.k; o.textContent=sz.k; if(sz.k===uniSize)o.selected=true; sel.appendChild(o); }); }
-    renderUniformDesign();
-    renderUniformNameFeature();
-    renderUniformBuilderPreview();
-    const ni=$('ub-name'); if(ni && ni.value!==uniName) ni.value=uniName;
-    renderUniformFontSelect();
-    syncUniformNameSvg('main');
-    const pe=$('ub-price'), price=uniformPrice(); if(pe) pe.innerHTML=(price!=null?fmt(price):'&mdash;')+'<small>each</small>';
-    const add=$('ub-add'); if(add){ add.onclick=addUniformToCart; add.disabled=!(uniColor&&uniSize&&uniDesign); add.textContent='Add to cart'; }
-  }
-
-  function renderUniformDesign(){
-    const el=$('ub-designs'); if(!el) return;
-    if(!uniDesign){
-      el.innerHTML='<button type="button" class="byo-add" onclick="openDesignPicker(\'uniform\')">+ Choose embroidery logo</button>';
-      return;
-    }
-    el.innerHTML='<div class="byo-dcard on">'+
-      '<img src="'+uniDesign.src+'" alt="">'+
-      '<div class="byo-dmeta"><b>Left chest embroidery</b><span>'+escapeHtml(uniDesign.name||'Logo')+'</span></div>'+
-      '<button type="button" class="byo-drm" onclick="clearUniformDesign()">Remove</button></div>';
-  }
-  function clearUniformDesign(){ uniDesign=null; renderUniformBuilder(); }
-  function openUniformNameFeature(){
-    uniNameOpen=true;
-    renderUniformNameFeature();
-    loadUniformFontMeta();
-    const inp=$('ub-name'); if(inp) setTimeout(()=>inp.focus(),0);
-  }
-  function removeUniformNameFeature(){
-    uniNameOpen=false;
-    uniName='';
-    const inp=$('ub-name'); if(inp) inp.value='';
-    UNIFORM3D.curNameKey=null;
-    syncUniformNameSvg('main');syncUniformNameSvg('zoom');
-    renderUniformNameFeature();
-    const pe=$('ub-price'),price=uniformPrice();if(pe)pe.innerHTML=(price!=null?fmt(price):'&mdash;')+'<small>each</small>';
-    refreshUniform3D();
-  }
-  function renderUniformNameFeature(){
-    const add=$('ub-name-add'), panel=$('ub-name-panel');
-    if(add) add.hidden=uniNameOpen || !uniDesign;
-    if(panel) panel.hidden=!uniNameOpen;
-  }
-  function setUniformName(v){
-    uniName=String(v||'').slice(0,24);
-    const pe=$('ub-price'),price=uniformPrice();if(pe)pe.innerHTML=(price!=null?fmt(price):'&mdash;')+'<small>each</small>';
-    syncUniformNameSvg('main');syncUniformNameSvg('zoom');refreshUniform3D();
-  }
-
-  async function bootUniform3D(container){
-    if(UNIFORM3D.ok||UNIFORM3D.booting||UNIFORM3D.failed) return;
-    UNIFORM3D.booting=true;
-    var _ld=make3DLoader(container);
-    try{
-      await ensureThree();
-      const cv=document.createElement('canvas'); cv.style.width='100%'; cv.style.height='100%'; cv.style.display='block';
-      const rr=new THREE.WebGLRenderer({antialias:true,alpha:true,canvas:cv,preserveDrawingBuffer:true});
-      const box=container.getBoundingClientRect(), W=Math.max(200,box.width), H=Math.max(200,box.height);
-      rr.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); rr.setSize(W,H);
-      rr.outputEncoding=THREE.sRGBEncoding; rr.toneMapping=THREE.LinearToneMapping; rr.toneMappingExposure=1.0;
-      const sc=new THREE.Scene(), cam=new THREE.PerspectiveCamera(34,W/H,0.01,100);
-      try{ const pm=new THREE.PMREMGenerator(rr); sc.environment=pm.fromScene(new THREE.RoomEnvironment(),0.04).texture; }catch(e){}
-      const key=new THREE.DirectionalLight(0xffffff,0.82); key.position.set(2,2.6,2.4); sc.add(key);
-      const fill=new THREE.DirectionalLight(0xffffff,0.10); fill.position.set(-2.4,0.6,1.8); sc.add(fill);
-      const rim=new THREE.DirectionalLight(0xffffff,0.14); rim.position.set(-1.2,1.8,-2.6); sc.add(rim);
-      sc.add(new THREE.HemisphereLight(0xffffff,0xeae8e1,0.15));
-      UNIFORM3D.ink=new THREE.TextureLoader().load('/shirt-ink.png');
-      // Exact Polo GLB from the Broch 3D Mockup tool, embedded here so the
-      // customer preview works as the same front-facing canvas view as Shirt Builder.
-      const gltf=await new Promise((res,rej)=>new THREE.GLTFLoader().load('/polo.glb',res,_ld.progress,rej));
-      const root=gltf.scene, bb=new THREE.Box3().setFromObject(root), ctr=bb.getCenter(new THREE.Vector3());
-      UNIFORM3D.size=bb.getSize(new THREE.Vector3()); root.position.sub(ctr);
-      const grp=new THREE.Group(); grp.add(root); sc.add(grp);
-      root.traverse(o=>{ if(o.isMesh&&o.material){
-        o.material=o.material.clone(); o.renderOrder=0; o.material.metalness=0; o.material.roughness=Math.min(0.98,Math.max(0.90,o.material.roughness||0.92)); o.material.envMapIntensity=0.13;
-        if(o.material.map){o.material.map.encoding=THREE.sRGBEncoding;o.material.map.anisotropy=8;}
-        // The Polo GLB contains two small placket meshes with bright-green source materials.
-        // Treat every Design_mat mesh as garment fabric so the selected uniform color reaches
-        // the placket too; keep only the Trim3D button meshes in their original button color.
-        const isButton=/^Trim3D_mat_/i.test(o.name||'');
-        if(!isButton){UNIFORM3D.mats.push(o.material);UNIFORM3D.meshes.push(o);}
-      }});
-      try{UNIFORM3D.mergedMesh=buildMergedUniform3D();}catch(e){UNIFORM3D.mergedMesh=null;}
-      const dist=(UNIFORM3D.size.y*1.15)/(2*Math.tan(cam.fov*Math.PI/360)); cam.position.set(0,0,dist); cam.lookAt(0,0,0);
-      UNIFORM3D.renderer=rr;UNIFORM3D.scene=sc;UNIFORM3D.camera=cam;UNIFORM3D.group=grp;UNIFORM3D.canvas=cv;UNIFORM3D.ok=true;UNIFORM3D.booting=false;_ld.done();
-      renderUniformBuilderPreview();
-    }catch(e){UNIFORM3D.failed=true;UNIFORM3D.booting=false;_ld.done();renderUniformBuilderPreview();}
-  }
-
-  function buildMergedUniform3D(){
-    const P=[],N=[],U=[];
-    UNIFORM3D.meshes.forEach(function(m){
-      m.updateWorldMatrix(true,false); const g=m.geometry,pos=g.attributes.position,nor=g.attributes.normal,uv=g.attributes.uv,idx=g.index; if(!pos)return;
-      const mat=m.matrixWorld,nmat=new THREE.Matrix3().getNormalMatrix(mat),count=idx?idx.count:pos.count;
-      for(let i=0;i<count;i++){const vi=idx?idx.getX(i):i; const v=new THREE.Vector3(pos.getX(vi),pos.getY(vi),pos.getZ(vi)).applyMatrix4(mat);P.push(v.x,v.y,v.z);
-        if(nor){const nv=new THREE.Vector3(nor.getX(vi),nor.getY(vi),nor.getZ(vi)).applyMatrix3(nmat).normalize();N.push(nv.x,nv.y,nv.z);}else N.push(0,0,1);
-        if(uv)U.push(uv.getX(vi),uv.getY(vi));else U.push(0,0);}
-    });
-    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(P,3));geo.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));
-    const mm=new THREE.Mesh(geo);mm.matrixAutoUpdate=false;mm.matrixWorld.identity();mm.visible=false;return mm;
-  }
-
-  function applyUniform3DColor(){
-    if(!UNIFORM3D.ok)return; const poly=(uniMat==='Polyester'), c=new THREE.Color(uniformHex()), hsl={}; c.getHSL(hsl);
-    hsl.s=Math.min(1,hsl.s*(poly?1.9:1.65)+(poly?0.12:0.08)); if(hsl.l<0.55)hsl.l=hsl.l*(0.76+hsl.l*0.36); else if(hsl.l<0.85)hsl.l=hsl.l*0.95; c.setHSL(hsl.h,hsl.s,hsl.l);
-    const dk=Math.max(0,Math.min(1,(0.38-hsl.l)/0.38)); UNIFORM3D.mats.forEach(m=>{m.color.copy(c);m.metalness=0.0;if(poly){m.roughness=0.58+dk*0.20;m.envMapIntensity=0.04-dk*0.025;}else{m.roughness=0.90+dk*0.05;m.envMapIntensity=0.04-dk*0.015;}m.needsUpdate=true;});
-  }
-  function clearUniformDecal(){if(UNIFORM3D.decal){UNIFORM3D.group.remove(UNIFORM3D.decal);if(UNIFORM3D.decal.geometry)UNIFORM3D.decal.geometry.dispose();UNIFORM3D.decal=null;}}
-  function clearUniformNameDecal(){if(UNIFORM3D.nameDecal){UNIFORM3D.group.remove(UNIFORM3D.nameDecal);if(UNIFORM3D.nameDecal.geometry)UNIFORM3D.nameDecal.geometry.dispose();if(UNIFORM3D.nameDecal.material&&UNIFORM3D.nameDecal.material.map)UNIFORM3D.nameDecal.material.map.dispose();UNIFORM3D.nameDecal=null;}}
-  function uniformNameThread(){
-    const hex=uniformHex().replace('#',''),r=parseInt(hex.slice(0,2),16)||0,g=parseInt(hex.slice(2,4),16)||0,b=parseInt(hex.slice(4,6),16)||0;
-    return (0.2126*r+0.7152*g+0.0722*b)>155 ? '#173b30' : '#f4ead8';
-  }
-  function syncUniformNameSvg(prefix){
-    const svg=$(prefix==='zoom'?'ub-zoom-name-svg':'ub-name-svg'), tx=$(prefix==='zoom'?'ub-zoom-name-text':'ub-name-text');
-    if(!svg||!tx)return;
-    const name=uniName.trim();
-    if(!name){svg.style.display='none';tx.textContent='';return;}
-    const fam=uniformFontFamilies[uniFont]||'Teko';
-    const n=name.length, fs=n<=8?48:n<=12?41:n<=16?34:n<=20?29:25;
-    svg.style.display='block';
-    tx.textContent=name;
-    tx.setAttribute('fill',uniformNameThread());
-    tx.setAttribute('font-size',String(fs));
-    tx.style.fontFamily='"'+fam+'", Teko, sans-serif';
-    tx.style.fontWeight='400';
-    tx.style.letterSpacing='0';
-  }
-  async function placeUniformNameDecal(){
-    if(!UNIFORM3D.ok)return; clearUniformNameDecal(); const name=uniName.trim(), fontFile=uniFont;
-    if(!name){renderUniform3D();return;}
-    const family=await ensureUniformFontLoaded(fontFile); if(name!==uniName.trim()||fontFile!==uniFont)return;
-    try{
-      // Use an SVG texture for the embroidered name so small lettering stays crisp.
-      const fontPx=220,padX=70,padY=42,tmp=document.createElement('canvas'),tc=tmp.getContext('2d'),fontCss=fontPx+'px "'+family+'", Teko, sans-serif';
-      const safeName=name;
-      tc.font=fontCss;
-      const tw=Math.max(1,Math.ceil(tc.measureText(safeName).width)),svgW=Math.min(2400,tw+padX*2),svgH=fontPx+padY*2;
-      const fill=uniformNameThread();
-      const fontUrl=uniformFontUrls[fontFile]||'';
-      const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-      const svg=''
-        +'<svg xmlns="http://www.w3.org/2000/svg" width="'+svgW+'" height="'+svgH+'" viewBox="0 0 '+svgW+' '+svgH+'">'
-        +'<style>'
-        +(fontUrl?('@font-face{font-family:"'+family+'";src:url("'+fontUrl+'");}'):'')
-        +'text{font-family:"'+family+'",Teko,sans-serif;font-size:'+fontPx+'px;font-weight:400;fill:'+fill+';text-anchor:middle;dominant-baseline:middle;text-rendering:geometricPrecision;}'
-        +'</style>'
-        +'<text x="50%" y="52%">'+esc(safeName)+'</text>'
-        +'</svg>';
-      const svgUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));
-      const im=await new Promise((resolve,reject)=>{const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=svgUrl;});
-      const tex=new THREE.Texture(im);tex.encoding=THREE.sRGBEncoding;tex.wrapS=THREE.RepeatWrapping;tex.repeat.x=-1;tex.offset.x=1;
-      tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;
-      if(UNIFORM3D.renderer&&UNIFORM3D.renderer.capabilities) tex.anisotropy=UNIFORM3D.renderer.capabilities.getMaxAnisotropy();
-      tex.needsUpdate=true;
-      const sz=UNIFORM3D.size,grp=UNIFORM3D.group,savedRot=grp.rotation.y;grp.rotation.y=0;grp.updateMatrixWorld(true);
-      const asp=svgW/svgH,maxW=sz.y*(5.35/28),maxH=sz.y*(1.05/28);let dh=maxH,dw=dh*asp;if(dw>maxW){dw=maxW;dh=dw/asp;}
-      // Wearer's right chest = viewer's left while facing the garment.
-      const xr=-sz.x*0.14,yr=sz.y*0.18,zs=sz.z*4,ray=new THREE.Raycaster(new THREE.Vector3(xr,yr,zs),new THREE.Vector3(0,0,-1)),hits=ray.intersectObjects(UNIFORM3D.meshes,true);
-      if(hits.length){const hit=hits[0],wp=hit.point.clone(),wn=new THREE.Vector3(0,0,1),Zc=wn.clone().negate().normalize(),upv=new THREE.Vector3(0,1,0);upv.sub(wn.clone().multiplyScalar(upv.dot(wn)));if(upv.lengthSq()<1e-6)upv.set(1,0,0);upv.normalize();
-        const Xc=new THREE.Vector3().crossVectors(upv,Zc).normalize(),Yc=new THREE.Vector3().crossVectors(Zc,Xc).normalize(),orient=new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(Xc,Yc,Zc)),depth=Math.min(0.18,Math.max(0.10,maxH*2.2));
-        const geo=new THREE.DecalGeometry(UNIFORM3D.mergedMesh||hit.object,wp,orient,new THREE.Vector3(dw,dh,depth)),mat=new THREE.MeshStandardMaterial({map:tex,transparent:true,depthTest:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-7,polygonOffsetUnits:-11,side:THREE.FrontSide,roughness:0.82,metalness:0,envMapIntensity:0.08,emissive:0xffffff,emissiveMap:tex,emissiveIntensity:0.06,alphaTest:0.02});
-        if(UNIFORM3D.ink){mat.normalMap=UNIFORM3D.ink;mat.normalScale=new THREE.Vector2(0.12,0.12);}const mesh=new THREE.Mesh(geo,mat);mesh.renderOrder=11;UNIFORM3D.nameDecal=mesh;grp.add(mesh);
-      }
-      grp.rotation.y=savedRot;grp.updateMatrixWorld(true);
-      URL.revokeObjectURL(svgUrl);
-    }catch(e){}renderUniform3D();
-  }
-  function placeUniformDecal(){
-    if(!UNIFORM3D.ok)return; clearUniformDecal(); const d=uniDesign; if(!d||!d.src){renderUniform3D();return;} const src=d.src; UNIFORM3D.token=src;
-    const im=new Image(); im.crossOrigin='anonymous'; im.onload=function(){ if(UNIFORM3D.token!==src)return;
-      try{
-        const tex=new THREE.Texture(im);tex.encoding=THREE.sRGBEncoding;tex.wrapS=THREE.RepeatWrapping;tex.repeat.x=-1;tex.offset.x=1;tex.needsUpdate=true;
-        const sz=UNIFORM3D.size,grp=UNIFORM3D.group,savedRot=grp.rotation.y;grp.rotation.y=0;grp.updateMatrixWorld(true);
-        const asp=(im.width&&im.height)?im.width/im.height:1;
-        // A real left-chest logo reads around 3.5–4 in wide on an adult polo.
-        const maxW=Math.min(sz.x*0.23,sz.y*(4/28)), maxH=sz.y*(4.25/28); let dw=maxW,dh=maxW/asp;
-        if(dh>maxH){dh=maxH;dw=maxH*asp;}
-        // Wearer's left chest = viewer's right while facing the garment.
-        const xl=sz.x*0.18, yl=sz.y*0.18, zs=sz.z*4;
-        const ray=new THREE.Raycaster(new THREE.Vector3(xl,yl,zs),new THREE.Vector3(0,0,-1)),hits=ray.intersectObjects(UNIFORM3D.meshes,true);
-        if(hits.length){const hit=hits[0],wp=hit.point.clone(),wn=new THREE.Vector3(0,0,1),Zc=wn.clone().negate().normalize();
-          const upv=new THREE.Vector3(0,1,0);upv.sub(wn.clone().multiplyScalar(upv.dot(wn)));if(upv.lengthSq()<1e-6)upv.set(1,0,0);upv.normalize();
-          const Xc=new THREE.Vector3().crossVectors(upv,Zc).normalize(),Yc=new THREE.Vector3().crossVectors(Zc,Xc).normalize(),orient=new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(Xc,Yc,Zc));
-          const depth=Math.min(0.24,Math.max(0.13,maxW*1.05)),geo=new THREE.DecalGeometry(UNIFORM3D.mergedMesh||hit.object,wp,orient,new THREE.Vector3(dw,dh,depth));
-          const mat=new THREE.MeshStandardMaterial({map:tex,transparent:true,depthTest:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-10,side:THREE.FrontSide,roughness:0.82,metalness:0,envMapIntensity:0.10,emissive:0xffffff,emissiveMap:tex,emissiveIntensity:0.07});
-          if(UNIFORM3D.ink){mat.normalMap=UNIFORM3D.ink;mat.normalScale=new THREE.Vector2(0.15,0.15);} const mesh=new THREE.Mesh(geo,mat);mesh.renderOrder=10;UNIFORM3D.decal=mesh;grp.add(mesh);
-        }
-        grp.rotation.y=savedRot;grp.updateMatrixWorld(true);
-      }catch(e){}
-      renderUniform3D();
-    }; im.src=src;
-  }
-  function renderUniform3D(){if(UNIFORM3D.ok)UNIFORM3D.renderer.render(UNIFORM3D.scene,UNIFORM3D.camera);}
-  function refreshUniform3D(){
-    if(!UNIFORM3D.ok)return;applyUniform3DColor();const src=(uniDesign&&uniDesign.src)||null;if(src!==UNIFORM3D.curDesign){UNIFORM3D.curDesign=src;placeUniformDecal();}
-    // The visible name is a true inline SVG overlay, not a WebGL texture. This keeps
-    // the small embroidery lettering crisp and lets the selected Left Chest font update live.
-    const nameKey=uniName.trim()+'|'+uniColor+'|'+uniFont;if(nameKey!==UNIFORM3D.curNameKey){UNIFORM3D.curNameKey=nameKey;if(UNIFORM3D.nameDecal)UNIFORM3D.nameDecal.visible=false;}
-    syncUniformNameSvg('main');
-    if(UNIFORM3D.group)UNIFORM3D.group.rotation.y=UNIFORM_VIEW_Y;if(UNIFORM3D.decal)UNIFORM3D.decal.visible=true;if(UNIFORM3D.nameDecal)UNIFORM3D.nameDecal.visible=false;renderUniform3D();
-  }
-  async function openUniformChestZoom(){
-    if(!UNIFORM3D.ok)return;
-    refreshUniform3D(); renderUniform3D();
-    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    const cnv=UNIFORM3D.canvas, img=$('ub-zoom-img'), overlay=$('ub-zoom-overlay'); if(!cnv||!img||!overlay)return;
-    const sx=Math.round(cnv.width*.055), sy=Math.round(cnv.height*.015), sw=Math.round(cnv.width*.89), sh=Math.round(cnv.height*.54);
-    const out=document.createElement('canvas'), W=1400, H=Math.max(560,Math.round(W*sh/sw)); out.width=W; out.height=H;
-    const g=out.getContext('2d'); g.fillStyle='#F2EADD'; g.fillRect(0,0,W,H); g.drawImage(cnv,sx,sy,sw,sh,0,0,W,H);
-    img.src=out.toDataURL('image/jpeg',.94); syncUniformNameSvg('zoom'); overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false');
-  }
-  function closeUniformChestZoom(){const o=$('ub-zoom-overlay');if(o){o.classList.remove('open');o.setAttribute('aria-hidden','true');}}
-
-  function captureUniform3D(){
-    if(!UNIFORM3D.ok)return'';refreshUniform3D();const cnv=UNIFORM3D.canvas,S=820,out=document.createElement('canvas');out.width=S;out.height=S;const g=out.getContext('2d');g.fillStyle='#F2EADD';g.fillRect(0,0,S,S);g.drawImage(cnv,0,0,cnv.width,cnv.height,0,0,S,S);
-    // The live preview name is true SVG. Add the same selected name/font to the saved
-    // cart mockup at export resolution so order previews still include it.
-    const nm=uniName.trim();if(nm){const fam=uniformFontFamilies[uniFont]||'Teko',n=nm.length,fs=n<=8?32:n<=12?27:n<=16?23:n<=20?20:17;g.save();g.font=fs+'px \"'+fam+'\", Teko, sans-serif';g.fillStyle=uniformNameThread();g.textAlign='center';g.textBaseline='middle';g.fillText(nm,S*.33,S*.32,S*.27);g.restore();}
-    return out.toDataURL('image/jpeg',0.76);
-  }
-  function renderUniformBuilderPreview(){
-    const wrap=$('ub-preview');if(!wrap)return;
-    if(!UNIFORM3D.ok){
-      if(UNIFORM3D.failed){wrap.innerHTML='<div class="sb-tap">Preview unavailable on this device — you can still build and order.</div>';return;}
-      if(!wrap.querySelector('.sb-tap'))wrap.innerHTML='<div class="sb-tap">Loading uniform preview…</div>';
-      if(!UNIFORM3D.booting){
-        if('IntersectionObserver' in window){
-          if(!uniformBootObserver){uniformBootObserver=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){uniformBootObserver.disconnect();uniformBootObserver=null;bootUniform3D(wrap);}},{rootMargin:'300px'});uniformBootObserver.observe(wrap);}
-        }else bootUniform3D(wrap);
-      }
-      return;
-    }
-    if(UNIFORM3D.canvas.parentNode!==wrap){wrap.innerHTML='';wrap.appendChild(UNIFORM3D.canvas);const b=wrap.getBoundingClientRect();UNIFORM3D.renderer.setSize(Math.max(200,b.width),Math.max(200,b.height));UNIFORM3D.camera.aspect=b.width/Math.max(1,b.height);UNIFORM3D.camera.updateProjectionMatrix();}
-    refreshUniform3D();let hint=wrap.querySelector('.sb-tap');if(!uniDesign){if(!hint){hint=document.createElement('div');hint.className='sb-tap';hint.textContent='Choose an embroidery logo';wrap.appendChild(hint);}}else if(hint)hint.remove();
-  }
-  async function addUniformToCart(){
-    if(!(uniColor&&uniSize&&uniDesign))return;const btn=$('ub-add');btn.disabled=true;btn.textContent='Adding…';
-    const col=BYO_COLORS.find(c=>c.k===uniColor),price=uniformPrice(),cleanName=uniName.trim(),fontName=uniformFontDisplay(uniFont),parts=[uniSize,col?col.label:uniColor,uniMat,'Left chest embroidery: '+uniDesign.name];if(cleanName)parts.push('Right chest name: '+cleanName+(fontName?' · '+fontName:'')+' (+$'+UNIFORM_NAME_FEE+')');
-    const variant=parts.join(' / '),key='uniform|'+uniColor+'|'+uniSize+'|'+uniMat+'|'+(uniDesign.name||'')+'|name:'+cleanName.toLowerCase()+'|font:'+uniFont;
-    const existing=cart.find(c=>c.key===key);if(existing)existing.qty++;else{const mock=captureUniform3D();cart.push({key,id:'uniform-builder',name:'Embroidered uniform — '+(uniDesign.name||'Logo'),price,photo:mock||uniDesign.src,mockups:mock?[mock]:[],originals:[],variant,qty:1,weightLb:DEFAULT_WEIGHT,built:true,builtType:'uniform'});}
-    updateCartCount();flashCart();btn.disabled=false;btn.textContent='Add to cart';openCart();
-  }
-
-  function designCard(side){
-    const d = side==='back'? bldBack : bldFront;
-    const on = (bldSide===side);
-    return '<div class="byo-dcard'+(on?' on':'')+'" onclick="setBuildSide(\''+side+'\')">'+
-             '<img src="'+d.src+'" alt="">'+
-             '<div class="byo-dmeta"><b>'+(side==='front'?'Front':'Back')+(side==='back'?' <i>+$'+BACK_FEE+'</i>':'')+'</b>'+
-               '<span>'+(on?'Showing on the shirt':'Tap to see this side')+'</span></div>'+
-             '<button type="button" class="byo-drm" onclick="event.stopPropagation();clearBuildDesign(\''+side+'\')">Remove</button>'+
-           '</div>';
-  }
-  function addDesignBtn(side,label){ return '<button type="button" class="byo-add" onclick="openDesignChooser(\''+side+'\')">'+label+'</button>'; }
-  function renderDesigns(){
-    const el=$('byo-designs'); if(!el) return;
-    const out=[];
-    if(bldFront) out.push(designCard('front'));
-    if(bldBack)  out.push(designCard('back'));
-    if(!bldFront) out.push(addDesignBtn('front', bldBack ? '+ Add front design' : '+ Add design'));
-    else if(!bldBack) out.push(addDesignBtn('back', '+ Add back design &nbsp;<i>+$'+BACK_FEE+'</i>'));
-    el.innerHTML=out.join('');
-  }
-  function renderBuilderPreview(){
-    if (STORE_PAUSED) return;   // the UTRGV page drives the 3D shirt itself
-    const wrap=$('sb-preview');
-    if(!SHIRT3D.ok){
-      if(!SHIRT3D.failed){ boot3D(wrap); if(!wrap.querySelector('.sb-tap')){ wrap.innerHTML='<div class="sb-tap">Loading your shirt\u2026</div>'; } }
-      else if(!wrap.querySelector('.sb-tap')){ wrap.innerHTML='<div class="sb-tap">Preview unavailable on this device \u2014 you can still build and order.</div>'; }
-      return;
-    }
-    if(SHIRT3D.canvas.parentNode!==wrap){ wrap.innerHTML=''; wrap.appendChild(SHIRT3D.canvas);
-      const b=wrap.getBoundingClientRect(); SHIRT3D.renderer.setSize(Math.max(200,b.width),Math.max(200,b.height));
-      SHIRT3D.camera.aspect=b.width/Math.max(1,b.height); SHIRT3D.camera.updateProjectionMatrix(); }
-    refresh3D();
-    let hint=wrap.querySelector('.sb-tap');
-    if(!(bldFront||bldBack)){ if(!hint){ hint=document.createElement('div'); hint.className='sb-tap'; hint.textContent='Pick or upload a design'; wrap.appendChild(hint); } }
-    else if(hint){ hint.remove(); }
-  }
-
-  async function openShirtZoom(){
-    if(!SHIRT3D.ok)return;
-    refresh3D();render3D();
-    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    const cnv=SHIRT3D.canvas,img=$('sb-zoom-img'),overlay=$('sb-zoom-overlay'),cap=$('sb-zoom-cap');
-    if(!cnv||!img||!overlay)return;
-    // Crop the upper torso so the current front/back design is easy to inspect.
-    const sx=Math.round(cnv.width*.055),sy=Math.round(cnv.height*.015),sw=Math.round(cnv.width*.89),sh=Math.round(cnv.height*.58);
-    const out=document.createElement('canvas'),W=1400,H=Math.max(620,Math.round(W*sh/sw));out.width=W;out.height=H;
-    const g=out.getContext('2d');g.fillStyle='#F2EADD';g.fillRect(0,0,W,H);g.drawImage(cnv,sx,sy,sw,sh,0,0,W,H);
-    img.src=out.toDataURL('image/jpeg',.95);
-    if(cap)cap.textContent='Shirt Detail · '+(bldSide==='back'?'Back':'Front');
-    overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
-  }
-  function closeShirtZoom(){const o=$('sb-zoom-overlay');if(o){o.classList.remove('open');o.setAttribute('aria-hidden','true');}}
 
   // Flatten shirt + design into one small picture for the order card.
   function loadImgEl(src, cross) {
@@ -3243,77 +2882,8 @@
       i.src = src;
     });
   }
-  async function buildMockup() {
-    if(SHIRT3D.ok){ try{ const f=capture3DSide('front'); refresh3D(); return f; }catch(e){} }
-    return bldDesign ? bldDesign.src : (bldFront ? bldFront.src : (bldBack ? bldBack.src : ''));
-  }
 
-  async function addBuiltToCart() {
-    if (!(bldColor && bldSize && (bldFront || bldBack))) return;
-    const btn = $('sb-add'); btn.disabled = true; btn.textContent = 'Adding\u2026';
-    const col = BYO_COLORS.find(c => c.k === bldColor);
-    const price = builtPrice();
-    const parts = [bldSize, col ? col.label : bldColor, bldMat];
-    if (bldFront) parts.push('Front: ' + bldFront.name);
-    if (bldBack) parts.push('Back: ' + bldBack.name);
-    const variant = parts.join(' / ');
-    const key = 'shirt|' + bldColor + '|' + bldSize + '|' + bldMat + '|' + ((bldFront&&bldFront.name)||'') + '|' + ((bldBack&&bldBack.name)||'');
-    const existing = cart.find(c => c.key === key);
-    if (existing) existing.qty++;
-    else {
-      const mocks = builtBothMockups();
-      const nm = 'Custom shirt \u2014 ' + (((bldFront&&bldFront.name)) || ((bldBack&&bldBack.name)) || 'design');
-      const origs=[];
-      if(bldFront&&bldFront.custom) origs.push({ side:'Front', filename:(bldFront.fileName||((bldFront.name||'front')+'.png')), dataUrl:bldFront.src });
-      if(bldBack&&bldBack.custom)  origs.push({ side:'Back',  filename:(bldBack.fileName ||((bldBack.name ||'back') +'.png')), dataUrl:bldBack.src });
-      cart.push({ key, id:'shirt-builder', name:nm, price, photo:mocks[0]||'', mockups:mocks, originals:origs, variant, qty:1, weightLb:DEFAULT_WEIGHT, built:true });
-    }
-    updateCartCount(); flashCart();
-    btn.disabled = false; btn.textContent = 'Add to cart';
-    openCart();
-  }
 
-  function requestArtQuote() {
-    $('art-quote-note').textContent = '';
-    $('art-quote-dialog').showModal();
-  }
-  async function submitArtQuote() {
-    const name = $('aq-name').value.trim();
-    const phone = $('aq-phone').value.replace(/\D/g, '');
-    const email = $('aq-email').value.trim();
-    const note = $('art-quote-note');
-    note.style.color = '#B4453B';
-    if (phone.length < 10 && !email) { note.textContent = 'Leave a phone number or email so we can reach you.'; return; }
-    const btn = $('aq-send'); btn.disabled = true; btn.textContent = 'Sending\u2026';
-    try {
-      const col = BYO_COLORS.find(c=>c.k===bldColor) || {};
-      const sides = [ (bldFront?('Front: '+bldFront.name):''), (bldBack?('Back: '+bldBack.name):'') ].filter(Boolean).join(', ');
-      const details = 'Custom shirt \u2014 ' + [bldSize, col.label, bldMat].filter(Boolean).join(' / ') +
-        '\nDesign: ' + (bldDesign.fileName || bldDesign.name) + ' (customer\u2019s own artwork)' + (sides?('\n'+sides):'');
-      const preview = await buildMockup();          // small shirt mockup for the order card
-      const r = await fetch('/api/quote', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          source: 'store', name, phone, email,
-          message: $('aq-msg').value.trim(),
-          details,
-          preview,
-          artwork: { filename: bldDesign.fileName || (bldDesign.name + '.png'), dataUrl: bldDesign.src }
-        })
-      });
-      const d = await r.json();
-      if (d && d.ok) {
-        note.style.color = 'var(--green)';
-        note.textContent = "Got it! We\u2019ll be in touch with your quote soon.";
-        setTimeout(() => { $('art-quote-dialog').close(); }, 1600);
-      } else {
-        note.textContent = (d && d.error) || "Couldn\u2019t send \u2014 call or text us at (956) 225-5859.";
-      }
-    } catch (e) {
-      note.textContent = 'No connection \u2014 call or text us at (956) 225-5859.';
-    }
-    btn.disabled = false; btn.textContent = 'Send for a quote';
-  }
 
   // Mockups ride along to the orders app so the shop sees what was built.
   function builtOriginals() {
@@ -3522,8 +3092,6 @@
         return;
       }
       const pick = { src, name: d.name || 'Design' };
-      if (forUniform) { uniDesign=pick; dlg.close(); renderUniformBuilder(); return; }
-      if (forBuilder) { if(bldSide==='back') bldBack=pick; else bldFront=pick; dlg.close(); renderBuilder(); return; }
       pendingDesignPick = pick;
       $('design-pick-note').textContent = 'Design selected: ' + pendingDesignPick.name;
       if (!$('prod-name').value.trim()) $('prod-name').value = pendingDesignPick.name;
@@ -3552,31 +3120,6 @@
       grid.innerHTML = '';
       const wrap = document.createElement('div');
       wrap.className = 'dp-folders';
-      if (forBuilder) {
-        // Their art, not ours → it goes through as a QUOTE, not a purchase.
-        const up = document.createElement('button');
-        up.type = 'button';
-        up.className = 'dp-folder dp-upload';
-        up.innerHTML = '<span class="dpf-emoji">\uD83C\uDFA8</span><span class="dpf-txt"><span class="dpf-name">Your own artwork</span>' +
-          '<span class="dpf-meta">Upload it \u2014 we quote it</span></span>';
-        up.onclick = () => {
-          const inp = document.createElement('input');
-          inp.type = 'file'; inp.accept = 'image/*';
-          inp.onchange = () => {
-            const f = inp.files && inp.files[0];
-            if (!f) return;
-            if (f.size > 3 * 1024 * 1024) { alert('That file is over 3 MB \u2014 too big to send through the site. Text it to us at (956) 225-5859 and we\u2019ll quote it just the same!'); return; }
-            const r = new FileReader();
-            r.onload = e => {
-              bldDesign = { src: String(e.target.result), name: f.name.replace(/\.[^.]+$/, ''), custom: true, fileName: f.name };
-              dlg.close(); renderBuilder();
-            };
-            r.readAsDataURL(f);
-          };
-          inp.click();
-        };
-        wrap.appendChild(up);
-      }
       if (!list.length) {   // catalog empty or unreachable — the upload card still works
         grid.appendChild(wrap);
         const p = document.createElement('p');
@@ -4127,13 +3670,6 @@
     await loadShirtCfg();
     await loadDtfCfg();
     if (STORE_PAUSED) { await initDrop(); return; }   // regular shop is switched off
-    const section = $('shirt-builder-section');
-    if (section) {
-      section.hidden = !SHIRT.on;
-      if (SHIRT.on) await openShirtBuilder(false);
-    }
-    initUniformBuilder();
-    loadUniformFontMeta();
     await loadProducts();
   })();
 
@@ -4771,31 +4307,6 @@
     <div class="lb-box" id="photo-lb-box"><img id="photo-lb-img" alt=""></div>
   </div>
 
-  <div class="sb-zoom-overlay" id="sb-zoom-overlay" aria-hidden="true" onclick="if(event.target===this)closeShirtZoom()">
-    <div class="sb-zoom-box">
-      <div class="sb-zoom-bar"><span id="sb-zoom-cap">Shirt Detail</span><button class="sb-zoom-close" type="button" onclick="closeShirtZoom()" aria-label="Close shirt zoom">&times;</button></div>
-      <img class="sb-zoom-img" id="sb-zoom-img" alt="Zoomed shirt design preview">
-    </div>
-  </div>
-
-  <div class="ub-zoom-overlay" id="ub-zoom-overlay" aria-hidden="true" onclick="if(event.target===this)closeUniformChestZoom()">
-    <div class="ub-zoom-box">
-      <div class="ub-zoom-bar"><span>Left + Right Chest Detail</span><button class="ub-zoom-close" type="button" onclick="closeUniformChestZoom()" aria-label="Close chest zoom">&times;</button></div>
-      <div class="ub-zoom-stage"><img class="ub-zoom-img" id="ub-zoom-img" alt="Zoomed uniform chest preview"><svg class="ub-zoom-name-vector" id="ub-zoom-name-svg" viewBox="0 0 300 80" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><text id="ub-zoom-name-text" x="150" y="42" text-anchor="middle" dominant-baseline="middle"></text></svg></div>
-    </div>
-  </div>
-
-  <dialog id="design-choose">
-    <div class="dialog-card" style="max-width:430px">
-      <button class="dialog-close" type="button" onclick="$('design-choose').close()">&times;</button>
-      <p class="label" id="dc-title">Add your design</p>
-      <div class="byo-choose">
-        <button type="button" onclick="chooseCatalog()"><b>Our Designs</b><span>Pick from the shop catalog</span></button>
-        <button type="button" onclick="chooseUpload()"><b>Upload Yours</b><span>Use your own artwork</span></button>
-      </div>
-    </div>
-  </dialog>
-
   <dialog id="shirt-admin-dialog">
     <div class="dialog-card">
       <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
@@ -4854,24 +4365,6 @@
     </div>
   </dialog>
 
-  <dialog id="art-quote-dialog">
-    <div class="dialog-card">
-      <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
-      <p class="label">Your artwork</p>
-      <h3 class="dialog-title">We&rsquo;ll <em>quote it</em></h3>
-      <p style="font-family:'Teko','Arial Narrow',Arial,sans-serif;font-size:15px;margin:0 0 12px;color:#4A3424">Custom artwork is priced by hand &mdash; leave your info and we&rsquo;ll get back to you with a price.</p>
-      <p style="font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;font-size:15px;margin:0 0 12px;padding:9px 12px;background:rgba(212,146,58,.1);border:1px solid rgba(212,146,58,.35);border-radius:8px;color:#7a5a2e">&#9888;&#65039; Small or blurry images may not print well &mdash; send the biggest, clearest copy you have. By sending, you confirm you have the right to use this artwork.</p>
-      <div style="display:flex;flex-direction:column;gap:9px">
-        <input class="qf-in" id="aq-name" type="text" autocomplete="name" placeholder="Your name">
-        <input class="qf-in" id="aq-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Phone (call or text)">
-        <input class="qf-in" id="aq-email" type="email" autocomplete="email" placeholder="Email (optional)">
-        <textarea class="qf-in" id="aq-msg" rows="2" placeholder="How many shirts? Anything else we should know?"></textarea>
-        <button class="dialog-cta" style="margin:0" id="aq-send" onclick="submitArtQuote()">Send for a quote</button>
-        <p id="art-quote-note" style="font-family:'Teko','Arial Narrow',Arial,sans-serif;font-style:normal;font-size:16px;text-align:center;margin:0;min-height:1em"></p>
-      </div>
-    </div>
-  </dialog>
-
   <dialog id="design-pick-dialog">
     <div class="dialog-card">
       <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
@@ -4883,8 +4376,6 @@
   </dialog>
 
 
-<!-- Shirt photos for the builder. Real photos (JPEG q85, 900px) flattened onto the
-     cream panel colour, so they blend into the preview with no transparency needed. -->
 
 </body>
 </html>
