@@ -3000,7 +3000,9 @@
           const w=dw, hh=dh;
           const depth=Math.min(0.35,Math.max(0.18,BASE*1.2));
           const geo=new THREE.DecalGeometry(SHIRT3D.mergedMesh||hit.object, wp, orient, new THREE.Vector3(w,hh,depth));
-          const mat=new THREE.MeshStandardMaterial({ map:tex, transparent:true, depthTest:true, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-6, polygonOffsetUnits:-10, side:THREE.FrontSide, roughness:0.92, metalness:0.0, envMapIntensity:0.12, emissive:0xffffff, emissiveMap:tex, emissiveIntensity:(document.body.classList.contains('store-paused')?0.55:0.10) });   // UTRGV page: brighter print so whites read white
+          const mat=new THREE.MeshStandardMaterial({ map:tex, transparent:true, depthTest:true, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-6, polygonOffsetUnits:-10, side:THREE.FrontSide, roughness:0.92, metalness:0.0, envMapIntensity:0.12, emissive:0xffffff, emissiveMap:tex, emissiveIntensity:0.10 });
+          // UTRGV page: the print shows its real ink colors instead of being washed out by the shirt lighting
+          if(document.body.classList.contains('store-paused')){ mat.color.setHex(0x262626); mat.emissiveIntensity=0.95; }
           if(SHIRT3D.ink){ mat.normalMap=SHIRT3D.ink; mat.normalScale=new THREE.Vector2(0.07,0.07); }
           const mesh=new THREE.Mesh(geo,mat); mesh.renderOrder=10; mesh.visible=(bldSide===side); SHIRT3D.decals[side]=mesh; grp.add(mesh);
         }
@@ -3442,8 +3444,34 @@
   const dropErrors = [];
   function dropErr(msg, e) { dropErrors.push(msg); console.warn('UTRGV: ' + msg, e || ''); const st = $('drop-admin-status'); if (st && isAdmin) st.textContent = dropErrors.slice(-3).join(' \u00b7 '); }
   function dropThumb(d) {
+    if (d.thumb) return d.thumb;                    // tiny stored copy — nothing to download
     if (d.cat) { const u = designThumb(d.cat); if (u) return u; }
     return isDesignKey(d.src) ? (designLink.get(d.src) || '') : (d.src || '');
+  }
+
+  // A small picture of the design (about 220px) kept with the saved list, so the
+  // strip under the shirt loads instantly instead of pulling full-size artwork.
+  async function dropMakeThumb(d) {
+    if (d.thumb) return d.thumb;
+    const art = await dropArtOf(d);
+    const im = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = art; });
+    const k = Math.min(1, 220 / Math.max(im.naturalWidth || 220, im.naturalHeight || 220));
+    const cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round((im.naturalWidth || 220) * k));
+    cv.height = Math.max(1, Math.round((im.naturalHeight || 220) * k));
+    cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+    let out = cv.toDataURL('image/webp', 0.8);
+    if (out.indexOf('data:image/webp') !== 0) out = cv.toDataURL('image/png');
+    d.thumb = out;
+    return out;
+  }
+  // fill in any missing thumbnails once, quietly, then save them for next time
+  async function dropFillThumbs() {
+    const missing = dropList.filter(d => !d.thumb);
+    if (!missing.length) return;
+    for (const d of missing) { try { await dropMakeThumb(d); } catch (e) { dropErr('thumbnail for \u201c' + d.name + '\u201d failed'); } }
+    buildDropTrack();
+    if (dropList.some(d => d.thumb)) saveDrop(true);
   }
 
   // Artwork for the shirt itself. Tries a clean PNG first (SVGs without a size
@@ -3457,7 +3485,7 @@
     try {
       const im = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error('art')); i.src = src; });
       let w = im.naturalWidth || 1200, h = im.naturalHeight || 1200;
-      const k = Math.min(1, 1400 / Math.max(w, h)); w = Math.round(w * k); h = Math.round(h * k);
+      const k = Math.min(1, 1200 / Math.max(w, h)); w = Math.round(w * k); h = Math.round(h * k);
       const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
       cv.getContext('2d').drawImage(im, 0, 0, w, h);
       out = cv.toDataURL('image/png');
@@ -3607,7 +3635,7 @@
         if (!error && data) { const s = JSON.parse(await data.text()); if (Array.isArray(s.designs)) saved = s.designs; }
       } catch (_) { /* first run — built-in design */ }
     }
-    dropList = (saved || DROP_DEFAULT).filter(d => d && d.src).map(d => ({ id: d.id, name: d.name, src: d.src }));
+    dropList = (saved || DROP_DEFAULT).filter(d => d && d.src).map(d => ({ id: d.id, name: d.name, src: d.src, thumb: d.thumb || '' }));
     if (!saved) return;
     // match each saved design to the live catalog (this also fetches the thumbnail links)
     let cat = [];
@@ -3618,12 +3646,12 @@
     });
   }
 
-  async function saveDrop() {
-    const st = $('drop-admin-status');
+  async function saveDrop(quiet) {
+    const st = quiet ? null : $('drop-admin-status');
     if (!sb) { if (st) st.textContent = 'No cloud connection \u2014 not saved.'; return; }
     if (st) st.textContent = 'Saving\u2026';
     try {
-      const blob = new Blob([JSON.stringify({ designs: dropList.map(d => ({ id: d.id, name: d.name, src: d.src })) })], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({ designs: dropList.map(d => ({ id: d.id, name: d.name, src: d.src, thumb: d.thumb || '' })) })], { type: 'application/json' });
       const { error } = await sb.storage.from(PRODUCTS_BUCKET).upload(DROP_FILE, blob, { upsert: true });
       if (error) throw error;
       if (st) st.textContent = 'Saved.';
@@ -3639,8 +3667,11 @@
     if (at >= 0) { dropIdx = at; layoutDrop(); dropApply(true, 1); return; }
     dropList.push({ id, name: d.name || 'Design', src, cat: d });
     dropIdx = dropList.length - 1;
-    resolveDesignLinks([src]).catch(() => {}).then(() => { buildDropTrack(); dropApply(true, 1); });
-    saveDrop();
+    resolveDesignLinks([src]).catch(() => {}).then(async () => {
+      buildDropTrack(); dropApply(true, 1);
+      try { await dropMakeThumb(dropList[dropIdx]); buildDropTrack(); } catch (e) {}
+      saveDrop();
+    });
   }
   // called by the catalog picker when several designs are picked at once
   function addDropDesigns(list) {
@@ -3654,8 +3685,11 @@
     });
     if (first < 0) return;
     dropIdx = first;
-    resolveDesignLinks(dropList.slice(first).map(x => x.src)).catch(() => {}).then(() => { buildDropTrack(); dropApply(true, 1); });
-    saveDrop();
+    resolveDesignLinks(dropList.slice(first).map(x => x.src)).catch(() => {}).then(async () => {
+      buildDropTrack(); dropApply(true, 1);
+      for (const d of dropList.slice(first)) { try { await dropMakeThumb(d); } catch (e) {} }
+      buildDropTrack(); saveDrop();
+    });
   }
   function dropHas(d) { const id = d.id || d.png || d.svg || ''; return dropList.some(x => x.id === id); }
   function removeDropDesign() {
@@ -3682,7 +3716,7 @@
       el.type = 'button'; el.className = 'drop-item'; el.dataset.i = i;
       const u = dropThumb(d);
       el.innerHTML = '<span>' + escapeHtml(d.name) + '</span>';
-      if (u) { const im = new Image(); im.alt = d.name || ''; im.onload = () => { el.innerHTML = ''; el.appendChild(im); };
+      if (u) { const im = new Image(); im.alt = d.name || ''; im.loading = 'lazy'; im.decoding = 'async'; im.onload = () => { el.innerHTML = ''; el.appendChild(im); };
         im.onerror = () => dropErr('picture for \u201c' + d.name + '\u201d wouldn\u2019t load'); im.src = u; }
       else dropErr('no picture link for \u201c' + d.name + '\u201d');
       el.setAttribute('aria-label', 'Show ' + (d.name || 'design ' + (i + 1)));
@@ -3834,6 +3868,7 @@
     if (drop3D === 'flat') dropShowFlat();
     await boot;
     dropApply(false);
+    dropFillThumbs();
   }
 
 
