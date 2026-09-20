@@ -3716,7 +3716,7 @@
       el.type = 'button'; el.className = 'drop-item'; el.dataset.i = i;
       const u = dropThumb(d);
       el.innerHTML = '<span>' + escapeHtml(d.name) + '</span>';
-      if (u) { const im = new Image(); im.alt = d.name || ''; im.loading = 'lazy'; im.decoding = 'async'; im.onload = () => { el.innerHTML = ''; el.appendChild(im); };
+      if (u) { const im = new Image(); im.alt = d.name || ''; im.decoding = 'async'; im.onload = () => { el.innerHTML = ''; el.appendChild(im); };
         im.onerror = () => dropErr('picture for \u201c' + d.name + '\u201d wouldn\u2019t load'); im.src = u; }
       else dropErr('no picture link for \u201c' + d.name + '\u201d');
       el.setAttribute('aria-label', 'Show ' + (d.name || 'design ' + (i + 1)));
