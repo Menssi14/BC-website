@@ -2985,7 +2985,8 @@
           // (where a square design's top sits), so short designs ride up instead of floating low.
           if(asp>1){ const k=Math.pow(asp,-0.18); dw*=k; dh*=k; }
           const topLine=sz.y*0.105-(BASE-BASE/DROP_UP)/2+BASE/2;
-          yl=topLine-dh/2;
+          // a square design keeps its spot; the shorter the art, the further it sits from the collar
+          yl=topLine-dh/2-(1-dh/BASE)*inch*1.6;
         } else yl=front? sz.y*0.105 : (sz.y*0.5 - 4*inch - dh/2);   // back: top of print sits 4 in below the collar
         const zs=front? sz.z*4 : -sz.z*4, dir=front? new THREE.Vector3(0,0,-1):new THREE.Vector3(0,0,1);
         const ray=new THREE.Raycaster(new THREE.Vector3(0,yl,zs), dir);
