@@ -881,6 +881,130 @@
     font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.08em; text-transform:uppercase; padding:10px 20px 8px; }
   .dp-multi-add:disabled { opacity:.45; cursor:default; }
 </style>
+
+<style>
+/* ============================================================
+   BROCH CUSTOM — HEADER REFRESH (matches brochcustom.com)
+   Scoped to the nav only. Nothing below the header is touched.
+   ============================================================ */
+.nav {
+  --forest: #2c4637;
+  --forest-deep: #122018;
+  --brown: #513a2c;
+  --paper: #faf8f3;
+  --nav-cream: #f7f4ec;
+  --brand-line: rgba(44, 70, 55, 0.22);
+
+  min-height: 78px;
+  padding: 0 max(16px, 6vw);
+  color: var(--forest);
+  background: rgba(250, 248, 243, 0.95);
+  border-bottom: 1px solid var(--brand-line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.nav .nav-brand {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 11px;
+  color: var(--forest);
+  font-family: "Schadow", Impact, sans-serif;
+  font-size: 27px;
+  font-weight: 400;
+  letter-spacing: 0.025em;
+  line-height: 0.9;
+}
+.nav .nav-brand:hover { color: var(--brown); }
+
+.nav .nav-brand-tree {
+  display: block;
+  width: 30px;
+  height: 34px;
+  object-fit: contain;
+  flex: none;
+  filter: drop-shadow(0 1px 0 rgba(18, 32, 24, 0.16));
+}
+
+.nav .nav-brand-text { display: flex; flex-direction: column; }
+
+.nav .nav-brand small {
+  font-family: "Teko", "Arial Narrow", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--brown);
+  margin-top: 2px;
+}
+
+.nav .nav-right { gap: clamp(8px, 2vw, 20px); }
+
+.nav .nav-link {
+  min-height: 44px;
+  padding: 10px 22px;
+  color: var(--nav-cream);
+  background: var(--brown);
+  border: 1px solid var(--brown);
+  border-radius: 4px;
+  font-family: "Teko", "Arial Narrow", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.nav .nav-link:hover { color: var(--brown); background: transparent; }
+
+.nav .nav-cart {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: var(--forest);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+.nav .nav-cart:hover,
+.nav .nav-cart:focus-visible {
+  color: var(--brown);
+  background: rgba(44, 70, 55, 0.08);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.nav .cart-count {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  margin-left: 0;
+  color: var(--nav-cream);
+  background: var(--brown);
+  font-family: "Teko", "Arial Narrow", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.nav :is(button, a):focus-visible { outline: 3px solid #b28b5b; outline-offset: 3px; }
+
+@media (max-width: 700px) {
+  .nav { min-height: 64px; padding: 0 16px; }
+  .nav .nav-brand { font-size: 21px; gap: 9px; }
+  .nav .nav-brand-tree { width: 24px; height: 27px; }
+  .nav .nav-brand small { font-size: 11px; letter-spacing: 0.18em; }
+  .nav .nav-link { padding: 9px 15px; font-size: 14px; }
+}
+</style>
 </head>
 <body class="store-paused">
 <svg class="svg-defs" aria-hidden="true">
@@ -918,7 +1042,7 @@
 <svg class="pine-bg-fixed" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pf-khaki)"/></svg>
   <!-- NAV -->
   <nav class="nav">
-    <a href="/" class="nav-brand">Broch Custom<small>The Shop</small></a>
+    <a href="/" class="nav-brand"><img class="nav-brand-tree" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjI1MCAxOTAgNzYwIDc5MCI+CjxwYXRoIGZpbGw9IiMxMjIwMTgiIGQ9IgogIE0gNjI5LjQ3IDI3OC45OAogIEEgMC4yNSAwLjI0IDQ4LjQgMCAwIDYyOS4wMCAyNzguOTUKICBRIDYyNi4zNCAyODYuMTIgNjIyLjE3IDI5My45MwogIEMgNjAzLjM5IDMyOS4xMiA1NzcuOTQgMzU5LjgyIDU0Ny45NCAzODUuNjgKICBRIDU0MS4yOSAzOTEuNDIgNTI4LjM0IDQwMS44MwogIFEgNTI2LjU1IDQwMy4yNyA1MjQuNDUgNDA0LjU4CiAgQSAwLjQwIDAuNDAgMC4wIDAgMCA1MjQuNjggNDA1LjMyCiAgQyA1NDUuNjYgNDA0Ljg4IDU2MS45MCA0MDIuNDggNTg2Ljc3IDM5OC40NQogIEMgNTk4LjIyIDM5Ni42MCA2MDYuMTYgNDAzLjI0IDYwNC40NSA0MTUuNTAKICBDIDYwMy43MSA0MjAuNzkgNTk5LjgxIDQyOS4wNSA1OTYuNDIgNDM0LjgxCiAgUSA1ODcuMDYgNDUwLjY5IDU3NS40MSA0NjQuMTcKICBDIDU1Ni44MCA0ODUuNzEgNTM2LjIxIDUwMy43NyA1MTIuNTYgNTIxLjA4CiAgUSA0OTYuODYgNTMyLjU2IDQ4My40MyA1NDAuOTEKICBRIDQ1OC4zMiA1NTYuNTIgNDQ5LjUxIDU2MS4yNgogIFEgNDIxLjc4IDU3Ni4xNiA0MTcuMTEgNTc4LjU4CiAgUSA0MTYuMDIgNTc5LjE1IDQxNS4zOCA1NzkuODUKICBBIDAuNjIgMC42MiAwLjAgMCAwIDQxNS43MiA1ODAuODgKICBDIDQyMi4yOCA1ODIuMTQgNDI5LjA3IDU4My41NCA0MzYuMTcgNTgzLjg5CiAgUSA0NTQuMTkgNTg0Ljc3IDQ3MC41MCA1ODMuNTMKICBDIDQ5My4yMSA1ODEuODAgNTEyLjA1IDU3OC44OCA1MzcuMTIgNTc0Ljg2CiAgQyA1NTAuMjEgNTcyLjc2IDU2MS4xOSA1NzkuMTcgNTU4LjkxIDU5NC4xOQogIFEgNTU4LjM5IDU5Ny42MCA1NTQuNjEgNjA1LjYzCiAgUSA1NTEuMjUgNjEyLjc4IDU0Ni4zMCA2MjAuNTYKICBRIDUzNC40MCA2MzkuMjYgNTE2Ljk0IDY1Ny45NAogIFEgNDk0LjYxIDY4MS44NCA0NjQuMTIgNzA1LjYxCiAgUSA0NDIuOTQgNzIyLjEyIDQyMy4xMiA3MzQuNTkKICBRIDM4Ni4zNiA3NTcuNzIgMzUzLjc1IDc3My45NwogIFEgMzMzLjU5IDc4NC4wMiAzMTcuMTMgNzkxLjYzCiAgUSAzMTMuNzIgNzkzLjIxIDMxMC43NCA3OTUuNjMKICBBIDAuNTQgMC41NCAwLjAgMCAwIDMxMC44MSA3OTYuNTEKICBRIDMxNS45NyA3OTkuNTQgMzIyLjcxIDgwMS4wNAogIFEgMzM3Ljk3IDgwNC40MSAzNTYuMDEgODAzLjQ0CiAgQyAzODYuMzUgODAxLjgxIDQxNi41MCA3OTQuMzAgNDQ2LjEwIDc4NC42MwogIFEgNDYyLjUxIDc3OS4yNyA0ODEuMzcgNzcxLjg2CiAgQyA1MDEuNDYgNzYzLjk3IDUxNy40OCA3NTcuNDcgNTM0LjIyIDc1MS45OQogIEMgNTQ3LjI4IDc0Ny43MCA1NjQuMDMgNzQ0LjU3IDU3Ny4wMCA3NDcuODEKICBDIDYwNy41MCA3NTUuNDQgNjE2LjQxIDc5MC41OCA2MTYuMDEgODE3LjczCiAgQyA2MTUuNDUgODU2Ljk4IDYwMi42MCA4OTYuMjIgNTc2LjE1IDkyNS42MQogIFEgNTY2LjgwIDkzNS45OSA1NTUuNjIgOTQxLjcxCiAgUSA1NDYuMTQgOTQ2LjU2IDUzOS4xNSA5MzkuODMKICBDIDUzMy45MSA5MzQuNzkgNTM1LjM4IDkyNi4wMSA1NDEuMjYgOTIxLjcwCiAgUSA1NjUuNzcgOTAzLjc1IDU3Ny42NSA4NzUuNjcKICBRIDU4Ny45NyA4NTEuMjcgNTg5LjYxIDgyMy43NgogIFEgNTkwLjQ2IDgwOS40MiA1ODYuODQgNzkzLjQ1CiAgQyA1ODQuNTQgNzgzLjMxIDU3OC44MSA3NzIuNzMgNTY3LjYzIDc3MC44OQogIEMgNTYzLjI4IDc3MC4xOCA1NTcuNjQgNzcwLjM1IDU1My4xMiA3NzEuMjMKICBRIDUzOC45MiA3NzMuOTggNTI2LjY5IDc3OS4yMQogIFEgNDg4LjkwIDc5NS4zNSA0NjkuMTEgODAzLjMxCiAgUSA0MzguMjMgODE1LjczIDQwNy4wMiA4MjMuMjUKICBRIDM3Ny4wNiA4MzAuNDYgMzQ2LjgwIDgzMC42NwogIEMgMzMyLjk3IDgzMC43NyAzMTUuMjggODI4LjMxIDMwMi44NyA4MjMuNDMKICBDIDI5Ni4yNiA4MjAuODMgMjg4LjEzIDgxNi4yMSAyODMuNzQgODA5Ljg5CiAgQyAyNzcuODcgODAxLjQ0IDI3Ny41NyA3OTEuODUgMjgzLjI0IDc4My40MQogIEMgMjg4LjM4IDc3NS43NyAyOTkuMTcgNzcwLjQ4IDMwNy4yNSA3NjYuNTIKICBRIDMyNi4xNiA3NTcuMjYgMzQ5LjExIDc0NS42MAogIEMgNDAyLjg1IDcxOC4zMSA0NTMuNjcgNjg1LjA3IDQ5NS43OCA2NDIuNzkKICBRIDUxMy41MSA2MjQuOTkgNTI2LjYxIDYwNi4xMgogIFEgNTI5LjE5IDYwMi4zOSA1MzEuMTUgNTk4LjQ2CiAgQSAwLjY2IDAuNjYgMC4wIDAgMCA1MzAuNDMgNTk3LjUxCiAgUSA1MTEuODcgNjAxLjIwIDQ5MC41NyA2MDQuMzIKICBDIDQ2My41NCA2MDguMjggNDM3LjI0IDYwOS42NiA0MTAuNzggNjA0Ljk3CiAgUSA0MDIuNjIgNjAzLjUyIDM5NC4xMyA1OTkuMjYKICBDIDM3OS40NyA1OTEuOTEgMzc4LjUxIDU3NS44NyAzOTEuMjcgNTY2LjI3CiAgUSAzOTUuNzUgNTYyLjkxIDQwMy44OCA1NTguMzgKICBRIDQzMS41NiA1NDIuOTggNDUxLjU2IDUzMS4yOQogIFEgNDc3LjA3IDUxNi4zNyA1MDIuNTMgNDk3Ljc4CiAgUSA1MzAuMjUgNDc3LjU1IDU1Mi4xNCA0NTQuNjQKICBRIDU2Ny4yNyA0MzguNzkgNTc5LjM0IDQyMC42MAogIFEgNTc5LjYyIDQyMC4xOCA1NzkuNjQgNDE5Ljk4CiAgQSAwLjU0IDAuNTQgMC4wIDAgMCA1NzkuMDAgNDE5LjQxCiAgQyA1NzQuNDUgNDIwLjI5IDU3MS4wMCA0MjAuNzAgNTY3LjM2IDQyMS41NAogIFEgNTQ1Ljg0IDQyNi41MCA1MjIuNDggNDI3LjYxCiAgUSA1MTMuOTYgNDI4LjAyIDUwNy4wMiA0MjcuMzAKICBDIDQ5OS43MyA0MjYuNTQgNDkzLjMyIDQyNS4xMSA0ODkuMzAgNDE4LjU3CiAgQyA0ODUuODggNDEzLjAwIDQ4Ny43MyA0MDUuODMgNDkxLjY3IDQwMC45MAogIFEgNDkzLjI2IDM5OC45MSA0OTguNzEgMzk0LjQ1CiAgUSA1MDYuMDYgMzg4LjQzIDUwNi4xMyAzODguMzgKICBRIDUzNC42MCAzNjYuMjQgNTU1LjY0IDM0My45MAogIEMgNTgzLjg0IDMxMy45NSA2MDUuNDQgMjc4Ljk0IDYxNy4wOSAyMzkuMzkKICBDIDYxOC42NSAyMzQuMDkgNjE5LjM3IDIyOS4yNCA2MjAuNzAgMjI0LjIxCiAgUSA2MjMuMDAgMjE1LjUwIDYzMC42NCAyMTMuMTYKICBDIDYzNy4zNSAyMTEuMTEgNjQ0LjQxIDIxNS4wNiA2NDcuMjIgMjIxLjcyCiAgUSA2NDguMjQgMjI0LjE1IDY0OC40OSAyMjkuOTgKICBDIDY0OS40MyAyNTEuNDcgNjUyLjY4IDI3Mi4yNiA2NTkuOTYgMjkxLjk4CiAgUSA2NjYuMTYgMzA4Ljc4IDY3NS40MSAzMjMuMTUKICBDIDY5OS4xNCAzNjAuMDAgNzM4LjA1IDM4Ni44OCA3NzcuMDUgNDA1LjY5CiAgUSA3OTMuMjQgNDEzLjUwIDc5Ny4yMSA0MTUuNzcKICBRIDgwNy45MyA0MjEuODggODA3LjY3IDQzMy4xMAogIEMgODA3LjUyIDQzOS4zNCA4MDQuMDAgNDQ1Ljc3IDc5OS4zNiA0NDkuNjEKICBDIDc3NC4wNCA0NzAuNTkgNzMzLjgyIDQ3MC4zMyA3MDMuODQgNDYxLjIyCiAgQSAwLjM0IDAuMzMgODIuNSAwIDAgNzAzLjQ2IDQ2MS43MgogIFEgNzA3LjAwIDQ2Ny40MiA3MTEuODQgNDcyLjkwCiAgUSA3MzUuMTUgNDk5LjIzIDc2NS4xOSA1MjAuMDUKICBRIDc5Mi45NSA1MzkuMjkgODIyLjIxIDU1My4yOQogIFEgODM4LjM3IDU2MS4wMiA4NjIuMDIgNTcwLjI4CiAgQyA4NzAuOTggNTczLjc5IDg4MS40NiA1NzYuNzEgODkwLjYxIDU4MC4zOQogIFEgODk5Ljg4IDU4NC4xMiA5MDQuNjQgNTkwLjE4CiAgQyA5MTEuMzUgNTk4LjcyIDkxMC40MSA2MTAuNTUgOTAzLjkxIDYxOS40MwogIFEgODk4LjMxIDYyNy4wNiA4ODguMjkgNjMyLjI5CiAgUSA4NzQuODMgNjM5LjMyIDg1Ny42NyA2NDIuNjIKICBDIDgzMS42MiA2NDcuNjIgODA1LjU0IDY0Ni44MSA3NzkuMTEgNjQxLjYwCiAgUSA3NTcuNjkgNjM3LjM4IDczNi45NyA2MzAuMDYKICBBIDAuNDEgMC40MSAwLjAgMCAwIDczNi41MCA2MzAuNjkKICBRIDc0MS4wNyA2MzYuOTMgNzQ1LjY1IDY0Mi4yMwogIFEgNzU4LjUzIDY1Ny4xMyA3NzEuNDIgNjY4LjgyCiAgUSA4MjEuNjkgNzE0LjQxIDg4My4xNyA3NDUuOTcKICBRIDg5Mi43OCA3NTAuOTAgOTA4LjQ4IDc1Ny41OQogIFEgOTI4LjE4IDc2NS45OCA5MzQuMjkgNzY3Ljk0CiAgUSA5NDkuNTQgNzcyLjg1IDk2MS40MyA3NzguMzEKICBDIDk3Ny42MiA3ODUuNzMgOTgzLjgwIDgwMy4xMSA5NzIuNjcgODE4LjAwCiAgQyA5NjQuNzEgODI4LjY1IDk1MS4yOCA4MzUuNTMgOTM4LjQ2IDg0MC4wMwogIFEgOTA2LjY5IDg1MS4xOCA4NzEuNzUgODUxLjg1CiAgUSA4NDUuNjYgODUyLjM0IDgyNC4wMiA4NDguOTgKICBRIDc3Ny4yNiA4NDEuNzIgNzM3LjI1IDgyMS40OAogIEMgNzI1LjIyIDgxNS4zOSA3MDkuNzIgODA0Ljg4IDY5NS4zOSA4MTIuNjEKICBRIDY4Ny45NCA4MTYuNjMgNjgyLjkyIDgyNC44NQogIEMgNjc1LjM4IDgzNy4xOCA2NzIuNTUgODUwLjM4IDY3MS42MiA4NjQuNjMKICBDIDY3MC4yMSA4ODYuMTQgNjc3LjY3IDkwOC4wMSA2OTAuOTYgOTI0Ljc1CiAgQyA2OTQuMzkgOTI5LjA4IDY5Ny43MSA5MzEuODEgNzAyLjMyIDkzNS4xMAogIEMgNzA4Ljc3IDkzOS43MSA3MDQuMTkgOTQ3Ljc1IDY5Ni45NSA5NDYuMzEKICBDIDY4OC42MSA5NDQuNjUgNjgwLjMxIDkzOS43OSA2NzMuMjcgOTM0LjM5CiAgUSA2NjYuNzQgOTI5LjM3IDY2MS40NyA5MjEuOTkKICBRIDY0NS4xNCA4OTkuMTUgNjQ2LjM4IDg3MC43MwogIFEgNjQ3Ljc0IDgzOS42OCA2NjYuNTEgODE0LjUxCiAgUSA2NzMuMTIgODA1LjY0IDY4MS41NCA3OTkuODUKICBRIDY5OS43MyA3ODcuMzMgNzIxLjI2IDc5MS41MgogIEMgNzI3LjgxIDc5Mi43OSA3MzQuMTAgNzk0LjU4IDc0MC44OSA3OTcuMjAKICBRIDc1OC4zNCA4MDMuOTUgNzc2LjAzIDgwOS45NwogIFEgNzk3LjY4IDgxNy4zNSA4MjIuMjMgODIxLjUzCiAgUSA4NjIuMTkgODI4LjM1IDkwMS4xMyA4MjIuMTMKICBDIDkxNC44OSA4MTkuOTMgOTI4LjY0IDgxNi4wOSA5NDAuMzMgODEwLjA3CiAgUSA5NDQuNDkgODA3LjkzIDk0Ny4xOCA4MDQuNzEKICBBIDIuMjAgMi4yMCAwLjAgMCAwIDk0Ny4zNSA4MDIuMTAKICBRIDk0Ni4xMCA4MDAuMTYgOTQzLjMxIDc5OS4xOQogIFEgOTI1Ljc4IDc5My4xMCA5MTYuNTUgNzg5LjcwCiAgUSA4ODYuMDEgNzc4LjQ2IDg1OS4xMiA3NjMuNTkKICBRIDg0NC4zOCA3NTUuNDQgODI1LjcyIDc0My4yOAogIFEgNzgyLjYyIDcxNS4xOSA3NDcuMjEgNjgwLjA0CiAgUSA3MzUuNDkgNjY4LjQyIDcyNy40MiA2NTguNDAKICBDIDcxOC42OCA2NDcuNTYgNzEwLjMwIDYzNS40MyA3MDUuMDYgNjIyLjUwCiAgQyA3MDMuMDggNjE3LjYwIDcwMi40NCA2MTIuMzEgNzA0Ljc5IDYwNy44MgogIEMgNzA3LjQxIDYwMi43OSA3MTMuMTAgNjAwLjYwIDcxOC41MCA2MDAuODkKICBRIDcyMS45NCA2MDEuMDggNzI3LjcyIDYwMy4wOAogIFEgNzM4LjQxIDYwNi43NyA3NTIuNTAgNjEwLjk3CiAgUSA3ODguODcgNjIxLjgwIDgyNS43NSA2MjEuNTYKICBDIDg0My41MCA2MjEuNDUgODY1LjI1IDYxOC40MiA4NzkuMTkgNjA4LjE5CiAgUSA4ODAuOTkgNjA2Ljg3IDg4Mi4xNCA2MDUuMDkKICBBIDEuNDIgMS40MSAzNC4zIDAgMCA4ODEuNzcgNjAzLjE3CiAgUSA4NzguNjUgNjAwLjkyIDg3NS4zNSA1OTkuOTAKICBRIDg3My4wOSA1OTkuMjAgODU4LjcyIDU5NC4yNAogIFEgODI0Ljc5IDU4Mi41MiA3OTQuNzIgNTY2Ljc2CiAgQyA3NjQuMTEgNTUwLjcwIDczNC4yMCA1MjkuOTYgNzA5LjM2IDUwNC45MAogIFEgNjk0LjEyIDQ4OS41MyA2ODIuODggNDcxLjY0CiAgUSA2NzYuODQgNDYyLjAzIDY3My42MiA0NTIuNjYKICBDIDY3MC44MyA0NDQuNTMgNjc1LjA1IDQzNS41NiA2ODQuMjUgNDM1LjMxCiAgUSA2ODguNTEgNDM1LjE5IDY5MS43NyA0MzYuMjEKICBRIDcwMC43NyA0MzkuMDIgNzA5LjA0IDQ0MS4xMgogIEMgNzI2LjI1IDQ0NS41MCA3NDYuNDQgNDQ2LjQ3IDc2NC4xNSA0NDIuMTQKICBDIDc3MC40NCA0NDAuNjEgNzc3LjI0IDQzOC4yNyA3ODEuNjYgNDMzLjY1CiAgQSAwLjkwIDAuOTAgMC4wIDAgMCA3ODEuNDcgNDMyLjI2CiAgUSA3NzkuMjQgNDMwLjkzIDc3Ni4zNSA0MjkuNjUKICBRIDc2Mi4wNSA0MjMuMzAgNzQ5LjUyIDQxNi45NwogIFEgNzE3Ljk0IDQwMS4wMiA2OTAuOTIgMzc4LjMzCiAgUSA2ODQuNzcgMzczLjE2IDY3NS4zMCAzNjMuMjEKICBRIDY1MS41MCAzMzguMTkgNjM3Ljc1IDMwNS41NAogIEMgNjM0LjE1IDI5Ny4wMCA2MzEuNTMgMjg3LjcyIDYyOS40NyAyNzguOTgKICBaIgovPgo8L3N2Zz4K" alt=""><span class="nav-brand-text">Broch Custom<small>The Shop</small></span></a>
     <div class="nav-right">
       <button class="nav-link dtf-nav-link" type="button" onclick="openDtfOrder()">Order DTF</button>
       <button class="nav-cart" onclick="document.getElementById('contact-dialog').showModal()" aria-label="Contact us" title="Contact us"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 7 0 1 1 3.4 5.7L3.5 19l1.3-3.4A6.8 6.8 0 0 1 4 12z"/></svg></button>
