@@ -202,8 +202,8 @@
   .ut-hero h1 { font-family:'Teko','Arial Narrow',sans-serif; font-weight:500; font-size:clamp(46px,9vw,88px);
     line-height:.9; margin:6px 0 4px; color:var(--ut-navy); letter-spacing:.01em; }
   .ut-hero h1 span { color:var(--ut-orange); }
-  .ut-stripe { width:150px; height:5px; margin:8px auto 10px; border-radius:3px;
-    background:linear-gradient(90deg, var(--ut-orange) 0 40%, var(--ut-gold) 40% 60%, var(--ut-navy) 60%); }
+  .ut-stripe { width:132px; height:4px; margin:9px auto 10px; border-radius:3px;
+    background:linear-gradient(90deg, var(--ut-orange) 0 58%, var(--ut-navy) 58%); }
   .ut-hero p { max-width:540px; margin:0 auto; color:var(--ink-soft); font-size:clamp(17px,2.4vw,20px); line-height:1.3; }
 
   /* the shirt rack */
@@ -4291,6 +4291,22 @@
     const drow = $('da-design-row'); if (drow) drow.hidden = browse;   // designs belong to an open collection
     if (shopBtn) shopBtn.textContent = 'Shop ' + (dropList[dropIdx] ? dropList[dropIdx].name : '');
   }
+  // A collection saved before heroes existed has none: fetch its design list once,
+  // take the first design as the hero, and remember it in the tab list.
+  async function collEnsureHeroes() {
+    const missing = collections.filter(c => !(c.hero && c.hero.src));
+    if (!missing.length) return false;
+    let found = false;
+    for (const c of missing) {
+      try {
+        const list = await collLoadDesigns(c);
+        const f = list[0];
+        if (f) { c.hero = { id:f.id, name:f.name, src:f.src, thumb:f.thumb || '' }; found = true; }
+      } catch (e) { dropErr('couldn\u2019t read the \u201c' + c.name + '\u201d designs'); }
+    }
+    if (found) saveCollections(true);
+    return found;
+  }
   async function enterBrowse() {
     dropMode = 'browse';
     dropList = collections.map(collHeroItem);
@@ -4298,7 +4314,9 @@
     paintCollHead();
     paintDropMode();
     buildDropTrack();
-    try { await resolveDesignLinks(dropList.map(d => d.src)); } catch (e) {}
+    if (await collEnsureHeroes()) { dropList = collections.map(collHeroItem); }
+    try { await resolveDesignLinks(dropList.map(d => d.src).filter(Boolean)); } catch (e) {}
+    if (dropMode !== 'browse') return;
     buildDropTrack();
     dropApply(false);
   }
