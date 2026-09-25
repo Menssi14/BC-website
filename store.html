@@ -1028,12 +1028,13 @@
   }
 
   /* ── categories across the top ── */
-  .app-tabs { flex:none; display:flex; gap:7px; overflow-x:auto; scroll-behavior:smooth;
+  .app-tabs { flex:none; display:flex; gap:7px; overflow-x:auto; overflow-y:hidden; scroll-behavior:smooth;
+    width:100%; max-width:100%; min-width:0; box-sizing:border-box; justify-content:flex-start;
     padding:9px 12px 5px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
-    scroll-snap-type:x proximity; overscroll-behavior-x:contain; touch-action:pan-x; }
+    scroll-snap-type:x proximity; scroll-padding-inline:12px; overscroll-behavior-x:contain; touch-action:pan-x; }
   .app-tabs::-webkit-scrollbar { display:none; }
   .app-tabs[hidden] { display:none; }
-  .app-tabs > :first-child { margin-left:auto; } .app-tabs > :last-child { margin-right:auto; }
+  .app-tabs.fits { justify-content:center; }
   .app-tab { flex:0 0 auto; cursor:pointer; white-space:nowrap;
     font-family:'Teko','Arial Narrow',sans-serif; text-transform:uppercase; letter-spacing:.07em;
     font-size:clamp(14px,3.4vw,16px); line-height:1; color:rgba(10,34,64,.72);
@@ -1044,11 +1045,12 @@
   .app-tab.on { background:var(--ut-navy); border-color:var(--ut-navy); color:#fff; }
 
   /* ── designs along the bottom ── */
-  .app-strip { display:flex; gap:8px; overflow-x:auto; scroll-behavior:smooth; padding:4px 12px 2px;
-    scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
-    overscroll-behavior-x:contain; touch-action:pan-x; }
+  .app-strip { display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scroll-behavior:smooth;
+    width:100%; max-width:100%; min-width:0; box-sizing:border-box; justify-content:flex-start;
+    padding:4px 12px 2px; scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
+    scroll-padding-inline:12px; overscroll-behavior-x:contain; touch-action:pan-x; }
   .app-strip::-webkit-scrollbar { display:none; }
-  .app-strip > :first-child { margin-left:auto; } .app-strip > :last-child { margin-right:auto; }
+  .app-strip.fits { justify-content:center; }
   .app-chip { flex:0 0 auto; width:clamp(46px,13vw,58px); height:clamp(46px,13vw,58px); padding:5px;
     border-radius:14px; background:#fffdf8; border:1px solid rgba(74,52,36,.16); cursor:pointer;
     display:flex; align-items:center; justify-content:center; overflow:hidden;
@@ -1146,7 +1148,9 @@
     overscroll-behavior:contain; will-change:transform; }
   @keyframes sheetUp { from { transform:translateY(22px); opacity:.6; } to { transform:none; opacity:1; } }
   .sheet-grab { width:42px; height:4px; border-radius:999px; background:rgba(74,52,36,.22); margin:4px auto 12px;
-    cursor:grab; touch-action:none; }
+    cursor:grab; touch-action:none; position:relative; }
+  .sheet-grab::before { content:''; position:absolute; left:50%; top:50%; width:120px; height:38px;
+    transform:translate(-50%,-50%); }
   .sheet-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; touch-action:none; cursor:grab; }
   .sheet-thumb { width:56px; height:56px; border-radius:12px; border:1px solid rgba(74,52,36,.2);
     object-fit:cover; background:#F2EADD; flex:none; }
@@ -4281,12 +4285,26 @@
   // ══════════════ ONE-SCREEN SHOP ══════════════
   function dropUnit(size) { return SHIRT.basePrice + sizeUpcharge(size || '') + materialUpcharge(dropMat); }
 
-  // keeps whichever chip is picked in the middle of its row
+  // Keeps short rows centered, but lets long rows become real edge-to-edge
+  // horizontal scrollers. The active item is brought into view without trapping
+  // the customer at either end of the row.
+  function syncScrollRow(bar) {
+    if (!bar) return false;
+    bar.classList.remove('fits');
+    const fits = bar.scrollWidth <= bar.clientWidth + 2;
+    bar.classList.toggle('fits', fits);
+    return fits;
+  }
   function centerChip(bar, i) {
     if (!bar) return;
-    const el = bar.children[i];
-    if (!el || bar.scrollWidth <= bar.clientWidth + 2) return;
-    bar.scrollTo({ left: el.offsetLeft - bar.clientWidth / 2 + el.offsetWidth / 2, behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      if (syncScrollRow(bar)) return;
+      const el = bar.children[i];
+      if (!el) return;
+      const left = el.offsetLeft - (bar.clientWidth - el.offsetWidth) / 2;
+      const max = Math.max(0, bar.scrollWidth - bar.clientWidth);
+      bar.scrollTo({ left: Math.max(0, Math.min(max, left)), behavior: 'smooth' });
+    });
   }
 
   // the filmstrip of designs in this category
@@ -4334,7 +4352,9 @@
     if (next === dropIdx) return;
     dropIdx = next;
     layoutDrop();
-    dropApply(true, dir);
+    // Swap the artwork in place. The shirt model/camera stay exactly where they are,
+    // so changing designs never makes the shirt appear to shrink edge-on.
+    dropApply(false, dir);
   }
 
   // the floating color rail (there is no panel any more)
@@ -4427,6 +4447,16 @@
       zone.addEventListener('pointerup', end);
       zone.addEventListener('pointercancel', reset);
     });
+    // The visible bar is intentionally tiny, so make the whole top cap of the
+    // bottom sheet act as its grab area without making the bar itself look bigger.
+    sheet.addEventListener('pointerdown', e => {
+      if (sy != null || e.target.closest('button')) return;
+      const r = sheet.getBoundingClientRect();
+      if (e.clientY - r.top <= 46) start(e);
+    });
+    sheet.addEventListener('pointermove', move);
+    sheet.addEventListener('pointerup', end);
+    sheet.addEventListener('pointercancel', reset);
 
     // Tapping the dimmed area outside the sheet dismisses it too.
     dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
