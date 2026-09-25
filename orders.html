@@ -28,12 +28,10 @@
   }
 
   :root{ --ink-rgb:74,52,36; --tag-bg:#fffdf8; --cream:#F7F1EC; --note:#FFFDF5; --green:#1F4D3E; --burgundy:#4A3424; --pink:#B28B5B;
-    /* Status set. The -rgb twins let every translucent wash track the
-       same colour, so a palette change never leaves a stale tint behind. */
-    --red:#6D2124;    --red-rgb:109,33,36;      /* overdue  — the burgundy */
-    --orange:#B4541F; --orange-rgb:180,84,31;   /* warnings — odd placement */
-    --amber:#E3C25A;  --amber-rgb:227,194,90;   /* heads up — yellow */
-    --go:#2A6B4A;     --go-rgb:42,107,74;       /* all good */
+    /* Due and overdue used to be a bright red; they are the burgundy now.
+       --red-rgb lets every translucent wash of it follow along. */
+    --red:#6D2124; --red-rgb:109,33,36;
+    --orange:#E8722C; --amber:#E0A82E; --go:#3C8C5A;
     --navh:64px;
     --line:rgba(var(--ink-rgb),.14); --line-strong:rgba(var(--ink-rgb),.28); --shadow:0 1px 2px rgba(var(--ink-rgb),.10),0 2px 10px rgba(var(--ink-rgb),.06); --shadow-hover:0 4px 8px rgba(var(--ink-rgb),.13),0 10px 28px rgba(var(--ink-rgb),.12); }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -54,12 +52,8 @@
     --shadow:0 1px 2px rgba(0,0,0,.55),0 2px 12px rgba(0,0,0,.4);
     --shadow-hover:0 4px 10px rgba(0,0,0,.55),0 12px 30px rgba(0,0,0,.45);
     color-scheme:dark;
-    /* Lifted twins of the statuses — same hues, enough light to read
-       against the forest surfaces. */
-    --red:#D9787C;    --red-rgb:217,120,124;
-    --orange:#E0955C; --orange-rgb:224,149,92;
-    --amber:#EBD489;  --amber-rgb:235,212,137;
-    --go:#6FB68C;     --go-rgb:111,182,140;
+    /* The burgundy disappears on forest, so dark mode gets a lifted twin. */
+    --red:#D9787C; --red-rgb:217,120,124;
     --pink:#C9A97B;
   }
   html[data-theme="dark"] header{ background:#0A1712; border-bottom-color:rgba(239,230,212,.12); }
@@ -112,11 +106,8 @@
 
 
   /* ── Bottom bar ─────────────────────────────────────────────
-     Tools, trash and appearance came down off the old top bar.
-     Thumb height on a phone, and it buys back a whole row up top. */
-  :root{ --hero:#6D2124; }
-  html[data-theme="dark"]{ --hero:#58191C; }
-
+     Everything the old top bar held, plus the new-order button,
+     down where a thumb reaches. */
   .bnav{ position:fixed; left:0; right:0; bottom:0; z-index:70;
     display:grid; grid-template-columns:repeat(4,1fr);
     background:var(--cream); border-top:1px solid var(--line);
@@ -128,6 +119,7 @@
     font-family:'Teko',sans-serif; transition:color .15s; }
   .bnav-i:hover{ color:var(--red); }
   .bnav-i.on{ color:var(--red); }
+  .bnav-i.hide{ display:none; }
   .bnav-ic{ position:relative; display:flex; align-items:center; justify-content:center; height:23px; }
   .bnav-ic svg{ display:block; }
   .bnav-l{ font-size:13.5px; text-transform:uppercase; letter-spacing:.11em; line-height:1; }
@@ -135,23 +127,25 @@
     font-family:'Teko',sans-serif; font-weight:600; font-size:12px; min-width:17px; height:17px;
     border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 4px; line-height:1; }
   .bnav-badge[hidden]{ display:none; }
+  /* Orders is a running count rather than a warning, so it stays green. */
+  #navBoardBadge{ background:var(--green); }
+  html[data-theme="dark"] #navBoardBadge{ color:#0E1F19; }
   html[data-theme="dark"] .bnav-badge{ color:#0E1F19; }
-  /* the order editor keeps the full screen to itself */
+  /* New order is an action, not a place, so it keeps the filled green
+     circle the floating button had. */
+  .bnav-new{ color:var(--green); }
+  .bnav-new:hover{ color:var(--green); }
+  .bnav-plus{ display:flex; align-items:center; justify-content:center;
+    width:34px; height:34px; margin-top:-5px; border-radius:12px;
+    background:var(--green); color:var(--cream);
+    box-shadow:0 3px 10px rgba(31,77,62,.32); transition:transform .12s, filter .15s; }
+  .bnav-new:hover .bnav-plus{ filter:brightness(1.12); }
+  .bnav-new:active .bnav-plus{ transform:scale(.92); }
+  html[data-theme="dark"] .bnav-plus{ color:#0E1F19; }
+  /* the order editor keeps the screen to itself */
   body.wz-open .bnav{ display:none; }
 
-  /* ── Hero ───────────────────────────────────────────────────
-     The burgundy card that says where you are, in place of the
-     old sticky header. */
-  .hero{ background:var(--hero); color:#F7F1EC; border-radius:16px;
-    padding:13px 18px 11px; margin:0 0 14px; display:flex; align-items:baseline; gap:11px; }
-  .hero-title{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase;
-    font-size:25px; letter-spacing:.03em; line-height:1; }
-  .hero-count{ font-family:'Teko',sans-serif; font-size:15px; letter-spacing:.13em;
-    text-transform:uppercase; opacity:.72; }
-  @media(max-width:560px){ .hero{ padding:11px 15px 9px; border-radius:14px; margin-bottom:12px; }
-    .hero-title{ font-size:22px; } }
-
-  .wrap{ max-width:1120px; margin:0 auto; padding:16px 12px calc(120px + var(--navh)); overflow-x:clip; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:16px 12px calc(40px + var(--navh)); overflow-x:clip; }
   .card{ overflow-wrap:anywhere; }
   .grid{ column-gap:12px; column-width:176px; }
   .tfilter{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:0 0 12px; }
@@ -281,7 +275,7 @@
   .card-bar{ display:flex; align-items:center; gap:2px; padding:4px 6px; border-top:1px solid var(--line); opacity:0; transition:opacity .15s; }
   .card:hover .card-bar{ opacity:1; } @media(hover:none){ .card-bar{ opacity:1; } }
   .card-bar .done-btn{ display:flex; align-items:center; gap:6px; cursor:pointer; border:none; background:none; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:15px; color:var(--green); padding:8px 12px; border-radius:999px; }
-  .card-bar .done-btn:hover{ background:rgba(var(--go-rgb),.12); }
+  .card-bar .done-btn:hover{ background:rgba(60,140,90,.12); }
   .icon-btn{ cursor:pointer; border:none; background:none; color:var(--burgundy); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .15s; }
   .icon-btn.sent{ color:var(--green); opacity:.55; }
   .icon-btn:hover{ background:rgba(var(--ink-rgb),.10); }
@@ -320,7 +314,7 @@
   @media (prefers-reduced-motion:reduce){ .orders-load-spinner{ animation:none; border-top-color:rgba(var(--ink-rgb),.14); } }
 
   .fab-left{ right:auto !important; left:18px; }
-  .fab{ position:fixed; right:18px; bottom:calc(20px + var(--navh) + env(safe-area-inset-bottom,0px)); z-index:60; width:62px; height:62px; border-radius:20px; background:var(--green); color:var(--cream); border:none; box-shadow:0 8px 24px rgba(31,77,62,.4); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .12s, filter .15s, box-shadow .15s; }
+  .fab{ position:fixed; right:18px; bottom:22px; z-index:60; width:62px; height:62px; border-radius:20px; background:var(--green); color:var(--cream); border:none; box-shadow:0 8px 24px rgba(31,77,62,.4); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .12s, filter .15s, box-shadow .15s; }
   .fab:hover{ filter:brightness(1.12); box-shadow:0 10px 28px rgba(31,77,62,.46); } .fab:active{ transform:scale(.93); } .fab.hide{ display:none; }
 
   .edit-opts{ padding:12px 14px 18px; display:flex; flex-direction:column; gap:10px; }
@@ -375,10 +369,10 @@
   .health-group{ font-family:'Teko',sans-serif; font-size:13px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:8px; border-bottom:1px solid var(--line); padding-bottom:3px; }
   .health-row{ display:flex; align-items:center; gap:12px; font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.05em; text-transform:uppercase; color:var(--burgundy); }
   .health-dot{ width:13px; height:13px; border-radius:50%; flex:0 0 auto; }
-  .health-dot.ok{ background:var(--go); box-shadow:0 0 0 3px rgba(var(--go-rgb),.18); }
+  .health-dot.ok{ background:#3C8C5A; box-shadow:0 0 0 3px rgba(60,140,90,.18); }
   .health-dot.fail{ background:var(--red); box-shadow:0 0 0 3px rgba(var(--red-rgb),.18); }
   .health-dot.off{ background:#c9bda2; }
-  .health-dot.wait{ background:var(--amber); animation:hpulse 1s infinite; }
+  .health-dot.wait{ background:#D9B96A; animation:hpulse 1s infinite; }
   @keyframes hpulse{ 50%{ opacity:.35; } }
   .health-sub{ font-family:'Teko',sans-serif; font-style:italic; font-size:15px; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:auto; }
   .sync-status{ margin:12px 16px 0; padding:13px 15px; border-radius:12px; border:1px solid var(--line-strong); background:var(--note); display:flex; align-items:center; gap:12px; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:20px; color:var(--burgundy); }
@@ -410,6 +404,22 @@
   .dtf-tbl td:first-child{ text-align:left; text-transform:uppercase; letter-spacing:.05em; font-size:16px; color:var(--green); }
   .dtf-tbl tr.grp td{ border-top:2px solid var(--line-strong); }
   .dtf-note{ font-family:'Teko',sans-serif; font-style:italic; font-size:15px; color:var(--muted); margin:12px 2px 0; }
+
+  /* ── Tools as its own tab ───────────────────────────────────
+     Same panel as before, just laid into the page instead of
+     floating over it, so Orders / Tools / Trash are three taps. */
+  body.view-tools .wrap{ display:none; }
+  body.view-tools #linksOverlay{
+    display:block; position:static; inset:auto; z-index:auto;
+    background:none; -webkit-backdrop-filter:none; backdrop-filter:none;
+    overflow:visible; max-width:1120px; margin:0 auto;
+    padding:16px 12px calc(40px + var(--navh)); }
+  body.view-tools #linksOverlay .hist-box{
+    max-width:none; margin-top:0; max-height:none; overflow:visible;
+    background:none; border:none; box-shadow:none; animation:none; }
+  body.view-tools #linksOverlay .hist-head{ display:none; }
+  body.view-tools #linksOverlay .edit-opts{ padding:0; }
+
   .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; }
   .overlay.show{ display:flex; }
   @media(max-width:560px){ .overlay{ padding:12px 10px; } }
@@ -636,11 +646,11 @@
   .switch .knob{ position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.28); transition:left .18s; }
   .switch.on .knob{ left:24px; }
   .tag.stage{ font-weight:600; border-color:transparent; }
-  .tag.pay-dep{ border-color:rgba(var(--orange-rgb),.5); color:#B85618; }
+  .tag.pay-dep{ border-color:rgba(232,114,44,.5); color:#B85618; }
   .tag.pay-paid{ background:var(--green); border-color:var(--green); color:var(--cream); }
   .tag.pay-bal{ border-color:rgba(var(--ink-rgb),.4); }
   #mBar .done-btn{ display:flex; align-items:center; gap:6px; cursor:pointer; border:none; background:none; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:16px; color:var(--green); padding:8px 14px; border-radius:999px; }
-  #mBar .done-btn:hover{ background:rgba(var(--go-rgb),.12); }
+  #mBar .done-btn:hover{ background:rgba(60,140,90,.12); }
   .done-btn.stage-adv{ background:var(--green); color:var(--cream); padding:8px 16px; border-radius:999px; font-size:15px; }
   .done-btn.stage-adv:hover{ background:#173D31; }
   .tag.ready{ border-color:var(--go); color:var(--go); }
@@ -660,13 +670,13 @@
   .card .place .pl-words, .vw-place .place .pl-words{ display:flex; flex-wrap:wrap; align-items:baseline; column-gap:6px; row-gap:0; min-width:0; }
   .card .place .pl-words i, .vw-place .place .pl-words i{ font-style:normal; font-weight:500; opacity:.55; }
   .card .place-ok, .vw-place .place-ok{ font-size:17px; font-weight:500; color:rgba(var(--ink-rgb),.6); }
-  .card .place-odd, .vw-place .place-odd{ font-size:19px; font-weight:600; color:#8E3F0A; background:rgba(var(--orange-rgb),.13);
+  .card .place-odd, .vw-place .place-odd{ font-size:19px; font-weight:600; color:#8E3F0A; background:rgba(232,114,44,.13);
     border:1.5px solid var(--orange); border-radius:10px; padding:6px 10px 4px 8px; }
   .card .place-odd .odd, .vw-place .place-odd .odd{ font-weight:700; }
   .card .place-odd span:not(.odd):not(.pl-words), .vw-place .place-odd span:not(.odd):not(.pl-words){ font-weight:500; opacity:.72; }
   .card .place-odd .pl-ico, .vw-place .place-odd .pl-ico{ flex:none; margin-top:-3px; color:var(--orange); }
   html[data-theme="dark"] .card .place-odd,
-  html[data-theme="dark"] .vw-place .place-odd{ color:#F7B07E; background:rgba(var(--orange-rgb),.16); }
+  html[data-theme="dark"] .vw-place .place-odd{ color:#F7B07E; background:rgba(232,114,44,.16); }
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -868,7 +878,7 @@
     transition:transform .12s, background .15s, border-color .15s; }
   .wz-tile:active{ transform:scale(.96); }
   .wz-tile.on{ background:var(--green); color:var(--cream); border-color:var(--green); }
-  .wz-tile.on.odd{ background:rgba(var(--orange-rgb),.16); color:#8E3F0A; border:2px solid var(--orange); }
+  .wz-tile.on.odd{ background:rgba(232,114,44,.16); color:#8E3F0A; border:2px solid var(--orange); }
   html[data-theme="dark"] .wz-tile.on.odd{ color:#F7B07E; }
   .wz-tile .pl-ico{ display:none; color:var(--orange); }
   .wz-tile.on.odd .pl-ico{ display:block; }
@@ -892,7 +902,7 @@
   .wz-item .x{ flex:none; width:36px; height:36px; border-radius:11px; border:none; background:rgba(var(--ink-rgb),.08);
     color:rgba(var(--ink-rgb),.7); font-size:20px; cursor:pointer; }
   .wz-item.fresh{ animation:wzin .45s ease; }
-  @keyframes wzin{ from{ background:rgba(var(--go-rgb),.22); } to{ background:transparent; } }
+  @keyframes wzin{ from{ background:rgba(60,140,90,.22); } to{ background:transparent; } }
   .wz-link{ display:block; margin:8px auto 0; padding:10px 14px; min-height:44px; background:none; border:none; color:var(--green); cursor:pointer;
     font-family:'Teko',sans-serif; font-size:19px; letter-spacing:.04em; text-decoration:underline; text-underline-offset:4px; }
   .wz-sum{ margin:0 0 12px; text-align:center; font-family:'Teko',sans-serif; font-size:18px; color:rgba(var(--ink-rgb),.7); }
@@ -986,7 +996,7 @@
 </head>
 <body>
 
-<!-- top bar removed; its controls live in the bottom bar -->
+<!-- top bar removed; everything it held is in the bottom bar -->
 
 <!-- SHIRT STOCK -->
 <div class="overlay" id="invOverlay">
@@ -1027,7 +1037,7 @@
         <span class="eo-t">Sizes</span>
       </button>
       <button class="edit-opt" id="themeOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg></span>
+        <span class="eo-ico" id="themeIco"></span>
         <span class="eo-t">Appearance <span id="themeNow" style="opacity:.55;text-transform:none;letter-spacing:0"></span></span>
       </button>
       <button class="edit-opt" id="healthOpen" type="button">
@@ -1190,27 +1200,22 @@
 </div>
 
 <div class="wrap">
-<div class="hero">
-  <span class="hero-title" id="heroTitle">Orders</span>
-  <span class="hero-count" id="heroCount"></span>
-</div>
 <div id="board"><div class="orders-load-state" role="status" aria-live="polite"><div class="orders-load-spinner" aria-hidden="true"></div><div class="orders-load-title">Loading orders</div><div class="orders-load-copy">Getting the latest order board&hellip;</div></div></div></div>
 
 <nav class="bnav" id="bnav" aria-label="Sections">
-  <button class="bnav-i" id="navBoard" type="button" aria-label="Orders">
-    <span class="bnav-ic"><svg width="22" height="22" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><g fill="currentColor"> <path d=" M 380.83 442.31 Q 380.76 442.94 380.46 443.13 C 379.64 443.67 379.67 444.22 379.39 445.29 A 3.32 3.30 -22.2 0 1 379.03 446.14 C 372.17 457.56 365.39 467.93 356.38 477.87 C 342.22 493.50 324.18 503.99 303.70 508.18 Q 290.92 510.79 281.01 510.97 C 275.59 511.07 266.94 511.33 261.67 510.69 C 245.96 508.78 233.49 503.23 217.69 496.14 Q 151.60 466.50 70.85 429.99 Q 48.58 419.93 41.60 415.13 Q 15.25 397.04 5.81 364.26 Q 2.81 353.85 2.26 339.25 Q 1.74 325.62 4.55 308.76 Q 5.12 305.33 6.53 300.59 A 0.64 0.64 0.0 0 1 7.38 300.18 L 229.56 389.86 A 1.09 1.09 0.0 0 1 230.25 390.83 C 231.50 421.69 233.51 453.93 265.16 468.36 C 267.74 469.54 272.05 470.22 275.69 470.24 C 287.07 470.29 295.08 470.92 303.98 467.23 C 320.44 460.39 331.94 447.27 341.04 432.33 C 350.77 416.37 358.94 397.95 365.83 380.82 Q 384.11 335.32 405.87 273.37 Q 434.11 192.96 462.89 104.63 Q 464.20 100.64 466.00 94.48 A 0.87 0.86 -76.5 0 0 465.34 93.39 L 213.85 43.53 A 0.91 0.90 14.6 0 0 212.82 44.13 Q 210.34 51.81 207.49 59.13 Q 204.08 67.94 201.83 74.08 Q 162.12 182.49 124.47 285.69 Q 121.87 292.80 116.12 297.10 C 102.01 307.65 81.41 293.51 86.81 276.62 C 95.38 249.80 106.22 220.56 119.03 185.30 C 145.86 111.48 165.05 58.51 183.70 10.67 A 4.42 4.24 -17.2 0 1 184.22 9.73 Q 190.13 1.68 199.97 1.14 A 6.28 6.24 -41.6 0 1 201.38 1.22 Q 216.82 3.98 228.90 6.33 Q 326.24 25.34 425.59 45.17 Q 450.98 50.23 475.75 55.50 Q 486.22 57.73 498.64 61.11 Q 508.56 63.82 510.74 73.22 Q 511.47 76.37 510.54 83.35 Q 509.86 88.52 505.61 101.62 Q 474.24 198.13 442.17 289.18 Q 426.88 332.60 409.77 377.26 Q 397.05 410.48 383.03 438.77 Q 381.92 441.00 381.13 441.73 A 0.92 0.90 73.0 0 0 380.83 442.31 Z" /> <ellipse cx="0.00" cy="0.00" transform="translate(235.98,129.95) rotate(-169.5)" rx="20.88" ry="19.59"/> <path d=" M 400.50 165.73 Q 401.20 168.04 401.33 169.02 Q 401.67 171.72 400.27 177.10 Q 398.52 183.84 392.60 187.94 C 386.87 191.91 380.88 191.39 373.56 189.55 Q 320.74 176.25 288.77 166.22 C 281.63 163.98 276.96 156.84 276.51 149.34 Q 275.84 138.07 285.38 131.83 Q 290.10 128.74 295.34 128.74 Q 297.30 128.74 305.53 130.81 Q 345.70 140.88 378.62 150.66 C 383.13 152.00 390.34 154.09 394.72 157.27 Q 398.83 160.25 400.50 165.73 Z" /> <ellipse cx="0.00" cy="0.00" transform="translate(205.15,211.92) rotate(-170.0)" rx="20.86" ry="19.71"/> <path d=" M 310.05 224.77 C 325.92 229.96 340.03 234.24 354.24 239.94 C 363.69 243.73 368.33 254.00 365.19 263.59 C 362.05 273.19 352.24 278.73 342.38 276.20 C 327.54 272.39 313.63 267.50 297.76 262.31 C 281.90 257.12 267.79 252.83 253.57 247.13 C 244.13 243.34 239.49 233.07 242.63 223.48 C 245.77 213.89 255.58 208.34 265.44 210.87 C 280.28 214.68 294.19 219.57 310.05 224.77 Z" /> <ellipse cx="0.00" cy="0.00" transform="translate(173.62,287.70) rotate(-172.5)" rx="20.84" ry="19.64"/> <path d=" M 277.76 304.60 C 292.29 309.39 306.36 314.00 319.90 318.83 C 321.69 319.47 325.19 321.06 326.90 322.57 C 336.98 331.49 335.88 345.64 325.24 353.48 Q 319.33 357.85 312.28 356.43 Q 304.59 354.88 292.52 350.97 Q 278.61 346.46 265.40 342.11 Q 252.19 337.76 238.33 333.11 Q 226.30 329.08 219.20 325.76 Q 212.68 322.71 210.53 315.68 C 206.63 303.05 214.16 291.02 227.57 289.84 C 229.84 289.64 233.60 290.45 235.42 291.00 C 249.18 295.16 263.23 299.81 277.76 304.60 Z" /> </g></svg></span><span class="bnav-l">Orders</span>
+  <button class="bnav-i" id="navBoard" type="button">
+    <span class="bnav-ic"><span class="bnav-badge" id="navBoardBadge" hidden></span><svg width="22" height="22" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><g fill="currentColor"> <path d=" M 380.83 442.31 Q 380.76 442.94 380.46 443.13 C 379.64 443.67 379.67 444.22 379.39 445.29 A 3.32 3.30 -22.2 0 1 379.03 446.14 C 372.17 457.56 365.39 467.93 356.38 477.87 C 342.22 493.50 324.18 503.99 303.70 508.18 Q 290.92 510.79 281.01 510.97 C 275.59 511.07 266.94 511.33 261.67 510.69 C 245.96 508.78 233.49 503.23 217.69 496.14 Q 151.60 466.50 70.85 429.99 Q 48.58 419.93 41.60 415.13 Q 15.25 397.04 5.81 364.26 Q 2.81 353.85 2.26 339.25 Q 1.74 325.62 4.55 308.76 Q 5.12 305.33 6.53 300.59 A 0.64 0.64 0.0 0 1 7.38 300.18 L 229.56 389.86 A 1.09 1.09 0.0 0 1 230.25 390.83 C 231.50 421.69 233.51 453.93 265.16 468.36 C 267.74 469.54 272.05 470.22 275.69 470.24 C 287.07 470.29 295.08 470.92 303.98 467.23 C 320.44 460.39 331.94 447.27 341.04 432.33 C 350.77 416.37 358.94 397.95 365.83 380.82 Q 384.11 335.32 405.87 273.37 Q 434.11 192.96 462.89 104.63 Q 464.20 100.64 466.00 94.48 A 0.87 0.86 -76.5 0 0 465.34 93.39 L 213.85 43.53 A 0.91 0.90 14.6 0 0 212.82 44.13 Q 210.34 51.81 207.49 59.13 Q 204.08 67.94 201.83 74.08 Q 162.12 182.49 124.47 285.69 Q 121.87 292.80 116.12 297.10 C 102.01 307.65 81.41 293.51 86.81 276.62 C 95.38 249.80 106.22 220.56 119.03 185.30 C 145.86 111.48 165.05 58.51 183.70 10.67 A 4.42 4.24 -17.2 0 1 184.22 9.73 Q 190.13 1.68 199.97 1.14 A 6.28 6.24 -41.6 0 1 201.38 1.22 Q 216.82 3.98 228.90 6.33 Q 326.24 25.34 425.59 45.17 Q 450.98 50.23 475.75 55.50 Q 486.22 57.73 498.64 61.11 Q 508.56 63.82 510.74 73.22 Q 511.47 76.37 510.54 83.35 Q 509.86 88.52 505.61 101.62 Q 474.24 198.13 442.17 289.18 Q 426.88 332.60 409.77 377.26 Q 397.05 410.48 383.03 438.77 Q 381.92 441.00 381.13 441.73 A 0.92 0.90 73.0 0 0 380.83 442.31 Z" /> <ellipse cx="0.00" cy="0.00" transform="translate(235.98,129.95) rotate(-169.5)" rx="20.88" ry="19.59"/> <path d=" M 400.50 165.73 Q 401.20 168.04 401.33 169.02 Q 401.67 171.72 400.27 177.10 Q 398.52 183.84 392.60 187.94 C 386.87 191.91 380.88 191.39 373.56 189.55 Q 320.74 176.25 288.77 166.22 C 281.63 163.98 276.96 156.84 276.51 149.34 Q 275.84 138.07 285.38 131.83 Q 290.10 128.74 295.34 128.74 Q 297.30 128.74 305.53 130.81 Q 345.70 140.88 378.62 150.66 C 383.13 152.00 390.34 154.09 394.72 157.27 Q 398.83 160.25 400.50 165.73 Z" /> <ellipse cx="0.00" cy="0.00" transform="translate(205.15,211.92) rotate(-170.0)" rx="20.86" ry="19.71"/> <path d=" M 310.05 224.77 C 325.92 229.96 340.03 234.24 354.24 239.94 C 363.69 243.73 368.33 254.00 365.19 263.59 C 362.05 273.19 352.24 278.73 342.38 276.20 C 327.54 272.39 313.63 267.50 297.76 262.31 C 281.90 257.12 267.79 252.83 253.57 247.13 C 244.13 243.34 239.49 233.07 242.63 223.48 C 245.77 213.89 255.58 208.34 265.44 210.87 C 280.28 214.68 294.19 219.57 310.05 224.77 Z" /> <ellipse cx="0.00" cy="0.00" transform="translate(173.62,287.70) rotate(-172.5)" rx="20.84" ry="19.64"/> <path d=" M 277.76 304.60 C 292.29 309.39 306.36 314.00 319.90 318.83 C 321.69 319.47 325.19 321.06 326.90 322.57 C 336.98 331.49 335.88 345.64 325.24 353.48 Q 319.33 357.85 312.28 356.43 Q 304.59 354.88 292.52 350.97 Q 278.61 346.46 265.40 342.11 Q 252.19 337.76 238.33 333.11 Q 226.30 329.08 219.20 325.76 Q 212.68 322.71 210.53 315.68 C 206.63 303.05 214.16 291.02 227.57 289.84 C 229.84 289.64 233.60 290.45 235.42 291.00 C 249.18 295.16 263.23 299.81 277.76 304.60 Z" /> </g></svg></span><span class="bnav-l">Orders</span>
   </button>
-  <button class="bnav-i" id="navLinks" type="button" aria-label="Tools">
+  <button class="bnav-i" id="navLinks" type="button">
     <span class="bnav-ic"><svg width="21" height="21" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 512.00 512.00"> <g fill="currentColor"> <path d=" M 212.36 131.26 A 0.39 0.39 0.0 0 1 211.93 130.64 C 213.54 128.77 215.39 126.47 216.95 124.88 Q 255.61 85.42 299.60 42.45 C 306.87 35.33 315.00 27.64 323.56 22.26 Q 342.26 10.51 362.33 5.27 C 394.06 -3.01 427.24 1.57 455.12 18.65 C 479.82 33.79 498.56 58.18 506.47 86.13 C 516.47 121.53 509.41 159.24 489.28 189.95 C 481.88 201.25 469.76 212.88 460.50 222.32 C 429.92 253.50 400.50 283.01 370.11 312.52 Q 360.06 322.28 351.75 327.86 Q 333.12 340.39 312.66 346.08 C 296.90 350.47 281.68 351.23 265.85 349.98 C 241.33 348.03 217.91 337.08 199.40 320.72 C 190.40 312.77 184.98 302.63 186.29 290.52 Q 187.65 278.02 197.96 269.37 C 205.48 263.07 212.98 262.44 222.36 262.93 C 234.85 263.59 241.74 273.46 252.01 279.34 C 271.69 290.58 295.09 287.22 314.05 275.71 C 317.82 273.43 321.69 269.69 324.69 266.79 Q 357.53 235.12 394.51 197.84 Q 421.86 170.28 429.96 161.29 C 439.24 150.99 446.26 135.08 446.53 121.10 C 447.01 95.55 431.62 73.87 406.69 67.36 C 389.78 62.94 368.87 68.01 355.27 79.09 Q 345.83 86.78 331.37 100.96 Q 314.63 117.39 289.12 142.85 A 0.74 0.73 -48.8 0 1 288.15 142.92 C 283.64 139.48 278.46 136.82 273.00 134.97 Q 249.42 126.99 224.74 128.44 C 220.81 128.67 216.20 129.80 212.36 131.26 Z" /> <path d=" M 299.72 381.20 A 0.39 0.39 0.0 0 1 300.15 381.82 C 298.54 383.69 296.69 385.99 295.13 387.58 Q 256.47 427.03 212.49 469.99 C 205.22 477.10 197.09 484.79 188.53 490.17 Q 169.83 501.92 149.76 507.15 C 118.04 515.43 84.86 510.85 56.99 493.77 C 32.30 478.63 13.56 454.24 5.66 426.29 C -4.34 390.90 2.72 353.19 22.85 322.49 C 30.25 311.19 42.37 299.57 51.63 290.13 C 82.21 258.96 111.63 229.46 142.02 199.95 Q 152.06 190.20 160.37 184.62 Q 179.00 172.09 199.46 166.40 C 215.22 162.02 230.43 161.26 246.26 162.51 C 270.78 164.46 294.19 175.41 312.70 191.77 C 321.70 199.72 327.11 209.86 325.80 221.97 Q 324.44 234.47 314.13 243.11 C 306.61 249.41 299.11 250.04 289.74 249.55 C 277.25 248.89 270.36 239.02 260.09 233.14 C 240.42 221.90 217.02 225.26 198.06 236.76 C 194.29 239.04 190.42 242.78 187.42 245.68 Q 154.59 277.34 117.61 314.61 Q 90.26 342.17 82.16 351.15 C 72.88 361.45 65.86 377.36 65.59 391.33 C 65.11 416.88 80.49 438.56 105.42 445.07 C 122.32 449.49 143.23 444.42 156.83 433.35 Q 166.27 425.66 180.73 411.48 Q 197.47 395.06 222.98 369.60 A 0.74 0.73 -48.7 0 1 223.95 369.53 C 228.45 372.97 233.63 375.63 239.09 377.48 Q 262.67 385.46 287.34 384.02 C 291.27 383.79 295.88 382.66 299.72 381.20 Z" /> </g> </svg></span><span class="bnav-l">Tools</span>
   </button>
-  <button class="bnav-i" id="navTrash" type="button" aria-label="Trash">
+  <button class="bnav-i" id="navTrash" type="button">
     <span class="bnav-ic"><svg width="20" height="20" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 1200.00 1200.00"> <path fill="currentColor" d=" M 599.99 131.26 Q 648.65 131.26 678.00 131.32 Q 691.04 131.34 705.24 136.32 C 743.17 149.61 768.44 184.32 768.69 224.51 Q 768.74 231.86 768.74 280.73 A 0.54 0.54 0.0 0 0 769.28 281.27 Q 857.30 281.27 955.25 281.27 C 973.11 281.27 987.78 292.06 992.36 309.07 C 996.67 325.10 990.12 341.51 976.33 350.36 Q 966.93 356.39 953.75 356.31 Q 938.84 356.22 917.35 356.28 A 0.69 0.69 0.0 0 0 916.66 356.93 Q 889.02 854.51 885.80 913.75 Q 884.71 933.71 882.81 942.47 C 871.41 995.18 824.68 1031.58 771.25 1031.26 Q 768.41 1031.25 600.01 1031.25 Q 431.60 1031.25 428.77 1031.27 C 375.33 1031.59 328.60 995.19 317.20 942.48 Q 315.30 933.72 314.21 913.76 Q 310.99 854.52 283.33 356.94 A 0.69 0.69 0.0 0 0 282.64 356.29 Q 261.15 356.23 246.24 356.32 Q 233.06 356.41 223.66 350.38 C 209.87 341.53 203.32 325.12 207.62 309.09 C 212.20 292.08 226.87 281.29 244.73 281.28 Q 342.68 281.28 430.70 281.28 A 0.54 0.54 0.0 0 0 431.24 280.74 Q 431.24 231.87 431.29 224.52 C 431.54 184.33 456.81 149.62 494.74 136.32 Q 508.94 131.34 521.98 131.32 Q 551.33 131.26 599.99 131.26 Z M 600.00 281.28 Q 689.07 281.28 693.52 281.25 A 0.21 0.21 0.0 0 0 693.73 281.04 Q 693.82 270.02 693.74 225.76 C 693.72 214.05 685.45 206.20 673.75 206.24 Q 664.72 206.27 600.00 206.27 Q 535.29 206.27 526.26 206.24 C 514.56 206.20 506.29 214.05 506.27 225.76 Q 506.19 270.02 506.28 281.04 A 0.21 0.21 0.0 0 0 506.49 281.25 Q 510.93 281.28 600.00 281.28 Z M 600.00 956.28 Q 760.15 956.28 771.50 956.26 C 792.61 956.21 809.12 941.30 810.28 920.25 Q 813.96 853.91 841.60 356.67 A 0.44 0.44 0.0 0 0 841.16 356.21 Q 807.01 356.27 599.99 356.27 Q 392.98 356.28 358.83 356.22 A 0.44 0.44 0.0 0 0 358.39 356.68 Q 386.04 853.92 389.73 920.26 C 390.89 941.31 407.40 956.22 428.51 956.26 Q 439.85 956.29 600.00 956.28 Z" /> <g fill="currentColor"> <rect x="-32.78" y="-221.09" transform="translate(469.73,657.08) rotate(-2.0)" width="65.56" height="442.18" rx="32.29"/> <rect x="567.21" y="436.08" width="65.58" height="440.32" rx="32.28"/> <rect x="-32.81" y="-221.03" transform="translate(730.26,657.07) rotate(2.0)" width="65.62" height="442.06" rx="32.30"/> </g> </svg><span class="bnav-badge" id="navTrashBadge" hidden></span></span><span class="bnav-l">Trash</span>
   </button>
-  <button class="bnav-i" id="navTheme" type="button" aria-label="Appearance">
-    <span class="bnav-ic" id="navThemeIc"><svg width="20" height="20" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 300.00 300.00"> <path fill="currentColor" d=" M 121.88 18.72 Q 133.89 16.57 144.26 15.71 C 154.04 14.89 162.66 18.03 164.07 28.62 Q 165.16 36.71 159.17 42.69 C 156.75 45.11 150.74 48.42 147.21 51.78 C 145.37 53.53 143.59 54.78 141.86 56.66 Q 117.91 82.58 122.93 118.08 Q 124.20 127.09 128.75 136.77 Q 139.72 160.08 163.34 171.37 Q 173.46 176.20 183.02 177.17 Q 189.14 177.79 196.50 177.70 Q 203.75 177.61 209.93 176.33 Q 221.79 173.85 233.07 166.54 Q 237.81 163.46 242.00 159.41 Q 248.44 153.18 249.89 151.13 Q 256.59 141.70 256.86 141.38 C 260.81 136.62 265.13 135.68 270.99 135.72 Q 273.71 135.74 276.55 137.26 Q 284.25 141.38 284.29 150.48 Q 284.33 159.82 282.98 169.03 C 277.39 207.17 256.49 239.85 225.20 261.45 Q 217.83 266.53 204.05 273.11 C 199.16 275.45 194.74 276.57 189.26 278.48 C 182.82 280.72 175.63 281.95 168.22 283.09 C 158.01 284.67 147.89 285.15 137.25 283.89 Q 123.69 282.28 115.75 280.18 Q 113.89 279.70 103.72 276.34 C 93.01 272.80 82.86 267.11 74.21 261.44 Q 63.73 254.57 53.75 244.18 Q 22.62 211.75 16.71 167.48 Q 16.00 162.21 15.36 147.36 C 15.12 141.61 16.19 135.91 16.85 129.77 Q 17.21 126.41 18.78 119.72 Q 20.03 114.38 21.50 109.86 Q 35.87 65.58 74.17 38.96 Q 79.54 35.23 91.07 29.24 Q 96.91 26.20 103.36 24.11 Q 112.94 20.99 116.15 19.95 A 4.01 3.70 -54.4 0 1 116.92 19.79 C 118.67 19.64 120.28 19.01 121.88 18.72 Z M 68.29 232.04 Q 68.71 232.45 69.14 232.86 Q 102.95 264.89 148.79 265.51 Q 161.12 265.68 172.11 263.46 Q 184.96 260.87 194.54 256.75 Q 232.88 240.26 252.70 202.94 C 259.02 191.02 263.10 176.81 264.70 163.66 A 0.22 0.22 0.0 0 0 264.29 163.52 Q 263.88 164.23 263.48 164.38 A 2.69 2.62 -79.0 0 0 262.33 165.18 Q 242.78 188.00 213.33 194.66 Q 200.20 197.63 189.24 196.66 Q 185.26 196.31 178.27 195.32 Q 172.46 194.50 167.52 192.93 Q 146.11 186.12 129.71 170.54 Q 129.66 170.49 129.62 170.46 Q 129.59 170.43 129.54 170.38 Q 113.90 154.04 107.01 132.65 Q 105.42 127.72 104.57 121.91 Q 103.56 114.93 103.19 110.95 Q 102.18 99.99 105.09 86.85 Q 111.64 57.38 134.38 37.74 A 2.69 2.62 -11.2 0 0 135.18 36.58 Q 135.33 36.18 136.03 35.77 A 0.22 0.22 0.0 0 0 135.89 35.36 C 122.75 37.01 108.55 41.15 96.66 47.51 Q 59.42 67.48 43.08 105.89 Q 39.00 115.48 36.46 128.34 Q 34.28 139.34 34.50 151.67 Q 35.30 197.51 67.46 231.19 Q 67.87 231.62 68.29 232.04 Z" /> </svg></span><span class="bnav-l" id="navThemeL">Dark</span>
+  <button class="bnav-i bnav-new" id="fab" type="button" title="New order">
+    <span class="bnav-ic"><span class="bnav-plus"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></span><span class="bnav-l">New</span>
   </button>
 </nav>
-<button class="fab" id="fab" title="New order"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="lightbox" id="lightbox" aria-hidden="true">
   <div class="lb-track" id="lbTrack"></div>
   <div class="lb-count" id="lbCount"></div>
@@ -1539,9 +1544,7 @@
   }
   var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
   var _loaded=false,_saveTimer=null, _saving=false, _needsSave=false, TRASH_DAYS=10, DAY=86400000;
-  // Card-header tints: the status palette softened enough to carry dark
-  // ink. Same three hues as the ramp, so the board reads as one set.
-  var URGENCY={ norush:{label:'On Track',color:'#86A793',cls:'green'}, priority:{label:'Soon',color:'#E5C769',cls:'orange'}, asap:{label:'Urgent',color:'#AB7F7E',cls:'red'} };
+  var URGENCY={ norush:{label:'On Track',color:'#96B486',cls:'green'}, priority:{label:'Soon',color:'#D98E5A',cls:'orange'}, asap:{label:'Urgent',color:'#C77A72',cls:'red'} };
   var URANK={asap:0,priority:1,norush:2};
 
   // Progress stages per order type. Last entry is always the finish (→ trash).
@@ -1576,8 +1579,8 @@
     // A ramp you can read at a glance: the further along, the greener.
     var i=stageIndex(o), n=stageList(o).length;
     if(i<=0)    return '#9A8F76';        // New — muted, nothing started
-    if(i>=n-1)  return '#2A6B4A';        // Done — green
-    var mid=['#C8A33F','#4E8A9E','#3E8A63'];   // gold → teal → almost-done green
+    if(i>=n-1)  return '#3C8C5A';        // Done — green
+    var mid=['#C9A24B','#4E8A9E','#4F9E7A'];   // gold → teal → almost-done green
     var steps=n-2;                        // how many in-between stages this type has
     var pos=Math.min(mid.length-1, Math.round((i-1)*(mid.length-1)/Math.max(1,steps-1)));
     return mid[pos];
@@ -2462,27 +2465,26 @@
 
   function processImage(file,cb){ var rd=new FileReader(); rd.onload=function(e){ var img=new Image(); img.onload=function(){ var max=760,w=img.width,h=img.height; if(w>max||h>max){var r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);} var cv=document.createElement('canvas');cv.width=w;cv.height=h; var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,w,h);cx.drawImage(img,0,0,w,h); var out;try{out=cv.toDataURL('image/webp',.82);}catch(_){out=cv.toDataURL('image/jpeg',.85);} if(out.indexOf('image/webp')<0)out=cv.toDataURL('image/jpeg',.85); cb(out); }; img.onerror=function(){cb(null);}; img.src=e.target.result; }; rd.readAsDataURL(file); }
 
-  function updateHeader(){
-    var trash = (ui.view==='trash'), n = trashCount();
-    // hero says where you are; the bar says where you can go
-    $('heroTitle').textContent = trash ? 'Trash' : 'Orders';
-    var live = state.orders.filter(function(o){ return !o.trashed; }).length;
-    $('heroCount').textContent = trash ? (n ? n+(n===1?' item':' items') : 'Empty')
-                                       : (live ? live+(live===1?' order':' orders') : '');
-    var badge = $('navTrashBadge');
-    if(n){ badge.textContent = n>99 ? '99+' : n; badge.hidden = false; }
-    else { badge.textContent = ''; badge.hidden = true; }
-    $('navBoard').classList.toggle('on', !trash);
-    $('navTrash').classList.toggle('on', trash);
+  function setBadge(el, n){
+    if(n){ el.textContent = n>99 ? '99+' : n; el.hidden=false; }
+    else { el.textContent=''; el.hidden=true; }
   }
-  $('navBoard').addEventListener('click',function(){
-    if(ui.view==='trash'){ ui.view='board'; render(); }
-    else window.scrollTo({top:0,behavior:'smooth'});
-  });
-  $('navTrash').addEventListener('click',function(){
-    ui.view=(ui.view==='trash')?'board':'trash';
-    render();
-  });
+  function updateHeader(){
+    var v=ui.view;
+    setBadge($('navTrashBadge'), trashCount());
+    setBadge($('navBoardBadge'), state.orders.filter(function(o){
+      return !o.trashed && !orderIsEmpty(o);
+    }).length);
+    $('navBoard').classList.toggle('on', v==='board');
+    $('navLinks').classList.toggle('on', v==='tools');
+    $('navTrash').classList.toggle('on', v==='trash');
+  }
+  function goView(v){
+    if(ui.view===v && v==='board'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+    ui.view=v; render();
+  }
+  $('navBoard').addEventListener('click',function(){ goView('board'); });
+  $('navTrash').addEventListener('click',function(){ goView(ui.view==='trash'?'board':'trash'); });
 
   /* Priority and due day are separate settings and both optional, but an order
      due today (or already past due) turns red on its own, whatever the
@@ -2499,10 +2501,9 @@
     var c={}; list.forEach(function(o){ c[o.type]=(c[o.type]||0)+1; }); return c;
   }
   function render(){
-    updateHeader(); $('fab').classList.toggle('hide', ui.view==='trash');
-    var fab=$('fab');
-    fab.title='New order';
-    fab.innerHTML='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>';
+    updateHeader();
+    document.body.classList.toggle('view-tools', ui.view==='tools');
+    if(ui.view==='tools'){ paintToolCounts(); return; }
     var board=$('board');
     if(ui.view==='trash'){
       var tl=state.orders.filter(function(o){return o.trashed;}).sort(function(a,b){return (b.trashedAt||0)-(a.trashedAt||0);});
@@ -2795,7 +2796,7 @@
 
   /* ===== chooser + editor ===== */
   var chooser=$('chooser'), overlay=$('overlay');
-  $('fab').addEventListener('click',function(){ openWizard(); });   // the same two slides everywhere
+  $('fab').addEventListener('click',function(){ if(ui.view!=='board'){ ui.view='board'; render(); } openWizard(); });   // the same two slides everywhere
   chooser.addEventListener('click',function(){ chooser.classList.remove('show'); });
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
@@ -3474,11 +3475,10 @@
   }
 
 
-  // Same three tints as the card headers, so payment reads like the rest.
   var PAYSTAGES=[
-    {k:'unpaid',label:'Not paid',color:'#AB7F7E'},
-    {k:'deposit',label:'Deposit made',color:'#E5C769'},
-    {k:'paid',label:'Paid',color:'#86A793'}
+    {k:'unpaid',label:'Not paid',color:'#C77A72'},
+    {k:'deposit',label:'Deposit made',color:'#D9B96A'},
+    {k:'paid',label:'Paid',color:'#6FA383'}
   ];
   /* Generic up-and-down wheel. opts: [{k,label,color}]. Whatever sits in the
      highlighted band is the pick; it settles a moment after you stop scrolling.
@@ -4019,23 +4019,27 @@
   }
   function closeHist(){ $('histOverlay').classList.remove('show'); }
   // ── Links (shop, catalog, payment history) ──
-  $('navLinks').addEventListener('click',function(){
+  function paintToolCounts(){
     var n=state.daily.tasks.filter(function(t){ return !t.done && !t.deleted; }).length;
     $('goalsCount').textContent=n?('· '+n+' left'):'';
     $('invCount').textContent=invTotal()?('· '+invTotal()):'';
-    $('linksOverlay').classList.add('show');
-  });
+  }
+  $('navLinks').addEventListener('click',function(){ goView('tools'); });
   $('invOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); wireInv(); openInv(true); });
   $('linksClose').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); });
   $('linksOverlay').addEventListener('click',function(e){ if(e.target===$('linksOverlay')) $('linksOverlay').classList.remove('show'); });
   $('histOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); openHist(); });
   // ── Appearance: Auto / Light / Dark ──
+  var THEME_SUN  = '<svg width="21" height="21" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 550.00 550.00"> <g fill="currentColor"> <path d=" M 550.00 269.06 L 550.00 282.54 Q 543.21 294.06 528.48 294.13 Q 518.01 294.19 487.85 294.21 Q 476.69 294.21 472.79 292.71 C 453.88 285.44 455.89 262.74 475.52 258.10 Q 478.27 257.45 485.03 257.42 Q 507.05 257.35 528.98 257.39 Q 543.19 257.42 550.00 269.06 Z" /> <path d=" M 282.52 550.00 L 269.09 550.00 Q 257.51 543.34 257.46 529.98 Q 257.34 500.57 257.47 480.25 Q 257.50 475.36 260.20 469.99 C 266.07 458.31 280.44 455.58 289.00 466.28 C 293.44 471.83 294.16 477.30 294.17 484.95 Q 294.18 526.79 294.14 529.98 Q 293.95 543.39 282.52 550.00 Z" /> </g> <g fill="currentColor"> <path d=" M 275.80 92.04 C 264.13 92.04 257.26 80.15 257.39 69.66 Q 257.42 67.81 257.42 46.12 Q 257.42 24.44 257.39 22.59 C 257.25 12.10 264.13 0.21 275.79 0.21 C 287.46 0.20 294.33 12.10 294.20 22.58 Q 294.17 24.43 294.17 46.12 Q 294.17 67.81 294.20 69.66 C 294.34 80.14 287.46 92.04 275.80 92.04 Z" /> <path d=" M 80.93 80.92 C 89.18 72.67 102.45 76.22 109.76 83.73 Q 111.05 85.06 126.39 100.39 Q 141.72 115.73 143.05 117.02 C 150.56 124.33 154.11 137.60 145.86 145.85 C 137.61 154.10 124.34 150.55 117.02 143.04 Q 115.73 141.71 100.40 126.38 Q 85.06 111.04 83.74 109.75 C 76.23 102.44 72.68 89.17 80.93 80.92 Z" /> <path d=" M 405.73 145.86 C 397.48 137.61 401.04 124.34 408.55 117.03 Q 409.87 115.73 425.21 100.40 Q 440.54 85.07 441.83 83.74 C 449.15 76.24 462.42 72.69 470.66 80.93 C 478.91 89.18 475.36 102.45 467.85 109.77 Q 466.53 111.06 451.19 126.39 Q 435.86 141.72 434.57 143.05 C 427.25 150.56 413.98 154.11 405.73 145.86 Z" /> <circle cx="275.80" cy="275.79" r="140.30"/> <path d=" M 0.19 275.79 C 0.19 264.13 12.09 257.25 22.58 257.39 Q 24.43 257.41 46.12 257.41 Q 67.81 257.41 69.66 257.39 C 80.15 257.25 92.05 264.12 92.05 275.79 C 92.05 287.46 80.15 294.34 69.66 294.20 Q 67.81 294.18 46.12 294.18 Q 24.43 294.18 22.58 294.20 C 12.09 294.34 0.19 287.46 0.19 275.79 Z" /> <path d=" M 145.85 405.73 C 154.10 413.98 150.55 427.25 143.04 434.57 Q 141.72 435.86 126.39 451.19 Q 111.05 466.53 109.76 467.85 C 102.45 475.36 89.18 478.91 80.93 470.67 C 72.68 462.42 76.23 449.15 83.74 441.83 Q 85.07 440.54 100.40 425.21 Q 115.73 409.87 117.02 408.55 C 124.33 401.04 137.60 397.48 145.85 405.73 Z" /> <path d=" M 451.19 425.20 Q 466.52 440.53 467.85 441.82 C 475.36 449.14 478.91 462.41 470.66 470.66 C 462.41 478.90 449.14 475.35 441.83 467.84 Q 440.54 466.52 425.21 451.19 Q 409.87 435.85 408.55 434.56 C 401.04 427.25 397.49 413.98 405.74 405.73 C 413.98 397.48 427.25 401.03 434.57 408.54 Q 435.86 409.87 451.19 425.20 Z" /> </g> </svg>';
+  var THEME_MOON = '<svg width="21" height="21" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 300.00 300.00"> <path fill="currentColor" d=" M 121.88 18.72 Q 133.89 16.57 144.26 15.71 C 154.04 14.89 162.66 18.03 164.07 28.62 Q 165.16 36.71 159.17 42.69 C 156.75 45.11 150.74 48.42 147.21 51.78 C 145.37 53.53 143.59 54.78 141.86 56.66 Q 117.91 82.58 122.93 118.08 Q 124.20 127.09 128.75 136.77 Q 139.72 160.08 163.34 171.37 Q 173.46 176.20 183.02 177.17 Q 189.14 177.79 196.50 177.70 Q 203.75 177.61 209.93 176.33 Q 221.79 173.85 233.07 166.54 Q 237.81 163.46 242.00 159.41 Q 248.44 153.18 249.89 151.13 Q 256.59 141.70 256.86 141.38 C 260.81 136.62 265.13 135.68 270.99 135.72 Q 273.71 135.74 276.55 137.26 Q 284.25 141.38 284.29 150.48 Q 284.33 159.82 282.98 169.03 C 277.39 207.17 256.49 239.85 225.20 261.45 Q 217.83 266.53 204.05 273.11 C 199.16 275.45 194.74 276.57 189.26 278.48 C 182.82 280.72 175.63 281.95 168.22 283.09 C 158.01 284.67 147.89 285.15 137.25 283.89 Q 123.69 282.28 115.75 280.18 Q 113.89 279.70 103.72 276.34 C 93.01 272.80 82.86 267.11 74.21 261.44 Q 63.73 254.57 53.75 244.18 Q 22.62 211.75 16.71 167.48 Q 16.00 162.21 15.36 147.36 C 15.12 141.61 16.19 135.91 16.85 129.77 Q 17.21 126.41 18.78 119.72 Q 20.03 114.38 21.50 109.86 Q 35.87 65.58 74.17 38.96 Q 79.54 35.23 91.07 29.24 Q 96.91 26.20 103.36 24.11 Q 112.94 20.99 116.15 19.95 A 4.01 3.70 -54.4 0 1 116.92 19.79 C 118.67 19.64 120.28 19.01 121.88 18.72 Z M 68.29 232.04 Q 68.71 232.45 69.14 232.86 Q 102.95 264.89 148.79 265.51 Q 161.12 265.68 172.11 263.46 Q 184.96 260.87 194.54 256.75 Q 232.88 240.26 252.70 202.94 C 259.02 191.02 263.10 176.81 264.70 163.66 A 0.22 0.22 0.0 0 0 264.29 163.52 Q 263.88 164.23 263.48 164.38 A 2.69 2.62 -79.0 0 0 262.33 165.18 Q 242.78 188.00 213.33 194.66 Q 200.20 197.63 189.24 196.66 Q 185.26 196.31 178.27 195.32 Q 172.46 194.50 167.52 192.93 Q 146.11 186.12 129.71 170.54 Q 129.66 170.49 129.62 170.46 Q 129.59 170.43 129.54 170.38 Q 113.90 154.04 107.01 132.65 Q 105.42 127.72 104.57 121.91 Q 103.56 114.93 103.19 110.95 Q 102.18 99.99 105.09 86.85 Q 111.64 57.38 134.38 37.74 A 2.69 2.62 -11.2 0 0 135.18 36.58 Q 135.33 36.18 136.03 35.77 A 0.22 0.22 0.0 0 0 135.89 35.36 C 122.75 37.01 108.55 41.15 96.66 47.51 Q 59.42 67.48 43.08 105.89 Q 39.00 115.48 36.46 128.34 Q 34.28 139.34 34.50 151.67 Q 35.30 197.51 67.46 231.19 Q 67.87 231.62 68.29 232.04 Z" /> </svg>';
   var THEMES=['light','dark','auto'];   // Light is the default
   function applyTheme(){
     var t=localStorage.getItem('bc-theme')||'light';
     var dark = (t==='dark') || (t==='auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.setAttribute('data-theme', dark?'dark':'light');
     var lbl=$('themeNow'); if(lbl) lbl.textContent='· '+t.charAt(0).toUpperCase()+t.slice(1);
+    // the row wears the sun or the moon, whichever is actually on
+    var ico=$('themeIco'); if(ico) ico.innerHTML = dark ? THEME_MOON : THEME_SUN;
   }
   applyTheme();
   if(window.matchMedia) try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); }catch(e){}
@@ -4046,31 +4050,7 @@
     localStorage.setItem('bc-theme', next);
     applyTheme();
     toast('Appearance: '+next.charAt(0).toUpperCase()+next.slice(1));
-    paintNavTheme();
   });
-
-  // ── Appearance from the bottom bar ──
-  // The icon shows what you'd get, not what you're in — a moon while
-  // it's light, a sun while it's dark, the way the reference does it.
-  var ICON_SUN  = '<svg width="20" height="20" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 550.00 550.00"> <g fill="currentColor"> <path d=" M 550.00 269.06 L 550.00 282.54 Q 543.21 294.06 528.48 294.13 Q 518.01 294.19 487.85 294.21 Q 476.69 294.21 472.79 292.71 C 453.88 285.44 455.89 262.74 475.52 258.10 Q 478.27 257.45 485.03 257.42 Q 507.05 257.35 528.98 257.39 Q 543.19 257.42 550.00 269.06 Z" /> <path d=" M 282.52 550.00 L 269.09 550.00 Q 257.51 543.34 257.46 529.98 Q 257.34 500.57 257.47 480.25 Q 257.50 475.36 260.20 469.99 C 266.07 458.31 280.44 455.58 289.00 466.28 C 293.44 471.83 294.16 477.30 294.17 484.95 Q 294.18 526.79 294.14 529.98 Q 293.95 543.39 282.52 550.00 Z" /> </g> <g fill="currentColor"> <path d=" M 275.80 92.04 C 264.13 92.04 257.26 80.15 257.39 69.66 Q 257.42 67.81 257.42 46.12 Q 257.42 24.44 257.39 22.59 C 257.25 12.10 264.13 0.21 275.79 0.21 C 287.46 0.20 294.33 12.10 294.20 22.58 Q 294.17 24.43 294.17 46.12 Q 294.17 67.81 294.20 69.66 C 294.34 80.14 287.46 92.04 275.80 92.04 Z" /> <path d=" M 80.93 80.92 C 89.18 72.67 102.45 76.22 109.76 83.73 Q 111.05 85.06 126.39 100.39 Q 141.72 115.73 143.05 117.02 C 150.56 124.33 154.11 137.60 145.86 145.85 C 137.61 154.10 124.34 150.55 117.02 143.04 Q 115.73 141.71 100.40 126.38 Q 85.06 111.04 83.74 109.75 C 76.23 102.44 72.68 89.17 80.93 80.92 Z" /> <path d=" M 405.73 145.86 C 397.48 137.61 401.04 124.34 408.55 117.03 Q 409.87 115.73 425.21 100.40 Q 440.54 85.07 441.83 83.74 C 449.15 76.24 462.42 72.69 470.66 80.93 C 478.91 89.18 475.36 102.45 467.85 109.77 Q 466.53 111.06 451.19 126.39 Q 435.86 141.72 434.57 143.05 C 427.25 150.56 413.98 154.11 405.73 145.86 Z" /> <circle cx="275.80" cy="275.79" r="140.30"/> <path d=" M 0.19 275.79 C 0.19 264.13 12.09 257.25 22.58 257.39 Q 24.43 257.41 46.12 257.41 Q 67.81 257.41 69.66 257.39 C 80.15 257.25 92.05 264.12 92.05 275.79 C 92.05 287.46 80.15 294.34 69.66 294.20 Q 67.81 294.18 46.12 294.18 Q 24.43 294.18 22.58 294.20 C 12.09 294.34 0.19 287.46 0.19 275.79 Z" /> <path d=" M 145.85 405.73 C 154.10 413.98 150.55 427.25 143.04 434.57 Q 141.72 435.86 126.39 451.19 Q 111.05 466.53 109.76 467.85 C 102.45 475.36 89.18 478.91 80.93 470.67 C 72.68 462.42 76.23 449.15 83.74 441.83 Q 85.07 440.54 100.40 425.21 Q 115.73 409.87 117.02 408.55 C 124.33 401.04 137.60 397.48 145.85 405.73 Z" /> <path d=" M 451.19 425.20 Q 466.52 440.53 467.85 441.82 C 475.36 449.14 478.91 462.41 470.66 470.66 C 462.41 478.90 449.14 475.35 441.83 467.84 Q 440.54 466.52 425.21 451.19 Q 409.87 435.85 408.55 434.56 C 401.04 427.25 397.49 413.98 405.74 405.73 C 413.98 397.48 427.25 401.03 434.57 408.54 Q 435.86 409.87 451.19 425.20 Z" /> </g> </svg>';
-  var ICON_MOON = '<svg width="20" height="20" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 300.00 300.00"> <path fill="currentColor" d=" M 121.88 18.72 Q 133.89 16.57 144.26 15.71 C 154.04 14.89 162.66 18.03 164.07 28.62 Q 165.16 36.71 159.17 42.69 C 156.75 45.11 150.74 48.42 147.21 51.78 C 145.37 53.53 143.59 54.78 141.86 56.66 Q 117.91 82.58 122.93 118.08 Q 124.20 127.09 128.75 136.77 Q 139.72 160.08 163.34 171.37 Q 173.46 176.20 183.02 177.17 Q 189.14 177.79 196.50 177.70 Q 203.75 177.61 209.93 176.33 Q 221.79 173.85 233.07 166.54 Q 237.81 163.46 242.00 159.41 Q 248.44 153.18 249.89 151.13 Q 256.59 141.70 256.86 141.38 C 260.81 136.62 265.13 135.68 270.99 135.72 Q 273.71 135.74 276.55 137.26 Q 284.25 141.38 284.29 150.48 Q 284.33 159.82 282.98 169.03 C 277.39 207.17 256.49 239.85 225.20 261.45 Q 217.83 266.53 204.05 273.11 C 199.16 275.45 194.74 276.57 189.26 278.48 C 182.82 280.72 175.63 281.95 168.22 283.09 C 158.01 284.67 147.89 285.15 137.25 283.89 Q 123.69 282.28 115.75 280.18 Q 113.89 279.70 103.72 276.34 C 93.01 272.80 82.86 267.11 74.21 261.44 Q 63.73 254.57 53.75 244.18 Q 22.62 211.75 16.71 167.48 Q 16.00 162.21 15.36 147.36 C 15.12 141.61 16.19 135.91 16.85 129.77 Q 17.21 126.41 18.78 119.72 Q 20.03 114.38 21.50 109.86 Q 35.87 65.58 74.17 38.96 Q 79.54 35.23 91.07 29.24 Q 96.91 26.20 103.36 24.11 Q 112.94 20.99 116.15 19.95 A 4.01 3.70 -54.4 0 1 116.92 19.79 C 118.67 19.64 120.28 19.01 121.88 18.72 Z M 68.29 232.04 Q 68.71 232.45 69.14 232.86 Q 102.95 264.89 148.79 265.51 Q 161.12 265.68 172.11 263.46 Q 184.96 260.87 194.54 256.75 Q 232.88 240.26 252.70 202.94 C 259.02 191.02 263.10 176.81 264.70 163.66 A 0.22 0.22 0.0 0 0 264.29 163.52 Q 263.88 164.23 263.48 164.38 A 2.69 2.62 -79.0 0 0 262.33 165.18 Q 242.78 188.00 213.33 194.66 Q 200.20 197.63 189.24 196.66 Q 185.26 196.31 178.27 195.32 Q 172.46 194.50 167.52 192.93 Q 146.11 186.12 129.71 170.54 Q 129.66 170.49 129.62 170.46 Q 129.59 170.43 129.54 170.38 Q 113.90 154.04 107.01 132.65 Q 105.42 127.72 104.57 121.91 Q 103.56 114.93 103.19 110.95 Q 102.18 99.99 105.09 86.85 Q 111.64 57.38 134.38 37.74 A 2.69 2.62 -11.2 0 0 135.18 36.58 Q 135.33 36.18 136.03 35.77 A 0.22 0.22 0.0 0 0 135.89 35.36 C 122.75 37.01 108.55 41.15 96.66 47.51 Q 59.42 67.48 43.08 105.89 Q 39.00 115.48 36.46 128.34 Q 34.28 139.34 34.50 151.67 Q 35.30 197.51 67.46 231.19 Q 67.87 231.62 68.29 232.04 Z" /> </svg>';
-  function isDarkNow(){ return document.documentElement.getAttribute('data-theme')==='dark'; }
-  function paintNavTheme(){
-    var dark=isDarkNow();
-    $('navThemeIc').innerHTML = dark ? ICON_SUN : ICON_MOON;
-    $('navThemeL').textContent = dark ? 'Light' : 'Dark';
-    $('navTheme').setAttribute('aria-label', dark ? 'Switch to light' : 'Switch to dark');
-  }
-  $('navTheme').addEventListener('click',function(){
-    var next = isDarkNow() ? 'light' : 'dark';
-    localStorage.setItem('bc-theme', next);
-    applyTheme();
-    paintNavTheme();
-  });
-  paintNavTheme();
-  if(window.matchMedia) try{
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paintNavTheme);
-  }catch(e){}
 
   $('sizesOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('dtfOverlay').classList.add('show'); });
 
