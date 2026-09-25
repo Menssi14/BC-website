@@ -1029,7 +1029,8 @@
 
   /* ── categories across the top ── */
   .app-tabs { flex:none; display:flex; gap:7px; overflow-x:auto; scroll-behavior:smooth;
-    padding:9px 12px 5px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    padding:9px 12px 5px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity; overscroll-behavior-x:contain; touch-action:pan-x; }
   .app-tabs::-webkit-scrollbar { display:none; }
   .app-tabs[hidden] { display:none; }
   .app-tabs > :first-child { margin-left:auto; } .app-tabs > :last-child { margin-right:auto; }
@@ -1037,19 +1038,22 @@
     font-family:'Teko','Arial Narrow',sans-serif; text-transform:uppercase; letter-spacing:.07em;
     font-size:clamp(14px,3.4vw,16px); line-height:1; color:rgba(10,34,64,.72);
     background:rgba(255,255,255,.7); border:1px solid rgba(10,34,64,.18); border-radius:999px;
-    padding:9px 16px 7px; transition:background .15s, color .15s, border-color .15s; }
+    padding:9px 16px 7px; transition:background .15s, color .15s, border-color .15s;
+    scroll-snap-align:center; }
   .app-tab:hover { border-color:var(--ut-navy); color:var(--ut-navy); }
   .app-tab.on { background:var(--ut-navy); border-color:var(--ut-navy); color:#fff; }
 
   /* ── designs along the bottom ── */
   .app-strip { display:flex; gap:8px; overflow-x:auto; scroll-behavior:smooth; padding:4px 12px 2px;
-    scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
+    overscroll-behavior-x:contain; touch-action:pan-x; }
   .app-strip::-webkit-scrollbar { display:none; }
   .app-strip > :first-child { margin-left:auto; } .app-strip > :last-child { margin-right:auto; }
   .app-chip { flex:0 0 auto; width:clamp(46px,13vw,58px); height:clamp(46px,13vw,58px); padding:5px;
     border-radius:14px; background:#fffdf8; border:1px solid rgba(74,52,36,.16); cursor:pointer;
     display:flex; align-items:center; justify-content:center; overflow:hidden;
-    box-shadow:0 3px 8px rgba(42,37,32,.08); transition:border-color .15s, box-shadow .15s, transform .15s; }
+    box-shadow:0 3px 8px rgba(42,37,32,.08); transition:border-color .15s, box-shadow .15s, transform .15s;
+    scroll-snap-align:center; }
   .app-chip img { width:100%; height:100%; object-fit:contain; display:block; }
   .app-chip span { font-family:'Teko',sans-serif; font-size:12px; text-transform:uppercase; color:rgba(74,52,36,.6); }
   .app-chip:hover { transform:translateY(-1px); }
@@ -1138,10 +1142,12 @@
     transform:none; left:0; max-height:none; }
   #size-sheet::backdrop { background:rgba(22,56,41,.5); backdrop-filter:blur(2px); }
   .sheet { background:#FBF7F0; color:#4A3424; border-radius:20px 20px 0 0; padding:8px 20px calc(20px + env(safe-area-inset-bottom,0px));
-    box-shadow:0 -10px 40px rgba(0,0,0,.28); max-height:88vh; overflow-y:auto; animation:sheetUp .22s ease-out; }
+    box-shadow:0 -10px 40px rgba(0,0,0,.28); max-height:88vh; overflow-y:auto; animation:sheetUp .22s ease-out;
+    overscroll-behavior:contain; will-change:transform; }
   @keyframes sheetUp { from { transform:translateY(22px); opacity:.6; } to { transform:none; opacity:1; } }
-  .sheet-grab { width:42px; height:4px; border-radius:999px; background:rgba(74,52,36,.22); margin:4px auto 12px; }
-  .sheet-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .sheet-grab { width:42px; height:4px; border-radius:999px; background:rgba(74,52,36,.22); margin:4px auto 12px;
+    cursor:grab; touch-action:none; }
+  .sheet-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; touch-action:none; cursor:grab; }
   .sheet-thumb { width:56px; height:56px; border-radius:12px; border:1px solid rgba(74,52,36,.2);
     object-fit:cover; background:#F2EADD; flex:none; }
   .sheet-title { font-family:'Teko',sans-serif; font-size:21px; line-height:1.05; text-transform:uppercase; letter-spacing:.03em; }
@@ -4368,8 +4374,69 @@
     if (u) { th.hidden = false; th.src = u; } else th.hidden = true;
     dropSize = '';
     paintSizeSheet();
+    initSizeSheetGestures();
     dlg.showModal();
   }
+  function initSizeSheetGestures() {
+    const dlg = $('size-sheet');
+    const sheet = dlg && dlg.querySelector('.sheet');
+    if (!dlg || !sheet || dlg.dataset.gestures === '1') return;
+    dlg.dataset.gestures = '1';
+
+    let sy = null, pid = null, dy = 0, closing = false;
+    const reset = () => {
+      sy = null; pid = null; dy = 0;
+      sheet.style.transition = 'transform .18s ease-out';
+      sheet.style.transform = '';
+      setTimeout(() => { if (!closing) sheet.style.transition = ''; }, 190);
+    };
+    const close = () => {
+      if (closing || !dlg.open) return;
+      closing = true;
+      sheet.style.transition = 'transform .18s ease-in';
+      sheet.style.transform = 'translateY(105%)';
+      setTimeout(() => {
+        if (dlg.open) dlg.close();
+        sheet.style.transition = '';
+        sheet.style.transform = '';
+        closing = false; sy = null; pid = null; dy = 0;
+      }, 180);
+    };
+    const start = e => {
+      if (e.button != null && e.button !== 0) return;
+      if (e.target.closest('button')) return;
+      sy = e.clientY; pid = e.pointerId; dy = 0;
+      sheet.style.transition = 'none';
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
+    };
+    const move = e => {
+      if (sy == null || (pid != null && e.pointerId !== pid)) return;
+      dy = Math.max(0, e.clientY - sy);
+      if (dy > 0) sheet.style.transform = 'translateY(' + dy + 'px)';
+    };
+    const end = e => {
+      if (sy == null || (pid != null && e.pointerId !== pid)) return;
+      if (dy > Math.min(120, sheet.offsetHeight * .18)) close(); else reset();
+    };
+
+    const grab = sheet.querySelector('.sheet-grab');
+    const head = sheet.querySelector('.sheet-head');
+    [grab, head].filter(Boolean).forEach(zone => {
+      zone.addEventListener('pointerdown', start);
+      zone.addEventListener('pointermove', move);
+      zone.addEventListener('pointerup', end);
+      zone.addEventListener('pointercancel', reset);
+    });
+
+    // Tapping the dimmed area outside the sheet dismisses it too.
+    dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
+    dlg.addEventListener('close', () => {
+      sheet.style.transition = '';
+      sheet.style.transform = '';
+      closing = false; sy = null; pid = null; dy = 0;
+    });
+  }
+
   function paintSizeSheet() {
     const sizes = SHIRT.sizes.filter(s => s.on);
     const wrap = $('ss-sizes'); wrap.innerHTML = '';
@@ -4448,25 +4515,37 @@
       if (e.key === 'ArrowUp') { e.preventDefault(); nextColl(-1); }
       if (e.key === 'ArrowDown') { e.preventDefault(); nextColl(1); }
     });
-    // Sideways swipes change the design, up-and-down swipes change the collection.
-    // Fingers use touch events (most reliable on phones); a mouse drags instead.
-    let sx = null, sy = 0, st = 0;
-    const end = (x, y) => {
+    // The shirt itself only owns one gesture: swipe sideways for designs.
+    // Collections stay on the visible category row so a normal up/down finger
+    // movement can never throw the customer into another collection by accident.
+    let sx = null, sy = 0, st = 0, pid = null;
+    const finishSwipe = (x, y) => {
       if (sx == null) return;
-      const dx = x - sx, dy = y - sy, quick = Date.now() - st < 600; sx = null;
-      const min = quick ? 25 : 45;
-      if (Math.abs(dx) > Math.abs(dy)) { if (Math.abs(dx) > min) goDrop(dropIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); }
-      else if (Math.abs(dy) > min + 10) nextColl(dy < 0 ? 1 : -1);
+      const dx = x - sx, dy = y - sy, ms = Date.now() - st;
+      sx = null; pid = null;
+      const min = ms < 500 ? 28 : 42;
+      // Require a clearly horizontal gesture; diagonal/vertical movement is ignored.
+      if (Math.abs(dx) >= min && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        goDrop(dropIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+      }
     };
-    stage.addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
-    stage.addEventListener('touchend', e => { const t = e.changedTouches[0]; if (t) end(t.clientX, t.clientY); }, { passive: true });
-    stage.addEventListener('touchcancel', () => { sx = null; }, { passive: true });
-    stage.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { sx = e.clientX; sy = e.clientY; st = Date.now(); } });
-    stage.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') end(e.clientX, e.clientY); });
+    stage.addEventListener('pointerdown', e => {
+      if (!e.isPrimary || e.target.closest('button')) return;
+      sx = e.clientX; sy = e.clientY; st = Date.now(); pid = e.pointerId;
+    });
+    stage.addEventListener('pointerup', e => {
+      if (sx == null || (pid != null && e.pointerId !== pid)) return;
+      finishSwipe(e.clientX, e.clientY);
+    });
+    stage.addEventListener('pointercancel', () => { sx = null; pid = null; });
+
+    // Desktop trackpads/mice can still move between designs horizontally, but
+    // vertical wheel motion is left alone instead of changing collections.
     let wheelAt = 0;
     stage.addEventListener('wheel', e => {
-      if (Math.abs(e.deltaY) < 24 || Date.now() - wheelAt < 700) return;
-      wheelAt = Date.now(); nextColl(e.deltaY > 0 ? 1 : -1);
+      if (Math.abs(e.deltaX) < 28 || Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Date.now() - wheelAt < 500) return;
+      wheelAt = Date.now();
+      goDrop(dropIdx + (e.deltaX > 0 ? 1 : -1), e.deltaX > 0 ? 1 : -1);
     }, { passive: true });
   }
 
