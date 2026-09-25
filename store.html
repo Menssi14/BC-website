@@ -1188,199 +1188,6 @@
   .cc-sw.on, .cc-acc.on { box-shadow:0 0 0 2px #FBF7F0, 0 0 0 4px #1F4D3E; border-color:transparent; }
   .cc-acc { border-radius:8px; }
 </style>
-
-<style id="mobile-store-v2">
-  /* Mobile Store V2: one clear gesture per axis.
-     Categories are tapped. Designs are browsed in a native horizontal snap rail.
-     The large shirt preview also accepts left/right swipes as a shortcut. */
-  body.store-paused {
-    min-height:100vh; min-height:100dvh; height:100dvh;
-    background:#f7f1e7;
-  }
-  body.store-paused .utrgv-drop {
-    width:min(100%, 760px); margin:0 auto;
-    background:
-      radial-gradient(circle at 50% 32%, rgba(255,255,255,.92), rgba(255,255,255,0) 42%),
-      #f7f1e7;
-  }
-
-  .mobile-shop-head {
-    flex:none; display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
-    padding:12px 16px 5px;
-  }
-  .mobile-shop-head > div { display:flex; flex-direction:column; gap:0; min-width:0; }
-  .mobile-shop-eyebrow {
-    display:block; font-family:'Teko','Arial Narrow',sans-serif; font-size:11px; line-height:1;
-    letter-spacing:.20em; color:rgba(74,52,36,.55); font-weight:500;
-  }
-  .mobile-shop-title, .design-head strong {
-    display:block; font-family:'Teko','Arial Narrow',sans-serif; font-weight:500;
-    font-size:22px; line-height:1.05; color:var(--ut-navy);
-  }
-  .mobile-shop-step {
-    flex:none; font-family:'Teko','Arial Narrow',sans-serif; font-size:13px; letter-spacing:.10em;
-    color:rgba(74,52,36,.5); border:1px solid rgba(74,52,36,.14); background:rgba(255,255,255,.52);
-    border-radius:999px; padding:5px 9px 3px;
-  }
-
-  /* Categories: large, obvious, tap-first controls. */
-  .app-tabs {
-    flex:none; gap:8px; overflow-x:auto; padding:7px 16px 10px;
-    scroll-snap-type:x proximity; scroll-padding-inline:16px;
-    overscroll-behavior-x:contain; touch-action:pan-x pinch-zoom;
-    -webkit-overflow-scrolling:touch;
-  }
-  .app-tabs > :first-child, .app-tabs > :last-child { margin:0; }
-  .app-tab {
-    scroll-snap-align:start; min-height:44px; padding:10px 16px 8px;
-    border-radius:13px; border:1px solid rgba(31,77,62,.16);
-    background:rgba(255,255,255,.70); color:var(--green);
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:16px; letter-spacing:.045em; box-shadow:0 2px 8px rgba(42,37,32,.045);
-  }
-  .app-tab .app-tab-dot { width:8px; height:8px; border-radius:50%; background:var(--tab-accent, var(--ut-orange)); flex:none; }
-  .app-tab.on {
-    background:var(--green); color:#fff; border-color:var(--green);
-    box-shadow:0 7px 18px rgba(31,77,62,.18);
-  }
-  .app-tab.on .app-tab-dot { box-shadow:0 0 0 2px rgba(255,255,255,.34); }
-
-  /* Preview is intentionally quiet: the artwork gets the visual priority. */
-  body.store-paused .drop-stage {
-    flex:1; min-height:170px; margin:0 10px; border-radius:22px;
-    border:1px solid rgba(74,52,36,.10);
-    background:
-      radial-gradient(ellipse 56% 64% at 50% 48%, rgba(255,255,255,.98), rgba(255,255,255,.45) 52%, rgba(255,255,255,.04) 76%),
-      linear-gradient(180deg, rgba(255,255,255,.46), rgba(255,255,255,.18));
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.72), 0 10px 30px rgba(42,37,32,.055);
-    overflow:hidden; touch-action:pan-y; user-select:none; -webkit-user-select:none;
-  }
-  body.store-paused .drop-live { transition:opacity .16s ease, transform .20s cubic-bezier(.2,.8,.2,1); }
-  body.store-paused .drop-stage.is-changing .drop-live { opacity:.78; transform:scale(.985); }
-  .stage-meta {
-    position:absolute; left:14px; right:14px; bottom:11px; z-index:8; pointer-events:none;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    font-family:'Teko','Arial Narrow',sans-serif; text-transform:uppercase;
-  }
-  .stage-collection { font-size:12px; letter-spacing:.12em; color:rgba(10,34,64,.60); }
-  .stage-swipe { font-size:11px; letter-spacing:.10em; color:rgba(74,52,36,.45); }
-
-  /* Color controls have real 44px touch targets around a 30px swatch. */
-  .app-rail {
-    right:10px; gap:2px; padding:5px; border-radius:18px;
-    background:rgba(255,255,255,.78); border:1px solid rgba(74,52,36,.10);
-    box-shadow:0 8px 22px rgba(42,37,32,.11);
-  }
-  .app-rail button {
-    width:42px; height:42px; border:0; background:transparent !important; position:relative;
-  }
-  .app-rail button::before {
-    content:""; position:absolute; width:28px; height:28px; border-radius:50%;
-    left:7px; top:7px; background:var(--swatch,#fff); border:1px solid rgba(10,34,64,.18);
-    box-shadow:0 1px 3px rgba(0,0,0,.08);
-  }
-  .app-rail button.on { box-shadow:none; transform:none; }
-  .app-rail button.on::before { box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--ut-orange); }
-
-  /* Bottom chooser: native horizontal scrolling is the main design interaction. */
-  .app-bottom {
-    flex:none; gap:7px; padding:9px 0 calc(10px + env(safe-area-inset-bottom,0px));
-    background:linear-gradient(180deg, rgba(247,241,231,.50), #f7f1e7 15%);
-  }
-  .design-head {
-    display:flex; align-items:flex-end; justify-content:space-between; gap:10px;
-    padding:0 16px;
-  }
-  .design-head > div { min-width:0; }
-  .design-head strong { font-size:19px; }
-  .design-count {
-    flex:none; font-family:'Teko','Arial Narrow',sans-serif; font-size:14px; letter-spacing:.08em;
-    color:rgba(74,52,36,.56); padding-bottom:1px;
-  }
-  .app-strip {
-    gap:9px; padding:1px 16px 5px; overflow-x:auto; overflow-y:hidden;
-    scroll-snap-type:x mandatory; scroll-padding-left:16px;
-    overscroll-behavior-x:contain; touch-action:pan-x pinch-zoom;
-    -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
-  }
-  .app-strip > :first-child, .app-strip > :last-child { margin:0; }
-  .app-chip {
-    flex:0 0 88px; width:88px; height:105px; padding:6px; border-radius:15px;
-    scroll-snap-align:start; scroll-snap-stop:always;
-    display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; gap:5px;
-    background:rgba(255,255,255,.76); border:1px solid rgba(74,52,36,.13);
-    box-shadow:0 3px 10px rgba(42,37,32,.055); overflow:hidden;
-  }
-  .app-chip:hover { transform:none; }
-  .app-chip-art {
-    flex:0 0 72px; height:72px; border-radius:11px; overflow:hidden;
-    display:flex; align-items:center; justify-content:center; background:#fffaf3;
-  }
-  .app-chip-art img { width:100%; height:100%; object-fit:contain; padding:5px; }
-  .app-chip-fallback { font-family:'Teko',sans-serif; font-size:18px; color:rgba(74,52,36,.48); }
-  .app-chip-label {
-    min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    font-family:'Teko','Arial Narrow',sans-serif; font-size:13px; line-height:1.1;
-    color:rgba(10,34,64,.72); text-align:left; padding:0 2px;
-  }
-  .app-chip.on {
-    border:2px solid var(--ut-orange); padding:5px;
-    box-shadow:0 5px 14px rgba(0,0,0,.10), 0 0 0 2px rgba(255,255,255,.82) inset;
-  }
-  .app-chip.on .app-chip-label { color:var(--ut-navy); font-weight:500; }
-
-  .app-row {
-    justify-content:space-between; gap:12px; padding:2px 16px 0;
-  }
-  .app-id { align-items:flex-start; flex:1; min-width:0; }
-  .app-name {
-    max-width:100%; text-align:left; font-size:20px; color:var(--ut-navy);
-  }
-  .app-price { font-size:15px; color:rgba(10,34,64,.58); }
-  .app-add {
-    min-height:46px; min-width:132px; padding:12px 18px 10px; border-radius:13px;
-    background:var(--green); box-shadow:0 7px 18px rgba(31,77,62,.18);
-  }
-  .app-add:hover { transform:none; box-shadow:0 7px 18px rgba(31,77,62,.18); }
-  .app-add:active { transform:scale(.985); }
-  .app-note { padding:0 16px; }
-
-  /* Desktop/tablet: keep the same mental model, just give it room. */
-  @media (min-width:701px) {
-    body.store-paused .utrgv-drop { padding-bottom:4px; }
-    .mobile-shop-head { padding-top:16px; }
-    body.store-paused .drop-stage { margin-inline:16px; }
-    .app-chip { flex-basis:96px; width:96px; }
-    .drop-arrow { display:flex !important; opacity:.72; }
-  }
-
-  @media (max-width:420px) {
-    .mobile-shop-head { padding-top:9px; }
-    .app-tab { min-height:42px; padding-inline:14px; }
-    body.store-paused .drop-stage { min-height:145px; margin-inline:8px; }
-    .app-chip { flex-basis:82px; width:82px; height:100px; }
-    .app-chip-art { height:68px; flex-basis:68px; }
-    .app-row { gap:8px; }
-    .app-add { min-width:122px; padding-inline:14px; }
-  }
-
-  @media (max-height:680px) {
-    .mobile-shop-head { display:none; }
-    .app-tabs { padding-top:5px; padding-bottom:6px; }
-    body.store-paused .drop-stage { min-height:120px; }
-    .design-head { display:none; }
-    .app-chip { height:86px; flex-basis:75px; width:75px; }
-    .app-chip-art { flex-basis:59px; height:59px; }
-    .app-chip-label { font-size:11px; }
-    .app-bottom { padding-top:5px; gap:4px; }
-  }
-
-  @media (prefers-reduced-motion:reduce) {
-    .app-tabs, .app-strip { scroll-behavior:auto; }
-    body.store-paused .drop-live, .app-tab, .app-chip, .app-add { transition:none !important; }
-  }
-</style>
-
 </head>
 <body class="store-paused">
 <svg class="svg-defs" aria-hidden="true">
@@ -1445,43 +1252,24 @@
 
   <!-- UTRGV FOOTBALL SEASON — shows only while <body class="store-paused"> -->
   <!-- ONE-SCREEN SHOP — shows only while <body class="store-paused"> -->
-  <section id="utrgv-drop" class="utrgv-drop" aria-label="Shirt shop">
-    <div class="mobile-shop-head">
-      <div>
-        <span class="mobile-shop-eyebrow">SHOP SHIRTS</span>
-        <strong class="mobile-shop-title">Pick a collection</strong>
-      </div>
-      <span class="mobile-shop-step">Tap to switch</span>
-    </div>
+  <section id="utrgv-drop" class="utrgv-drop">
+    <div class="app-tabs" id="coll-tabs" role="tablist" aria-label="Collections"></div>
 
-    <div class="app-tabs" id="coll-tabs" role="tablist" aria-label="Shirt collections"></div>
-
-    <div class="drop-stage" id="drop-stage" tabindex="0" aria-roledescription="carousel" aria-label="Current shirt preview. Swipe left or right to change designs.">
+    <div class="drop-stage" id="drop-stage" tabindex="0" aria-roledescription="carousel" aria-label="Shirt designs — swipe sideways for designs, up or down for collections">
       <div class="drop-live" id="drop-live"></div>
       <div class="app-rail" id="drop-cols" role="group" aria-label="Shirt color"></div>
-      <div class="stage-meta" aria-hidden="true">
-        <span class="stage-collection" id="stage-collection"></span>
-        <span class="stage-swipe">Swipe shirt ↔</span>
-      </div>
       <button type="button" class="drop-arrow prev" id="drop-prev" aria-label="Previous design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button type="button" class="drop-arrow next" id="drop-next" aria-label="Next design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
 
     <div class="app-bottom">
-      <div class="design-head">
-        <div>
-          <span class="mobile-shop-eyebrow">CHOOSE A DESIGN</span>
-          <strong>Swipe to browse</strong>
-        </div>
-        <span class="design-count" id="drop-counter" aria-live="polite"></span>
-      </div>
-      <div class="app-strip" id="app-strip" role="tablist" aria-label="Shirt designs"></div>
+      <div class="app-strip" id="app-strip" role="tablist" aria-label="Designs"></div>
       <div class="app-row">
         <div class="app-id">
           <div class="app-name" id="drop-name" aria-live="polite"></div>
           <div class="app-price" id="drop-price"></div>
         </div>
-        <button type="button" class="app-add" id="drop-add" onclick="openSizeSheet()">Choose Size</button>
+        <button type="button" class="app-add" id="drop-add" onclick="openSizeSheet()">Add To Cart</button>
       </div>
       <p class="app-note" id="drop-note"></p>
     </div>
@@ -4240,11 +4028,11 @@
     if (!src) return;
     const id = d.id || src;
     const at = dropList.findIndex(x => x.id === id);
-    if (at >= 0) { dropIdx = at; layoutDrop(); dropApply(false); return; }
+    if (at >= 0) { dropIdx = at; layoutDrop(); dropApply(true, 1); return; }
     dropList.push({ id, name: d.name || 'Design', src, cat: d });
     dropIdx = dropList.length - 1;
     resolveDesignLinks([src]).catch(() => {}).then(async () => {
-      buildDropTrack(); dropApply(false);
+      buildDropTrack(); dropApply(true, 1);
       try { await dropMakeThumb(dropList[dropIdx]); buildDropTrack(); } catch (e) {}
       saveDrop();
     });
@@ -4262,7 +4050,7 @@
     if (first < 0) return;
     dropIdx = first;
     resolveDesignLinks(dropList.slice(first).map(x => x.src)).catch(() => {}).then(async () => {
-      buildDropTrack(); dropApply(false);
+      buildDropTrack(); dropApply(true, 1);
       for (const d of dropList.slice(first)) { try { await dropMakeThumb(d); } catch (e) {} }
       buildDropTrack(); saveDrop();
     });
@@ -4273,7 +4061,7 @@
     if (!confirm('Remove \u201c' + d.name + '\u201d from the UTRGV carousel?')) return;
     dropList.splice(dropIdx, 1);
     dropIdx = Math.max(0, Math.min(dropIdx, dropList.length - 1));
-    buildDropTrack(); dropApply(false); saveDrop();
+    buildDropTrack(); dropApply(true, 1); saveDrop();
   }
   function moveDropDesign(step) {
     const j = dropIdx + step;
@@ -4372,14 +4160,12 @@
     r.setProperty('--ut-orange-dk', shade(accent, .82));
     const bar = $('coll-tabs');
     if (bar) {
-      bar.hidden = !collections.length;
+      bar.hidden = collections.length < 2 && !isAdmin;
       bar.innerHTML = '';
       collections.forEach((x, i) => {
         const b = document.createElement('button');
         b.type = 'button'; b.className = 'app-tab' + (i === collIdx ? ' on' : '');
-        b.style.setProperty('--tab-accent', x.accent || '#1F4D3E');
-        b.innerHTML = '<span class="app-tab-dot" aria-hidden="true"></span><span></span>';
-        b.lastElementChild.textContent = x.name || 'Collection';
+        b.textContent = x.name || 'Collection';
         b.setAttribute('role', 'tab');
         b.setAttribute('aria-selected', i === collIdx ? 'true' : 'false');
         b.onclick = () => { if (i !== collIdx) setCollection(i); };
@@ -4387,9 +4173,7 @@
       });
       centerChip(bar, collIdx);
     }
-    const sc = $('stage-collection');
-    if (sc) sc.textContent = [c.name || 'Collection', c.kicker || ''].filter(Boolean).join(' · ');
-    document.title = (c.name ? c.name + ' · ' : '') + 'Broch Custom';
+    document.title = (c.name ? c.name + ' \u00b7 ' : '') + 'Broch Custom';
   }
 
   // Opening a collection always starts on its own first color, so nothing can
@@ -4496,29 +4280,23 @@
     if (!bar) return;
     const el = bar.children[i];
     if (!el || bar.scrollWidth <= bar.clientWidth + 2) return;
-    let left;
-    if (bar.id === 'app-strip') left = Math.max(0, el.offsetLeft - 16);
-    else left = Math.max(0, el.offsetLeft - bar.clientWidth / 2 + el.offsetWidth / 2);
-    bar.scrollTo({ left, behavior: 'smooth' });
+    bar.scrollTo({ left: el.offsetLeft - bar.clientWidth / 2 + el.offsetWidth / 2, behavior: 'smooth' });
   }
 
+  // the filmstrip of designs in this category
   function buildDropTrack() {
     const strip = $('app-strip'); if (!strip) return;
     strip.innerHTML = '';
     dropList.forEach((d, i) => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'app-chip'; b.title = d.name || '';
-      b.dataset.index = String(i);
-      b.setAttribute('role', 'tab');
       b.setAttribute('aria-label', 'Show ' + (d.name || 'design ' + (i + 1)));
-      b.innerHTML = '<span class="app-chip-art"><span class="app-chip-fallback"></span></span><span class="app-chip-label"></span>';
-      b.querySelector('.app-chip-fallback').textContent = (d.name || '?').slice(0, 2);
-      b.querySelector('.app-chip-label').textContent = d.name || ('Design ' + (i + 1));
+      b.innerHTML = '<span>' + escapeHtml((d.name || '?').slice(0, 2)) + '</span>';
       const u = dropThumb(d);
       if (u) {
-        const im = new Image(); im.alt = ''; im.decoding = 'async'; im.loading = 'lazy';
-        im.onload = () => { const art = b.querySelector('.app-chip-art'); art.innerHTML = ''; art.appendChild(im); };
-        im.onerror = () => dropErr('picture for “' + d.name + '” wouldn’t load');
+        const im = new Image(); im.alt = d.name || ''; im.decoding = 'async';
+        im.onload = () => { b.innerHTML = ''; b.appendChild(im); };
+        im.onerror = () => dropErr('picture for \u201c' + d.name + '\u201d wouldn\u2019t load');
         im.src = u;
       }
       b.onclick = () => { if (i !== dropIdx) goDrop(i, i > dropIdx ? 1 : -1); };
@@ -4528,22 +4306,15 @@
     renderDropPanel();
   }
 
-  function layoutDrop(opts) {
-    const center = !(opts && opts.center === false);
+  function layoutDrop() {
     const strip = $('app-strip');
     if (strip) {
-      [...strip.children].forEach((b, i) => {
-        const on = i === dropIdx;
-        b.classList.toggle('on', on);
-        b.setAttribute('aria-selected', on ? 'true' : 'false');
-      });
-      if (center) centerChip(strip, dropIdx);
+      [...strip.children].forEach((b, i) => b.classList.toggle('on', i === dropIdx));
+      centerChip(strip, dropIdx);
     }
     const d = dropList[dropIdx];
     const nm = $('drop-name');
     if (nm) nm.textContent = d ? d.name : (dropList.length ? '' : 'New Designs Coming Soon');
-    const ct = $('drop-counter');
-    if (ct) ct.textContent = dropList.length ? (dropIdx + 1) + ' / ' + dropList.length : '0 designs';
     const many = dropList.length > 1;
     const pv = $('drop-prev'), nx = $('drop-next');
     if (pv) pv.hidden = !many; if (nx) nx.hidden = !many;
@@ -4551,23 +4322,13 @@
     const add = $('drop-add'); if (add) add.disabled = !d;
   }
 
-  function goDrop(i, dir, opts) {
+  function goDrop(i, dir) {
     const n = dropList.length; if (!n) return;
     const next = ((i % n) + n) % n;
     if (next === dropIdx) return;
     dropIdx = next;
-    layoutDrop({ center: !(opts && opts.fromStrip) });
-
-    // Fast, lightweight feedback instead of a 900ms full 3D revolution.
-    const stage = $('drop-stage');
-    if (stage) {
-      stage.classList.remove('is-changing');
-      void stage.offsetWidth;
-      stage.classList.add('is-changing');
-      clearTimeout(stage._changeTimer);
-      stage._changeTimer = setTimeout(() => stage.classList.remove('is-changing'), 190);
-    }
-    dropApply(false);
+    layoutDrop();
+    dropApply(true, dir);
   }
 
   // the floating color rail (there is no panel any more)
@@ -4583,7 +4344,7 @@
       cw.innerHTML = '';
       collColors().forEach(c => {
         const b = document.createElement('button'); b.type = 'button';
-        b.className = (c.k === dropColor ? 'on' : ''); b.style.setProperty('--swatch', c.hex);
+        b.className = (c.k === dropColor ? 'on' : ''); b.style.background = c.hex;
         b.title = c.label; b.setAttribute('aria-label', c.label);
         b.onclick = () => { if (dropColor === c.k) return; dropColor = c.k; renderDropPanel(); dropApply(false); };
         cw.appendChild(b);
@@ -4592,7 +4353,7 @@
     layoutDrop();
     const adm = $('drop-admin');
     if (adm) { adm.hidden = !isAdmin; if (!adm.dataset.set) { adm.dataset.set = '1'; adm.classList.add('folded'); } }
-    const bar = $('coll-tabs'); if (bar) bar.hidden = !collections.length;
+    const bar = $('coll-tabs'); if (bar) bar.hidden = collections.length < 2 && !isAdmin;
     const st = $('drop-admin-status'); if (st && isAdmin && dropErrors.length && !st.textContent) st.textContent = dropErrors.slice(-3).join(' · ');
   }
 
@@ -4684,45 +4445,29 @@
     stage.addEventListener('keydown', e => {
       if (e.key === 'ArrowLeft') { e.preventDefault(); goDrop(dropIdx - 1, -1); }
       if (e.key === 'ArrowRight') { e.preventDefault(); goDrop(dropIdx + 1, 1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); nextColl(-1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); nextColl(1); }
     });
-
-    // One predictable gesture on the hero: horizontal only. Categories are explicit tabs.
-    let sx = null, sy = 0, pid = null;
-    stage.addEventListener('pointerdown', e => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      sx = e.clientX; sy = e.clientY; pid = e.pointerId;
-      if (stage.setPointerCapture) { try { stage.setPointerCapture(pid); } catch (_) {} }
-    });
-    stage.addEventListener('pointerup', e => {
-      if (sx == null || (pid != null && e.pointerId !== pid)) return;
-      const dx = e.clientX - sx, dy = e.clientY - sy;
-      sx = null; pid = null;
-      if (Math.abs(dx) >= 34 && Math.abs(dx) > Math.abs(dy) * 1.15) {
-        goDrop(dropIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
-      }
-    });
-    stage.addEventListener('pointercancel', () => { sx = null; pid = null; });
-
-    // The thumbnail rail is a real native scroller. When momentum settles, the
-    // card nearest its left snap point becomes the live shirt design.
-    const strip = $('app-strip');
-    let railTimer = 0;
-    const commitRail = () => {
-      railTimer = 0;
-      if (!strip || !strip.children.length) return;
-      const sr = strip.getBoundingClientRect(), anchor = sr.left + 16;
-      let best = 0, dist = Infinity;
-      [...strip.children].forEach((el, i) => {
-        const d = Math.abs(el.getBoundingClientRect().left - anchor);
-        if (d < dist) { dist = d; best = i; }
-      });
-      if (best !== dropIdx) goDrop(best, best > dropIdx ? 1 : -1, { fromStrip:true });
+    // Sideways swipes change the design, up-and-down swipes change the collection.
+    // Fingers use touch events (most reliable on phones); a mouse drags instead.
+    let sx = null, sy = 0, st = 0;
+    const end = (x, y) => {
+      if (sx == null) return;
+      const dx = x - sx, dy = y - sy, quick = Date.now() - st < 600; sx = null;
+      const min = quick ? 25 : 45;
+      if (Math.abs(dx) > Math.abs(dy)) { if (Math.abs(dx) > min) goDrop(dropIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); }
+      else if (Math.abs(dy) > min + 10) nextColl(dy < 0 ? 1 : -1);
     };
-    strip.addEventListener('scroll', () => {
-      clearTimeout(railTimer);
-      railTimer = setTimeout(commitRail, 120);
-    }, { passive:true });
-    if ('onscrollend' in window) strip.addEventListener('scrollend', commitRail, { passive:true });
+    stage.addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
+    stage.addEventListener('touchend', e => { const t = e.changedTouches[0]; if (t) end(t.clientX, t.clientY); }, { passive: true });
+    stage.addEventListener('touchcancel', () => { sx = null; }, { passive: true });
+    stage.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { sx = e.clientX; sy = e.clientY; st = Date.now(); } });
+    stage.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') end(e.clientX, e.clientY); });
+    let wheelAt = 0;
+    stage.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaY) < 24 || Date.now() - wheelAt < 700) return;
+      wheelAt = Date.now(); nextColl(e.deltaY > 0 ? 1 : -1);
+    }, { passive: true });
   }
 
   async function initDrop() {
