@@ -1039,23 +1039,21 @@
     font-family:'Teko','Arial Narrow',sans-serif; text-transform:uppercase; letter-spacing:.07em;
     font-size:clamp(14px,3.4vw,16px); line-height:1; color:rgba(10,34,64,.72);
     background:rgba(255,255,255,.7); border:1px solid rgba(10,34,64,.18); border-radius:999px;
-    padding:9px 16px 7px; transition:background .15s, color .15s, border-color .15s;
-    scroll-snap-align:center; }
+    padding:9px 16px 7px; transition:background .15s, color .15s, border-color .15s; scroll-snap-align:center; }
   .app-tab:hover { border-color:var(--ut-navy); color:var(--ut-navy); }
   .app-tab.on { background:var(--ut-navy); border-color:var(--ut-navy); color:#fff; }
 
   /* ── designs along the bottom ── */
   .app-strip { display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scroll-behavior:smooth;
     width:100%; max-width:100%; min-width:0; box-sizing:border-box; justify-content:flex-start;
-    padding:4px 12px 2px; scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
-    scroll-padding-inline:12px; overscroll-behavior-x:contain; touch-action:pan-x; }
+    padding:4px 12px 2px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity; scroll-padding-inline:12px; overscroll-behavior-x:contain; touch-action:pan-x; }
   .app-strip::-webkit-scrollbar { display:none; }
   .app-strip.fits { justify-content:center; }
   .app-chip { flex:0 0 auto; width:clamp(46px,13vw,58px); height:clamp(46px,13vw,58px); padding:5px;
     border-radius:14px; background:#fffdf8; border:1px solid rgba(74,52,36,.16); cursor:pointer;
     display:flex; align-items:center; justify-content:center; overflow:hidden;
-    box-shadow:0 3px 8px rgba(42,37,32,.08); transition:border-color .15s, box-shadow .15s, transform .15s;
-    scroll-snap-align:center; }
+    box-shadow:0 3px 8px rgba(42,37,32,.08); transition:border-color .15s, box-shadow .15s, transform .15s; scroll-snap-align:center; }
   .app-chip img { width:100%; height:100%; object-fit:contain; display:block; }
   .app-chip span { font-family:'Teko',sans-serif; font-size:12px; text-transform:uppercase; color:rgba(74,52,36,.6); }
   .app-chip:hover { transform:translateY(-1px); }
@@ -1149,7 +1147,7 @@
   @keyframes sheetUp { from { transform:translateY(22px); opacity:.6; } to { transform:none; opacity:1; } }
   .sheet-grab { width:42px; height:4px; border-radius:999px; background:rgba(74,52,36,.22); margin:4px auto 12px;
     cursor:grab; touch-action:none; position:relative; }
-  .sheet-grab::before { content:''; position:absolute; left:50%; top:50%; width:120px; height:38px;
+  .sheet-grab::before { content:''; position:absolute; left:50%; top:50%; width:132px; height:46px;
     transform:translate(-50%,-50%); }
   .sheet-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; touch-action:none; cursor:grab; }
   .sheet-thumb { width:56px; height:56px; border-radius:12px; border:1px solid rgba(74,52,36,.2);
@@ -1158,12 +1156,29 @@
   .sheet-sub { font-size:13px; color:rgba(74,52,36,.65); margin-top:2px; }
   .sheet-lbl { font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.1em; font-size:13px;
     color:rgba(74,52,36,.55); margin:0 0 7px; }
-  .sheet-sizes { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px; }
-  .sheet-sizes button, .sheet-fabs button { cursor:pointer; font-family:'Teko',sans-serif; text-transform:uppercase;
+  /* Size families stay compact on phones: Adult is the common path and opens first. */
+  .sheet-sizes { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .sheet-size-group { border:1px solid rgba(74,52,36,.16); border-radius:14px; background:rgba(255,255,255,.46); overflow:hidden; }
+  .sheet-size-group.adult { border-color:rgba(10,34,64,.22); background:#fff; }
+  .sheet-size-toggle { width:100%; border:0; background:transparent; color:#4A3424; cursor:pointer;
+    display:flex; align-items:center; gap:8px; text-align:left; padding:9px 12px 7px;
+    font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.075em; font-size:15px; line-height:1; }
+  .sheet-size-group.adult .sheet-size-toggle { min-height:46px; padding:11px 14px 9px; font-size:19px; color:var(--ut-navy); }
+  .sheet-size-toggle .sg-name { flex:1; }
+  .sheet-size-toggle .sg-pick { font-family:'Teko',sans-serif; font-size:12px; letter-spacing:.06em;
+    color:rgba(74,52,36,.54); white-space:nowrap; }
+  .sheet-size-group.adult .sheet-size-toggle .sg-pick { font-size:13px; }
+  .sheet-size-toggle .sg-arrow { width:8px; height:8px; border-right:2px solid currentColor; border-bottom:2px solid currentColor;
+    transform:rotate(45deg); margin:0 3px 4px 5px; opacity:.52; transition:transform .15s ease, margin .15s ease; }
+  .sheet-size-group.open .sheet-size-toggle .sg-arrow { transform:rotate(225deg); margin-top:5px; margin-bottom:0; }
+  .sheet-size-options { display:none; flex-wrap:wrap; gap:7px; padding:2px 12px 12px; }
+  .sheet-size-group.adult .sheet-size-options { padding:2px 14px 14px; }
+  .sheet-size-group.open .sheet-size-options { display:flex; }
+  .sheet-size-options button, .sheet-fabs button { cursor:pointer; font-family:'Teko',sans-serif; text-transform:uppercase;
     letter-spacing:.04em; font-size:15px; color:#4A3424; background:#fff; border:1px solid rgba(74,52,36,.28);
     border-radius:999px; padding:8px 15px 6px; transition:all .13s; }
-  .sheet-sizes button:hover, .sheet-fabs button:hover { border-color:var(--ut-navy); }
-  .sheet-sizes button.on, .sheet-fabs button.on { background:var(--ut-navy); border-color:var(--ut-navy); color:#fff; }
+  .sheet-size-options button:hover, .sheet-fabs button:hover { border-color:var(--ut-navy); }
+  .sheet-size-options button.on, .sheet-fabs button.on { background:var(--ut-navy); border-color:var(--ut-navy); color:#fff; }
   .sheet-fabs { display:flex; gap:8px; margin-bottom:18px; }
   .sheet-foot { display:flex; align-items:center; gap:14px; border-top:1px solid rgba(74,52,36,.14); padding-top:14px; }
   .sheet-total { font-family:'Teko',sans-serif; font-size:30px; line-height:1; color:var(--ut-navy); }
@@ -1265,7 +1280,7 @@
   <section id="utrgv-drop" class="utrgv-drop">
     <div class="app-tabs" id="coll-tabs" role="tablist" aria-label="Collections"></div>
 
-    <div class="drop-stage" id="drop-stage" tabindex="0" aria-roledescription="carousel" aria-label="Shirt designs — swipe sideways for designs, up or down for collections">
+    <div class="drop-stage" id="drop-stage" tabindex="0" aria-roledescription="carousel" aria-label="Shirt designs — swipe sideways for designs">
       <div class="drop-live" id="drop-live"></div>
       <div class="app-rail" id="drop-cols" role="group" aria-label="Shirt color"></div>
       <button type="button" class="drop-arrow prev" id="drop-prev" aria-label="Previous design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -3779,7 +3794,7 @@
     return c ? c.hex : null;
   }
   const DROP_FABRICS = [{ k:'Cotton', label:'Cotton' }, { k:'Polyester', label:'Poly' }];
-  let dropList = [], dropIdx = 0, dropColor = 'orange', dropMat = 'Cotton', dropSize = '';
+  let dropList = [], dropIdx = 0, dropColor = 'orange', dropMat = 'Cotton', dropSize = '', dropSizeGroup = 'adult';
   let drop3D = 'pending';                 // 'pending' → 'ok' (real shirt) or 'flat' (no 3D on this device)
   const dropArt = new Map();              // design id → artwork as a data picture, ready for the shirt
   let dropSpin = null, dropTok = 0;
@@ -4285,9 +4300,8 @@
   // ══════════════ ONE-SCREEN SHOP ══════════════
   function dropUnit(size) { return SHIRT.basePrice + sizeUpcharge(size || '') + materialUpcharge(dropMat); }
 
-  // Keeps short rows centered, but lets long rows become real edge-to-edge
-  // horizontal scrollers. The active item is brought into view without trapping
-  // the customer at either end of the row.
+  // Short rows stay centered. Long rows stay genuinely scrollable all the way
+  // to the first and last item, and the selected item is brought into view.
   function syncScrollRow(bar) {
     if (!bar) return false;
     bar.classList.remove('fits');
@@ -4352,9 +4366,7 @@
     if (next === dropIdx) return;
     dropIdx = next;
     layoutDrop();
-    // Swap the artwork in place. The shirt model/camera stay exactly where they are,
-    // so changing designs never makes the shirt appear to shrink edge-on.
-    dropApply(false, dir);
+    dropApply(true, dir);
   }
 
   // the floating color rail (there is no panel any more)
@@ -4393,6 +4405,7 @@
     const th = $('ss-thumb'), u = dropThumb(d);
     if (u) { th.hidden = false; th.src = u; } else th.hidden = true;
     dropSize = '';
+    dropSizeGroup = 'adult';
     paintSizeSheet();
     initSizeSheetGestures();
     dlg.showModal();
@@ -4436,9 +4449,8 @@
     };
     const end = e => {
       if (sy == null || (pid != null && e.pointerId !== pid)) return;
-      if (dy > Math.min(120, sheet.offsetHeight * .18)) close(); else reset();
+      if (dy > Math.min(110, sheet.offsetHeight * .16)) close(); else reset();
     };
-
     const grab = sheet.querySelector('.sheet-grab');
     const head = sheet.querySelector('.sheet-head');
     [grab, head].filter(Boolean).forEach(zone => {
@@ -4447,18 +4459,15 @@
       zone.addEventListener('pointerup', end);
       zone.addEventListener('pointercancel', reset);
     });
-    // The visible bar is intentionally tiny, so make the whole top cap of the
-    // bottom sheet act as its grab area without making the bar itself look bigger.
+    // The visible knob stays tiny, but the whole top cap is a reliable grab area.
     sheet.addEventListener('pointerdown', e => {
       if (sy != null || e.target.closest('button')) return;
       const r = sheet.getBoundingClientRect();
-      if (e.clientY - r.top <= 46) start(e);
+      if (e.clientY - r.top <= 52) start(e);
     });
     sheet.addEventListener('pointermove', move);
     sheet.addEventListener('pointerup', end);
     sheet.addEventListener('pointercancel', reset);
-
-    // Tapping the dimmed area outside the sheet dismisses it too.
     dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
     dlg.addEventListener('close', () => {
       sheet.style.transition = '';
@@ -4466,18 +4475,42 @@
       closing = false; sy = null; pid = null; dy = 0;
     });
   }
-
   function paintSizeSheet() {
     const sizes = SHIRT.sizes.filter(s => s.on);
     const wrap = $('ss-sizes'); wrap.innerHTML = '';
-    sizes.forEach(s => {
-      const up = sizeUpcharge(s.k);
-      const b = document.createElement('button'); b.type = 'button';
-      b.className = (s.k === dropSize ? 'on' : '');
-      b.textContent = s.k.replace('Adult ', '').replace('Youth ', 'Y-') + (up ? ' +$' + up : '');
-      b.title = s.k;
-      b.onclick = () => { dropSize = s.k; paintSizeSheet(); };
-      wrap.appendChild(b);
+    const familyOf = k => /^Adult\s/i.test(k) ? 'adult' : /^Youth\s/i.test(k) ? 'youth' : /^\d+T$/i.test(k) ? 'toddler' : 'adult';
+    const groups = [
+      { id:'adult', label:'Adult' },
+      { id:'youth', label:'Youth' },
+      { id:'toddler', label:'Toddler' }
+    ];
+    if (!groups.some(g => g.id === dropSizeGroup && sizes.some(s => familyOf(s.k) === g.id))) dropSizeGroup = 'adult';
+    groups.forEach(g => {
+      const list = sizes.filter(s => familyOf(s.k) === g.id);
+      if (!list.length) return;
+      const box = document.createElement('div');
+      box.className = 'sheet-size-group ' + g.id + (dropSizeGroup === g.id ? ' open' : '');
+
+      const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'sheet-size-toggle';
+      toggle.setAttribute('aria-expanded', dropSizeGroup === g.id ? 'true' : 'false');
+      const chosen = list.find(s => s.k === dropSize);
+      const picked = chosen ? chosen.k.replace('Adult ', '').replace('Youth ', '') : (g.id === 'adult' ? 'XS – 5XL' : g.id === 'youth' ? 'XS – XL' : '1T – 5T');
+      toggle.innerHTML = '<span class="sg-name">' + g.label + '</span><span class="sg-pick">' + picked + '</span><span class="sg-arrow" aria-hidden="true"></span>';
+      toggle.onclick = () => { dropSizeGroup = g.id; paintSizeSheet(); };
+      box.appendChild(toggle);
+
+      const options = document.createElement('div'); options.className = 'sheet-size-options';
+      list.forEach(s => {
+        const up = sizeUpcharge(s.k);
+        const b = document.createElement('button'); b.type = 'button';
+        b.className = (s.k === dropSize ? 'on' : '');
+        b.textContent = s.k.replace('Adult ', '').replace('Youth ', '') + (up ? ' +$' + up : '');
+        b.title = s.k;
+        b.onclick = () => { dropSize = s.k; dropSizeGroup = g.id; paintSizeSheet(); };
+        options.appendChild(b);
+      });
+      box.appendChild(options);
+      wrap.appendChild(box);
     });
     const fw = $('ss-fabs'); fw.innerHTML = '';
     DROP_FABRICS.forEach(f => {
@@ -4545,16 +4578,14 @@
       if (e.key === 'ArrowUp') { e.preventDefault(); nextColl(-1); }
       if (e.key === 'ArrowDown') { e.preventDefault(); nextColl(1); }
     });
-    // The shirt itself only owns one gesture: swipe sideways for designs.
-    // Collections stay on the visible category row so a normal up/down finger
-    // movement can never throw the customer into another collection by accident.
+    // The shirt itself owns one phone gesture: sideways swipes change designs.
+    // Categories are intentionally handled by the visible, horizontally scrollable row.
     let sx = null, sy = 0, st = 0, pid = null;
     const finishSwipe = (x, y) => {
       if (sx == null) return;
       const dx = x - sx, dy = y - sy, ms = Date.now() - st;
       sx = null; pid = null;
       const min = ms < 500 ? 28 : 42;
-      // Require a clearly horizontal gesture; diagonal/vertical movement is ignored.
       if (Math.abs(dx) >= min && Math.abs(dx) > Math.abs(dy) * 1.2) {
         goDrop(dropIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
       }
@@ -4568,9 +4599,6 @@
       finishSwipe(e.clientX, e.clientY);
     });
     stage.addEventListener('pointercancel', () => { sx = null; pid = null; });
-
-    // Desktop trackpads/mice can still move between designs horizontally, but
-    // vertical wheel motion is left alone instead of changing collections.
     let wheelAt = 0;
     stage.addEventListener('wheel', e => {
       if (Math.abs(e.deltaX) < 28 || Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Date.now() - wheelAt < 500) return;
