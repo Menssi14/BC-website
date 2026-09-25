@@ -1073,20 +1073,24 @@
     font-size:11.5px; color:var(--ut-orange); line-height:1; }
   .app-kicker:empty { display:none; }
 
-  /* ── the shirt owns the free space ── */
+  /* ── the shirt owns the free space ──
+     IMPORTANT: keep the 3D viewport square. Stretching drop-live to the flex
+     stage makes the renderer use a short rectangular aspect ratio, which makes
+     the shirt look vertically compressed on phones. Bottom controls are allowed
+     to overlap this area instead of stealing height from the model. */
   body.store-paused .drop-stage {
     flex:1; min-height:0; height:auto; position:relative; display:block;
     background:radial-gradient(ellipse 44% 52% at 50% 50%, rgba(255,255,255,.75), rgba(255,255,255,0) 72%);
-    touch-action:pan-y; outline:none; overflow:hidden;
+    touch-action:pan-y; outline:none; overflow:visible;
   }
   body.store-paused .drop-live {
-    position:absolute; inset:0; left:0; top:0; transform:none;
-    width:auto; height:auto; aspect-ratio:auto; max-width:none;
-    display:flex; align-items:center; justify-content:center;
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:min(96vw,500px); height:min(96vw,500px); aspect-ratio:1/1; max-width:none;
+    display:block;
   }
   body.store-paused .drop-live > * { max-width:100%; max-height:100%; }
-  body.store-paused .drop-live canvas { width:100% !important; height:100% !important; }
-  body.store-paused .drop-flat { width:100%; height:100%; padding:6%; object-fit:contain; }
+  body.store-paused .drop-live canvas { width:100% !important; height:100% !important; display:block; }
+  body.store-paused .drop-flat { width:100%; height:100%; padding:12%; object-fit:contain; }
   body.store-paused .drop-arrow { display:none; }
 
   /* ── colors: a floating rail, no panel ── */
@@ -1107,8 +1111,9 @@
   .app-colldots button.on { height:22px; background:var(--ut-orange); }
 
   /* ── bottom: name, dots, one button — floating, not a section ── */
-  .app-bottom { flex:none; position:relative; z-index:6; display:flex; flex-direction:column;
-    align-items:center; gap:7px; padding:2px 14px calc(12px + env(safe-area-inset-bottom,0px)); }
+  .app-bottom { position:absolute; left:0; right:0; bottom:0; z-index:8; display:flex; flex-direction:column;
+    align-items:center; gap:7px; padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(180deg, rgba(251,247,240,0) 0%, rgba(251,247,240,.72) 30%, rgba(251,247,240,.96) 72%); }
   .app-name { font-family:'Teko',sans-serif; font-weight:500; text-transform:uppercase; letter-spacing:.03em;
     font-size:clamp(17px,4vw,22px); line-height:1.05; color:var(--ut-navy); text-align:right;
     max-width:56vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
