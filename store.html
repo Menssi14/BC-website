@@ -1027,6 +1027,37 @@
     position:relative; overflow:hidden; padding:0;
   }
 
+  /* ── categories across the top ── */
+  .app-tabs { flex:none; display:flex; gap:7px; overflow-x:auto; scroll-behavior:smooth;
+    padding:9px 12px 5px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .app-tabs::-webkit-scrollbar { display:none; }
+  .app-tabs[hidden] { display:none; }
+  .app-tabs > :first-child { margin-left:auto; } .app-tabs > :last-child { margin-right:auto; }
+  .app-tab { flex:0 0 auto; cursor:pointer; white-space:nowrap;
+    font-family:'Teko','Arial Narrow',sans-serif; text-transform:uppercase; letter-spacing:.07em;
+    font-size:clamp(14px,3.4vw,16px); line-height:1; color:rgba(10,34,64,.72);
+    background:rgba(255,255,255,.7); border:1px solid rgba(10,34,64,.18); border-radius:999px;
+    padding:9px 16px 7px; transition:background .15s, color .15s, border-color .15s; }
+  .app-tab:hover { border-color:var(--ut-navy); color:var(--ut-navy); }
+  .app-tab.on { background:var(--ut-navy); border-color:var(--ut-navy); color:#fff; }
+
+  /* ── designs along the bottom ── */
+  .app-strip { display:flex; gap:8px; overflow-x:auto; scroll-behavior:smooth; padding:4px 12px 2px;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .app-strip::-webkit-scrollbar { display:none; }
+  .app-strip > :first-child { margin-left:auto; } .app-strip > :last-child { margin-right:auto; }
+  .app-chip { flex:0 0 auto; width:clamp(46px,13vw,58px); height:clamp(46px,13vw,58px); padding:5px;
+    border-radius:14px; background:#fffdf8; border:1px solid rgba(74,52,36,.16); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    box-shadow:0 3px 8px rgba(42,37,32,.08); transition:border-color .15s, box-shadow .15s, transform .15s; }
+  .app-chip img { width:100%; height:100%; object-fit:contain; display:block; }
+  .app-chip span { font-family:'Teko',sans-serif; font-size:12px; text-transform:uppercase; color:rgba(74,52,36,.6); }
+  .app-chip:hover { transform:translateY(-1px); }
+  .app-chip.on { border:2px solid var(--ut-orange); box-shadow:0 5px 13px rgba(240,80,35,.28); }
+
+  .app-row { display:flex; align-items:center; justify-content:center; gap:14px; padding:6px 14px 0; }
+  .app-id { display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:0; }
+
   /* ── top line: the collection you're in ── */
   .app-top { flex:none; display:flex; flex-direction:column; align-items:center; gap:2px;
     padding:10px 14px 2px; text-align:center; position:relative; z-index:6; }
@@ -1052,10 +1083,7 @@
   body.store-paused .drop-live > * { max-width:100%; max-height:100%; }
   body.store-paused .drop-live canvas { width:100% !important; height:100% !important; }
   body.store-paused .drop-flat { width:100%; height:100%; padding:6%; object-fit:contain; }
-  body.store-paused .drop-arrow { width:40px; height:40px; opacity:.85; }
-  body.store-paused .drop-arrow.prev { left:6px; }
-  body.store-paused .drop-arrow.next { right:6px; }
-  @media (max-width:620px) { body.store-paused .drop-arrow { display:none; } }
+  body.store-paused .drop-arrow { display:none; }
 
   /* ── colors: a floating rail, no panel ── */
   .app-rail { position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:7;
@@ -1078,19 +1106,19 @@
   .app-bottom { flex:none; position:relative; z-index:6; display:flex; flex-direction:column;
     align-items:center; gap:7px; padding:2px 14px calc(12px + env(safe-area-inset-bottom,0px)); }
   .app-name { font-family:'Teko',sans-serif; font-weight:500; text-transform:uppercase; letter-spacing:.03em;
-    font-size:clamp(19px,4.4vw,26px); line-height:1; color:var(--ut-navy); text-align:center;
-    max-width:92vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    font-size:clamp(17px,4vw,22px); line-height:1.05; color:var(--ut-navy); text-align:right;
+    max-width:56vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .app-dots { display:flex; justify-content:center; gap:6px; min-height:7px; flex-wrap:wrap; max-width:82vw; }
   .app-dots button { width:7px; height:7px; border-radius:999px; border:none; padding:0; cursor:pointer;
     background:rgba(10,34,64,.22); transition:width .2s, background .2s; }
   .app-dots button.on { width:22px; background:var(--ut-orange); }
   .app-buy { display:flex; align-items:center; gap:12px; margin-top:2px; }
-  .app-price { font-family:'Teko',sans-serif; font-size:26px; line-height:1; color:var(--ut-navy); }
-  .app-price small { display:block; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:rgba(10,34,64,.5); }
-  .app-add { cursor:pointer; border:none; border-radius:999px; color:#fff;
+  .app-price { font-family:'Teko',sans-serif; font-size:16px; line-height:1; color:rgba(10,34,64,.6);
+    letter-spacing:.06em; text-transform:uppercase; }
+  .app-add { flex:none; cursor:pointer; border:none; border-radius:999px; color:#fff; white-space:nowrap;
     background:linear-gradient(180deg, var(--ut-orange), var(--ut-orange-dk));
-    font-family:'Teko',sans-serif; font-size:clamp(18px,4vw,21px); font-weight:500; letter-spacing:.12em;
-    text-transform:uppercase; padding:13px 34px 10px; box-shadow:0 8px 20px rgba(0,0,0,.18);
+    font-family:'Teko',sans-serif; font-size:clamp(15px,3.6vw,18px); font-weight:500; letter-spacing:.1em;
+    text-transform:uppercase; padding:11px 22px 9px; box-shadow:0 6px 16px rgba(0,0,0,.16);
     transition:transform .14s, box-shadow .14s; }
   .app-add:hover { transform:translateY(-1px); box-shadow:0 12px 24px rgba(0,0,0,.22); }
   .app-add:disabled { opacity:.45; cursor:default; transform:none; }
@@ -1099,10 +1127,9 @@
 
   /* short screens: trim the extras, never the shirt */
   @media (max-height:640px) {
-    .app-top { padding-top:5px; }
-    .app-coll { font-size:20px; }
-    .app-kicker { display:none; }
-    .app-add { padding:11px 26px 9px; }
+    .app-tabs { padding-top:5px; padding-bottom:3px; }
+    .app-chip { width:42px; height:42px; }
+    .app-add { padding:10px 18px 8px; }
   }
 
   /* ── size sheet: asked only after Add To Cart ── */
@@ -1226,26 +1253,22 @@
   <!-- UTRGV FOOTBALL SEASON — shows only while <body class="store-paused"> -->
   <!-- ONE-SCREEN SHOP — shows only while <body class="store-paused"> -->
   <section id="utrgv-drop" class="utrgv-drop">
-    <div class="app-top">
-      <button type="button" class="app-coll" id="app-coll" onclick="nextColl(1)" aria-label="Next collection">
-        <span class="cdot" aria-hidden="true"></span><span id="drop-heading">UTRGV</span>
-      </button>
-      <div class="app-kicker" id="app-kicker">Vaqueros Game Day</div>
-    </div>
+    <div class="app-tabs" id="coll-tabs" role="tablist" aria-label="Collections"></div>
 
     <div class="drop-stage" id="drop-stage" tabindex="0" aria-roledescription="carousel" aria-label="Shirt designs — swipe sideways for designs, up or down for collections">
       <div class="drop-live" id="drop-live"></div>
-      <div class="app-colldots" id="app-colldots" hidden></div>
       <div class="app-rail" id="drop-cols" role="group" aria-label="Shirt color"></div>
       <button type="button" class="drop-arrow prev" id="drop-prev" aria-label="Previous design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button type="button" class="drop-arrow next" id="drop-next" aria-label="Next design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
 
     <div class="app-bottom">
-      <div class="app-name" id="drop-name" aria-live="polite"></div>
-      <div class="app-dots" id="app-dots"></div>
-      <div class="app-buy">
-        <div class="app-price" id="drop-price">&mdash;<small>each</small></div>
+      <div class="app-strip" id="app-strip" role="tablist" aria-label="Designs"></div>
+      <div class="app-row">
+        <div class="app-id">
+          <div class="app-name" id="drop-name" aria-live="polite"></div>
+          <div class="app-price" id="drop-price"></div>
+        </div>
         <button type="button" class="app-add" id="drop-add" onclick="openSizeSheet()">Add To Cart</button>
       </div>
       <p class="app-note" id="drop-note"></p>
@@ -4135,20 +4158,22 @@
     const r = document.documentElement.style;
     r.setProperty('--ut-orange', accent);
     r.setProperty('--ut-orange-dk', shade(accent, .82));
-    const h = $('drop-heading'); if (h) h.textContent = c.name || '';
-    const k = $('app-kicker'); if (k) k.textContent = c.kicker || '';
-    const dots = $('app-colldots');
-    if (dots) {
-      dots.hidden = collections.length < 2;
-      dots.innerHTML = '';
+    const bar = $('coll-tabs');
+    if (bar) {
+      bar.hidden = collections.length < 2 && !isAdmin;
+      bar.innerHTML = '';
       collections.forEach((x, i) => {
-        const b = document.createElement('button'); b.type = 'button';
-        b.className = i === collIdx ? 'on' : '';
-        b.setAttribute('aria-label', 'Show ' + x.name);
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'app-tab' + (i === collIdx ? ' on' : '');
+        b.textContent = x.name || 'Collection';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', i === collIdx ? 'true' : 'false');
         b.onclick = () => { if (i !== collIdx) setCollection(i); };
-        dots.appendChild(b);
+        bar.appendChild(b);
       });
+      centerChip(bar, collIdx);
     }
+    document.title = (c.name ? c.name + ' \u00b7 ' : '') + 'Broch Custom';
   }
 
   // Opening a collection always starts on its own first color, so nothing can
@@ -4250,29 +4275,50 @@
   // ══════════════ ONE-SCREEN SHOP ══════════════
   function dropUnit(size) { return SHIRT.basePrice + sizeUpcharge(size || '') + materialUpcharge(dropMat); }
 
-  // the little dots that stand for the designs
+  // keeps whichever chip is picked in the middle of its row
+  function centerChip(bar, i) {
+    if (!bar) return;
+    const el = bar.children[i];
+    if (!el || bar.scrollWidth <= bar.clientWidth + 2) return;
+    bar.scrollTo({ left: el.offsetLeft - bar.clientWidth / 2 + el.offsetWidth / 2, behavior: 'smooth' });
+  }
+
+  // the filmstrip of designs in this category
   function buildDropTrack() {
-    const dots = $('app-dots'); if (!dots) return;
-    dots.innerHTML = '';
-    if (dropList.length > 1) dropList.forEach((d, i) => {
-      const b = document.createElement('button'); b.type = 'button';
+    const strip = $('app-strip'); if (!strip) return;
+    strip.innerHTML = '';
+    dropList.forEach((d, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'app-chip'; b.title = d.name || '';
       b.setAttribute('aria-label', 'Show ' + (d.name || 'design ' + (i + 1)));
+      b.innerHTML = '<span>' + escapeHtml((d.name || '?').slice(0, 2)) + '</span>';
+      const u = dropThumb(d);
+      if (u) {
+        const im = new Image(); im.alt = d.name || ''; im.decoding = 'async';
+        im.onload = () => { b.innerHTML = ''; b.appendChild(im); };
+        im.onerror = () => dropErr('picture for \u201c' + d.name + '\u201d wouldn\u2019t load');
+        im.src = u;
+      }
       b.onclick = () => { if (i !== dropIdx) goDrop(i, i > dropIdx ? 1 : -1); };
-      dots.appendChild(b);
+      strip.appendChild(b);
     });
     layoutDrop();
     renderDropPanel();
   }
 
   function layoutDrop() {
-    document.querySelectorAll('#app-dots button').forEach((b, i) => b.classList.toggle('on', i === dropIdx));
+    const strip = $('app-strip');
+    if (strip) {
+      [...strip.children].forEach((b, i) => b.classList.toggle('on', i === dropIdx));
+      centerChip(strip, dropIdx);
+    }
     const d = dropList[dropIdx];
     const nm = $('drop-name');
     if (nm) nm.textContent = d ? d.name : (dropList.length ? '' : 'New Designs Coming Soon');
     const many = dropList.length > 1;
     const pv = $('drop-prev'), nx = $('drop-next');
     if (pv) pv.hidden = !many; if (nx) nx.hidden = !many;
-    const pe = $('drop-price'); if (pe) pe.innerHTML = fmt(dropUnit('')) + '<small>each</small>';
+    const pe = $('drop-price'); if (pe) pe.textContent = dropList.length ? fmt(dropUnit('')) + ' each' : '';
     const add = $('drop-add'); if (add) add.disabled = !d;
   }
 
@@ -4307,6 +4353,7 @@
     layoutDrop();
     const adm = $('drop-admin');
     if (adm) { adm.hidden = !isAdmin; if (!adm.dataset.set) { adm.dataset.set = '1'; adm.classList.add('folded'); } }
+    const bar = $('coll-tabs'); if (bar) bar.hidden = collections.length < 2 && !isAdmin;
     const st = $('drop-admin-status'); if (st && isAdmin && dropErrors.length && !st.textContent) st.textContent = dropErrors.slice(-3).join(' · ');
   }
 
