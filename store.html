@@ -1073,6 +1073,7 @@
     box-shadow:0 4px 11px rgba(42,37,32,.1); transition:border-color .15s, box-shadow .15s, transform .15s; scroll-snap-align:center; }
   .app-chip img { width:100%; height:100%; object-fit:contain; display:block; }
   .app-chip span { font-family:'Teko',sans-serif; font-size:12px; text-transform:uppercase; color:rgba(74,52,36,.6); }
+  .app-chip .app-chip-wait { width:32%; height:32%; min-width:18px; min-height:18px; border-radius:50%; background:rgba(74,52,36,.10); display:block; }
   .app-chip:hover { transform:translateY(-1px); }
   .app-chip.on { border:2px solid var(--ut-orange); box-shadow:0 5px 13px rgba(240,80,35,.28); }
 
@@ -4484,10 +4485,10 @@
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'app-chip'; b.title = d.name || '';
       b.setAttribute('aria-label', 'Show ' + (d.name || 'design ' + (i + 1)));
-      b.innerHTML = '<span>' + escapeHtml((d.name || '?').slice(0, 2)) + '</span>';
+      b.innerHTML = '<span class="app-chip-wait" aria-hidden="true"></span>';
       const u = dropThumb(d);
       if (u) {
-        const im = new Image(); im.alt = d.name || ''; im.decoding = 'async'; im.loading = 'lazy'; im.fetchPriority = Math.abs(i - dropIdx) <= 1 ? 'high' : 'low';
+        const im = new Image(); im.alt = d.name || ''; im.decoding = 'async'; im.loading = 'eager'; im.fetchPriority = Math.abs(i - dropIdx) <= 4 ? 'high' : 'auto';
         im.onload = () => { b.innerHTML = ''; b.appendChild(im); };
         im.onerror = () => dropErr('picture for \u201c' + d.name + '\u201d wouldn\u2019t load');
         im.src = u;
