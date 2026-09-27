@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="store-booting">
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMUY0RDNFIi8+PHBhdGggZD0iTTM4IDQyIHYtNSBhMTIgMTIgMCAwIDEgMjQgMCB2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjJFQUREIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjI3IiB5PSI0MCIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjM2IiByeD0iNyIgZmlsbD0iI0YyRUFERCIvPjwvc3ZnPg==">
@@ -9,6 +9,12 @@
 <title>Shop · Broch Custom</title>
 <meta name="description" content="Shop ready-made Broch Custom gear — caps, polos, drinkware and more. Custom embroidery, printing and engraving from Edinburg, Texas.">
 <link rel="canonical" href="https://brochcustom.com/store">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://ixuxzdaevbytnznxmtal.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://ixuxzdaevbytnznxmtal.supabase.co">
+<link rel="preload" href="/shirt.glb" as="fetch" crossorigin="anonymous">
+<link rel="preload" href="/shirt-ink.png" as="image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1028,32 +1034,43 @@
   }
 
   /* ── categories across the top ── */
-  .app-tabs { flex:none; display:flex; gap:7px; overflow-x:auto; overflow-y:hidden; scroll-behavior:smooth;
+  .app-tabs { flex:none; display:flex; gap:9px; overflow-x:auto; overflow-y:hidden; scroll-behavior:smooth;
     width:100%; max-width:100%; min-width:0; box-sizing:border-box; justify-content:flex-start;
-    padding:9px 12px 5px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    padding:8px 12px 4px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity; scroll-padding-inline:12px; overscroll-behavior-x:contain; touch-action:pan-x; }
   .app-tabs::-webkit-scrollbar { display:none; }
   .app-tabs[hidden] { display:none; }
   .app-tabs.fits { justify-content:center; }
-  .app-tab { flex:0 0 auto; cursor:pointer; white-space:nowrap;
-    font-family:'Teko','Arial Narrow',sans-serif; text-transform:uppercase; letter-spacing:.07em;
-    font-size:clamp(14px,3.4vw,16px); line-height:1; color:rgba(10,34,64,.72);
-    background:rgba(255,255,255,.7); border:1px solid rgba(10,34,64,.18); border-radius:999px;
-    padding:9px 16px 7px; transition:background .15s, color .15s, border-color .15s; scroll-snap-align:center; }
-  .app-tab:hover { border-color:var(--ut-navy); color:var(--ut-navy); }
-  .app-tab.on { background:var(--ut-navy); border-color:var(--ut-navy); color:#fff; }
+  /* Category tiles intentionally mirror the design tiles below: artwork first, title underneath. */
+  .app-tab { --tab-accent:var(--ut-orange); flex:0 0 auto; width:clamp(70px,19vw,84px); cursor:pointer;
+    font-family:'Teko','Arial Narrow',sans-serif; color:var(--ut-navy); background:transparent; border:0; padding:0;
+    display:flex; flex-direction:column; align-items:center; gap:5px; scroll-snap-align:center;
+    transition:transform .15s; }
+  .app-tab:hover { transform:translateY(-1px); }
+  .app-tab-mark { width:clamp(70px,19vw,84px); height:clamp(70px,19vw,84px); border-radius:17px; flex:none;
+    display:grid; place-items:center; overflow:hidden; box-sizing:border-box; padding:7px;
+    background:#fffdf8; color:var(--ut-navy); border:1px solid rgba(74,52,36,.16);
+    box-shadow:0 4px 11px rgba(42,37,32,.10); font-size:22px; font-weight:500; line-height:1; letter-spacing:.03em;
+    transition:border-color .15s, box-shadow .15s, transform .15s; }
+  .app-tab-mark img { width:100%; height:100%; object-fit:contain; display:block; padding:0; box-sizing:border-box; transform:scale(1.16); }
+  .app-tab-mark.has-svg { background:#fffdf8; }
+  .app-tab-title { display:block; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center;
+    font-size:15px; font-weight:500; line-height:1; text-transform:uppercase; letter-spacing:.04em; color:var(--ut-navy); }
+  .app-tab.on .app-tab-mark { border:2px solid var(--tab-accent); box-shadow:0 5px 13px color-mix(in srgb, var(--tab-accent) 35%, transparent); }
+  .app-tab.on .app-tab-mark:not(.has-svg) { background:color-mix(in srgb, var(--tab-accent) 13%, white); color:var(--ut-navy); }
+  .app-tab.on .app-tab-title { color:var(--ut-navy); }
 
   /* ── designs along the bottom ── */
-  .app-strip { display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scroll-behavior:smooth;
+  .app-strip { display:flex; gap:10px; overflow-x:auto; overflow-y:hidden; scroll-behavior:smooth;
     width:100%; max-width:100%; min-width:0; box-sizing:border-box; justify-content:flex-start;
-    padding:4px 12px 2px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    padding:5px 12px 3px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity; scroll-padding-inline:12px; overscroll-behavior-x:contain; touch-action:pan-x; }
   .app-strip::-webkit-scrollbar { display:none; }
   .app-strip.fits { justify-content:center; }
-  .app-chip { flex:0 0 auto; width:clamp(46px,13vw,58px); height:clamp(46px,13vw,58px); padding:5px;
-    border-radius:14px; background:#fffdf8; border:1px solid rgba(74,52,36,.16); cursor:pointer;
+  .app-chip { flex:0 0 auto; width:clamp(70px,19vw,84px); height:clamp(70px,19vw,84px); padding:7px;
+    border-radius:17px; background:#fffdf8; border:1px solid rgba(74,52,36,.16); cursor:pointer;
     display:flex; align-items:center; justify-content:center; overflow:hidden;
-    box-shadow:0 3px 8px rgba(42,37,32,.08); transition:border-color .15s, box-shadow .15s, transform .15s; scroll-snap-align:center; }
+    box-shadow:0 4px 11px rgba(42,37,32,.1); transition:border-color .15s, box-shadow .15s, transform .15s; scroll-snap-align:center; }
   .app-chip img { width:100%; height:100%; object-fit:contain; display:block; }
   .app-chip span { font-family:'Teko',sans-serif; font-size:12px; text-transform:uppercase; color:rgba(74,52,36,.6); }
   .app-chip:hover { transform:translateY(-1px); }
@@ -1084,7 +1101,7 @@
     touch-action:pan-y; outline:none; overflow:visible;
   }
   body.store-paused .drop-live {
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    position:absolute; left:50%; top:43%; transform:translate(-50%,-50%);
     width:min(96vw,500px); height:min(96vw,500px); aspect-ratio:1/1; max-width:none;
     display:block;
   }
@@ -1137,7 +1154,7 @@
   /* short screens: trim the extras, never the shirt */
   @media (max-height:640px) {
     .app-tabs { padding-top:5px; padding-bottom:3px; }
-    .app-chip { width:42px; height:42px; }
+    .app-chip { width:68px; height:68px; }
     .app-add { padding:10px 18px 8px; }
   }
 
@@ -1218,8 +1235,42 @@
   .cc-sw.on, .cc-acc.on { box-shadow:0 0 0 2px #FBF7F0, 0 0 0 4px #1F4D3E; border-color:transparent; }
   .cc-acc { border-radius:8px; }
 </style>
+<style id="bc-performance-shell">
+  /* Fast first-paint shell: it disappears as soon as collections/designs are usable. */
+  html.store-booting, html.store-booting body { overflow:hidden !important; background:#F2EADD; }
+  #store-boot { position:fixed; inset:0; z-index:10000; display:grid; place-items:center; padding:24px;
+    background-color:var(--cream); background-image:var(--bg-cream); background-size:600px 600px; background-repeat:repeat;
+    color:var(--forest, var(--green)); opacity:1; visibility:visible; transition:opacity .28s ease, visibility .28s ease; }
+  #store-boot.done { opacity:0; visibility:hidden; pointer-events:none; }
+  .store-boot-card { width:min(330px,88vw); display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .store-boot-tree { display:block; width:58px; height:66px; object-fit:contain; margin-bottom:12px;
+    filter:drop-shadow(0 1px 0 rgba(18,32,24,.16)); }
+  .store-boot-brand { font-family:'Schadow','Teko','Arial Narrow',sans-serif; font-size:clamp(31px,8vw,40px); font-weight:400; line-height:.9;
+    letter-spacing:.025em; text-transform:uppercase; color:var(--forest, var(--green)); }
+  .store-boot-sub { margin-top:5px; font-family:'Teko','Arial Narrow',sans-serif; font-size:14px; font-weight:500; line-height:1;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--brown, var(--burgundy)); }
+  .store-boot-track { width:min(220px,66vw); height:4px; margin-top:22px; overflow:hidden; border-radius:999px; background:rgba(31,77,62,.14); }
+  .store-boot-bar { width:100%; height:100%; border-radius:inherit; background:var(--forest, var(--green)); transform-origin:left center; transform:scaleX(.08);
+    transition:transform .25s ease; }
+  .store-boot-status { min-height:18px; margin-top:10px; font-family:'Teko','Arial Narrow',sans-serif; font-size:13px;
+    letter-spacing:.11em; text-transform:uppercase; color:rgba(74,52,36,.68); }
+  @media (prefers-reduced-motion:reduce) {
+    *, *::before, *::after { scroll-behavior:auto !important; }
+    #store-boot, .store-boot-bar { transition:none !important; }
+    .glb-spin { animation-duration:1.4s !important; }
+  }
+</style>
 </head>
 <body class="store-paused">
+<div id="store-boot" role="status" aria-live="polite" aria-label="Loading Broch Custom shop">
+  <div class="store-boot-card">
+    <img class="store-boot-tree" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjI1MCAxOTAgNzYwIDc5MCI+CjxwYXRoIGZpbGw9IiMxMjIwMTgiIGQ9IgogIE0gNjI5LjQ3IDI3OC45OAogIEEgMC4yNSAwLjI0IDQ4LjQgMCAwIDYyOS4wMCAyNzguOTUKICBRIDYyNi4zNCAyODYuMTIgNjIyLjE3IDI5My45MwogIEMgNjAzLjM5IDMyOS4xMiA1NzcuOTQgMzU5LjgyIDU0Ny45NCAzODUuNjgKICBRIDU0MS4yOSAzOTEuNDIgNTI4LjM0IDQwMS44MwogIFEgNTI2LjU1IDQwMy4yNyA1MjQuNDUgNDA0LjU4CiAgQSAwLjQwIDAuNDAgMC4wIDAgMCA1MjQuNjggNDA1LjMyCiAgQyA1NDUuNjYgNDA0Ljg4IDU2MS45MCA0MDIuNDggNTg2Ljc3IDM5OC40NQogIEMgNTk4LjIyIDM5Ni42MCA2MDYuMTYgNDAzLjI0IDYwNC40NSA0MTUuNTAKICBDIDYwMy43MSA0MjAuNzkgNTk5LjgxIDQyOS4wNSA1OTYuNDIgNDM0LjgxCiAgUSA1ODcuMDYgNDUwLjY5IDU3NS40MSA0NjQuMTcKICBDIDU1Ni44MCA0ODUuNzEgNTM2LjIxIDUwMy43NyA1MTIuNTYgNTIxLjA4CiAgUSA0OTYuODYgNTMyLjU2IDQ4My40MyA1NDAuOTEKICBRIDQ1OC4zMiA1NTYuNTIgNDQ5LjUxIDU2MS4yNgogIFEgNDIxLjc4IDU3Ni4xNiA0MTcuMTEgNTc4LjU4CiAgUSA0MTYuMDIgNTc5LjE1IDQxNS4zOCA1NzkuODUKICBBIDAuNjIgMC42MiAwLjAgMCAwIDQxNS43MiA1ODAuODgKICBDIDQyMi4yOCA1ODIuMTQgNDI5LjA3IDU4My41NCA0MzYuMTcgNTgzLjg5CiAgUSA0NTQuMTkgNTg0Ljc3IDQ3MC41MCA1ODMuNTMKICBDIDQ5My4yMSA1ODEuODAgNTEyLjA1IDU3OC44OCA1MzcuMTIgNTc0Ljg2CiAgQyA1NTAuMjEgNTcyLjc2IDU2MS4xOSA1NzkuMTcgNTU4LjkxIDU5NC4xOQogIFEgNTU4LjM5IDU5Ny42MCA1NTQuNjEgNjA1LjYzCiAgUSA1NTEuMjUgNjEyLjc4IDU0Ni4zMCA2MjAuNTYKICBRIDUzNC40MCA2MzkuMjYgNTE2Ljk0IDY1Ny45NAogIFEgNDk0LjYxIDY4MS44NCA0NjQuMTIgNzA1LjYxCiAgUSA0NDIuOTQgNzIyLjEyIDQyMy4xMiA3MzQuNTkKICBRIDM4Ni4zNiA3NTcuNzIgMzUzLjc1IDc3My45NwogIFEgMzMzLjU5IDc4NC4wMiAzMTcuMTMgNzkxLjYzCiAgUSAzMTMuNzIgNzkzLjIxIDMxMC43NCA3OTUuNjMKICBBIDAuNTQgMC41NCAwLjAgMCAwIDMxMC44MSA3OTYuNTEKICBRIDMxNS45NyA3OTkuNTQgMzIyLjcxIDgwMS4wNAogIFEgMzM3Ljk3IDgwNC40MSAzNTYuMDEgODAzLjQ0CiAgQyAzODYuMzUgODAxLjgxIDQxNi41MCA3OTQuMzAgNDQ2LjEwIDc4NC42MwogIFEgNDYyLjUxIDc3OS4yNyA0ODEuMzcgNzcxLjg2CiAgQyA1MDEuNDYgNzYzLjk3IDUxNy40OCA3NTcuNDcgNTM0LjIyIDc1MS45OQogIEMgNTQ3LjI4IDc0Ny43MCA1NjQuMDMgNzQ0LjU3IDU3Ny4wMCA3NDcuODEKICBDIDYwNy41MCA3NTUuNDQgNjE2LjQxIDc5MC41OCA2MTYuMDEgODE3LjczCiAgQyA2MTUuNDUgODU2Ljk4IDYwMi42MCA4OTYuMjIgNTc2LjE1IDkyNS42MQogIFEgNTY2LjgwIDkzNS45OSA1NTUuNjIgOTQxLjcxCiAgUSA1NDYuMTQgOTQ2LjU2IDUzOS4xNSA5MzkuODMKICBDIDUzMy45MSA5MzQuNzkgNTM1LjM4IDkyNi4wMSA1NDEuMjYgOTIxLjcwCiAgUSA1NjUuNzcgOTAzLjc1IDU3Ny42NSA4NzUuNjcKICBRIDU4Ny45NyA4NTEuMjcgNTg5LjYxIDgyMy43NgogIFEgNTkwLjQ2IDgwOS40MiA1ODYuODQgNzkzLjQ1CiAgQyA1ODQuNTQgNzgzLjMxIDU3OC44MSA3NzIuNzMgNTY3LjYzIDc3MC44OQogIEMgNTYzLjI4IDc3MC4xOCA1NTcuNjQgNzcwLjM1IDU1My4xMiA3NzEuMjMKICBRIDUzOC45MiA3NzMuOTggNTI2LjY5IDc3OS4yMQogIFEgNDg4LjkwIDc5NS4zNSA0NjkuMTEgODAzLjMxCiAgUSA0MzguMjMgODE1LjczIDQwNy4wMiA4MjMuMjUKICBRIDM3Ny4wNiA4MzAuNDYgMzQ2LjgwIDgzMC42NwogIEMgMzMyLjk3IDgzMC43NyAzMTUuMjggODI4LjMxIDMwMi44NyA4MjMuNDMKICBDIDI5Ni4yNiA4MjAuODMgMjg4LjEzIDgxNi4yMSAyODMuNzQgODA5Ljg5CiAgQyAyNzcuODcgODAxLjQ0IDI3Ny41NyA3OTEuODUgMjgzLjI0IDc4My40MQogIEMgMjg4LjM4IDc3NS43NyAyOTkuMTcgNzcwLjQ4IDMwNy4yNSA3NjYuNTIKICBRIDMyNi4xNiA3NTcuMjYgMzQ5LjExIDc0NS42MAogIEMgNDAyLjg1IDcxOC4zMSA0NTMuNjcgNjg1LjA3IDQ5NS43OCA2NDIuNzkKICBRIDUxMy41MSA2MjQuOTkgNTI2LjYxIDYwNi4xMgogIFEgNTI5LjE5IDYwMi4zOSA1MzEuMTUgNTk4LjQ2CiAgQSAwLjY2IDAuNjYgMC4wIDAgMCA1MzAuNDMgNTk3LjUxCiAgUSA1MTEuODcgNjAxLjIwIDQ5MC41NyA2MDQuMzIKICBDIDQ2My41NCA2MDguMjggNDM3LjI0IDYwOS42NiA0MTAuNzggNjA0Ljk3CiAgUSA0MDIuNjIgNjAzLjUyIDM5NC4xMyA1OTkuMjYKICBDIDM3OS40NyA1OTEuOTEgMzc4LjUxIDU3NS44NyAzOTEuMjcgNTY2LjI3CiAgUSAzOTUuNzUgNTYyLjkxIDQwMy44OCA1NTguMzgKICBRIDQzMS41NiA1NDIuOTggNDUxLjU2IDUzMS4yOQogIFEgNDc3LjA3IDUxNi4zNyA1MDIuNTMgNDk3Ljc4CiAgUSA1MzAuMjUgNDc3LjU1IDU1Mi4xNCA0NTQuNjQKICBRIDU2Ny4yNyA0MzguNzkgNTc5LjM0IDQyMC42MAogIFEgNTc5LjYyIDQyMC4xOCA1NzkuNjQgNDE5Ljk4CiAgQSAwLjU0IDAuNTQgMC4wIDAgMCA1NzkuMDAgNDE5LjQxCiAgQyA1NzQuNDUgNDIwLjI5IDU3MS4wMCA0MjAuNzAgNTY3LjM2IDQyMS41NAogIFEgNTQ1Ljg0IDQyNi41MCA1MjIuNDggNDI3LjYxCiAgUSA1MTMuOTYgNDI4LjAyIDUwNy4wMiA0MjcuMzAKICBDIDQ5OS43MyA0MjYuNTQgNDkzLjMyIDQyNS4xMSA0ODkuMzAgNDE4LjU3CiAgQyA0ODUuODggNDEzLjAwIDQ4Ny43MyA0MDUuODMgNDkxLjY3IDQwMC45MAogIFEgNDkzLjI2IDM5OC45MSA0OTguNzEgMzk0LjQ1CiAgUSA1MDYuMDYgMzg4LjQzIDUwNi4xMyAzODguMzgKICBRIDUzNC42MCAzNjYuMjQgNTU1LjY0IDM0My45MAogIEMgNTgzLjg0IDMxMy45NSA2MDUuNDQgMjc4Ljk0IDYxNy4wOSAyMzkuMzkKICBDIDYxOC42NSAyMzQuMDkgNjE5LjM3IDIyOS4yNCA2MjAuNzAgMjI0LjIxCiAgUSA2MjMuMDAgMjE1LjUwIDYzMC42NCAyMTMuMTYKICBDIDYzNy4zNSAyMTEuMTEgNjQ0LjQxIDIxNS4wNiA2NDcuMjIgMjIxLjcyCiAgUSA2NDguMjQgMjI0LjE1IDY0OC40OSAyMjkuOTgKICBDIDY0OS40MyAyNTEuNDcgNjUyLjY4IDI3Mi4yNiA2NTkuOTYgMjkxLjk4CiAgUSA2NjYuMTYgMzA4Ljc4IDY3NS40MSAzMjMuMTUKICBDIDY5OS4xNCAzNjAuMDAgNzM4LjA1IDM4Ni44OCA3NzcuMDUgNDA1LjY5CiAgUSA3OTMuMjQgNDEzLjUwIDc5Ny4yMSA0MTUuNzcKICBRIDgwNy45MyA0MjEuODggODA3LjY3IDQzMy4xMAogIEMgODA3LjUyIDQzOS4zNCA4MDQuMDAgNDQ1Ljc3IDc5OS4zNiA0NDkuNjEKICBDIDc3NC4wNCA0NzAuNTkgNzMzLjgyIDQ3MC4zMyA3MDMuODQgNDYxLjIyCiAgQSAwLjM0IDAuMzMgODIuNSAwIDAgNzAzLjQ2IDQ2MS43MgogIFEgNzA3LjAwIDQ2Ny40MiA3MTEuODQgNDcyLjkwCiAgUSA3MzUuMTUgNDk5LjIzIDc2NS4xOSA1MjAuMDUKICBRIDc5Mi45NSA1MzkuMjkgODIyLjIxIDU1My4yOQogIFEgODM4LjM3IDU2MS4wMiA4NjIuMDIgNTcwLjI4CiAgQyA4NzAuOTggNTczLjc5IDg4MS40NiA1NzYuNzEgODkwLjYxIDU4MC4zOQogIFEgODk5Ljg4IDU4NC4xMiA5MDQuNjQgNTkwLjE4CiAgQyA5MTEuMzUgNTk4LjcyIDkxMC40MSA2MTAuNTUgOTAzLjkxIDYxOS40MwogIFEgODk4LjMxIDYyNy4wNiA4ODguMjkgNjMyLjI5CiAgUSA4NzQuODMgNjM5LjMyIDg1Ny42NyA2NDIuNjIKICBDIDgzMS42MiA2NDcuNjIgODA1LjU0IDY0Ni44MSA3NzkuMTEgNjQxLjYwCiAgUSA3NTcuNjkgNjM3LjM4IDczNi45NyA2MzAuMDYKICBBIDAuNDEgMC40MSAwLjAgMCAwIDczNi41MCA2MzAuNjkKICBRIDc0MS4wNyA2MzYuOTMgNzQ1LjY1IDY0Mi4yMwogIFEgNzU4LjUzIDY1Ny4xMyA3NzEuNDIgNjY4LjgyCiAgUSA4MjEuNjkgNzE0LjQxIDg4My4xNyA3NDUuOTcKICBRIDg5Mi43OCA3NTAuOTAgOTA4LjQ4IDc1Ny41OQogIFEgOTI4LjE4IDc2NS45OCA5MzQuMjkgNzY3Ljk0CiAgUSA5NDkuNTQgNzcyLjg1IDk2MS40MyA3NzguMzEKICBDIDk3Ny42MiA3ODUuNzMgOTgzLjgwIDgwMy4xMSA5NzIuNjcgODE4LjAwCiAgQyA5NjQuNzEgODI4LjY1IDk1MS4yOCA4MzUuNTMgOTM4LjQ2IDg0MC4wMwogIFEgOTA2LjY5IDg1MS4xOCA4NzEuNzUgODUxLjg1CiAgUSA4NDUuNjYgODUyLjM0IDgyNC4wMiA4NDguOTgKICBRIDc3Ny4yNiA4NDEuNzIgNzM3LjI1IDgyMS40OAogIEMgNzI1LjIyIDgxNS4zOSA3MDkuNzIgODA0Ljg4IDY5NS4zOSA4MTIuNjEKICBRIDY4Ny45NCA4MTYuNjMgNjgyLjkyIDgyNC44NQogIEMgNjc1LjM4IDgzNy4xOCA2NzIuNTUgODUwLjM4IDY3MS42MiA4NjQuNjMKICBDIDY3MC4yMSA4ODYuMTQgNjc3LjY3IDkwOC4wMSA2OTAuOTYgOTI0Ljc1CiAgQyA2OTQuMzkgOTI5LjA4IDY5Ny43MSA5MzEuODEgNzAyLjMyIDkzNS4xMAogIEMgNzA4Ljc3IDkzOS43MSA3MDQuMTkgOTQ3Ljc1IDY5Ni45NSA5NDYuMzEKICBDIDY4OC42MSA5NDQuNjUgNjgwLjMxIDkzOS43OSA2NzMuMjcgOTM0LjM5CiAgUSA2NjYuNzQgOTI5LjM3IDY2MS40NyA5MjEuOTkKICBRIDY0NS4xNCA4OTkuMTUgNjQ2LjM4IDg3MC43MwogIFEgNjQ3Ljc0IDgzOS42OCA2NjYuNTEgODE0LjUxCiAgUSA2NzMuMTIgODA1LjY0IDY4MS41NCA3OTkuODUKICBRIDY5OS43MyA3ODcuMzMgNzIxLjI2IDc5MS41MgogIEMgNzI3LjgxIDc5Mi43OSA3MzQuMTAgNzk0LjU4IDc0MC44OSA3OTcuMjAKICBRIDc1OC4zNCA4MDMuOTUgNzc2LjAzIDgwOS45NwogIFEgNzk3LjY4IDgxNy4zNSA4MjIuMjMgODIxLjUzCiAgUSA4NjIuMTkgODI4LjM1IDkwMS4xMyA4MjIuMTMKICBDIDkxNC44OSA4MTkuOTMgOTI4LjY0IDgxNi4wOSA5NDAuMzMgODEwLjA3CiAgUSA5NDQuNDkgODA3LjkzIDk0Ny4xOCA4MDQuNzEKICBBIDIuMjAgMi4yMCAwLjAgMCAwIDk0Ny4zNSA4MDIuMTAKICBRIDk0Ni4xMCA4MDAuMTYgOTQzLjMxIDc5OS4xOQogIFEgOTI1Ljc4IDc5My4xMCA5MTYuNTUgNzg5LjcwCiAgUSA4ODYuMDEgNzc4LjQ2IDg1OS4xMiA3NjMuNTkKICBRIDg0NC4zOCA3NTUuNDQgODI1LjcyIDc0My4yOAogIFEgNzgyLjYyIDcxNS4xOSA3NDcuMjEgNjgwLjA0CiAgUSA3MzUuNDkgNjY4LjQyIDcyNy40MiA2NTguNDAKICBDIDcxOC42OCA2NDcuNTYgNzEwLjMwIDYzNS40MyA3MDUuMDYgNjIyLjUwCiAgQyA3MDMuMDggNjE3LjYwIDcwMi40NCA2MTIuMzEgNzA0Ljc5IDYwNy44MgogIEMgNzA3LjQxIDYwMi43OSA3MTMuMTAgNjAwLjYwIDcxOC41MCA2MDAuODkKICBRIDcyMS45NCA2MDEuMDggNzI3LjcyIDYwMy4wOAogIFEgNzM4LjQxIDYwNi43NyA3NTIuNTAgNjEwLjk3CiAgUSA3ODguODcgNjIxLjgwIDgyNS43NSA2MjEuNTYKICBDIDg0My41MCA2MjEuNDUgODY1LjI1IDYxOC40MiA4NzkuMTkgNjA4LjE5CiAgUSA4ODAuOTkgNjA2Ljg3IDg4Mi4xNCA2MDUuMDkKICBBIDEuNDIgMS40MSAzNC4zIDAgMCA4ODEuNzcgNjAzLjE3CiAgUSA4NzguNjUgNjAwLjkyIDg3NS4zNSA1OTkuOTAKICBRIDg3My4wOSA1OTkuMjAgODU4LjcyIDU5NC4yNAogIFEgODI0Ljc5IDU4Mi41MiA3OTQuNzIgNTY2Ljc2CiAgQyA3NjQuMTEgNTUwLjcwIDczNC4yMCA1MjkuOTYgNzA5LjM2IDUwNC45MAogIFEgNjk0LjEyIDQ4OS41MyA2ODIuODggNDcxLjY0CiAgUSA2NzYuODQgNDYyLjAzIDY3My42MiA0NTIuNjYKICBDIDY3MC44MyA0NDQuNTMgNjc1LjA1IDQzNS41NiA2ODQuMjUgNDM1LjMxCiAgUSA2ODguNTEgNDM1LjE5IDY5MS43NyA0MzYuMjEKICBRIDcwMC43NyA0MzkuMDIgNzA5LjA0IDQ0MS4xMgogIEMgNzI2LjI1IDQ0NS41MCA3NDYuNDQgNDQ2LjQ3IDc2NC4xNSA0NDIuMTQKICBDIDc3MC40NCA0NDAuNjEgNzc3LjI0IDQzOC4yNyA3ODEuNjYgNDMzLjY1CiAgQSAwLjkwIDAuOTAgMC4wIDAgMCA3ODEuNDcgNDMyLjI2CiAgUSA3NzkuMjQgNDMwLjkzIDc3Ni4zNSA0MjkuNjUKICBRIDc2Mi4wNSA0MjMuMzAgNzQ5LjUyIDQxNi45NwogIFEgNzE3Ljk0IDQwMS4wMiA2OTAuOTIgMzc4LjMzCiAgUSA2ODQuNzcgMzczLjE2IDY3NS4zMCAzNjMuMjEKICBRIDY1MS41MCAzMzguMTkgNjM3Ljc1IDMwNS41NAogIEMgNjM0LjE1IDI5Ny4wMCA2MzEuNTMgMjg3LjcyIDYyOS40NyAyNzguOTgKICBaIgovPgo8L3N2Zz4K" alt="" aria-hidden="true">
+    <div class="store-boot-brand">Broch Custom</div>
+    <div class="store-boot-sub">The Shop</div>
+    <div class="store-boot-track" aria-hidden="true"><div class="store-boot-bar" id="store-boot-bar"></div></div>
+    <div class="store-boot-status" id="store-boot-status">Preparing shop…</div>
+  </div>
+</div>
 <svg class="svg-defs" aria-hidden="true">
   <defs>
     <symbol id="pine" viewBox="142.08 96.57 103 234.38">
@@ -1314,6 +1365,8 @@
       <div class="da-row">
         <button type="button" class="da-chip" onclick="collNew()"><i class="ti ti-folder-plus" aria-hidden="true"></i>New Collection</button>
         <button type="button" class="da-chip" onclick="collRename()"><i class="ti ti-pencil" aria-hidden="true"></i>Rename</button>
+        <button type="button" class="da-chip" onclick="collPickIcon()"><i class="ti ti-photo" aria-hidden="true"></i>SVG Icon</button>
+        <button type="button" class="da-chip" id="da-clear-icon" onclick="collClearIcon()" hidden><i class="ti ti-photo-off" aria-hidden="true"></i>Clear Icon</button>
         <button type="button" class="da-chip" onclick="collColorsDialog()"><i class="ti ti-palette" aria-hidden="true"></i>Colors</button>
         <button type="button" class="da-remove" onclick="collDelete()"><i class="ti ti-folder-x" aria-hidden="true"></i>Delete Collection</button>
       </div>
@@ -1662,6 +1715,8 @@
     </div>
   </dialog>
 
+  <input type="file" id="coll-icon-input" accept=".svg,image/svg+xml" hidden onchange="collIconFile(this)">
+
   <dialog id="coll-colors-dialog">
     <div class="dialog-card">
       <button class="dialog-close" onclick="this.closest('dialog').close()" aria-label="Close">&times;</button>
@@ -1942,6 +1997,31 @@
   </dialog>
 
 <script>
+
+  // ── fast startup / non-critical work scheduling ──
+  let storeBootHidden = false;
+  function storeBootStatus(label, pct) {
+    const t = document.getElementById('store-boot-status');
+    const b = document.getElementById('store-boot-bar');
+    if (t && label) t.textContent = label;
+    if (b && Number.isFinite(pct)) b.style.transform = 'scaleX(' + Math.max(.08, Math.min(1, pct / 100)) + ')';
+  }
+  function storeBootHide() {
+    if (storeBootHidden) return; storeBootHidden = true;
+    storeBootStatus('Ready', 100);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const el = document.getElementById('store-boot');
+      if (el) el.classList.add('done');
+      document.documentElement.classList.remove('store-booting');
+      setTimeout(() => { if (el && el.parentNode) el.parentNode.removeChild(el); }, 420);
+    }));
+  }
+  function runWhenIdle(fn, timeout) {
+    if ('requestIdleCallback' in window) return requestIdleCallback(() => { try { fn(); } catch (e) { console.warn(e); } }, { timeout: timeout || 1600 });
+    return setTimeout(() => { try { fn(); } catch (e) { console.warn(e); } }, 260);
+  }
+  // Never leave a customer behind a startup screen if a remote dependency stalls.
+  setTimeout(storeBootHide, 8500);
 
   // Lock background scroll whenever any dialog is open (iOS-safe)
   (function(){
@@ -3241,9 +3321,11 @@
     if(window.THREE && THREE.GLTFLoader && THREE.DecalGeometry) return;
     const B='https://cdn.jsdelivr.net/npm/three@0.128.0/';
     await loadScriptOnce(B+'build/three.min.js');
-    await loadScriptOnce(B+'examples/js/loaders/GLTFLoader.js');
-    await loadScriptOnce(B+'examples/js/environments/RoomEnvironment.js');
-    await loadScriptOnce(B+'examples/js/geometries/DecalGeometry.js');
+    await Promise.all([
+      loadScriptOnce(B+'examples/js/loaders/GLTFLoader.js'),
+      loadScriptOnce(B+'examples/js/environments/RoomEnvironment.js'),
+      loadScriptOnce(B+'examples/js/geometries/DecalGeometry.js')
+    ]);
   }
   function b64ToBuf(b64){ const s=atob(b64),n=s.length,u=new Uint8Array(n); for(let i=0;i<n;i++)u[i]=s.charCodeAt(i); return u.buffer; }
   function make3DLoader(container){
@@ -3835,13 +3917,24 @@
     d.thumb = out;
     return out;
   }
-  // fill in any missing thumbnails once, quietly, then save them for next time
-  async function dropFillThumbs() {
-    const missing = dropList.filter(d => !d.thumb);
+  // Fill missing thumbnails only when the browser is idle. This prevents full-size
+  // artwork decoding/canvas work from competing with the first model render.
+  let dropThumbJob = 0;
+  function scheduleDropThumbFill() {
+    const token = ++dropThumbJob, list = dropList, cid = coll().id;
+    runWhenIdle(() => dropFillThumbs(list, cid, token), 1800);
+  }
+  async function dropFillThumbs(list, cid, token) {
+    const missing = (list || []).filter(d => !d.thumb);
     if (!missing.length) return;
-    for (const d of missing) { try { await dropMakeThumb(d); } catch (e) { dropErr('thumbnail for \u201c' + d.name + '\u201d failed'); } }
+    for (const d of missing) {
+      if (token !== dropThumbJob || list !== dropList || cid !== coll().id) return;
+      try { await dropMakeThumb(d); } catch (e) { dropErr('thumbnail for \u201c' + d.name + '\u201d failed'); }
+      await new Promise(r => setTimeout(r, 0));
+    }
+    if (token !== dropThumbJob || list !== dropList || cid !== coll().id) return;
     buildDropTrack();
-    if (dropList.some(d => d.thumb)) saveDrop(true);
+    if (list.some(d => d.thumb)) saveDrop(true);
   }
 
   // Artwork for the shirt itself. Tries a clean PNG first (SVGs without a size
@@ -3864,10 +3957,17 @@
     return out;
   }
 
+  let dropResizeRAF = 0;
+  function queueDropSizeRenderer() {
+    if (dropResizeRAF) return;
+    dropResizeRAF = requestAnimationFrame(() => { dropResizeRAF = 0; dropSizeRenderer(); });
+  }
   function dropSizeRenderer() {
     if (!SHIRT3D.ok) return;
     const b = $('drop-live').getBoundingClientRect();
     const w = Math.max(200, Math.round(b.width)), h = Math.max(200, Math.round(b.height));
+    if (SHIRT3D._dropW === w && SHIRT3D._dropH === h) return;
+    SHIRT3D._dropW = w; SHIRT3D._dropH = h;
     SHIRT3D.renderer.setSize(w, h);
     // The picture is the shape of the space it sits in, and the shirt is pulled in
     // until it just fits — so on a tall phone it stands tall instead of being
@@ -3899,7 +3999,12 @@
     live.innerHTML = ''; live.appendChild(SHIRT3D.canvas);
     drop3D = 'ok';
     dropSizeRenderer();
-    window.addEventListener('resize', dropSizeRenderer);
+    window.addEventListener('resize', queueDropSizeRenderer, { passive:true });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', queueDropSizeRenderer, { passive:true });
+    if ('ResizeObserver' in window && !SHIRT3D._dropRO) {
+      SHIRT3D._dropRO = new ResizeObserver(queueDropSizeRenderer);
+      SHIRT3D._dropRO.observe(live);
+    }
     dropApply(false);
   }
 
@@ -4107,7 +4212,7 @@
   // in memory. Swiping up or down moves between them.
   const COLLS_FILE = '_store/collections.json';
   const collFile = id => '_store/collection-' + id + '.json';
-  const DEFAULT_COLL = { id:'utrgv', name:'UTRGV', kicker:'Vaqueros Game Day', colors:['orange','black','white'], accent:'#FF5A1A' };
+  const DEFAULT_COLL = { id:'utrgv', name:'UTRGV', kicker:'Vaqueros Game Day', colors:['orange','black','white'], accent:'#FF5A1A', icon:'' };
   let collections = [], collIdx = 0, collBusy = 0;
   const collDesigns = new Map();
   let catCache = null;
@@ -4142,7 +4247,7 @@
     const st = quiet ? null : $('drop-admin-status');
     if (!sb) { if (st) st.textContent = 'No cloud connection — not saved.'; return; }
     try {
-      const body = { collections: collections.map(c => ({ id:c.id, name:c.name, kicker:c.kicker || '', colors:c.colors || [], accent:c.accent || '' })) };
+      const body = { collections: collections.map(c => ({ id:c.id, name:c.name, kicker:c.kicker || '', colors:c.colors || [], accent:c.accent || '', icon:c.icon || '' })) };
       const blob = new Blob([JSON.stringify(body)], { type:'application/json' });
       const { error } = await sb.storage.from(PRODUCTS_BUCKET).upload(COLLS_FILE, blob, { upsert: true });
       if (error) throw error;
@@ -4172,14 +4277,18 @@
     }
     const list = (saved || (c.id === 'utrgv' ? DROP_DEFAULT : [])).filter(d => d && d.src)
       .map(d => ({ id:d.id, name:d.name, src:d.src, thumb:d.thumb || '' }));
-    if (saved) {
-      const cat = await collCatalog();
-      list.forEach(d => {
-        const hit = cat.find(x => (x.id && x.id === d.id) || (x.png || x.svg) === d.src);
-        if (hit) d.cat = hit;
-      });
-    }
     collDesigns.set(c.id, list);
+    // Catalog metadata is useful to admin tools, but it is not needed to show the
+    // storefront. Enrich in idle time so the customer sees the collection first.
+    if (saved) runWhenIdle(async () => {
+      try {
+        const cat = await collCatalog();
+        list.forEach(d => {
+          const hit = cat.find(x => (x.id && x.id === d.id) || (x.png || x.svg) === d.src);
+          if (hit) d.cat = hit;
+        });
+      } catch (_) {}
+    }, 1800);
     return list;
   }
 
@@ -4195,7 +4304,13 @@
       collections.forEach((x, i) => {
         const b = document.createElement('button');
         b.type = 'button'; b.className = 'app-tab' + (i === collIdx ? ' on' : '');
-        b.textContent = x.name || 'Collection';
+        const label = (x.name || 'Collection').trim();
+        const initials = label.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w.charAt(0)).join('').toUpperCase() || 'C';
+        b.style.setProperty('--tab-accent', x.accent || '#FF5A1A');
+        const mark = x.icon
+          ? '<span class="app-tab-mark has-svg" aria-hidden="true"><img loading="lazy" decoding="async" src="' + escapeHtml(x.icon) + '" alt=""></span>'
+          : '<span class="app-tab-mark" aria-hidden="true">' + escapeHtml(initials) + '</span>';
+        b.innerHTML = mark + '<span class="app-tab-title">' + escapeHtml(label) + '</span>';
         b.setAttribute('role', 'tab');
         b.setAttribute('aria-selected', i === collIdx ? 'true' : 'false');
         b.onclick = () => { if (i !== collIdx) setCollection(i); };
@@ -4203,6 +4318,7 @@
       });
       centerChip(bar, collIdx);
     }
+    const clearIcon = $('da-clear-icon'); if (clearIcon) clearIcon.hidden = !c.icon;
     document.title = (c.name ? c.name + ' \u00b7 ' : '') + 'Broch Custom';
   }
 
@@ -4228,7 +4344,7 @@
     buildDropTrack();
     if (drop3D === 'flat') dropShowFlat();
     dropApply(false);
-    dropFillThumbs();
+    scheduleDropThumbFill();
   }
   function nextColl(dir) {
     if (collections.length < 2) return;
@@ -4242,7 +4358,7 @@
     const kicker = prompt('Small line under the name (optional)', 'Game Day') || '';
     let id = collSlug(name), n = 2;
     while (collections.some(c => c.id === id)) id = collSlug(name) + '-' + (n++);
-    collections.push({ id, name: name.trim(), kicker: kicker.trim(), colors: ['navy','white','black'], accent: '#1F4D3E' });
+    collections.push({ id, name: name.trim(), kicker: kicker.trim(), colors: ['navy','white','black'], accent: '#1F4D3E', icon:'' });
     collDesigns.set(id, []);
     await saveCollections(true);
     setCollection(collections.length - 1);
@@ -4252,6 +4368,40 @@
     const name = prompt('Collection name', c.name); if (!name || !name.trim()) return;
     const kicker = prompt('Small line under the name (optional)', c.kicker || '');
     c.name = name.trim(); c.kicker = (kicker || '').trim();
+    paintColl(); saveCollections();
+  }
+  function collPickIcon() {
+    const input = $('coll-icon-input');
+    if (!input) return;
+    input.value = '';
+    input.click();
+  }
+  async function collIconFile(input) {
+    const file = input && input.files && input.files[0];
+    if (!file) return;
+    if (!/svg/i.test(file.type || '') && !/\.svg$/i.test(file.name || '')) { alert('Please choose an SVG file.'); return; }
+    if (file.size > 600 * 1024) { alert('That SVG is unusually large. Please use one under 600 KB.'); return; }
+    try {
+      let svg = await file.text();
+      if (!/<svg[\s>]/i.test(svg)) throw new Error('Not an SVG');
+      // Category icons are displayed as images. Strip script/event hooks before storing.
+      svg = svg.replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/\son[a-z]+\s*=\s*(["']).*?\1/gi, '')
+        .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, '');
+      const encoded = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+      coll().icon = encoded;
+      paintColl();
+      await saveCollections();
+    } catch (e) {
+      console.warn('category svg', e);
+      alert('That SVG could not be used. Try exporting it again as a standard SVG.');
+    }
+  }
+  function collClearIcon() {
+    const c = coll();
+    if (!c.icon) return;
+    if (!confirm('Remove the SVG icon from “' + c.name + '”?')) return;
+    c.icon = '';
     paintColl(); saveCollections();
   }
   async function collDelete() {
@@ -4337,7 +4487,7 @@
       b.innerHTML = '<span>' + escapeHtml((d.name || '?').slice(0, 2)) + '</span>';
       const u = dropThumb(d);
       if (u) {
-        const im = new Image(); im.alt = d.name || ''; im.decoding = 'async';
+        const im = new Image(); im.alt = d.name || ''; im.decoding = 'async'; im.loading = 'lazy'; im.fetchPriority = Math.abs(i - dropIdx) <= 1 ? 'high' : 'low';
         im.onload = () => { b.innerHTML = ''; b.appendChild(im); };
         im.onerror = () => dropErr('picture for \u201c' + d.name + '\u201d wouldn\u2019t load');
         im.src = u;
@@ -4614,11 +4764,15 @@
 
   async function initDrop() {
     initDropControls();
-    const boot = dropBoot3D();              // the 3D shirt starts loading right away
-    await loadCollections();
+    storeBootStatus('Starting shirt preview…', 18);
+    const boot = dropBoot3D();              // starts downloading the hero model immediately
+    storeBootStatus('Loading collections…', 32);
+    await Promise.all([loadShirtCfg(), loadCollections()]);
+    storeBootStatus('Loading designs…', 62);
     await setCollection(0);
-    await boot;
-    dropApply(false);
+    storeBootStatus('Opening shop…', 88);
+    storeBootHide();                        // UI is usable; the local 3D loader may finish afterward
+    void boot;
   }
 
 
@@ -4660,10 +4814,23 @@
   }
 
   (async function initStore(){
-    await loadShirtCfg();
-    await loadDtfCfg();
-    if (STORE_PAUSED) { await initDrop(); return; }   // regular shop is switched off
-    await loadProducts();
+    try {
+      if (STORE_PAUSED) {
+        await initDrop();
+        runWhenIdle(() => loadDtfCfg(), 2200);       // unrelated to the shirt storefront
+        return;
+      }
+      storeBootStatus('Loading shop…', 35);
+      // Keep the dormant regular-store path sequential: its DTF constants are
+      // declared later in this script and the existing order avoids a TDZ race.
+      await loadShirtCfg();
+      await loadDtfCfg();
+      await loadProducts();
+      storeBootHide();
+    } catch (e) {
+      console.error('Store startup', e);
+      storeBootHide();
+    }
   })();
 
   // ── Order DTF · single-design 13x20 editor ─────────────────
