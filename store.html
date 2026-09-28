@@ -4554,10 +4554,24 @@
     if (nx) nx.onclick = () => goDrop(dropIdx + 1, 1);
     const stage = $('drop-stage');
     stage.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft') { e.preventDefault(); goDrop(dropIdx - 1, -1); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); goDrop(dropIdx + 1, 1); }
       if (e.key === 'ArrowUp') { e.preventDefault(); nextColl(-1); }
       if (e.key === 'ArrowDown') { e.preventDefault(); nextColl(1); }
+    });
+    // Desktop: the left and right arrow keys work like a swipe from anywhere on the
+    // page — no need to click the shirt first. One press is one swipe (holding the key
+    // down doesn't race through designs). Left alone while typing in a box, while a
+    // window (cart, checkout, sizes…) is open, or with Ctrl/Alt/Cmd held (browser shortcuts).
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (document.documentElement.classList.contains('store-booting')) return;
+      if (document.querySelector('dialog[open]')) return;
+      const t = e.target;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      e.preventDefault();
+      if (e.repeat) return;
+      const dir = e.key === 'ArrowRight' ? 1 : -1;
+      goDrop(dropIdx + dir, dir);
     });
     // The shirt itself owns one phone gesture: sideways swipes change designs.
     // Categories are intentionally handled by the visible, horizontally scrollable row.
