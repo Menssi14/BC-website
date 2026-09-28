@@ -4243,14 +4243,15 @@
     const wrap = $('cc-swatches'), acc = $('cc-accents');
     const chosen = new Set((c.colors || []).slice());
     let accent = c.accent || '#FF5A1A';
+    // The accent can be any color in the palette — it doesn't have to be a shirt color
+    // that's for sale (a red accent without selling red shirts).
     const paintAcc = () => {
       acc.innerHTML = '';
-      [...chosen].map(k => k === 'orange' ? { k:'orange', hex:'#FF5A1A', label:'Orange' } : BYO_COLORS.find(x => x.k === k)).filter(Boolean)
-        .concat([{ hex:'#1F4D3E', label:'Broch green' }, { hex:'#FF5A1A', label:'Bright orange' }])
+      BYO_COLORS.concat([{ hex:'#1F4D3E', label:'Broch Green' }, { hex:'#FF5A1A', label:'Bright Orange' }])
         .forEach(x => {
           const b = document.createElement('button'); b.type = 'button';
           b.className = 'cc-acc' + (x.hex.toUpperCase() === accent.toUpperCase() ? ' on' : '');
-          b.style.background = x.hex; b.title = x.label;
+          b.style.background = x.hex; b.title = x.label; b.setAttribute('aria-label', x.label);
           b.onclick = () => { accent = x.hex; paintAcc(); };
           acc.appendChild(b);
         });
@@ -4262,7 +4263,7 @@
       b.style.background = x.hex; b.title = x.label; b.setAttribute('aria-label', x.label);
       b.onclick = () => {
         if (chosen.has(x.k)) chosen.delete(x.k); else chosen.add(x.k);
-        b.classList.toggle('on', chosen.has(x.k)); paintAcc();
+        b.classList.toggle('on', chosen.has(x.k));
       };
       wrap.appendChild(b);
     });
