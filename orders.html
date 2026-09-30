@@ -394,6 +394,54 @@
   .dtf-tbl tr.grp td{ border-top:2px solid var(--line-strong); }
   .dtf-note{ font-family:'Teko',sans-serif; font-style:italic; font-size:15px; color:var(--muted); margin:12px 2px 0; }
 
+  /* ── Invoice Maker ─────────────────────────────────────────
+     A form on the left of your thumb, the finished page one tap
+     away. The page itself is always white paper, in both themes. */
+  .ivm-box{ max-width:560px; }
+  .ivm-tabs{ display:flex; gap:8px; padding:12px 16px 2px; }
+  .ivm-tab{ flex:1; cursor:pointer; border:1.5px solid var(--line-strong); background:transparent; color:var(--burgundy);
+    border-radius:999px; padding:8px 10px 6px; font-family:'Teko',sans-serif; font-size:18px; letter-spacing:.1em; text-transform:uppercase; }
+  .ivm-tab.on{ background:var(--green); border-color:var(--green); color:var(--cream); }
+  .ivm-body{ padding:12px 16px 20px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; flex:1 1 auto; min-height:0; }
+  .ivm-body[hidden]{ display:none; }
+  .ivm-row{ display:flex; gap:8px; align-items:stretch; }
+  .ivm-row .wz-sel{ flex:1 1 auto; min-width:0; }
+  .ivm-sel{ font-size:18px; padding:11px 38px 11px 13px; border-radius:10px; }
+  .ivm-new{ flex:0 0 auto; cursor:pointer; border:1.5px solid var(--green); background:transparent; color:var(--green); border-radius:10px;
+    padding:0 16px; font-family:'Teko',sans-serif; font-size:18px; letter-spacing:.08em; text-transform:uppercase; }
+  .ivm-sec{ font-family:'Teko',sans-serif; font-size:16px; letter-spacing:.16em; text-transform:uppercase; color:var(--green);
+    margin:10px 0 -2px; padding-top:10px; border-top:1px solid var(--line); }
+  .ivm-sec.first{ border-top:none; padding-top:0; margin-top:4px; }
+  .ivm-two{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .ivm-f{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .ivm-lbl{ font-family:'Teko',sans-serif; font-size:14px; letter-spacing:.09em; text-transform:uppercase; color:rgba(var(--ink-rgb),.6); }
+  .ivm-f .email-to{ min-width:0; }
+  input.email-to[type="date"]{ min-height:46px; -webkit-appearance:none; appearance:none; }
+  .ivm-items{ display:flex; flex-direction:column; gap:8px; }
+  .ivm-empty{ font-family:'Teko',sans-serif; font-style:italic; font-size:16px; color:rgba(var(--ink-rgb),.55); padding:4px 2px; }
+  .ivm-item{ border:1px solid var(--line-strong); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:8px;
+    background:rgba(31,77,62,.035); }
+  .ivm-item-top{ display:flex; gap:8px; align-items:center; }
+  .ivm-item-top .email-to{ flex:1 1 auto; min-width:0; }
+  .ivm-x{ flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid var(--line-strong); background:transparent;
+    color:var(--burgundy); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .ivm-x:hover{ border-color:var(--red); color:var(--red); }
+  .ivm-detail{ font-size:16px; }
+  .ivm-nums{ display:grid; grid-template-columns:1fr 1.2fr 1.2fr; gap:8px; align-items:end; }
+  .ivm-amt{ font-family:'Teko',sans-serif; font-size:21px; color:var(--green); text-align:right; padding:0 2px 9px; white-space:nowrap; }
+  .ivm-check{ display:flex; align-items:center; gap:10px; cursor:pointer; font-family:'Teko',sans-serif; font-size:18px;
+    letter-spacing:.03em; color:var(--burgundy); padding:4px 2px; }
+  .ivm-check input{ width:20px; height:20px; accent-color:var(--green); margin:0; }
+  .ivm-tot{ display:flex; flex-direction:column; gap:3px; border:1px solid var(--line-strong); border-radius:12px; padding:10px 14px; }
+  .ivm-tot div{ display:flex; justify-content:space-between; gap:12px; font-family:'Teko',sans-serif; font-size:18px; letter-spacing:.03em; color:var(--burgundy); }
+  .ivm-tot .ivm-strong{ font-size:20px; color:var(--green); border-top:1px solid var(--line); padding-top:4px; margin-top:2px; }
+  .ivm-tot .ivm-due{ font-size:23px; color:var(--green); }
+  .ivm-pages{ display:flex; flex-direction:column; gap:14px; }
+  .ivm-page{ display:block; width:100%; height:auto; background:#fff; border-radius:4px; box-shadow:0 2px 14px rgba(0,0,0,.2); cursor:zoom-in; }
+  .ivm-actions{ display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+  .btn-wide.ivm-ghost{ background:transparent; color:var(--green); border:1.5px solid var(--green); }
+  .btn-wide[hidden]{ display:none; }
+
   /* ── Tools as its own tab ───────────────────────────────────
      Same panel as before, just laid into the page instead of
      floating over it, so Orders / Tools / Trash are three taps. */
@@ -1037,6 +1085,10 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
         <span class="eo-t">Email a customer</span>
       </button>
+      <button class="edit-opt" id="invoiceOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.8h8.6L19 7.2V21.2H6z"/><path d="M14.4 2.8v4.6H19"/><path d="M9 12h7M9 15.5h7M9 19h4.2"/></svg></span>
+        <span class="eo-t">Invoice Maker</span>
+      </button>
       <button class="edit-opt" id="linkLabel" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 7h13v10H3zM16 10h3.2l1.8 3v4h-5"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></span>
         <span class="eo-t">Shipping label</span>
@@ -1054,6 +1106,79 @@
     </div>
     <div class="sync-status" id="syncStatus"></div>
     <div class="health-list" id="healthList"></div>
+  </div>
+</div>
+
+<!-- INVOICE MAKER -->
+<div class="overlay" id="invoiceOverlay">
+  <div class="hist-box ivm-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Invoice Maker</span>
+      <button class="icon-btn" id="ivmClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="ivm-tabs" role="tablist" aria-label="Invoice">
+      <button type="button" class="ivm-tab on" id="ivmTabEdit" role="tab" aria-selected="true">Edit</button>
+      <button type="button" class="ivm-tab" id="ivmTabPreview" role="tab" aria-selected="false">Preview</button>
+    </div>
+
+    <div class="ivm-body" id="ivmEditPane">
+      <div class="ivm-row">
+        <select class="wz-sel ivm-sel" id="ivmRecent" aria-label="Recent invoices"></select>
+        <button type="button" class="ivm-new" id="ivmNew">New</button>
+      </div>
+      <select class="wz-sel ivm-sel" id="ivmFromOrder" aria-label="Fill from an order"></select>
+
+      <div class="ivm-sec first">Bill To</div>
+      <input class="email-to" id="ivmName" placeholder="Customer name" autocomplete="off">
+      <input class="email-to" id="ivmCompany" placeholder="Company, school or team (optional)" autocomplete="off">
+      <div class="ivm-two">
+        <input class="email-to" id="ivmPhone" placeholder="Phone" inputmode="tel" autocomplete="off">
+        <input class="email-to" id="ivmEmail" placeholder="Email" type="email" inputmode="email" autocomplete="off">
+      </div>
+      <input class="email-to" id="ivmAddr" placeholder="Address (optional)" autocomplete="off">
+
+      <div class="ivm-sec">Invoice</div>
+      <label class="ivm-f"><span class="ivm-lbl">Invoice number</span><input class="email-to" id="ivmNo" autocomplete="off"></label>
+      <div class="ivm-two">
+        <label class="ivm-f"><span class="ivm-lbl">Date</span><input class="email-to" id="ivmDate" type="date"></label>
+        <label class="ivm-f"><span class="ivm-lbl">Due</span>
+          <select class="wz-sel ivm-sel" id="ivmTerms">
+            <option value="receipt">Upon receipt</option>
+            <option value="7">In 7 days</option>
+            <option value="15">In 15 days</option>
+            <option value="30">In 30 days</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="ivm-sec">Items</div>
+      <div class="ivm-items" id="ivmItems"></div>
+      <select class="wz-sel ivm-sel" id="ivmAdd" aria-label="Add an item"></select>
+
+      <div class="ivm-sec">Totals</div>
+      <div class="ivm-two">
+        <label class="ivm-f"><span class="ivm-lbl">Discount $</span><input class="email-to" id="ivmDiscount" inputmode="decimal" placeholder="0.00" autocomplete="off"></label>
+        <label class="ivm-f"><span class="ivm-lbl">Already paid $</span><input class="email-to" id="ivmPaid" inputmode="decimal" placeholder="0.00" autocomplete="off"></label>
+      </div>
+      <label class="ivm-check"><input type="checkbox" id="ivmTax" checked> Charge sales tax (8.25%)</label>
+      <div class="ivm-tot" id="ivmTot"></div>
+
+      <div class="ivm-sec">Notes</div>
+      <textarea class="email-to email-msg" id="ivmNotes" rows="3" placeholder="Anything the customer should know"></textarea>
+
+      <button class="btn-wide" id="ivmGoPreview" type="button">Preview Invoice</button>
+    </div>
+
+    <div class="ivm-body" id="ivmPreviewPane" hidden>
+      <div class="ivm-pages" id="ivmPages"></div>
+      <div class="lbl-note">Tap the page to see it full size.</div>
+      <div class="ivm-actions">
+        <button class="btn-wide" id="ivmSend" type="button" hidden>Send PDF</button>
+        <button class="btn-wide" id="ivmDownload" type="button">Download PDF</button>
+        <button class="btn-wide ivm-ghost" id="ivmPrint" type="button" hidden>Print</button>
+      </div>
+      <div class="lbl-note" id="ivmPdfNote"></div>
+    </div>
   </div>
 </div>
 
@@ -4528,6 +4653,587 @@
     var i=all.indexOf(t); if(i<0) i=0;
     LB.open(all.map(function(im){ return im.src; }), i);
   }, true);
+
+  /* ===== Invoice Maker =====
+     Fills in a clean BROCH CUSTOM invoice and turns it into a PDF. The page
+     is drawn on a canvas with the brand fonts (Schadow name, Teko labels,
+     EB Garamond text) and each page goes into the PDF as a sharp picture.
+     The invoice being made stays on this device, so closing the panel never
+     loses it, and the last 25 are under Recent (this device only). The item
+     list comes from the same "what we work on" lists as new orders. */
+  var IVM_DRAFT='bc-invoice-draft-v1', IVM_RECENT='bc-invoices-v1', IVM_PRICES='bc-invoice-prices-v1';
+  var IVM_TAX=0.0825, IVM_W=850, IVM_H=1100, IVM_M=60, IVM_R=790, IVM_EXPORT=2.4, IVM_LIMIT=1004;
+  var IVM_SHOP={ city:'Edinburg, Texas', phone:'(956) 225-5859', email:'brochcustom@gmail.com', web:'brochcustom.com' };
+  var IVM_SERVICES='ENGRAVING · PRINTING · EMBROIDERY';
+  var IVM_PAY=[['Check','Payable to BROCH CUSTOM'],['Card','Credit or debit'],['Cash App','$BrochCustom'],['Zelle','(956) 225-5859']];
+  var IVM_SVC={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
+  var IVM_GROUP={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
+  var IVM_OFFER=['Embroidery','DTF','Engraving'];   // the only services offered when adding an item
+  var IVM_C={ forest:'#2c4637', ink:'#122018', soft:'#526056', brown:'#513a2c', caramel:'#b28b5b', sand:'#e3d8c6', cream:'#f7f4ec' };
+  var IVM_F={ serif:'"EB Garamond", Georgia, "Times New Roman", serif', label:'Teko, "Arial Narrow", Arial, sans-serif', brand:'Schadow, Teko, serif' };
+  var IVM_COL={ desc:IVM_M+14, qtyR:560, priceR:668, amtR:IVM_R-14, descW:420 };
+  var IVM_SIZE_ORDER=['XS','Small','S','Medium','M','Large','L','XL','2XL','3XL','4XL','5XL'];
+  var IVM_TREE='M 629.47 278.98 A 0.25 0.24 48.4 0 0 629.00 278.95 Q 626.34 286.12 622.17 293.93 C 603.39 329.12 577.94 359.82 547.94 385.68 Q 541.29 391.42 528.34 401.83 Q 526.55 403.27 524.45 404.58 A 0.40 0.40 0.0 0 0 524.68 405.32 C 545.66 404.88 561.90 402.48 586.77 398.45 C 598.22 396.60 606.16 403.24 604.45 415.50 C 603.71 420.79 599.81 429.05 596.42 434.81 Q 587.06 450.69 575.41 464.17 C 556.80 485.71 536.21 503.77 512.56 521.08 Q 496.86 532.56 483.43 540.91 Q 458.32 556.52 449.51 561.26 Q 421.78 576.16 417.11 578.58 Q 416.02 579.15 415.38 579.85 A 0.62 0.62 0.0 0 0 415.72 580.88 C 422.28 582.14 429.07 583.54 436.17 583.89 Q 454.19 584.77 470.50 583.53 C 493.21 581.80 512.05 578.88 537.12 574.86 C 550.21 572.76 561.19 579.17 558.91 594.19 Q 558.39 597.60 554.61 605.63 Q 551.25 612.78 546.30 620.56 Q 534.40 639.26 516.94 657.94 Q 494.61 681.84 464.12 705.61 Q 442.94 722.12 423.12 734.59 Q 386.36 757.72 353.75 773.97 Q 333.59 784.02 317.13 791.63 Q 313.72 793.21 310.74 795.63 A 0.54 0.54 0.0 0 0 310.81 796.51 Q 315.97 799.54 322.71 801.04 Q 337.97 804.41 356.01 803.44 C 386.35 801.81 416.50 794.30 446.10 784.63 Q 462.51 779.27 481.37 771.86 C 501.46 763.97 517.48 757.47 534.22 751.99 C 547.28 747.70 564.03 744.57 577.00 747.81 C 607.50 755.44 616.41 790.58 616.01 817.73 C 615.45 856.98 602.60 896.22 576.15 925.61 Q 566.80 935.99 555.62 941.71 Q 546.14 946.56 539.15 939.83 C 533.91 934.79 535.38 926.01 541.26 921.70 Q 565.77 903.75 577.65 875.67 Q 587.97 851.27 589.61 823.76 Q 590.46 809.42 586.84 793.45 C 584.54 783.31 578.81 772.73 567.63 770.89 C 563.28 770.18 557.64 770.35 553.12 771.23 Q 538.92 773.98 526.69 779.21 Q 488.90 795.35 469.11 803.31 Q 438.23 815.73 407.02 823.25 Q 377.06 830.46 346.80 830.67 C 332.97 830.77 315.28 828.31 302.87 823.43 C 296.26 820.83 288.13 816.21 283.74 809.89 C 277.87 801.44 277.57 791.85 283.24 783.41 C 288.38 775.77 299.17 770.48 307.25 766.52 Q 326.16 757.26 349.11 745.60 C 402.85 718.31 453.67 685.07 495.78 642.79 Q 513.51 624.99 526.61 606.12 Q 529.19 602.39 531.15 598.46 A 0.66 0.66 0.0 0 0 530.43 597.51 Q 511.87 601.20 490.57 604.32 C 463.54 608.28 437.24 609.66 410.78 604.97 Q 402.62 603.52 394.13 599.26 C 379.47 591.91 378.51 575.87 391.27 566.27 Q 395.75 562.91 403.88 558.38 Q 431.56 542.98 451.56 531.29 Q 477.07 516.37 502.53 497.78 Q 530.25 477.55 552.14 454.64 Q 567.27 438.79 579.34 420.60 Q 579.62 420.18 579.64 419.98 A 0.54 0.54 0.0 0 0 579.00 419.41 C 574.45 420.29 571.00 420.70 567.36 421.54 Q 545.84 426.50 522.48 427.61 Q 513.96 428.02 507.02 427.30 C 499.73 426.54 493.32 425.11 489.30 418.57 C 485.88 413.00 487.73 405.83 491.67 400.90 Q 493.26 398.91 498.71 394.45 Q 506.06 388.43 506.13 388.38 Q 534.60 366.24 555.64 343.90 C 583.84 313.95 605.44 278.94 617.09 239.39 C 618.65 234.09 619.37 229.24 620.70 224.21 Q 623.00 215.50 630.64 213.16 C 637.35 211.11 644.41 215.06 647.22 221.72 Q 648.24 224.15 648.49 229.98 C 649.43 251.47 652.68 272.26 659.96 291.98 Q 666.16 308.78 675.41 323.15 C 699.14 360.00 738.05 386.88 777.05 405.69 Q 793.24 413.50 797.21 415.77 Q 807.93 421.88 807.67 433.10 C 807.52 439.34 804.00 445.77 799.36 449.61 C 774.04 470.59 733.82 470.33 703.84 461.22 A 0.34 0.33 82.5 0 0 703.46 461.72 Q 707.00 467.42 711.84 472.90 Q 735.15 499.23 765.19 520.05 Q 792.95 539.29 822.21 553.29 Q 838.37 561.02 862.02 570.28 C 870.98 573.79 881.46 576.71 890.61 580.39 Q 899.88 584.12 904.64 590.18 C 911.35 598.72 910.41 610.55 903.91 619.43 Q 898.31 627.06 888.29 632.29 Q 874.83 639.32 857.67 642.62 C 831.62 647.62 805.54 646.81 779.11 641.60 Q 757.69 637.38 736.97 630.06 A 0.41 0.41 0.0 0 0 736.50 630.69 Q 741.07 636.93 745.65 642.23 Q 758.53 657.13 771.42 668.82 Q 821.69 714.41 883.17 745.97 Q 892.78 750.90 908.48 757.59 Q 928.18 765.98 934.29 767.94 Q 949.54 772.85 961.43 778.31 C 977.62 785.73 983.80 803.11 972.67 818.00 C 964.71 828.65 951.28 835.53 938.46 840.03 Q 906.69 851.18 871.75 851.85 Q 845.66 852.34 824.02 848.98 Q 777.26 841.72 737.25 821.48 C 725.22 815.39 709.72 804.88 695.39 812.61 Q 687.94 816.63 682.92 824.85 C 675.38 837.18 672.55 850.38 671.62 864.63 C 670.21 886.14 677.67 908.01 690.96 924.75 C 694.39 929.08 697.71 931.81 702.32 935.10 C 708.77 939.71 704.19 947.75 696.95 946.31 C 688.61 944.65 680.31 939.79 673.27 934.39 Q 666.74 929.37 661.47 921.99 Q 645.14 899.15 646.38 870.73 Q 647.74 839.68 666.51 814.51 Q 673.12 805.64 681.54 799.85 Q 699.73 787.33 721.26 791.52 C 727.81 792.79 734.10 794.58 740.89 797.20 Q 758.34 803.95 776.03 809.97 Q 797.68 817.35 822.23 821.53 Q 862.19 828.35 901.13 822.13 C 914.89 819.93 928.64 816.09 940.33 810.07 Q 944.49 807.93 947.18 804.71 A 2.20 2.20 0.0 0 0 947.35 802.10 Q 946.10 800.16 943.31 799.19 Q 925.78 793.10 916.55 789.70 Q 886.01 778.46 859.12 763.59 Q 844.38 755.44 825.72 743.28 Q 782.62 715.19 747.21 680.04 Q 735.49 668.42 727.42 658.40 C 718.68 647.56 710.30 635.43 705.06 622.50 C 703.08 617.60 702.44 612.31 704.79 607.82 C 707.41 602.79 713.10 600.60 718.50 600.89 Q 721.94 601.08 727.72 603.08 Q 738.41 606.77 752.50 610.97 Q 788.87 621.80 825.75 621.56 C 843.50 621.45 865.25 618.42 879.19 608.19 Q 880.99 606.87 882.14 605.09 A 1.42 1.41 34.3 0 0 881.77 603.17 Q 878.65 600.92 875.35 599.90 Q 873.09 599.20 858.72 594.24 Q 824.79 582.52 794.72 566.76 C 764.11 550.70 734.20 529.96 709.36 504.90 Q 694.12 489.53 682.88 471.64 Q 676.84 462.03 673.62 452.66 C 670.83 444.53 675.05 435.56 684.25 435.31 Q 688.51 435.19 691.77 436.21 Q 700.77 439.02 709.04 441.12 C 726.25 445.50 746.44 446.47 764.15 442.14 C 770.44 440.61 777.24 438.27 781.66 433.65 A 0.90 0.90 0.0 0 0 781.47 432.26 Q 779.24 430.93 776.35 429.65 Q 762.05 423.30 749.52 416.97 Q 717.94 401.02 690.92 378.33 Q 684.77 373.16 675.30 363.21 Q 651.50 338.19 637.75 305.54 C 634.15 297.00 631.53 287.72 629.47 278.98 Z';
+  var IVM_X='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  var ivm=null, ivmPdf=null, _ivmPdfJob=0, _ivmSaveT=null, _ivmTreeP=null, _ivmFontsP=null;
+
+  // ── numbers, money and dates ──
+  function ivmNumber(d){ return 'INV-'+String(d.getFullYear()).slice(2)+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes()); }
+  function ivmBlank(){
+    var d=new Date(), base=ivmNumber(d), no=base, n=2, taken=ivmRecent().map(function(r){ return r.no; });
+    while(taken.indexOf(no)>=0) no=base+'-'+(n++);
+    return { v:1, no:no, date:iso(d), terms:'receipt', cust:{ name:'', company:'', phone:'', email:'', addr:'' },
+             items:[], tax:true, discount:'', paid:'', notes:'Thank you for your business!', orderId:null };
+  }
+  function ivmCents(v){ var n=parseFloat(String(v==null?'':v).replace(/[^0-9.\-]/g,'')); return isFinite(n)?Math.round(n*100):0; }
+  function ivmQty(v){ var n=parseFloat(String(v==null?'':v).replace(/[^0-9.]/g,'')); return (isFinite(n)&&n>0)?Math.round(n*100)/100:0; }
+  function ivmQtyText(q){ return String(Math.round(q*100)/100); }
+  function ivmMoney(c){
+    var neg=c<0; c=Math.abs(Math.round(c||0));
+    var s='$'+Math.floor(c/100).toLocaleString('en-US')+'.'+((c%100)<10?'0':'')+(c%100);
+    return neg?'−'+s:s;
+  }
+  function ivmLineCents(it){ return Math.round(ivmQty(it.qty)*ivmCents(it.price)); }
+  function ivmItemHas(it){ return !!(it&&((it.desc||'').trim()||ivmCents(it.price))); }
+  function ivmHasContent(x){
+    return !!(x&&(((x.cust.name||'').trim())||((x.cust.phone||'').trim())||((x.cust.email||'').trim())||x.items.some(ivmItemHas)));
+  }
+  function ivmTotals(x){
+    var sub=0;
+    x.items.forEach(function(it){ if(ivmItemHas(it)) sub+=ivmLineCents(it); });
+    var disc=Math.min(Math.max(0,ivmCents(x.discount)),sub), taxable=sub-disc;
+    var tax=x.tax?Math.round(taxable*IVM_TAX):0, total=taxable+tax, paid=Math.max(0,ivmCents(x.paid));
+    return { sub:sub, disc:disc, tax:tax, total:total, paid:paid, bal:Math.max(0,total-paid) };
+  }
+  function ivmParseDate(s){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''); return m?new Date(+m[1],+m[2]-1,+m[3]):new Date(); }
+  function ivmLongDate(d){ return d.toLocaleDateString('en-US',{ month:'long', day:'numeric', year:'numeric' }); }
+  function ivmDueDate(x){ var d=ivmParseDate(x.date); d.setDate(d.getDate()+(parseInt(x.terms,10)||0)); return d; }
+  function ivmDueText(x){ return x.terms==='receipt'?'Upon Receipt':ivmLongDate(ivmDueDate(x)); }
+  function ivmFileName(x){ return 'BROCH-CUSTOM-Invoice-'+String(x.no||'invoice').replace(/[^A-Za-z0-9-]+/g,'-')+'.pdf'; }
+
+  // ── kept on this device ──
+  function ivmLS(k,v){
+    try{
+      if(v===undefined){ var s=localStorage.getItem(k); return s?JSON.parse(s):null; }
+      localStorage.setItem(k,JSON.stringify(v));
+    }catch(e){}
+    return null;
+  }
+  function ivmRecent(){ var r=ivmLS(IVM_RECENT); return Array.isArray(r)?r:[]; }
+  function ivmPrices(){ var p=ivmLS(IVM_PRICES); return (p&&typeof p==='object')?p:{}; }
+  function ivmPriceFor(key){ var p=ivmPrices()[String(key||'').trim().toLowerCase()]; return p?String(p):''; }
+  function ivmRememberPrice(it){
+    var c=ivmCents(it.price); if(!c) return;
+    var p=ivmPrices(), v=(c/100).toFixed(2);
+    [it.desc,it.base].forEach(function(k){ k=String(k||'').trim().toLowerCase(); if(k) p[k]=v; });
+    ivmLS(IVM_PRICES,p);
+  }
+  function ivmSaveSoon(){ clearTimeout(_ivmSaveT); _ivmSaveT=setTimeout(function(){ if(ivm) ivmLS(IVM_DRAFT,ivm); },250); }
+  function ivmKeep(){
+    if(!ivm||!ivmHasContent(ivm)) return;
+    var list=ivmRecent().filter(function(r){ return r.no!==ivm.no; });
+    list.unshift({ no:ivm.no, name:(ivm.cust.name||'').trim(), total:ivmTotals(ivm).total, at:Date.now(), data:JSON.parse(JSON.stringify(ivm)) });
+    ivmLS(IVM_RECENT,list.slice(0,25));
+  }
+
+  // ── choices for the dropdowns ──
+  function ivmPresetHTML(){
+    var h='<option value="">+ Add an item…</option>';
+    IVM_OFFER.forEach(function(t){
+      var svc=IVM_SVC[t]||t, what=(WZ_PATH[t]&&WZ_PATH[t].what)||[];
+      if(!what.length) return;
+      h+='<optgroup label="'+esc(IVM_GROUP[t]||t)+'">'+what.map(function(w){ var d=w+' — '+svc; return '<option value="'+esc(d)+'">'+esc(d)+'</option>'; }).join('')+'</optgroup>';
+    });
+    h+='<option value="__custom">Other (blank line)</option>';
+    return h;
+  }
+  function ivmOrderList(){
+    return state.orders.filter(function(o){ return o&&!o.trashed&&o.type!=='NOTE'&&(itemCount(o)||((o.custName||'').trim())); })
+      .sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); }).slice(0,40);
+  }
+  function ivmOrderHTML(){
+    var list=ivmOrderList();
+    var h='<option value="">'+(list.length?'Fill from an order…':'No orders to fill from yet')+'</option>';
+    list.forEach(function(o){
+      var n=itemCount(o);
+      h+='<option value="'+esc(o.id)+'">'+esc((autoTitle(o)||'Order')+' · '+(IVM_GROUP[o.type]||o.type||'Order')+(n?' · '+n+(n>1?' items':' item'):''))+'</option>';
+    });
+    return h;
+  }
+  function ivmRecentHTML(){
+    var r=ivmRecent();
+    var h='<option value="">'+(r.length?'Recent invoices on this device…':'No recent invoices yet')+'</option>';
+    r.forEach(function(x){ h+='<option value="'+esc(x.no)+'">'+esc(x.no+(x.name?' · '+x.name:'')+' · '+ivmMoney(x.total||0))+'</option>'; });
+    return h;
+  }
+
+  // An order's shirts become invoice lines: one line per garment + color + fabric +
+  // placement, with the sizes counted in the details.
+  function ivmSizeRank(s){ var i=IVM_SIZE_ORDER.indexOf(s); return i<0?99:i; }
+  function ivmFromOrder(o){
+    var svc=IVM_SVC[o.type]||'', groups=[], by={};
+    (o.items||[]).filter(itemHas).forEach(function(it){
+      var k=[it.color,it.material,it.surface,it.placement].join('|');
+      var g=by[k]; if(!g){ g=by[k]={ it:it, n:0, sizes:{}, seen:[] }; groups.push(g); }
+      g.n++;
+      if(it.size){ if(!g.sizes[it.size]){ g.sizes[it.size]=0; g.seen.push(it.size); } g.sizes[it.size]++; }
+    });
+    return groups.map(function(g){
+      var it=g.it, what=[it.color,it.material,it.surface].filter(Boolean).join(' ')||'Item';
+      var sizes=g.seen.slice().sort(function(a,b){ return ivmSizeRank(a)-ivmSizeRank(b); })
+        .map(function(s){ return s+' ×'+g.sizes[s]; }).join(', ');
+      var desc=what+(svc?' — '+svc:''), base=(it.surface||what)+(svc?' — '+svc:'');
+      return { desc:desc, detail:[it.placement,sizes].filter(Boolean).join(' · '), qty:String(g.n), price:ivmPriceFor(desc)||ivmPriceFor(base), base:base };
+    });
+  }
+
+  // ── the form ──
+  var IVM_FIELDS=[['ivmName','cust','name'],['ivmCompany','cust','company'],['ivmPhone','cust','phone'],['ivmEmail','cust','email'],['ivmAddr','cust','addr'],
+                  ['ivmNo',null,'no'],['ivmDate',null,'date'],['ivmTerms',null,'terms'],['ivmDiscount',null,'discount'],['ivmPaid',null,'paid'],['ivmNotes',null,'notes']];
+  function ivmFill(){
+    IVM_FIELDS.forEach(function(f){ var o=f[1]?ivm[f[1]]:ivm; $(f[0]).value=o[f[2]]||''; });
+    if(!$('ivmTerms').value) $('ivmTerms').value='receipt';
+    $('ivmTax').checked=!!ivm.tax;
+    $('ivmRecent').innerHTML=ivmRecentHTML();
+    $('ivmFromOrder').innerHTML=ivmOrderHTML();
+    $('ivmAdd').innerHTML=ivmPresetHTML();
+    ivmItemsUI(); ivmTotUI();
+  }
+  function ivmItemsUI(){
+    var box=$('ivmItems');
+    if(!ivm.items.length){ box.innerHTML='<div class="ivm-empty">No items yet — add one below, or fill from an order.</div>'; return; }
+    box.innerHTML=ivm.items.map(function(it,i){
+      return '<div class="ivm-item" data-i="'+i+'">'+
+        '<div class="ivm-item-top"><input class="email-to" data-k="desc" placeholder="Description" autocomplete="off" value="'+esc(it.desc||'')+'">'+
+        '<button type="button" class="ivm-x" data-x="'+i+'" aria-label="Remove item" title="Remove item">'+IVM_X+'</button></div>'+
+        '<input class="email-to ivm-detail" data-k="detail" placeholder="Details — sizes, color, placement (optional)" autocomplete="off" value="'+esc(it.detail||'')+'">'+
+        '<div class="ivm-nums">'+
+          '<label class="ivm-f"><span class="ivm-lbl">Qty</span><input class="email-to" data-k="qty" inputmode="decimal" autocomplete="off" value="'+esc(String(it.qty==null?'':it.qty))+'"></label>'+
+          '<label class="ivm-f"><span class="ivm-lbl">Price $</span><input class="email-to" data-k="price" inputmode="decimal" placeholder="0.00" autocomplete="off" value="'+esc(String(it.price==null?'':it.price))+'"></label>'+
+          '<div class="ivm-f"><span class="ivm-lbl" style="text-align:right">Amount</span><div class="ivm-amt">'+ivmMoney(ivmLineCents(it))+'</div></div>'+
+        '</div></div>';
+    }).join('');
+  }
+  function ivmTotUI(){
+    var T=ivmTotals(ivm), h='<div><span>Subtotal</span><span>'+ivmMoney(T.sub)+'</span></div>';
+    if(T.disc) h+='<div><span>Discount</span><span>−'+ivmMoney(T.disc)+'</span></div>';
+    if(ivm.tax) h+='<div><span>Sales tax (8.25%)</span><span>'+ivmMoney(T.tax)+'</span></div>';
+    h+='<div class="ivm-strong"><span>Total</span><span>'+ivmMoney(T.total)+'</span></div>';
+    if(T.paid) h+='<div><span>Already paid</span><span>−'+ivmMoney(T.paid)+'</span></div>';
+    h+='<div class="ivm-due"><span>Balance due</span><span>'+ivmMoney(T.bal)+'</span></div>';
+    $('ivmTot').innerHTML=h;
+  }
+  function ivmChanged(){ ivmPdf=null; _ivmPdfJob++; ivmTotUI(); ivmSaveSoon(); }
+  function ivmTab(t){
+    var pv=(t==='preview');
+    $('ivmTabEdit').classList.toggle('on',!pv); $('ivmTabPreview').classList.toggle('on',pv);
+    $('ivmTabEdit').setAttribute('aria-selected',pv?'false':'true'); $('ivmTabPreview').setAttribute('aria-selected',pv?'true':'false');
+    $('ivmEditPane').hidden=pv; $('ivmPreviewPane').hidden=!pv;
+    if(pv) ivmPreview();
+  }
+  function ivmOpen(){
+    $('linksOverlay').classList.remove('show');
+    if(!ivm){ var d=ivmLS(IVM_DRAFT); ivm=(d&&d.v===1&&d.cust&&Array.isArray(d.items))?d:ivmBlank(); }
+    ivmFonts();
+    ivmFill(); ivmTab('edit');
+    $('invoiceOverlay').classList.add('show');
+  }
+  function ivmHide(){ if(ivm) ivmLS(IVM_DRAFT,ivm); $('invoiceOverlay').classList.remove('show'); }
+
+  // ── brand fonts for the page (EB Garamond only loads when this opens) ──
+  function ivmFonts(){
+    if(_ivmFontsP) return _ivmFontsP;
+    var cssP=new Promise(function(res){
+      if($('ivmFontCss')){ res(); return; }
+      var l=document.createElement('link'); l.id='ivmFontCss'; l.rel='stylesheet';
+      l.href='https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap';
+      l.onload=res; l.onerror=res; document.head.appendChild(l);
+    });
+    var all=cssP.then(function(){
+      if(!document.fonts||!document.fonts.load) return;
+      return Promise.all(['400 16px "EB Garamond"','500 16px "EB Garamond"','600 16px "EB Garamond"','italic 400 16px "EB Garamond"','500 16px Teko','16px Schadow']
+        .map(function(f){ return document.fonts.load(f,'BROCH CUSTOM Invoice $0123'); }));
+    });
+    _ivmFontsP=Promise.race([all,new Promise(function(r){ setTimeout(r,5000); })]).catch(function(){});
+    return _ivmFontsP;
+  }
+
+  // ── drawing helpers (page units: 850 × 1100 = a letter page at 100 per inch) ──
+  function ivmTree(ctx,x,y,h,color){
+    if(!_ivmTreeP) _ivmTreeP=new Path2D(IVM_TREE);
+    var s=h/790; ctx.save(); ctx.translate(x,y); ctx.scale(s,s); ctx.translate(-250,-190);
+    ctx.fillStyle=color; ctx.fill(_ivmTreeP); ctx.restore(); return 760*s;
+  }
+  function ivmLine(ctx,x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function ivmRound(ctx,x,y,w,h,r){
+    ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function ivmSpacedW(ctx,t,sp){ var a=Array.from(t), w=0; for(var i=0;i<a.length;i++) w+=ctx.measureText(a[i]).width; return w+sp*Math.max(0,a.length-1); }
+  function ivmSpaced(ctx,t,x,y,sp,align){
+    var a=Array.from(t), w=ivmSpacedW(ctx,t,sp), sx=align==='right'?x-w:(align==='center'?x-w/2:x);
+    ctx.textAlign='left';
+    for(var i=0;i<a.length;i++){ ctx.fillText(a[i],sx,y); sx+=ctx.measureText(a[i]).width+sp; }
+    return w;
+  }
+  function ivmTxt(ctx,t,x,y,align){ ctx.textAlign=align||'left'; ctx.fillText(t,x,y); ctx.textAlign='left'; }
+  function ivmFit(ctx,t,maxW){
+    t=String(t||''); if(ctx.measureText(t).width<=maxW) return t;
+    while(t.length>1&&ctx.measureText(t+'…').width>maxW) t=t.slice(0,-1);
+    return t+'…';
+  }
+  function ivmWrap(ctx,text,maxW){
+    var out=[];
+    String(text||'').split(/\r?\n/).forEach(function(par){
+      var words=par.split(/\s+/).filter(Boolean), line='';
+      if(!words.length){ out.push(''); return; }
+      words.forEach(function(w){
+        while(ctx.measureText(w).width>maxW&&w.length>1){      // one very long word: break it
+          var k=w.length; while(k>1&&ctx.measureText(w.slice(0,k)).width>maxW) k--;
+          if(line){ out.push(line); line=''; }
+          out.push(w.slice(0,k)); w=w.slice(k);
+        }
+        var t=line?line+' '+w:w;
+        if(!line||ctx.measureText(t).width<=maxW) line=t; else { out.push(line); line=w; }
+      });
+      if(line) out.push(line);
+    });
+    return out;
+  }
+
+  // ── page plan: which rows go on which page ──
+  function ivmBillLines(ctx,x){
+    var F=IVM_F, C=IVM_C, out=[], y=250;
+    ctx.font='600 21px '+F.serif;
+    ivmWrap(ctx,(x.cust.name||'').trim()||'—',410).slice(0,2).forEach(function(l,i){ if(i) y+=25; out.push({ t:l, f:'600 21px '+F.serif, c:C.ink, y:y }); });
+    if((x.cust.company||'').trim()){ y+=22; out.push({ t:x.cust.company.trim(), f:'500 15.5px '+F.serif, c:C.ink, y:y }); }
+    ['phone','email','addr'].forEach(function(k){ var v=(x.cust[k]||'').trim(); if(v){ y+=20; out.push({ t:v, f:'400 14.5px '+F.serif, c:C.soft, y:y }); } });
+    return { lines:out, bottom:y+8 };
+  }
+  function ivmPlan(x){
+    var ctx=document.createElement('canvas').getContext('2d'), F=IVM_F;
+    var T=ivmTotals(x), bill=ivmBillLines(ctx,x), rows=[];
+    x.items.filter(ivmItemHas).forEach(function(it){
+      ctx.font='400 16px '+F.serif; var d=ivmWrap(ctx,(it.desc||'').trim()||'Item',IVM_COL.descW);
+      ctx.font='italic 400 13.5px '+F.serif; var t=(it.detail||'').trim()?ivmWrap(ctx,it.detail.trim(),IVM_COL.descW):[];
+      var q=ivmQty(it.qty), p=ivmCents(it.price);
+      rows.push({ d:d, t:t, q:q, p:p, a:Math.round(q*p), h:14+d.length*21+t.length*18+12 });
+    });
+    if(!rows.length) rows.push({ empty:true, h:48 });
+    ctx.font='italic 400 14px '+F.serif;
+    var notes=(x.notes||'').trim()?ivmWrap(ctx,x.notes.trim(),400):[];
+    var rightH=86+24*(1+(T.disc?1:0)+(x.tax?1:0)+(T.paid?1:0));
+    var payH=50+20*IVM_PAY.length, leftH=notes.length?payH+26+19*notes.length:payH;
+    var bottomH=Math.max(rightH,leftH)+6;
+    var top=Math.max(bill.bottom,302)+34, pages=[], pg={ first:true, tableTop:top, rows:[] }, y=top+32;
+    rows.forEach(function(r){
+      if(y+r.h>IVM_LIMIT&&pg.rows.length){ pages.push(pg); pg={ first:false, tableTop:128, rows:[] }; y=160; }
+      r.y=y; pg.rows.push(r); y+=r.h;
+    });
+    var by=y+10;
+    if(by+bottomH>IVM_LIMIT){ pages.push(pg); pg={ first:false, tableTop:null, rows:[] }; by=126; }
+    pg.bottomY=by; pages.push(pg);
+    return { pages:pages, T:T, bill:bill, notes:notes };
+  }
+
+  // ── painting a page ──
+  function ivmHeader(ctx,x,plan){
+    var C=IVM_C, F=IVM_F, M=IVM_M, R=IVM_R, T=plan.T;
+    var tw=ivmTree(ctx,M,42,56,C.forest), bx=M+tw+14;
+    ctx.fillStyle=C.forest; ctx.font='36px '+F.brand; ctx.fillText('BROCH CUSTOM',bx,86);
+    ctx.fillStyle=C.caramel; ctx.font='500 11.5px '+F.label; ivmSpaced(ctx,IVM_SERVICES,bx,106,1.6);
+    ctx.fillStyle=C.soft; ctx.font='400 13.5px '+F.serif;
+    ctx.fillText(IVM_SHOP.city+'   ·   '+IVM_SHOP.phone,M,142);
+    ctx.fillText(IVM_SHOP.email+'   ·   '+IVM_SHOP.web,M,161);
+    ctx.fillStyle=C.forest; ctx.font='500 56px '+F.label; ivmSpaced(ctx,'INVOICE',R,90,7,'right');
+    [['INVOICE NO.',x.no||'—'],['DATE',ivmLongDate(ivmParseDate(x.date))],['DUE',ivmDueText(x)]].forEach(function(r,i){
+      var y=128+i*20;
+      ctx.fillStyle=C.brown; ctx.font='500 11.5px '+F.label; ivmSpaced(ctx,r[0],R-236,y,1.7);
+      ctx.fillStyle=C.ink; ctx.font='400 14.5px '+F.serif; ivmTxt(ctx,ivmFit(ctx,r[1],150),R,y,'right');
+    });
+    ctx.strokeStyle=C.caramel; ctx.lineWidth=1.2; ivmLine(ctx,M,194,R,194);
+    ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'BILL TO',M,226,1.9);
+    plan.bill.lines.forEach(function(l){ ctx.fillStyle=l.c; ctx.font=l.f; ctx.fillText(ivmFit(ctx,l.t,420),M,l.y); });
+    var bx0=R-270, by0=212;
+    ctx.fillStyle=C.cream; ivmRound(ctx,bx0,by0,270,90,10); ctx.fill();
+    ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'BALANCE DUE',bx0+18,by0+26,1.9);
+    ctx.fillStyle=C.forest; ctx.font='600 30px '+F.serif; ctx.fillText(ivmFit(ctx,ivmMoney(T.bal),234),bx0+18,by0+59);
+    ctx.fillStyle=C.soft; ctx.font='italic 400 13.5px '+F.serif;
+    ctx.fillText((T.total>0&&T.bal===0)?'Paid in full — thank you':(x.terms==='receipt'?'Due upon receipt':'Due by '+ivmLongDate(ivmDueDate(x))),bx0+18,by0+79);
+  }
+  function ivmHeaderSmall(ctx,x){
+    var C=IVM_C, F=IVM_F, M=IVM_M, R=IVM_R;
+    var tw=ivmTree(ctx,M,40,36,C.forest);
+    ctx.fillStyle=C.forest; ctx.font='24px '+F.brand; ctx.fillText('BROCH CUSTOM',M+tw+10,70);
+    ctx.font='500 32px '+F.label; ivmSpaced(ctx,'INVOICE',R,68,4,'right');
+    ctx.fillStyle=C.soft; ctx.font='italic 400 13.5px '+F.serif; ivmTxt(ctx,(x.no||'')+' · continued',R,90,'right');
+    ctx.strokeStyle=C.caramel; ctx.lineWidth=1.2; ivmLine(ctx,M,106,R,106);
+  }
+  function ivmTable(ctx,P){
+    var C=IVM_C, F=IVM_F, M=IVM_M, R=IVM_R, y=P.tableTop;
+    ctx.fillStyle=C.cream; ivmRound(ctx,M,y,R-M,32,6); ctx.fill();
+    ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label;
+    ivmSpaced(ctx,'DESCRIPTION',IVM_COL.desc,y+21,1.9);
+    ivmSpaced(ctx,'QTY',IVM_COL.qtyR,y+21,1.9,'right');
+    ivmSpaced(ctx,'PRICE',IVM_COL.priceR,y+21,1.9,'right');
+    ivmSpaced(ctx,'AMOUNT',IVM_COL.amtR,y+21,1.9,'right');
+    P.rows.forEach(function(r){
+      var b=r.y+29;
+      if(r.empty){ ctx.fillStyle=C.soft; ctx.font='italic 400 15px '+F.serif; ctx.fillText('No items',IVM_COL.desc,b); }
+      else{
+        ctx.fillStyle=C.ink; ctx.font='400 16px '+F.serif;
+        r.d.forEach(function(l,i){ ctx.fillText(l,IVM_COL.desc,b+i*21); });
+        ivmTxt(ctx,ivmQtyText(r.q),IVM_COL.qtyR,b,'right');
+        ivmTxt(ctx,ivmMoney(r.p),IVM_COL.priceR,b,'right');
+        ivmTxt(ctx,ivmMoney(r.a),IVM_COL.amtR,b,'right');
+        ctx.fillStyle=C.soft; ctx.font='italic 400 13.5px '+F.serif;
+        r.t.forEach(function(l,i){ ctx.fillText(l,IVM_COL.desc,b+r.d.length*21-2+i*18); });
+      }
+      ctx.strokeStyle=C.sand; ctx.lineWidth=1; ivmLine(ctx,M,r.y+r.h,R,r.y+r.h);
+    });
+  }
+  function ivmBottom(ctx,x,plan,y0){
+    var C=IVM_C, F=IVM_F, M=IVM_M, R=IVM_R, T=plan.T, lx=R-270, y=y0+26;
+    function row(label,val,strong){
+      ctx.fillStyle=strong?C.ink:C.soft; ctx.font=(strong?'600 16.5px ':'400 15px ')+F.serif; ctx.fillText(label,lx,y);
+      ctx.fillStyle=C.ink; ivmTxt(ctx,val,IVM_COL.amtR,y,'right'); y+=24;
+    }
+    row('Subtotal',ivmMoney(T.sub));
+    if(T.disc) row('Discount','−'+ivmMoney(T.disc));
+    if(x.tax) row('Sales Tax (8.25%)',ivmMoney(T.tax));
+    ctx.strokeStyle=C.sand; ctx.lineWidth=1; ivmLine(ctx,lx,y-16,R,y-16);
+    y+=4; row('Total',ivmMoney(T.total),true);
+    if(T.paid) row('Paid','−'+ivmMoney(T.paid));
+    var bandY=y-10;
+    ctx.fillStyle=C.forest; ivmRound(ctx,lx-14,bandY,R-lx+14,42,8); ctx.fill();
+    ctx.fillStyle=C.cream; ctx.font='500 13.5px '+F.label; ivmSpaced(ctx,'BALANCE DUE',lx,bandY+27,2);
+    ctx.font='600 20px '+F.serif; ivmTxt(ctx,ivmMoney(T.bal),IVM_COL.amtR,bandY+28,'right');
+    var ly=y0+26;
+    ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'PAYMENT OPTIONS',M,ly,1.9); ly+=24;
+    IVM_PAY.forEach(function(p){
+      ctx.fillStyle=C.ink; ctx.font='600 14.5px '+F.serif; ctx.fillText(p[0],M,ly);
+      ctx.fillStyle=C.soft; ctx.font='400 14.5px '+F.serif; ctx.fillText(p[1],M+96,ly); ly+=20;
+    });
+    if(plan.notes.length){
+      ly+=18; ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'NOTES',M,ly,1.9); ly+=22;
+      ctx.fillStyle=C.soft; ctx.font='italic 400 14px '+F.serif;
+      plan.notes.forEach(function(l){ ctx.fillText(l,M,ly); ly+=19; });
+    }
+  }
+  function ivmFooter(ctx,x,pi,n){
+    var C=IVM_C, F=IVM_F, M=IVM_M, R=IVM_R;
+    ctx.strokeStyle=C.sand; ctx.lineWidth=1; ivmLine(ctx,M,1034,R,1034);
+    ctx.fillStyle=C.caramel; ctx.font='500 11.5px '+F.label;
+    ivmSpaced(ctx,'BROCH CUSTOM  ·  EDINBURG, TEXAS  ·  BROCHCUSTOM.COM',IVM_W/2,1058,2,'center');
+    if(n>1){ ivmSpaced(ctx,String(x.no||''),M,1058,1.4); ivmSpaced(ctx,'PAGE '+(pi+1)+' OF '+n,R,1058,1.6,'right'); }
+  }
+  function ivmDraw(x,plan,i,k){
+    var cv=document.createElement('canvas'); cv.width=Math.round(IVM_W*k); cv.height=Math.round(IVM_H*k);
+    var ctx=cv.getContext('2d'); ctx.setTransform(k,0,0,k,0,0);
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,IVM_W,IVM_H); ctx.textBaseline='alphabetic';
+    var P=plan.pages[i];
+    if(P.first) ivmHeader(ctx,x,plan); else ivmHeaderSmall(ctx,x);
+    if(P.tableTop!=null) ivmTable(ctx,P);
+    if(P.bottomY!=null) ivmBottom(ctx,x,plan,P.bottomY);
+    ivmFooter(ctx,x,i,plan.pages.length);
+    return cv;
+  }
+
+  // ── the PDF: each page is a JPEG on a letter-size page ──
+  function ivmJpeg(cv){
+    return new Promise(function(res,rej){
+      cv.toBlob(function(b){
+        if(!b){ rej(new Error('Could not draw the page')); return; }
+        var fr=new FileReader();
+        fr.onload=function(){ res({ bytes:new Uint8Array(fr.result), w:cv.width, h:cv.height }); cv.width=cv.height=0; };
+        fr.onerror=function(){ rej(fr.error); };
+        fr.readAsArrayBuffer(b);
+      },'image/jpeg',0.9);
+    });
+  }
+  function ivmPdfBlob(jpegs,title){
+    var parts=[], pos=0, offs=[], n=jpegs.length, total=3+3*n, i;
+    function add(x){ if(typeof x==='string'){ var b=new Uint8Array(x.length); for(var j=0;j<x.length;j++) b[j]=x.charCodeAt(j)&255; x=b; } parts.push(x); pos+=x.length; }
+    function obj(num,body){ offs[num]=pos; add(num+' 0 obj\n'); if(typeof body==='function') body(); else add(body); add('\nendobj\n'); }
+    function str(s){ return '('+String(s).replace(/[^\x20-\x7e]/g,'').replace(/[\\()]/g,'\\$&')+')'; }
+    var d=new Date(), stamp='D:'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds());
+    add('%PDF-1.4\n%âãÏÓ\n');
+    var kids=[]; for(i=0;i<n;i++) kids.push((4+3*i)+' 0 R');
+    obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2,'<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+n+' >>');
+    obj(3,'<< /Title '+str(title)+' /Author (BROCH CUSTOM) /Creator (BROCH CUSTOM Orders) /Producer (BROCH CUSTOM Orders) /CreationDate ('+stamp+') >>');
+    jpegs.forEach(function(J,k){
+      var p=4+3*k, cs='q 612 0 0 792 0 0 cm /Im0 Do Q';
+      obj(p,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 '+(p+2)+' 0 R >> >> /Contents '+(p+1)+' 0 R >>');
+      obj(p+1,'<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream');
+      obj(p+2,function(){
+        add('<< /Type /XObject /Subtype /Image /Width '+J.w+' /Height '+J.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+J.bytes.length+' >>\nstream\n');
+        add(J.bytes); add('\nendstream');
+      });
+    });
+    var xref=pos, s='xref\n0 '+(total+1)+'\n0000000000 65535 f \n';
+    for(i=1;i<=total;i++) s+=('0000000000'+offs[i]).slice(-10)+' 00000 n \n';
+    add(s+'trailer\n<< /Size '+(total+1)+' /Root 1 0 R /Info 3 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');
+    return new Blob(parts,{ type:'application/pdf' });
+  }
+  function ivmCanShare(){
+    try{ return !!(navigator.share&&navigator.canShare&&navigator.canShare({ files:[new File(['x'],'x.pdf',{ type:'application/pdf' })] })); }
+    catch(e){ return false; }
+  }
+  // Phones get Send (their share sheet: Messages, Mail, Files, Print); computers get Download + Print.
+  function ivmButtons(ready){
+    var share=ivmCanShare(), phone=!!(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches);
+    var primary=(share&&phone)?'ivmSend':'ivmDownload';
+    $('ivmSend').hidden=!share; $('ivmPrint').hidden=phone;
+    [['ivmSend','Send PDF'],['ivmDownload','Download PDF'],['ivmPrint','Print']].forEach(function(b){
+      var el=$(b[0]); el.disabled=!ready; el.classList.toggle('ivm-ghost',b[0]!==primary);
+      el.textContent=(!ready&&b[0]===primary)?'Preparing PDF…':b[1];
+    });
+  }
+  function ivmMakePdf(snap){
+    var job=++_ivmPdfJob; ivmPdf=null; ivmButtons(false);
+    var plan=ivmPlan(snap), jpegs=[], chain=Promise.resolve();
+    plan.pages.forEach(function(_,i){
+      chain=chain.then(function(){ if(job!==_ivmPdfJob) return; return ivmJpeg(ivmDraw(snap,plan,i,IVM_EXPORT)).then(function(j){ jpegs.push(j); }); });
+    });
+    return chain.then(function(){
+      if(job!==_ivmPdfJob) return;
+      ivmPdf={ blob:ivmPdfBlob(jpegs,'Invoice '+snap.no+(snap.cust.name?' - '+snap.cust.name:'')), name:ivmFileName(snap), no:snap.no, jpegs:jpegs };
+      ivmButtons(true);
+    }).catch(function(e){
+      console.error('[invoice] pdf',e);
+      if(job===_ivmPdfJob) $('ivmPdfNote').textContent='Could not make the PDF on this device.';
+    });
+  }
+  function ivmPreview(){
+    var box=$('ivmPages'), note=$('ivmPdfNote');
+    note.textContent='';
+    if(!box.firstChild) box.innerHTML='<div class="lbl-note">Setting the page…</div>';
+    ivmButtons(false);
+    var snap=JSON.parse(JSON.stringify(ivm));
+    ivmFonts().then(function(){
+      var w=Math.max(280,box.clientWidth||480), k=w*Math.min(3,window.devicePixelRatio||1)/IVM_W;
+      var plan=ivmPlan(snap);
+      box.innerHTML='';
+      plan.pages.forEach(function(_,i){
+        var cv=ivmDraw(snap,plan,i,k); cv.className='ivm-page';
+        cv.setAttribute('role','img'); cv.setAttribute('aria-label','Invoice page '+(i+1)+' of '+plan.pages.length);
+        box.appendChild(cv);
+      });
+      if(!snap.items.some(ivmItemHas)) note.textContent='This invoice has no items yet.';
+      ivmMakePdf(snap);
+    });
+  }
+
+  // ── wiring ──
+  IVM_FIELDS.forEach(function(f){
+    var el=$(f[0]);
+    function upd(){ var o=f[1]?ivm[f[1]]:ivm; if(o[f[2]]===el.value) return; o[f[2]]=el.value; ivmChanged(); }
+    el.addEventListener('input',upd); el.addEventListener('change',upd);
+  });
+  $('ivmTax').addEventListener('change',function(){ ivm.tax=this.checked; ivmChanged(); });
+  $('ivmItems').addEventListener('input',function(e){
+    var el=e.target, k=el.getAttribute&&el.getAttribute('data-k'), card=el.closest&&el.closest('.ivm-item');
+    if(!k||!card) return;
+    var it=ivm.items[+card.getAttribute('data-i')]; if(!it) return;
+    it[k]=el.value;
+    if(k==='qty'||k==='price') card.querySelector('.ivm-amt').textContent=ivmMoney(ivmLineCents(it));
+    ivmChanged();
+  });
+  $('ivmItems').addEventListener('change',function(e){
+    var el=e.target, card=el.closest&&el.closest('.ivm-item'); if(!card) return;
+    var it=ivm.items[+card.getAttribute('data-i')];
+    if(it&&el.getAttribute('data-k')==='price') ivmRememberPrice(it);
+  });
+  $('ivmItems').addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.ivm-x'); if(!b) return;
+    var i=+b.getAttribute('data-x'), gone=ivm.items.splice(i,1)[0];
+    ivmItemsUI(); ivmChanged();
+    toast('Item removed',function(){ ivm.items.splice(i,0,gone); ivmItemsUI(); ivmChanged(); });
+  });
+  $('ivmAdd').addEventListener('change',function(){
+    var v=this.value; this.value=''; if(!v) return;
+    var custom=(v==='__custom');
+    ivm.items.push({ desc:custom?'':v, detail:'', qty:'1', price:custom?'':ivmPriceFor(v), base:custom?'':v });
+    ivmItemsUI(); ivmChanged();
+    var cards=$('ivmItems').querySelectorAll('.ivm-item'), last=cards[cards.length-1];
+    if(last){ var f=last.querySelector(custom?'[data-k="desc"]':'[data-k="price"]'); last.scrollIntoView({ block:'nearest' }); if(f) f.focus(); }
+  });
+  $('ivmFromOrder').addEventListener('change',function(){
+    var id=this.value; this.value=''; if(!id) return;
+    var o=getOrder(id); if(!o) return;
+    var items=ivmFromOrder(o);
+    if(items.length&&ivm.items.some(ivmItemHas)&&!confirm('Replace the items on this invoice with the ones from that order?')) return;
+    var sameName=((o.custName||'').trim().toLowerCase()===(ivm.cust.name||'').trim().toLowerCase());
+    ivm.cust.name=o.custName||''; ivm.cust.phone=o.custPhone||''; ivm.cust.email=o.custEmail||'';
+    if(!sameName){ ivm.cust.company=''; ivm.cust.addr=''; }
+    var a=parseShipTo(o.body);
+    if(a&&(a.street||a.city)) ivm.cust.addr=[a.street,a.city,[a.state,a.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+    if(items.length) ivm.items=items;
+    ivm.orderId=o.id;
+    ivmFill(); ivmChanged();
+    toast(items.length?'Filled from the order — now add the prices':'Customer filled from the order');
+  });
+  $('ivmRecent').addEventListener('change',function(){
+    var no=this.value; this.value=''; if(!no) return;
+    var r=ivmRecent().filter(function(x){ return x.no===no; })[0]; if(!r||!r.data) return;
+    if(ivm.no!==no) ivmKeep();
+    ivm=JSON.parse(JSON.stringify(r.data)); ivmFill(); ivmChanged(); ivmTab('edit');
+    toast('Opened '+no);
+  });
+  $('ivmNew').addEventListener('click',function(){
+    ivmKeep();
+    ivm=ivmBlank(); ivmFill(); ivmChanged(); ivmTab('edit');
+    $('ivmEditPane').scrollTop=0;
+    toast('New invoice '+ivm.no);
+  });
+  $('ivmTabEdit').addEventListener('click',function(){ ivmTab('edit'); });
+  $('ivmTabPreview').addEventListener('click',function(){ ivmTab('preview'); });
+  $('ivmGoPreview').addEventListener('click',function(){ ivmTab('preview'); $('ivmPreviewPane').scrollTop=0; });
+  $('ivmSend').addEventListener('click',function(){
+    if(!ivmPdf) return;
+    var f=new File([ivmPdf.blob],ivmPdf.name,{ type:'application/pdf' });
+    navigator.share({ files:[f], title:'Invoice '+ivmPdf.no }).then(function(){ ivmKeep(); })
+      .catch(function(e){ if(!e||e.name!=='AbortError') toast('Could not open sharing — use Download instead'); });
+  });
+  $('ivmDownload').addEventListener('click',function(){
+    if(!ivmPdf) return;
+    var url=URL.createObjectURL(ivmPdf.blob), a=document.createElement('a');
+    a.href=url; a.download=ivmPdf.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); },30000);
+    ivmKeep(); toast('Saved '+ivmPdf.name);
+  });
+  $('ivmPrint').addEventListener('click',function(){
+    if(!ivmPdf) return;
+    var pdf=ivmPdf, urls=pdf.jpegs.map(function(j){ return URL.createObjectURL(new Blob([j.bytes],{ type:'image/jpeg' })); });
+    var fr=document.createElement('iframe');
+    fr.setAttribute('aria-hidden','true');
+    fr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+    fr.srcdoc='<!doctype html><html><head><meta charset="utf-8"><title>'+esc('Invoice '+pdf.no)+'</title><style>@page{size:letter;margin:0}'+
+      'html,body{margin:0;padding:0}img{display:block;width:8.5in;height:11in;break-after:page;page-break-after:always}img:last-child{break-after:auto;page-break-after:auto}</style></head><body>'+
+      urls.map(function(u){ return '<img src="'+u+'" alt="">'; }).join('')+'</body></html>';
+    fr.onload=function(){
+      var imgs=[].slice.call(fr.contentDocument.images);
+      Promise.all(imgs.map(function(im){ return im.complete?0:new Promise(function(r){ im.onload=im.onerror=r; }); })).then(function(){
+        try{ fr.contentWindow.focus(); fr.contentWindow.print(); }
+        catch(e){ window.open(URL.createObjectURL(pdf.blob),'_blank'); }
+        setTimeout(function(){ fr.remove(); urls.forEach(function(u){ URL.revokeObjectURL(u); }); },60000);
+      });
+    };
+    document.body.appendChild(fr);
+    ivmKeep();
+  });
+  $('ivmPages').addEventListener('click',function(e){
+    var cv=e.target&&e.target.closest&&e.target.closest('canvas.ivm-page'); if(!cv) return;
+    var all=[].slice.call($('ivmPages').querySelectorAll('canvas.ivm-page')), pdf=ivmPdf;
+    var srcs=pdf?pdf.jpegs.map(function(j){ return URL.createObjectURL(new Blob([j.bytes],{ type:'image/jpeg' })); })
+                :all.map(function(c){ return c.toDataURL('image/jpeg',0.92); });
+    LB.open(srcs,Math.max(0,all.indexOf(cv)));
+    if(pdf) setTimeout(function(){ srcs.forEach(function(u){ URL.revokeObjectURL(u); }); },300000);
+  });
+  $('invoiceOpen').addEventListener('click',ivmOpen);
+  $('ivmClose').addEventListener('click',ivmHide);
+  $('invoiceOverlay').addEventListener('click',function(e){ if(e.target===$('invoiceOverlay')) ivmHide(); });
 
   load(); checkHash();
 })();
