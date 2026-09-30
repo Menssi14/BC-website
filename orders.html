@@ -394,6 +394,25 @@
   .dtf-tbl tr.grp td{ border-top:2px solid var(--line-strong); }
   .dtf-note{ font-family:'Teko',sans-serif; font-style:italic; font-size:15px; color:var(--muted); margin:12px 2px 0; }
 
+  /* ── Take Payment tool ───────────────────────────────────── */
+  .paytool-box{ max-width:520px; }
+  .paytool-body{ padding:16px; overflow:auto; }
+  .paytool-tabs{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+  .paytool-tab{ border:1.5px solid var(--line-strong); border-radius:11px; padding:11px 10px 9px; background:var(--note); color:var(--burgundy); cursor:pointer;
+    font-family:'Teko',sans-serif; font-size:18px; letter-spacing:.055em; text-transform:uppercase; }
+  .paytool-tab.on{ background:var(--green); color:var(--cream); border-color:var(--green); }
+  .paytool-summary{ margin:12px 0; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:rgba(255,255,255,.35); }
+  .paytool-line{ display:flex; justify-content:space-between; gap:16px; padding:8px 12px; font-family:'Teko',sans-serif; font-size:17px; letter-spacing:.025em; }
+  .paytool-line + .paytool-line{ border-top:1px solid var(--line); }
+  .paytool-line.total{ background:rgba(31,77,62,.08); color:var(--green); font-size:21px; font-weight:600; }
+  .paytool-note{ margin:8px 2px 12px; font-family:'Teko',sans-serif; font-size:15px; line-height:1.3; color:var(--muted); }
+  .paytool-card{ min-height:90px; margin:10px 0 12px; }
+  .paytool-status{ min-height:21px; margin:8px 2px 0; font-family:'Teko',sans-serif; font-size:16px; line-height:1.25; color:var(--burgundy); }
+  .paytool-success{ padding:18px 4px 8px; text-align:center; }
+  .paytool-success h3{ margin:0 0 5px; font-family:'Schadow',Impact,sans-serif; font-size:27px; font-weight:400; color:var(--green); }
+  .paytool-success .amt{ font-family:'Teko',sans-serif; font-size:34px; color:var(--ink); margin:2px 0 8px; }
+  .paytool-success p{ margin:4px auto 14px; max-width:390px; font-family:'Teko',sans-serif; font-size:17px; line-height:1.3; color:var(--muted); }
+
   /* ── Invoice Maker ─────────────────────────────────────────
      A form on the left of your thumb, the finished page one tap
      away. The page itself is always white paper, in both themes. */
@@ -1086,6 +1105,10 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path></svg></span>
         <span class="eo-t">Shirt Stock <span id="invCount" style="opacity:.55;text-transform:none;letter-spacing:0"></span></span>
       </button>
+      <button class="edit-opt" id="takePayOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9h19M7 15h3"/></svg></span>
+        <span class="eo-t">Take Payment</span>
+      </button>
       <button class="edit-opt" id="histOpen" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
         <span class="eo-t">Payment history</span>
@@ -1208,8 +1231,9 @@
       <div class="ivm-pages" id="ivmPages"></div>
       <div class="lbl-note">Tap the page to see it full size.</div>
       <div class="ivm-actions">
-        <button class="btn-wide" id="ivmSend" type="button" hidden>Send PDF</button>
-        <button class="btn-wide" id="ivmDownload" type="button">Download PDF</button>
+        <button class="btn-wide" id="ivmEmailOrders" type="button">Email to Orders</button>
+        <button class="btn-wide ivm-ghost" id="ivmSend" type="button" hidden>Send PDF</button>
+        <button class="btn-wide ivm-ghost" id="ivmDownload" type="button">Download PDF</button>
         <button class="btn-wide ivm-ghost" id="ivmPrint" type="button" hidden>Print</button>
       </div>
       <div class="lbl-note" id="ivmPdfNote"></div>
@@ -1328,6 +1352,40 @@
         </tbody>
       </table>
       <p class="dtf-note">Widths, in inches. Same for print or embroidery. Height follows the artwork.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TAKE PAYMENT -->
+<div class="overlay" id="takePayOverlay">
+  <div class="hist-box paytool-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Take Payment</span>
+      <button class="icon-btn" id="takePayClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="paytool-body">
+      <div id="takePayForm">
+        <div class="paytool-tabs" role="group" aria-label="Payment method">
+          <button class="paytool-tab on" id="takePayCardTab" type="button">Card</button>
+          <button class="paytool-tab" id="takePayAchTab" type="button">ACH · Bank</button>
+        </div>
+        <label class="ivm-f"><span class="ivm-lbl">Amount owed</span><input class="email-to" id="takePayAmount" inputmode="decimal" placeholder="0.00" autocomplete="off"></label>
+        <div class="ivm-two">
+          <label class="ivm-f"><span class="ivm-lbl">Customer name</span><input class="email-to" id="takePayName" autocomplete="name" placeholder="Optional"></label>
+          <label class="ivm-f"><span class="ivm-lbl">Customer email</span><input class="email-to" id="takePayEmail" type="email" inputmode="email" autocomplete="email" placeholder="Receipt email"></label>
+        </div>
+        <div class="paytool-summary" id="takePaySummary"></div>
+        <p class="paytool-note" id="takePayNote"></p>
+        <div class="paytool-card" id="takePayCard"></div>
+        <button class="btn-wide" id="takePaySubmit" type="button">Charge Card</button>
+        <div class="paytool-status" id="takePayStatus" role="status" aria-live="polite"></div>
+      </div>
+      <div class="paytool-success" id="takePaySuccess" hidden>
+        <h3 id="takePaySuccessTitle">Payment received</h3>
+        <div class="amt" id="takePaySuccessAmt">$0.00</div>
+        <p id="takePaySuccessMsg"></p>
+        <button class="btn-wide" id="takePayDone" type="button">Done</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4170,6 +4228,102 @@
     $('goalsCount').textContent=n?('· '+n+' left'):'';
     $('invCount').textContent=invTotal()?('· '+invTotal()):'';
   }
+  // ── Take Payment: private Orders tool ───────────────────
+  // The public Store stays card-only. This tool intentionally keeps ACH here
+  // so it is used only when staff chooses it for a larger order.
+  var TP_APP='sq0idp-H__K6WmTStJPbJoD6GowAQ', TP_LOC='L7P3B9WSYB3DY', TP_ENDPOINT='/api/manual-payment';
+  var TP_CARD_RATE=.03, TP_CARD_FIXED=.30, TP_ACH_RATE=.01, TP_ACH_MIN=1, TP_ACH_MAX=5;
+  var tpMethod='card', tpPayments=null, tpCard=null, tpAch=null, tpLoading=false;
+  function tpMoney(n){ return '$'+(Math.max(0,n)||0).toFixed(2); }
+  function tpBase(){ return Math.max(0,parseFloat(($('takePayAmount').value||'').replace(/[^0-9.]/g,''))||0); }
+  function tpCharge(){
+    var base=tpBase();
+    if(!base) return {base:0,fee:0,total:0};
+    if(tpMethod==='ach'){
+      // Square ACH API fee is 1% of the charged amount, with a $1 minimum
+      // and $5 maximum. Gross it up so the entered order amount is what
+      // Broch Custom nets after Square's ACH processing fee.
+      var total, fee;
+      if(base < 99){ total=base+TP_ACH_MIN; fee=TP_ACH_MIN; }
+      else if(base < 495){ total=base/(1-TP_ACH_RATE); fee=total-base; }
+      else { total=base+TP_ACH_MAX; fee=TP_ACH_MAX; }
+      return {base:base,fee:fee,total:total};
+    }
+    var total=(base+TP_CARD_FIXED)/(1-TP_CARD_RATE);
+    return {base:base,fee:total-base,total:total};
+  }
+  function tpPaint(){
+    var x=tpCharge(), card=tpMethod==='card';
+    $('takePayCardTab').classList.toggle('on',card); $('takePayAchTab').classList.toggle('on',!card);
+    $('takePayCard').style.display=card?'':'none';
+    $('takePaySubmit').textContent=card?'Charge Card':'Start ACH Payment';
+    $('takePaySummary').innerHTML='<div class="paytool-line"><span>Order amount</span><b>'+tpMoney(x.base)+'</b></div>'+
+      '<div class="paytool-line"><span>'+(card?'Card':'ACH')+' processing fee</span><b>'+tpMoney(x.fee)+'</b></div>'+
+      '<div class="paytool-line total"><span>Customer pays</span><b>'+tpMoney(x.total)+'</b></div>';
+    $('takePayNote').textContent=card
+      ? 'Card uses the same 3% + 30¢ gross-up as your website, so the entered order amount is what Broch Custom is trying to net.'
+      : 'ACH uses Square’s 1% API processing fee ($1 minimum, $5 maximum), grossed up so the entered order amount is what Broch Custom is trying to net. Bank payments normally stay pending for about 2–3 business days.';
+    $('takePayStatus').textContent='';
+  }
+  function tpReset(){
+    tpMethod='card'; $('takePayAmount').value=''; $('takePayName').value=''; $('takePayEmail').value='';
+    $('takePayForm').hidden=false; $('takePaySuccess').hidden=true; $('takePaySubmit').disabled=false; tpPaint();
+  }
+  function tpLoadSquare(){
+    return new Promise(function(resolve,reject){
+      if(window.Square){ resolve(); return; }
+      var old=$('ordersSquareSdk'); if(old){ old.addEventListener('load',resolve,{once:true}); old.addEventListener('error',function(){reject(new Error('Square could not load.'));},{once:true}); return; }
+      var sc=document.createElement('script'); sc.id='ordersSquareSdk'; sc.src='https://web.squarecdn.com/v1/square.js'; sc.onload=resolve; sc.onerror=function(){reject(new Error('Square could not load.'));}; document.head.appendChild(sc);
+    });
+  }
+  async function tpInitSquare(){
+    if(tpCard||tpLoading) return; tpLoading=true;
+    try{
+      await tpLoadSquare();
+      tpPayments=window.Square.payments(TP_APP,TP_LOC);
+      tpCard=await tpPayments.card(); await tpCard.attach('#takePayCard');
+      try{ tpAch=await tpPayments.ach({transactionId:'bc-'+Date.now().toString(36)}); }catch(e){ console.warn('[Square] ACH unavailable',e); }
+    }catch(e){ $('takePayStatus').textContent=e.message||'Could not load Square.'; }
+    finally{ tpLoading=false; }
+  }
+  async function tpSubmit(){
+    var x=tpCharge(); if(x.base<.50){ $('takePayStatus').textContent='Enter an amount of at least $0.50.'; $('takePayAmount').focus(); return; }
+    var email=($('takePayEmail').value||'').trim(), name=($('takePayName').value||'').trim();
+    $('takePaySubmit').disabled=true; $('takePayStatus').textContent=tpMethod==='ach'?'Opening secure bank connection…':'Processing…';
+    try{
+      await tpInitSquare();
+      var result;
+      if(tpMethod==='ach'){
+        if(!name){ throw new Error('Enter the name on the bank account for ACH.'); }
+        if(!tpAch){ throw new Error('ACH is not available right now. Refresh and try again.'); }
+        result=await tpAch.tokenize({intent:'CHARGE',accountHolderName:name,amount:x.total.toFixed(2),currency:'USD'});
+        if(!result||result.status!=='OK') throw new Error('Bank authorization was not completed.');
+      }else{
+        if(!tpCard) throw new Error('Card form is still loading. Try again.');
+        var parts=name.split(/\s+/).filter(Boolean);
+        result=await tpCard.tokenize({
+          amount:x.total.toFixed(2), currencyCode:'USD', intent:'CHARGE',
+          customerInitiated:false, sellerKeyedIn:true,
+          billingContact:{givenName:parts[0]||'',familyName:parts.slice(1).join(' '),email:email}
+        });
+        if(!result||result.status!=='OK') throw new Error('Card was not accepted. Check the details and retry.');
+      }
+      var res=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceId:result.token,amountCents:Math.round(x.total*100),email:email,note:'Orders app · '+(tpMethod==='ach'?'ACH':'card')+' payment'})});
+      var data=await res.json(); if(!res.ok||!data.ok) throw new Error(data.error||'Payment did not go through.');
+      $('takePayForm').hidden=true; $('takePaySuccess').hidden=false; $('takePaySuccessAmt').textContent=tpMoney(x.total);
+      $('takePaySuccessTitle').textContent=data.pending?'ACH submitted':'Payment received';
+      $('takePaySuccessMsg').textContent=data.pending?'The bank payment is pending. Do not treat it as cleared until Square changes it to completed.':'Square completed the payment.'+(data.receipt?' Receipt '+data.receipt+'.':'');
+    }catch(e){ $('takePayStatus').textContent=e.message||String(e); $('takePaySubmit').disabled=false; }
+  }
+  $('takePayOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('takePayOverlay').classList.add('show'); tpReset(); setTimeout(tpInitSquare,30); });
+  $('takePayClose').addEventListener('click',function(){ $('takePayOverlay').classList.remove('show'); });
+  $('takePayOverlay').addEventListener('click',function(e){ if(e.target===$('takePayOverlay')) $('takePayOverlay').classList.remove('show'); });
+  $('takePayCardTab').addEventListener('click',function(){ tpMethod='card'; tpPaint(); });
+  $('takePayAchTab').addEventListener('click',function(){ tpMethod='ach'; tpPaint(); });
+  $('takePayAmount').addEventListener('input',tpPaint);
+  $('takePaySubmit').addEventListener('click',tpSubmit);
+  $('takePayDone').addEventListener('click',function(){ $('takePayOverlay').classList.remove('show'); tpReset(); });
+
   $('navLinks').addEventListener('click',function(){ goView('tools'); });
   $('invOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); wireInv(); openInv(true); });
   $('linksClose').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); });
@@ -5099,9 +5253,9 @@
   // Phones get Send (their share sheet: Messages, Mail, Files, Print); computers get Download + Print.
   function ivmButtons(ready){
     var share=ivmCanShare(), phone=!!(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches);
-    var primary=(share&&phone)?'ivmSend':'ivmDownload';
+    var primary='ivmEmailOrders';
     $('ivmSend').hidden=!share; $('ivmPrint').hidden=phone;
-    [['ivmSend','Send PDF'],['ivmDownload','Download PDF'],['ivmPrint','Print']].forEach(function(b){
+    [['ivmEmailOrders','Email to Orders'],['ivmSend','Send PDF'],['ivmDownload','Download PDF'],['ivmPrint','Print']].forEach(function(b){
       var el=$(b[0]); el.disabled=!ready; el.classList.toggle('ivm-ghost',b[0]!==primary);
       el.textContent=(!ready&&b[0]===primary)?'Preparing PDF…':b[1];
     });
@@ -5214,6 +5368,22 @@
   $('ivmTabEdit').addEventListener('click',function(){ ivmTab('edit'); });
   $('ivmTabPreview').addEventListener('click',function(){ ivmTab('preview'); });
   $('ivmGoPreview').addEventListener('click',function(){ ivmTab('preview'); $('ivmPreviewPane').scrollTop=0; });
+  function ivmBlobDataUrl(blob){
+    return new Promise(function(resolve,reject){ var r=new FileReader(); r.onload=function(){ resolve(String(r.result||'')); }; r.onerror=function(){ reject(new Error('Could not read the invoice PDF.')); }; r.readAsDataURL(blob); });
+  }
+  $('ivmEmailOrders').addEventListener('click',async function(){
+    if(!ivmPdf) return;
+    var b=this, old=b.textContent; b.disabled=true; b.textContent='Emailing…'; $('ivmPdfNote').textContent='';
+    try{
+      var dataUrl=await ivmBlobDataUrl(ivmPdf.blob);
+      var res=await fetch('/api/invoice-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        invoiceNo:ivmPdf.no, customerName:(ivm.cust&&ivm.cust.name)||'', customerEmail:(ivm.cust&&ivm.cust.email)||'', filename:ivmPdf.name, pdfDataUrl:dataUrl
+      })});
+      var data=await res.json(); if(!res.ok||!data.ok) throw new Error(data.error||'Could not email the invoice.');
+      ivmKeep(); $('ivmPdfNote').textContent='Invoice emailed to '+(data.emailedTo||'the Orders email')+'.'; toast('Invoice emailed');
+    }catch(e){ $('ivmPdfNote').textContent=e.message||'Could not email the invoice.'; }
+    finally{ b.disabled=false; b.textContent=old; }
+  });
   $('ivmSend').addEventListener('click',function(){
     if(!ivmPdf) return;
     var f=new File([ivmPdf.blob],ivmPdf.name,{ type:'application/pdf' });
