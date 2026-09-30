@@ -254,9 +254,6 @@
   body.store-paused .admin-toggle { position:relative; z-index:1; margin:14px 0; background:var(--ut-navy); }
 
   .note-pickup { display:none; }
-  body.store-paused .note-ship { display:none; }
-  body.store-paused .note-pickup { display:inline; }
-  body.store-paused #ful-ship { display:none; }
 
   /* Contact + QR dialogs — same as the main page's Contact us */
   #contact-dialog .dialog-opts { display:flex; flex-direction:column; gap:12px; margin-top:6px; }
@@ -626,7 +623,7 @@
   #cart-dialog .ct-note { font-size:13px; font-style:italic; color:rgba(74,52,36,.6); margin:6px 0 0; text-align:left; }
 
   /* pickup / ship */
-  #checkout-dialog .ful-seg { gap:8px; margin:0 0 14px; }
+  #checkout-dialog .ful-seg { flex-direction:column; gap:8px; margin:0 0 14px; }
   #checkout-dialog .ful-opt { display:flex; align-items:center; gap:10px; text-align:left; padding:11px 14px; border-radius:11px;
     border:1px solid var(--bc-line2); background:#fff; color:var(--bc-ink); font-family:'Teko',sans-serif; font-size:18px; letter-spacing:.04em; text-transform:uppercase; }
   #checkout-dialog .ful-opt .ti { font-size:24px; color:var(--bc-green); }
@@ -2212,7 +2209,6 @@
   }
 
   function setFul(which) {
-    if (document.body.classList.contains('store-paused')) which = 'pickup';   // UTRGV drop: local pickup only
     ful = which;
     $('ful-pickup').classList.toggle('on', ful === 'pickup');
     $('ful-ship').classList.toggle('on', ful === 'ship');
