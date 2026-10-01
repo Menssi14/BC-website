@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Pay by Bank · Broch Custom</title>
 <script src="https://web.squarecdn.com/v1/square.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 @font-face {
     font-family:'Schadow';
@@ -14,52 +15,45 @@
     font-style: normal;
     font-display: swap;
   }
-  @import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap');
-  :root{--forest:#2c4637;--ink:#122018;--soft:#526056;--brown:#513a2c;--caramel:#b28b5b;--sand:#e3d8c6;--cream:#f7f4ec;--paper:#ffffff;--success:#3c7d54}
+:root{--forest:#2c4637;--ink:#122018;--soft:#526056;--brown:#513a2c;--caramel:#b28b5b;--sand:#e3d8c6;--cream:#f7f4ec;--paper:#ffffff;--success:#3c7d54}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;min-height:100%;background:#f3f0e9}
-  body{font-family:'Teko';color:var(--ink);padding:24px 12px 38px}
-  .page{width:min(850px,100%);margin:0 auto;background:var(--paper);box-shadow:0 2px 14px rgba(0,0,0,.14);padding:42px 58px 34px}
+  html,body{margin:0;min-height:100%;background:var(--cream)}
+  body{font-family:'Teko',sans-serif;color:var(--ink);padding:24px 12px 38px;font-weight:400;-webkit-font-smoothing:antialiased}
+  .page{width:min(850px,100%);margin:0 auto;background:var(--paper);border:1px solid var(--sand);padding:42px 58px 34px}
   .top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:start}
   .brand{display:flex;align-items:flex-start;gap:14px;min-width:0}
   .brand-tree{width:42px;height:56px;flex:none;fill:var(--forest);display:block}
-  .brand-name{font-family:'Schadow';font-size:36px;line-height:.95;color:var(--forest);text-transform:uppercase}
-  .services{margin-top:7px;font-family:'Teko';font-size:15px;font-weight:500;letter-spacing:.12em;color:var(--caramel);text-transform:uppercase}
-  .contact{margin-top:14px;font-family:'Teko';font-size:17px;line-height:1.2;color:var(--soft)}
+  .brand-name{font-family:'Schadow','Teko',sans-serif;font-size:36px;line-height:.95;color:var(--forest);text-transform:uppercase;font-weight:400}
+  .services{margin-top:7px;font-family:'Teko',sans-serif;font-size:15px;font-weight:500;letter-spacing:.12em;color:var(--caramel);text-transform:uppercase}
+  .contact{margin-top:14px;font-family:'Teko',sans-serif;font-size:17px;line-height:1.2;color:var(--soft)}
   .pay-title{text-align:right}
-  .pay-title h1{margin:0;font-family:'Teko';font-size:58px;line-height:.88;letter-spacing:.09em;color:var(--forest);font-weight:600;text-transform:uppercase}
-  .pay-title .sub{margin-top:12px;font-family:'Teko';font-size:16px;font-weight:500;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
+  .pay-title h1{margin:0;font-family:'Teko',sans-serif;font-size:58px;line-height:.88;letter-spacing:.09em;color:var(--forest);font-weight:600;text-transform:uppercase}
+  .pay-title .sub{margin-top:12px;font-family:'Teko',sans-serif;font-size:16px;font-weight:500;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
   .rule{height:1px;background:var(--caramel);margin:28px 0 26px}
-  .intro{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:32px;align-items:start}
-  .eyebrow{font-family:'Teko';font-size:15px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--brown)}
-  .copy h2{font-family:'Teko';font-size:28px;line-height:1.02;margin:5px 0 8px;color:var(--ink);font-weight:600}
-  .copy p{font-family:'Teko';font-size:18px;line-height:1.28;color:var(--soft);margin:0;max-width:440px;font-weight:400}
-  .balance{background:var(--cream);border-radius:10px;padding:17px 19px 15px}
-  .balance .label{font-family:'Teko';font-size:15px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--brown)}
-  .amount{font-family:'Teko';font-weight:600;font-size:38px;line-height:1;color:var(--forest);margin-top:5px}
-  .balance .due{font-family:'Teko';font-size:16px;color:var(--soft);margin-top:5px}
-  .section{margin-top:30px}
-  .greenbar{background:var(--forest);color:var(--cream);border-radius:7px;padding:10px 14px 8px;font-family:'Teko';font-size:15px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:grid;grid-template-columns:1.4fr .8fr;gap:12px}
-  .details{border-bottom:1px solid var(--sand)}
-  .detail-row{display:grid;grid-template-columns:1.4fr .8fr;gap:12px;padding:12px 14px 10px;border-bottom:1px solid var(--sand);font-family:'Teko';font-size:18px;line-height:1.15}
-  .detail-row:last-child{border-bottom:none}.detail-row span{color:var(--soft)}.detail-row strong{text-align:right;color:var(--ink);font-weight:500}
-  .form{margin-top:28px;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:end}
-  label{display:block;font-family:'Teko';font-size:15px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--brown);margin-bottom:6px}
-  .input{width:100%;border:1px solid var(--sand);background:#fff;border-radius:7px;padding:10px 13px 8px;font-family:'Teko';font-size:20px;line-height:1.1;color:var(--ink);outline:none}
+  .intro{display:flex;justify-content:flex-end;align-items:flex-start}
+  .eyebrow{font-family:'Teko',sans-serif;font-size:15px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--brown)}
+  .balance{width:100%;background:var(--cream);border-radius:10px;padding:20px 22px 18px}
+  .balance .label{font-family:'Teko',sans-serif;font-size:15px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--brown)}
+  .amount{font-family:'Teko',sans-serif;font-weight:600;font-size:46px;line-height:.95;color:var(--forest);margin-top:6px}
+  .balance .due{font-family:'Teko',sans-serif;font-size:16px;color:var(--soft);margin-top:5px}
+  .section{margin-top:22px}
+  .form{margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:end}
+  label{display:block;font-family:'Teko',sans-serif;font-size:15px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--brown);margin-bottom:6px}
+  .input{width:100%;border:1px solid var(--sand);background:#fff;border-radius:7px;padding:10px 13px 8px;font-family:'Teko',sans-serif;font-size:20px;line-height:1.1;color:var(--ink);outline:none}
   .input:focus{border-color:var(--forest);box-shadow:0 0 0 2px rgba(44,70,55,.1)}
-  button{width:100%;border:0;border-radius:7px;background:var(--forest);color:var(--cream);font-family:'Teko';font-size:19px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px 10px;cursor:pointer}
+  button{width:100%;border:0;border-radius:7px;background:var(--forest);color:var(--cream);font-family:'Teko',sans-serif;font-size:19px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px 10px;cursor:pointer}
   button:hover{filter:brightness(.96)}button:disabled{opacity:.55;cursor:not-allowed}
-  .status{min-height:23px;margin-top:10px;font-family:'Teko';font-size:17px;line-height:1.2;color:var(--brown)}
-  .trust{margin-top:22px;padding:12px 14px;border-left:3px solid var(--caramel);background:rgba(178,139,91,.07)}
-  .trust b{font-family:'Teko';font-size:18px;font-weight:600;color:var(--forest)}.trust p{margin:1px 0 0;font-family:'Teko';font-size:16px;line-height:1.25;color:var(--soft)}
-  #loading{font-family:'Teko';font-size:19px;color:var(--soft);padding:24px 0 12px}
+  .status{min-height:23px;margin-top:10px;font-family:'Teko',sans-serif;font-size:17px;line-height:1.2;color:var(--brown)}
+  .trust{margin-top:30px;padding-top:16px;border-top:1px solid var(--sand);background:transparent}
+  .trust b{font-family:'Teko',sans-serif;font-size:15px;font-weight:500;color:var(--brown);text-transform:uppercase;letter-spacing:.08em}.trust p{margin:4px 0 0;font-family:'Teko',sans-serif;font-size:15px;line-height:1.25;color:var(--soft)}
+  #loading{font-family:'Teko',sans-serif;font-size:19px;color:var(--soft);padding:24px 0 12px}
   .result{padding:30px 0 16px;text-align:left}
-  .result h2{font-family:'Teko';font-size:34px;line-height:1;margin:4px 0 9px;color:var(--forest);font-weight:600}
-  .result p{font-family:'Teko';font-size:18px;line-height:1.3;color:var(--soft);margin:0;max-width:520px}
-  .check{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(60,125,84,.12);color:var(--success);margin:0 0 12px;font-family:'Teko';font-size:25px;font-weight:700}
-  .foot{border-top:1px solid var(--sand);margin-top:34px;padding-top:15px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-family:'Teko';font-size:15px;color:var(--soft)}
+  .result h2{font-family:'Teko',sans-serif;font-size:34px;line-height:1;margin:4px 0 9px;color:var(--forest);font-weight:600}
+  .result p{font-family:'Teko',sans-serif;font-size:18px;line-height:1.3;color:var(--soft);margin:0;max-width:520px}
+  .check{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(60,125,84,.12);color:var(--success);margin:0 0 12px;font-family:'Teko',sans-serif;font-size:25px;font-weight:700}
+  .foot{border-top:1px solid var(--sand);margin-top:34px;padding-top:15px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-family:'Teko',sans-serif;font-size:15px;color:var(--soft)}
   .hidden{display:none!important}
-  @media(max-width:650px){body{padding:8px 6px 22px}.page{padding:28px 20px 24px}.top{grid-template-columns:1fr;gap:20px}.pay-title{text-align:left}.pay-title h1{font-size:43px}.intro{grid-template-columns:1fr}.form{grid-template-columns:1fr}.brand-name{font-size:31px}.brand-tree{width:36px;height:49px}.contact{font-size:16px}.detail-row,.greenbar{grid-template-columns:1fr auto}}
+  @media(max-width:650px){body{padding:8px 6px 22px}.page{padding:28px 20px 24px}.top{grid-template-columns:1fr;gap:20px}.pay-title{text-align:left}.pay-title h1{font-size:43px}.form{grid-template-columns:1fr}.brand-name{font-size:31px}.brand-tree{width:36px;height:49px}.contact{font-size:16px}}
 </style>
 </head>
 <body>
@@ -75,27 +69,18 @@
   <div id="loading">Loading secure payment…</div>
   <section id="pay" class="hidden">
     <div class="intro">
-      <div class="copy"><div class="eyebrow">PAYMENT REQUEST</div><h2>Broch Custom Order</h2><p>Use the secure bank button below to complete your ACH payment. Your bank sign-in is handled by Square/Plaid and is never shared with Broch Custom.</p></div>
-      <div class="balance"><div class="label">Balance due</div><div class="amount" id="amount">$0.00</div><div class="due">Bank payment · ACH</div></div>
-    </div>
-    <div class="section">
-      <div class="greenbar"><span>Payment details</span><span style="text-align:right">Method</span></div>
-      <div class="details">
-        <div class="detail-row"><span>Payment type</span><strong>ACH bank transfer</strong></div>
-        <div class="detail-row"><span>Secure connection</span><strong>Square + Plaid</strong></div>
-        <div class="detail-row"><span>Processing time</span><strong>About 2–3 business days</strong></div>
-      </div>
+      <div class="balance"><div class="label">Amount due</div><div class="amount" id="amount">$0.00</div><div class="due">ACH bank payment</div></div>
     </div>
     <div class="form">
       <div><label for="name">Name on bank account</label><input class="input" id="name" autocomplete="name" placeholder="Full name"></div>
       <button id="payBtn" type="button">Connect Bank &amp; Pay</button>
     </div>
     <div class="status" id="status" role="status" aria-live="polite"></div>
-    <div class="trust"><b>Secure bank connection</b><p>Square/Plaid handles bank authentication. Broch Custom never receives your bank username or password.</p></div>
+    <div class="trust"><b>Bank payment info</b><p>Secure bank connection by Square/Plaid. ACH payments may take 2–3 business days to clear. Broch Custom never receives your bank login.</p></div>
   </section>
   <section id="done" class="result hidden"><div class="check">✓</div><div class="eyebrow">Payment submitted</div><h2>Thank You</h2><p id="doneMsg">Your bank payment was submitted.</p></section>
   <section id="error" class="result hidden"><div class="eyebrow">Payment link</div><h2>Unavailable</h2><p id="errorMsg"></p></section>
-  <footer class="foot"><span>BROCH CUSTOM · RIO GRANDE VALLEY</span><span>SECURE BANK PAYMENT</span></footer>
+  <footer class="foot"><span>BROCH CUSTOM · RIO GRANDE VALLEY · BROCHCUSTOM.COM</span><span>SECURE BANK PAYMENT</span></footer>
 </main>
 <script>
 (function(){
