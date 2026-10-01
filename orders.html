@@ -1384,6 +1384,13 @@
         <h3 id="takePaySuccessTitle">Payment received</h3>
         <div class="amt" id="takePaySuccessAmt">$0.00</div>
         <p id="takePaySuccessMsg"></p>
+        <div id="takePayLinkActions" hidden style="display:grid;gap:9px;margin:14px 0 10px">
+          <input class="email-to" id="takePayLink" readonly aria-label="ACH payment link">
+          <div class="ivm-two">
+            <button class="btn-wide" id="takePayCopyLink" type="button">Copy Link</button>
+            <button class="btn-wide" id="takePayShareLink" type="button">Share Link</button>
+          </div>
+        </div>
         <button class="btn-wide" id="takePayDone" type="button">Done</button>
       </div>
     </div>
@@ -4229,20 +4236,18 @@
     $('invCount').textContent=invTotal()?('· '+invTotal()):'';
   }
   // ── Take Payment: private Orders tool ───────────────────
-  // The public Store stays card-only. This tool intentionally keeps ACH here
-  // so it is used only when staff chooses it for a larger order.
+  // Card can be entered by staff here. ACH is different: this tool creates a
+  // secure customer link so the customer connects their own bank on a public
+  // Broch Custom page. They never need access to the Orders app.
   var TP_APP='sq0idp-H__K6WmTStJPbJoD6GowAQ', TP_LOC='L7P3B9WSYB3DY', TP_ENDPOINT='/api/manual-payment';
   var TP_CARD_RATE=.03, TP_CARD_FIXED=.30, TP_ACH_RATE=.01, TP_ACH_MIN=1, TP_ACH_MAX=5;
-  var tpMethod='card', tpPayments=null, tpCard=null, tpAch=null, tpLoading=false;
+  var tpMethod='card', tpPayments=null, tpCard=null, tpLoading=false;
   function tpMoney(n){ return '$'+(Math.max(0,n)||0).toFixed(2); }
   function tpBase(){ return Math.max(0,parseFloat(($('takePayAmount').value||'').replace(/[^0-9.]/g,''))||0); }
   function tpCharge(){
     var base=tpBase();
     if(!base) return {base:0,fee:0,total:0};
     if(tpMethod==='ach'){
-      // Square ACH API fee is 1% of the charged amount, with a $1 minimum
-      // and $5 maximum. Gross it up so the entered order amount is what
-      // Broch Custom nets after Square's ACH processing fee.
       var total, fee;
       if(base < 99){ total=base+TP_ACH_MIN; fee=TP_ACH_MIN; }
       else if(base < 495){ total=base/(1-TP_ACH_RATE); fee=total-base; }
@@ -4256,18 +4261,19 @@
     var x=tpCharge(), card=tpMethod==='card';
     $('takePayCardTab').classList.toggle('on',card); $('takePayAchTab').classList.toggle('on',!card);
     $('takePayCard').style.display=card?'':'none';
-    $('takePaySubmit').textContent=card?'Charge Card':'Start ACH Payment';
-    $('takePaySummary').innerHTML='<div class="paytool-line"><span>Order amount</span><b>'+tpMoney(x.base)+'</b></div>'+
-      '<div class="paytool-line"><span>'+(card?'Card':'ACH')+' processing fee</span><b>'+tpMoney(x.fee)+'</b></div>'+
+    $('takePaySubmit').textContent=card?'Charge Card':'Create ACH Payment Link';
+    $('takePaySummary').innerHTML='<div class="paytool-line"><span>Order amount</span><b>'+tpMoney(x.base)+'</b></div>'+ 
+      '<div class="paytool-line"><span>'+(card?'Card':'ACH')+' processing fee</span><b>'+tpMoney(x.fee)+'</b></div>'+ 
       '<div class="paytool-line total"><span>Customer pays</span><b>'+tpMoney(x.total)+'</b></div>';
     $('takePayNote').textContent=card
       ? 'Card uses the same 3% + 30¢ gross-up as your website, so the entered order amount is what Broch Custom is trying to net.'
-      : 'ACH uses Square’s 1% API processing fee ($1 minimum, $5 maximum), grossed up so the entered order amount is what Broch Custom is trying to net. Bank payments normally stay pending for about 2–3 business days.';
+      : 'Creates a secure customer link. The customer opens it on their own device, connects their bank through Square/Plaid, and pays the amount shown here. ACH normally stays pending for about 2–3 business days.';
     $('takePayStatus').textContent='';
   }
   function tpReset(){
     tpMethod='card'; $('takePayAmount').value=''; $('takePayName').value=''; $('takePayEmail').value='';
-    $('takePayForm').hidden=false; $('takePaySuccess').hidden=true; $('takePaySubmit').disabled=false; tpPaint();
+    $('takePayForm').hidden=false; $('takePaySuccess').hidden=true; $('takePaySubmit').disabled=false;
+    $('takePayLinkActions').hidden=true; $('takePayLinkActions').style.display='none'; $('takePayLink').value=''; tpPaint();
   }
   function tpLoadSquare(){
     return new Promise(function(resolve,reject){
@@ -4282,46 +4288,60 @@
       await tpLoadSquare();
       tpPayments=window.Square.payments(TP_APP,TP_LOC);
       tpCard=await tpPayments.card(); await tpCard.attach('#takePayCard');
-      try{ tpAch=await tpPayments.ach({transactionId:'bc-'+Date.now().toString(36)}); }catch(e){ console.warn('[Square] ACH unavailable',e); }
     }catch(e){ $('takePayStatus').textContent=e.message||'Could not load Square.'; }
     finally{ tpLoading=false; }
   }
   async function tpSubmit(){
     var x=tpCharge(); if(x.base<.50){ $('takePayStatus').textContent='Enter an amount of at least $0.50.'; $('takePayAmount').focus(); return; }
     var email=($('takePayEmail').value||'').trim(), name=($('takePayName').value||'').trim();
-    $('takePaySubmit').disabled=true; $('takePayStatus').textContent=tpMethod==='ach'?'Opening secure bank connection…':'Processing…';
+    $('takePaySubmit').disabled=true;
     try{
-      await tpInitSquare();
-      var result;
       if(tpMethod==='ach'){
-        if(!name){ throw new Error('Enter the name on the bank account for ACH.'); }
-        if(!tpAch){ throw new Error('ACH is not available right now. Refresh and try again.'); }
-        result=await tpAch.tokenize({intent:'CHARGE',accountHolderName:name,amount:x.total.toFixed(2),currency:'USD'});
-        if(!result||result.status!=='OK') throw new Error('Bank authorization was not completed.');
-      }else{
-        if(!tpCard) throw new Error('Card form is still loading. Try again.');
-        var parts=name.split(/\s+/).filter(Boolean);
-        result=await tpCard.tokenize({
-          amount:x.total.toFixed(2), currencyCode:'USD', intent:'CHARGE',
-          customerInitiated:false, sellerKeyedIn:true,
-          billingContact:{givenName:parts[0]||'',familyName:parts.slice(1).join(' '),email:email}
-        });
-        if(!result||result.status!=='OK') throw new Error('Card was not accepted. Check the details and retry.');
+        $('takePayStatus').textContent='Creating secure ACH link…';
+        var lr=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createAchLink',amountCents:Math.round(x.total*100),email:email,name:name,note:'Broch Custom ACH payment'})});
+        var ld=await lr.json(); if(!lr.ok||!ld.ok||!ld.url) throw new Error(ld.error||'Could not create ACH link.');
+        $('takePayForm').hidden=true; $('takePaySuccess').hidden=false; $('takePaySuccessAmt').textContent=tpMoney(x.total);
+        $('takePaySuccessTitle').textContent='ACH link ready';
+        $('takePaySuccessMsg').textContent='Send this link to the customer. They will connect their bank securely through Square/Plaid on their own device.';
+        $('takePayLink').value=ld.url; $('takePayLinkActions').hidden=false; $('takePayLinkActions').style.display='grid';
+        return;
       }
-      var res=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceId:result.token,amountCents:Math.round(x.total*100),email:email,note:'Orders app · '+(tpMethod==='ach'?'ACH':'card')+' payment'})});
+      $('takePayStatus').textContent='Processing…';
+      await tpInitSquare();
+      if(!tpCard) throw new Error('Card form is still loading. Try again.');
+      var parts=name.split(/\s+/).filter(Boolean);
+      var result=await tpCard.tokenize({
+        amount:x.total.toFixed(2), currencyCode:'USD', intent:'CHARGE',
+        customerInitiated:false, sellerKeyedIn:true,
+        billingContact:{givenName:parts[0]||'',familyName:parts.slice(1).join(' '),email:email}
+      });
+      if(!result||result.status!=='OK') throw new Error('Card was not accepted. Check the details and retry.');
+      var res=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceId:result.token,amountCents:Math.round(x.total*100),email:email,note:'Orders app · card payment'})});
       var data=await res.json(); if(!res.ok||!data.ok) throw new Error(data.error||'Payment did not go through.');
       $('takePayForm').hidden=true; $('takePaySuccess').hidden=false; $('takePaySuccessAmt').textContent=tpMoney(x.total);
-      $('takePaySuccessTitle').textContent=data.pending?'ACH submitted':'Payment received';
-      $('takePaySuccessMsg').textContent=data.pending?'The bank payment is pending. Do not treat it as cleared until Square changes it to completed.':'Square completed the payment.'+(data.receipt?' Receipt '+data.receipt+'.':'');
+      $('takePaySuccessTitle').textContent='Payment received';
+      $('takePaySuccessMsg').textContent='Square completed the payment.'+(data.receipt?' Receipt '+data.receipt+'.':'');
     }catch(e){ $('takePayStatus').textContent=e.message||String(e); $('takePaySubmit').disabled=false; }
+  }
+  async function tpCopyLink(){
+    var u=$('takePayLink').value; if(!u)return;
+    try{ await navigator.clipboard.writeText(u); toast('ACH link copied'); }
+    catch(_){ $('takePayLink').focus(); $('takePayLink').select(); document.execCommand('copy'); toast('ACH link copied'); }
+  }
+  async function tpShareLink(){
+    var u=$('takePayLink').value; if(!u)return;
+    if(navigator.share){ try{ await navigator.share({title:'Broch Custom payment',text:'Broch Custom ACH payment link',url:u}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+    tpCopyLink();
   }
   $('takePayOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('takePayOverlay').classList.add('show'); tpReset(); setTimeout(tpInitSquare,30); });
   $('takePayClose').addEventListener('click',function(){ $('takePayOverlay').classList.remove('show'); });
   $('takePayOverlay').addEventListener('click',function(e){ if(e.target===$('takePayOverlay')) $('takePayOverlay').classList.remove('show'); });
-  $('takePayCardTab').addEventListener('click',function(){ tpMethod='card'; tpPaint(); });
+  $('takePayCardTab').addEventListener('click',function(){ tpMethod='card'; tpPaint(); setTimeout(tpInitSquare,20); });
   $('takePayAchTab').addEventListener('click',function(){ tpMethod='ach'; tpPaint(); });
   $('takePayAmount').addEventListener('input',tpPaint);
   $('takePaySubmit').addEventListener('click',tpSubmit);
+  $('takePayCopyLink').addEventListener('click',tpCopyLink);
+  $('takePayShareLink').addEventListener('click',tpShareLink);
   $('takePayDone').addEventListener('click',function(){ $('takePayOverlay').classList.remove('show'); tpReset(); });
 
   $('navLinks').addEventListener('click',function(){ goView('tools'); });
@@ -4854,7 +4874,7 @@
   var IVM_TAX=0.0825, IVM_W=850, IVM_H=1100, IVM_M=60, IVM_R=790, IVM_EXPORT=2.4, IVM_LIMIT=1004;
   var IVM_SHOP={ city:'Edinburg, Texas', phone:'(956) 225-5859', email:'brochcustom@gmail.com', web:'brochcustom.com' };
   var IVM_SERVICES='ENGRAVING · PRINTING · EMBROIDERY';
-  var IVM_PAY=[['Check','Payable to BROCH CUSTOM'],['Card','Credit or debit'],['Cash App','$BrochCustom'],['Zelle','(956) 225-5859']];
+  var IVM_PAY=[['Check','Pay to: Carlos Broch'],['Card','Credit or debit'],['Cash App','$BrochCustom'],['Zelle','(956) 225-5859']];
   var IVM_SVC={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
   var IVM_GROUP={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
   var IVM_OFFER=['Embroidery','DTF','Engraving'];   // the only services offered when adding an item
