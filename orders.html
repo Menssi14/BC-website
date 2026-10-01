@@ -4275,21 +4275,57 @@
     $('takePayForm').hidden=false; $('takePaySuccess').hidden=true; $('takePaySubmit').disabled=false;
     $('takePayLinkActions').hidden=true; $('takePayLinkActions').style.display='none'; $('takePayLink').value=''; tpPaint();
   }
-  function tpLoadSquare(){
+  function tpSleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+  function tpLoadSquare(forceReload){
     return new Promise(function(resolve,reject){
+      if(window.Square && !forceReload){ resolve(); return; }
+      var old=$('ordersSquareSdk');
+      if(old && (forceReload || !window.Square)) old.remove();
       if(window.Square){ resolve(); return; }
-      var old=$('ordersSquareSdk'); if(old){ old.addEventListener('load',resolve,{once:true}); old.addEventListener('error',function(){reject(new Error('Square could not load.'));},{once:true}); return; }
-      var sc=document.createElement('script'); sc.id='ordersSquareSdk'; sc.src='https://web.squarecdn.com/v1/square.js'; sc.onload=resolve; sc.onerror=function(){reject(new Error('Square could not load.'));}; document.head.appendChild(sc);
+      var done=false;
+      var timer=setTimeout(function(){
+        if(done)return; done=true;
+        var stale=$('ordersSquareSdk'); if(stale) stale.remove();
+        reject(new Error('Square took too long to load. Retrying…'));
+      },12000);
+      var sc=document.createElement('script');
+      sc.id='ordersSquareSdk'; sc.src='https://web.squarecdn.com/v1/square.js'; sc.async=true;
+      sc.onload=function(){ if(done)return; done=true; clearTimeout(timer); resolve(); };
+      sc.onerror=function(){ if(done)return; done=true; clearTimeout(timer); sc.remove(); reject(new Error('Square could not load.')); };
+      document.head.appendChild(sc);
     });
+  }
+  async function tpDisposeCard(){
+    try{ if(tpCard && tpCard.destroy) await tpCard.destroy(); }catch(_){}
+    tpCard=null; tpPayments=null;
+    var mount=$('takePayCard'); if(mount) mount.innerHTML='';
   }
   async function tpInitSquare(){
     if(tpCard||tpLoading) return; tpLoading=true;
+    var lastErr=null;
     try{
-      await tpLoadSquare();
-      tpPayments=window.Square.payments(TP_APP,TP_LOC);
-      tpCard=await tpPayments.card(); await tpCard.attach('#takePayCard');
-    }catch(e){ $('takePayStatus').textContent=e.message||'Could not load Square.'; }
-    finally{ tpLoading=false; }
+      for(var attempt=1;attempt<=3;attempt++){
+        try{
+          if(tpMethod!=='card') return;
+          $('takePayStatus').textContent=attempt===1?'Loading secure card reader…':'Square timed out — retrying card reader ('+attempt+'/3)…';
+          await tpDisposeCard();
+          await tpLoadSquare(attempt>1 && !window.Square);
+          if(!window.Square || !window.Square.payments) throw new Error('Square payment library is unavailable.');
+          tpPayments=window.Square.payments(TP_APP,TP_LOC);
+          tpCard=await tpPayments.card();
+          await tpCard.attach('#takePayCard');
+          if(tpMethod==='card') $('takePayStatus').textContent='';
+          return;
+        }catch(e){
+          lastErr=e;
+          await tpDisposeCard();
+          if(attempt<3) await tpSleep(900*attempt);
+        }
+      }
+      throw lastErr||new Error('Could not initialize Square.');
+    }catch(e){
+      if(tpMethod==='card') $('takePayStatus').textContent=(e&&e.message?e.message:'Could not load Square.')+' Close and reopen Take Payment to retry.';
+    }finally{ tpLoading=false; }
   }
   async function tpSubmit(){
     var x=tpCharge(); if(x.base<.50){ $('takePayStatus').textContent='Enter an amount of at least $0.50.'; $('takePayAmount').focus(); return; }
@@ -4308,7 +4344,7 @@
       }
       $('takePayStatus').textContent='Processing…';
       await tpInitSquare();
-      if(!tpCard) throw new Error('Card form is still loading. Try again.');
+      if(!tpCard) throw new Error('Square card reader could not initialize. Close Take Payment, reopen it, and try again.');
       var parts=name.split(/\s+/).filter(Boolean);
       var result=await tpCard.tokenize({
         amount:x.total.toFixed(2), currencyCode:'USD', intent:'CHARGE',
@@ -4337,7 +4373,7 @@
   $('takePayClose').addEventListener('click',function(){ $('takePayOverlay').classList.remove('show'); });
   $('takePayOverlay').addEventListener('click',function(e){ if(e.target===$('takePayOverlay')) $('takePayOverlay').classList.remove('show'); });
   $('takePayCardTab').addEventListener('click',function(){ tpMethod='card'; tpPaint(); setTimeout(tpInitSquare,20); });
-  $('takePayAchTab').addEventListener('click',function(){ tpMethod='ach'; tpPaint(); });
+  $('takePayAchTab').addEventListener('click',function(){ tpMethod='ach'; tpPaint(); $('takePayStatus').textContent=''; });
   $('takePayAmount').addEventListener('input',tpPaint);
   $('takePaySubmit').addEventListener('click',tpSubmit);
   $('takePayCopyLink').addEventListener('click',tpCopyLink);
