@@ -789,6 +789,52 @@
   .sales-app .ivm-cloud.saving{ color:#9c6b12; }
   .sales-app .ivm-cloud.ok{ color:#1F4D3E; }
   .sales-app .ivm-cloud.fail{ color:#6D2124; }
+
+  /* ===== Color Codes ===== */
+  .cc-box{ max-width:780px; }
+  .cc-head-status{ margin-left:auto; font-family:'Teko',sans-serif; font-size:14px; letter-spacing:.05em; color:rgba(var(--ink-rgb),.52); }
+  .cc-head-status.saving{ color:#9c6b12; }
+  .cc-head-status.ok{ color:var(--green); }
+  .cc-head-status.fail{ color:var(--red); }
+  .cc-body{ padding:14px 18px 20px; overflow:auto; }
+  .cc-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+  .cc-note{ font-family:'Teko',sans-serif; font-size:17px; line-height:1.25; color:rgba(var(--ink-rgb),.62); }
+  .cc-add-btn{ flex:none; min-height:42px; padding:9px 16px 7px; border:0; border-radius:11px; background:var(--green); color:var(--cream); cursor:pointer; font-family:'Teko',sans-serif; font-size:18px; letter-spacing:.03em; }
+  .cc-form{ display:none; margin:0 0 14px; padding:14px; background:var(--tag-bg); border:1px solid var(--line); border-radius:15px; }
+  .cc-form.show{ display:block; }
+  .cc-form-grid{ display:grid; grid-template-columns:104px minmax(0,1fr) minmax(0,1fr); gap:10px; align-items:end; }
+  .cc-field{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .cc-field label{ font-family:'Teko',sans-serif; font-size:13px; text-transform:uppercase; letter-spacing:.11em; color:rgba(var(--ink-rgb),.58); }
+  .cc-field input,.cc-field textarea{ width:100%; min-width:0; box-sizing:border-box; font-family:'Teko',sans-serif; font-size:18px; color:var(--burgundy); background:var(--paper); border:1px solid var(--line-strong); border-radius:10px; padding:10px 11px 8px; outline:none; }
+  .cc-field input:focus,.cc-field textarea:focus{ border-color:var(--green); }
+  .cc-field textarea{ min-height:72px; resize:vertical; line-height:1.25; }
+  .cc-color-input{ height:46px; padding:4px !important; cursor:pointer; }
+  .cc-wide{ grid-column:1/-1; }
+  .cc-form-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+  .cc-form-actions button{ min-height:40px; border-radius:10px; padding:8px 15px 6px; cursor:pointer; font-family:'Teko',sans-serif; font-size:18px; }
+  .cc-cancel{ border:1px solid var(--line-strong); background:transparent; color:var(--burgundy); }
+  .cc-save{ border:1px solid var(--green); background:var(--green); color:var(--cream); }
+  .cc-list{ display:grid; gap:9px; }
+  .cc-empty{ padding:28px 12px; text-align:center; font-family:'Teko',sans-serif; font-size:18px; color:rgba(var(--ink-rgb),.54); }
+  .cc-card{ display:grid; grid-template-columns:64px minmax(0,1fr) auto; gap:13px; align-items:center; padding:11px; border:1px solid var(--line); border-radius:14px; background:var(--paper); }
+  .cc-swatch{ width:64px; height:64px; border-radius:11px; border:1px solid rgba(var(--ink-rgb),.18); box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); }
+  .cc-name{ font-family:'Schadow','Teko',sans-serif; font-size:21px; line-height:1; color:var(--green); }
+  .cc-code{ margin-top:4px; font-family:'Teko',sans-serif; font-size:16px; letter-spacing:.06em; color:var(--caramel); text-transform:uppercase; }
+  .cc-setting{ margin-top:4px; font-family:'Teko',sans-serif; font-size:17px; line-height:1.28; color:var(--burgundy); white-space:pre-wrap; word-break:break-word; }
+  .cc-actions{ display:flex; flex-direction:column; gap:5px; }
+  .cc-icon{ width:38px; height:34px; display:grid; place-items:center; border:1px solid var(--line); border-radius:9px; background:transparent; color:var(--burgundy); cursor:pointer; }
+  .cc-icon.del{ color:var(--red); }
+  @media(max-width:620px){
+    .cc-body{ padding:12px 12px 18px; }
+    .cc-form-grid{ grid-template-columns:86px minmax(0,1fr); }
+    .cc-field.cc-name-field{ grid-column:2; }
+    .cc-field.cc-code-field{ grid-column:1/-1; }
+    .cc-wide{ grid-column:1/-1; }
+    .cc-card{ grid-template-columns:56px minmax(0,1fr) auto; gap:10px; padding:10px; }
+    .cc-swatch{ width:56px; height:56px; }
+    .cc-name{ font-size:19px; }
+    .cc-setting{ font-size:16px; }
+  }
   @media(max-width:620px){
     .sales-app #linksOverlay{ padding:18px 11px calc(28px + var(--navh)); }
     .sales-app #linksOverlay .edit-opts{ grid-template-columns:1fr; gap:9px; }
@@ -1176,6 +1222,10 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M7 8v3M12 8v4M17 8v3"/></svg></span>
         <span class="eo-t">Sizes</span>
       </button>
+      <button class="edit-opt" id="colorCodesOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 0-4.4h-.8a1.7 1.7 0 0 1 0-3.4H15a6 6 0 0 0 6-6C21 4.9 17 3 12 3z"/><circle cx="7.5" cy="9" r="1"/><circle cx="10.3" cy="6.8" r="1"/><circle cx="14" cy="6.4" r="1"/><circle cx="17" cy="8.4" r="1"/></svg></span>
+        <span class="eo-t">Color Codes</span>
+      </button>
       <button class="edit-opt" id="healthOpen" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></svg></span>
         <span class="eo-t">Health check</span>
@@ -1396,6 +1446,48 @@
         </tbody>
       </table>
       <p class="dtf-note">Widths, in inches. Same for print or embroidery. Height follows the artwork.</p>
+    </div>
+  </div>
+</div>
+
+<!-- COLOR CODES -->
+<div class="overlay" id="colorCodesOverlay">
+  <div class="hist-box cc-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Color Codes</span>
+      <span class="cc-head-status" id="ccCloudStatus">Cloud</span>
+      <button class="icon-btn" id="colorCodesClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="cc-body">
+      <div class="cc-top">
+        <div class="cc-note">Saved print colors and the settings that reproduce them.</div>
+        <button class="cc-add-btn" id="ccAdd" type="button">+ Add color</button>
+      </div>
+      <div class="cc-form" id="ccForm">
+        <div class="cc-form-grid">
+          <div class="cc-field">
+            <label for="ccPicker">Preview</label>
+            <input class="cc-color-input" id="ccPicker" type="color" value="#1F4D3E">
+          </div>
+          <div class="cc-field cc-name-field">
+            <label for="ccName">Name</label>
+            <input id="ccName" type="text" maxlength="60" placeholder="Forest green" autocomplete="off">
+          </div>
+          <div class="cc-field cc-code-field">
+            <label for="ccCode">Color code</label>
+            <input id="ccCode" type="text" maxlength="16" value="#1F4D3E" placeholder="#1F4D3E" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="cc-field cc-wide">
+            <label for="ccSetting">Printing setting</label>
+            <textarea id="ccSetting" maxlength="500" placeholder="Example: Saturation +8 · Brightness -2 · Profile: DTF Standard"></textarea>
+          </div>
+        </div>
+        <div class="cc-form-actions">
+          <button class="cc-cancel" id="ccCancel" type="button">Cancel</button>
+          <button class="cc-save" id="ccSave" type="button">Save color</button>
+        </div>
+      </div>
+      <div class="cc-list" id="ccList"></div>
     </div>
   </div>
 </div>
@@ -4437,6 +4529,112 @@
   applyTheme();
 
   $('sizesOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('dtfOverlay').classList.add('show'); });
+
+
+  // ── Color Codes: shared print-color reference ──────────────
+  var CC_LOCAL='bc-color-codes-v1', CC_CLOUD_FILE='_office/color-codes.json';
+  var ccState={colors:[],deleted:{}}, ccReady=false, ccSaving=false, ccEditId=null;
+  function ccStatus(text,kind){
+    var e=$('ccCloudStatus'); if(!e)return;
+    e.textContent=text||'Cloud'; e.classList.remove('saving','ok','fail'); if(kind)e.classList.add(kind);
+  }
+  function ccNormalizeHex(v){
+    v=String(v||'').trim().replace(/^#/,'');
+    if(/^[0-9a-f]{3}$/i.test(v)) v=v.split('').map(function(x){return x+x;}).join('');
+    return /^[0-9a-f]{6}$/i.test(v)?('#'+v.toUpperCase()):'';
+  }
+  function ccLocalRead(){
+    try{ var x=JSON.parse(localStorage.getItem(CC_LOCAL)||'null'); return ccNormalizeState(x); }catch(_){ return ccNormalizeState(null); }
+  }
+  function ccLocalWrite(){ try{ localStorage.setItem(CC_LOCAL,JSON.stringify(ccState)); }catch(_){} }
+  function ccNormalizeState(x){
+    x=x&&typeof x==='object'?x:{};
+    return { colors:Array.isArray(x.colors)?x.colors.filter(function(c){return c&&c.id;}):[], deleted:x.deleted&&typeof x.deleted==='object'?x.deleted:{} };
+  }
+  function ccMerge(a,b){
+    a=ccNormalizeState(a); b=ccNormalizeState(b); var del={}, by={};
+    [a.deleted,b.deleted].forEach(function(d){ Object.keys(d||{}).forEach(function(id){ del[id]=Math.max(+del[id]||0,+d[id]||0); }); });
+    [a.colors,b.colors].forEach(function(list){ list.forEach(function(c){ var cur=by[c.id]; if(!cur||(+c.updatedAt||0)>(+cur.updatedAt||0)) by[c.id]=c; }); });
+    var colors=Object.keys(by).map(function(id){return by[id];}).filter(function(c){return (+del[c.id]||0)<(+c.updatedAt||0);});
+    colors.sort(function(x,y){ return String(x.name||'').localeCompare(String(y.name||'')); });
+    return {colors:colors,deleted:del};
+  }
+  function ccCloudRead(){
+    if(!sb) return Promise.resolve(ccNormalizeState(null));
+    return sb.storage.from(BUCKET).download(CC_CLOUD_FILE+'?t='+Date.now()).then(function(r){
+      if(!r||r.error||!r.data) return ccNormalizeState(null);
+      return r.data.text().then(function(t){ try{return ccNormalizeState(JSON.parse(t));}catch(_){return ccNormalizeState(null);} });
+    }).catch(function(){ return ccNormalizeState(null); });
+  }
+  function ccCloudPush(){
+    if(ccSaving||!sb) return Promise.resolve(false);
+    ccSaving=true; ccStatus('Saving…','saving');
+    return ccCloudRead().then(function(remote){
+      ccState=ccMerge(remote,ccState); ccLocalWrite();
+      var payload={v:1,updatedAt:Date.now(),colors:ccState.colors,deleted:ccState.deleted};
+      var blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+      return sb.storage.from(BUCKET).upload(CC_CLOUD_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
+        if(r&&r.error) throw r.error; ccStatus('Saved','ok'); return true;
+      });
+    }).catch(function(){ ccStatus('Cloud save failed','fail'); return false; })
+      .finally(function(){ ccSaving=false; });
+  }
+  function ccRender(){
+    var list=$('ccList'); if(!list)return;
+    if(!ccState.colors.length){ list.innerHTML='<div class="cc-empty">No colors saved yet.</div>'; return; }
+    list.innerHTML=ccState.colors.map(function(c){
+      var hex=ccNormalizeHex(c.code)||'#FFFFFF';
+      return '<div class="cc-card" data-id="'+esc(c.id)+'">'+
+        '<div class="cc-swatch" style="background:'+hex+'"></div>'+
+        '<div><div class="cc-name">'+esc(c.name||'Unnamed color')+'</div><div class="cc-code">'+esc(hex)+'</div>'+
+        '<div class="cc-setting">'+esc(c.setting||'No print setting saved')+'</div></div>'+
+        '<div class="cc-actions"><button class="cc-icon cc-edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 20l4.2-1 10.6-10.6-3.2-3.2L5 15.8zM13.8 7l3.2 3.2"/></svg></button>'+
+        '<button class="cc-icon del cc-delete" type="button" title="Delete" aria-label="Delete"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg></button></div></div>';
+    }).join('');
+  }
+  function ccShowForm(c){
+    ccEditId=c&&c.id?c.id:null;
+    var hex=ccNormalizeHex(c&&c.code)||'#1F4D3E';
+    $('ccPicker').value=hex; $('ccCode').value=hex; $('ccName').value=c&&c.name||''; $('ccSetting').value=c&&c.setting||'';
+    $('ccForm').classList.add('show'); setTimeout(function(){ $('ccName').focus(); },0);
+  }
+  function ccHideForm(){ ccEditId=null; $('ccForm').classList.remove('show'); }
+  function ccOpen(){
+    $('colorCodesOverlay').classList.add('show');
+    if(ccReady){ ccRender(); return; }
+    ccState=ccLocalRead(); ccRender(); ccStatus(sb?'Loading…':'On this device',sb?'saving':'');
+    if(!sb){ ccReady=true; return; }
+    ccCloudRead().then(function(remote){
+      var before=JSON.stringify(ccState); ccState=ccMerge(remote,ccState); ccLocalWrite(); ccReady=true; ccRender(); ccStatus('Cloud ready','ok');
+      if(JSON.stringify(ccState)!==JSON.stringify(remote) || before!==JSON.stringify(ccState)) ccCloudPush();
+    });
+  }
+  $('colorCodesOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); ccOpen(); });
+  $('colorCodesClose').addEventListener('click',function(){ $('colorCodesOverlay').classList.remove('show'); ccHideForm(); });
+  $('colorCodesOverlay').addEventListener('click',function(e){ if(e.target===$('colorCodesOverlay')){ $('colorCodesOverlay').classList.remove('show'); ccHideForm(); } });
+  $('ccAdd').addEventListener('click',function(){ ccShowForm(null); });
+  $('ccCancel').addEventListener('click',ccHideForm);
+  $('ccPicker').addEventListener('input',function(){ $('ccCode').value=this.value.toUpperCase(); });
+  $('ccCode').addEventListener('input',function(){ var h=ccNormalizeHex(this.value); if(h) $('ccPicker').value=h; });
+  $('ccSave').addEventListener('click',function(){
+    var name=$('ccName').value.trim(), code=ccNormalizeHex($('ccCode').value), setting=$('ccSetting').value.trim();
+    if(!name){ toast('Add a color name'); $('ccName').focus(); return; }
+    if(!code){ toast('Use a HEX color like #1F4D3E'); $('ccCode').focus(); return; }
+    var now=Date.now(), id=ccEditId||('cc-'+now.toString(36)+'-'+Math.random().toString(36).slice(2,7));
+    var old=ccState.colors.filter(function(c){return c.id===id;})[0];
+    var item={id:id,name:name,code:code,setting:setting,createdAt:old&&old.createdAt||now,updatedAt:now};
+    ccState.colors=ccState.colors.filter(function(c){return c.id!==id;}); ccState.colors.push(item); delete ccState.deleted[id];
+    ccState=ccMerge(ccNormalizeState(null),ccState); ccLocalWrite(); ccRender(); ccHideForm(); ccCloudPush(); toast('Color saved');
+  });
+  $('ccList').addEventListener('click',function(e){
+    var card=e.target.closest&&e.target.closest('.cc-card'); if(!card)return; var id=card.getAttribute('data-id');
+    var item=ccState.colors.filter(function(c){return c.id===id;})[0]; if(!item)return;
+    if(e.target.closest('.cc-delete')){
+      if(!confirm('Delete '+(item.name||'this color')+'?')) return;
+      ccState.colors=ccState.colors.filter(function(c){return c.id!==id;}); ccState.deleted[id]=Date.now(); ccLocalWrite(); ccRender(); ccCloudPush(); toast('Color deleted'); return;
+    }
+    if(e.target.closest('.cc-edit')||card===e.target||!e.target.closest('button')) ccShowForm(item);
+  });
 
   // ── Health check: read-only pokes at every service ──
   var HEALTH_GROUPS=[
