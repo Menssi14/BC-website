@@ -765,6 +765,37 @@
   .orders-goals-toggle{ right:60px; }
   .orders-theme-toggle{ right:12px; }
 
+
+  /* One compact due-date dropdown. Calendar opens in the same branded month view used by Office. */
+  .due-select-wrap{position:relative;margin-top:8px;}
+  .due-select{width:100%;border:1px solid var(--line-strong);border-radius:11px;padding:11px 40px 11px 13px;font:19px 'Teko',sans-serif;background:var(--note);color:var(--burgundy);outline:none;cursor:pointer;appearance:auto;}
+  .due-select:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(var(--green-rgb),.08);}
+  .due-select.due-red,.wz-sel.due-red{color:var(--red);font-weight:700;}
+  .due-select.due-orange,.wz-sel.due-orange{color:#B4520F;font-weight:700;}
+  html[data-theme="dark"] .due-select.due-orange,html[data-theme="dark"] .wz-sel.due-orange{color:#F4A36B;}
+  .due-select option.due-red-option,.wz-sel option.due-red-option{color:#6D2124;font-weight:700;}
+  .due-select option.due-orange-option,.wz-sel option.due-orange-option{color:#B4520F;font-weight:700;}
+  html[data-theme="dark"] .due-select option.due-red-option,html[data-theme="dark"] .wz-sel option.due-red-option{color:#D9787C;}
+  html[data-theme="dark"] .due-select option.due-orange-option,html[data-theme="dark"] .wz-sel option.due-orange-option{color:#F4A36B;}
+  .due-calendar-input{position:absolute;left:50%;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;}
+
+  /* Exact visual language of the Office Due Dates calendar, used here only as a date picker. */
+  #orderDueCalendarOverlay{z-index:140;align-items:center;}
+  .dc-box{max-width:680px;}
+  .dc-scroll{padding:18px;overflow:auto;min-height:0;}
+  .dc-top{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .dc-top h3{flex:1;min-width:0;margin:0;color:var(--green);font:normal 26px/1 'Schadow','Teko',sans-serif;text-align:center;}
+  .dc-nav,.dc-today{border:1px solid var(--line-strong);border-radius:9px;background:var(--cream);color:var(--green);font:21px 'Teko',sans-serif;cursor:pointer;min-width:38px;height:38px;}
+  .dc-today{font-size:16px;padding:0 12px;}
+  .dc-weekdays,.dc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;}
+  .dc-weekdays{margin-bottom:5px;text-align:center;color:var(--burgundy);opacity:.7;font:16px 'Teko',sans-serif;}
+  .dc-day{min-height:63px;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--note);color:var(--burgundy);cursor:pointer;text-align:left;font:19px 'Teko',sans-serif;}
+  .dc-day:focus-visible{outline:3px solid var(--pink);outline-offset:2px;}
+  .dc-day:disabled{visibility:hidden;}
+  .dc-day.today{border-color:var(--green);}
+  .dc-day.selected{background:var(--green);color:var(--cream);border-color:var(--green);}
+  .dc-pick-foot{margin-top:14px;color:var(--burgundy);opacity:.6;font:15px 'Teko',sans-serif;text-align:center;}
+  @media(max-width:440px){.dc-scroll{padding:12px;}.dc-weekdays,.dc-grid{gap:3px;}.dc-day{min-height:53px;padding:6px 4px;}.dc-top h3{font-size:22px;}}
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -1514,9 +1545,9 @@
       </div>
       <div class="urgency-section" id="dueSection">
         <div class="field-label">Due Date <span class="opt">optional</span></div>
-        <div class="wheel-wrap">
-          <div class="wheel-band" id="dueBand"></div>
-          <div class="wheel" id="mDue"></div>
+        <div class="due-select-wrap">
+          <select id="mDueSelect" class="due-select" aria-label="Order due date"></select>
+          <input type="date" id="mDueExact" class="due-calendar-input" aria-label="Choose exact order due date">
         </div>
       </div>
     </div>
@@ -1528,6 +1559,27 @@
 <datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="vinylSurfList"><option>Decal</option><option>Sign</option><option>Banner</option><option>Shirt</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Front</option><option>Back</option><option>Sleeve</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
+<!-- ORDER DUE DATE PICKER: same calendar design as Office, selection only -->
+<div class="overlay" id="orderDueCalendarOverlay">
+  <div class="hist-box dc-box" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Choose order due date">
+    <div class="hist-head">
+      <span class="hist-title">Choose Due Date</span>
+      <button class="icon-btn" id="orderDueCalendarClose" type="button" aria-label="Close calendar">&times;</button>
+    </div>
+    <div class="dc-scroll">
+      <div class="dc-top">
+        <button class="dc-nav" type="button" id="orderDuePrev" aria-label="Previous month">&#8249;</button>
+        <h3 id="orderDueMonth" aria-live="polite"></h3>
+        <button class="dc-nav" type="button" id="orderDueNext" aria-label="Next month">&#8250;</button>
+        <button class="dc-today" type="button" id="orderDueToday">Today</button>
+      </div>
+      <div class="dc-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+      <div class="dc-grid" id="orderDueGrid" role="group" aria-label="Select due date"></div>
+      <div class="dc-pick-foot">Tap a date to use it as the order due date.</div>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="goalsOverlay">
   <div class="hist-box goals" id="goals" onclick="event.stopPropagation()">
     <div class="hist-head">
@@ -1912,34 +1964,93 @@
   function tuid(){ return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
   /* ===================== Due dates =====================
-     A due date is picked as a plain day — Today, Tomorrow, or any day of the
-     week — and stored as a real calendar date, so "Friday" still means that
-     Friday once the week has moved on. */
+     Keep the order UI fast: ASAP, Tomorrow, the day after tomorrow, or a
+     calendar for anything else. The saved value is still a real ISO date. */
   var DOW_KEYS=['sun','mon','tue','wed','thu','fri','sat'];
   var DOW_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var MON_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  /* The list runs from today forward, so "Today" and "Monday" can never be
-     the same row twice. Seven days, plus a way to clear it. */
   function dueChoices(){
-    var out=[];
-    for(var i=0;i<7;i++){
-      var d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+i);
-      out.push({
-        k: i===0?'today':(i===1?'tomorrow':DOW_KEYS[d.getDay()]),
-        label: i===0?'Today':(i===1?'Tomorrow':DOW_NAMES[d.getDay()]),
-        color: URGENCY[urgencyForDays(i)].color
-      });
-    }
-    return out;
+    var d2=new Date(); d2.setHours(12,0,0,0); d2.setDate(d2.getDate()+2);
+    return [
+      {k:'asap',label:'ASAP',color:URGENCY.asap.color},
+      {k:'tomorrow',label:'Tomorrow',color:URGENCY.asap.color},
+      {k:'dayafter',label:DOW_NAMES[d2.getDay()],color:URGENCY.priority.color},
+      {k:'calendar',label:'Calendar…',color:URGENCY.norush.color}
+    ];
   }
   function computeDue(preset){
     var d=new Date(); d.setHours(12,0,0,0);
-    if(preset==='today') return todayKey(d);
+    if(preset==='asap'||preset==='today') return todayKey(d);
     if(preset==='tomorrow'){ d.setDate(d.getDate()+1); return todayKey(d); }
+    if(preset==='dayafter'){ d.setDate(d.getDate()+2); return todayKey(d); }
+    // Backward compatibility for orders created with the older weekday presets.
     var i=DOW_KEYS.indexOf(preset);
     if(i<0) return '';
-    d.setDate(d.getDate()+((i-d.getDay()+7)%7));   // the next one; today counts
+    d.setDate(d.getDate()+((i-d.getDay()+7)%7));
     return todayKey(d);
+  }
+  function dueQuickKey(value){
+    if(!value) return '';
+    var quick=['asap','tomorrow','dayafter'];
+    for(var i=0;i<quick.length;i++) if(computeDue(quick[i])===value) return quick[i];
+    return 'custom';
+  }
+  function dueShortLabel(value){
+    if(!validOrderDue(value)) return 'Chosen Date';
+    var p=value.split('-'), d=new Date(+p[0],+p[1]-1,+p[2],12);
+    return MON_NAMES[d.getMonth()]+' '+d.getDate();
+  }
+  var _duePickerTarget=null, _duePickerMonth=null, _duePickerWired=false;
+  function _dueDateObj(value){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||'')) return null;
+    var p=value.split('-'),d=new Date(+p[0],+p[1]-1,+p[2],12);
+    return (d.getFullYear()===+p[0]&&d.getMonth()===+p[1]-1&&d.getDate()===+p[2])?d:null;
+  }
+  function _duePickerRender(){
+    var grid=$('orderDueGrid'), title=$('orderDueMonth');
+    if(!grid||!title||!_duePickerMonth) return;
+    var y=_duePickerMonth.getFullYear(),m=_duePickerMonth.getMonth();
+    title.textContent=_duePickerMonth.toLocaleDateString([], {month:'long',year:'numeric'});
+    grid.innerHTML='';
+    var first=new Date(y,m,1,12).getDay(), days=new Date(y,m+1,0,12).getDate();
+    for(var blank=0;blank<first;blank++){
+      var ghost=document.createElement('button'); ghost.type='button'; ghost.className='dc-day'; ghost.disabled=true; grid.appendChild(ghost);
+    }
+    var selected=_duePickerTarget&&_duePickerTarget.value||'';
+    var today=todayKey();
+    for(var day=1;day<=days;day++){
+      (function(day){
+        var d=new Date(y,m,day,12), value=todayKey(d);
+        var b=document.createElement('button'); b.type='button'; b.className='dc-day'; b.textContent=day;
+        if(value===today)b.classList.add('today');
+        if(value===selected)b.classList.add('selected');
+        b.setAttribute('aria-label',d.toLocaleDateString([], {weekday:'long',month:'long',day:'numeric',year:'numeric'}));
+        b.onclick=function(){
+          if(!_duePickerTarget)return;
+          _duePickerTarget.value=value;
+          _duePickerTarget.dispatchEvent(new Event('change',{bubbles:true}));
+          $('orderDueCalendarOverlay').classList.remove('show');
+        };
+        grid.appendChild(b);
+      })(day);
+    }
+  }
+  function _wireDuePicker(){
+    if(_duePickerWired)return; _duePickerWired=true;
+    $('orderDueCalendarClose').onclick=function(){$('orderDueCalendarOverlay').classList.remove('show');};
+    $('orderDueCalendarOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+    $('orderDuePrev').onclick=function(){_duePickerMonth.setMonth(_duePickerMonth.getMonth()-1);_duePickerRender();};
+    $('orderDueNext').onclick=function(){_duePickerMonth.setMonth(_duePickerMonth.getMonth()+1);_duePickerRender();};
+    $('orderDueToday').onclick=function(){_duePickerMonth=new Date();_duePickerMonth.setDate(1);_duePickerMonth.setHours(12,0,0,0);_duePickerRender();};
+  }
+  function openDueCalendar(input){
+    if(!input) return;
+    _wireDuePicker();
+    _duePickerTarget=input;
+    var base=_dueDateObj(input.value)||new Date();
+    _duePickerMonth=new Date(base.getFullYear(),base.getMonth(),1,12);
+    $('orderDueCalendarOverlay').classList.add('show');
+    _duePickerRender();
   }
   /* One setting drives the colour: how soon it is due. Counting today as
      day one —
@@ -2558,6 +2669,14 @@
           var recovered=recoverDraftsToBoard();
           render();
           wireGoals();
+          // Office calendar can link directly to a particular order.
+          try{
+            var openId=new URLSearchParams(location.search).get('order');
+            if(openId&&getOrder(openId)&&!getOrder(openId).trashed){
+              openEditor(openId);
+              history.replaceState(null,'',location.pathname+location.hash);
+            }
+          }catch(e){}
           if(rolled)persist();
           if(recovered)persist();
           startAutoRefresh();
@@ -3483,13 +3602,47 @@
         p.appendChild(money);
         syncBal();
 
+        var exactDue=wzEl('input','wz-in'); exactDue.type='date';
+        exactDue.setAttribute('aria-label','Choose exact due date');
+        exactDue.value=validOrderDue(editing.due)?editing.due:'';
+        exactDue.style.position='absolute'; exactDue.style.opacity='0'; exactDue.style.width='1px'; exactDue.style.height='1px'; exactDue.style.pointerEvents='none';
+        var cur=dueQuickKey(editing.due);
         var dopts=dueChoices().map(function(d){ return {k:d.k,label:d.label}; });
-        var cur=''; for(var i=0;i<dopts.length;i++){ if(computeDue(dopts[i].k)===editing.due){ cur=dopts[i].k; break; } }
-        p.appendChild(wzRow('Due', wzSelect(dopts, cur, function(v){
+        if(cur==='custom') dopts.splice(dopts.length-1,0,{k:'custom',label:dueShortLabel(editing.due)});
+        var quickDue=wzSelect(dopts,cur==='custom'?'custom':cur,function(v){
+          if(v==='calendar'){
+            quickDue.value=dueQuickKey(editing.due)==='custom'?'custom':dueQuickKey(editing.due);
+            openDueCalendar(exactDue); return;
+          }
+          if(v==='custom') return;
           editing.duePreset=v; editing.due=v?computeDue(v):'';
           editing.urgency=v?(effUrgency(editing)||'norush'):'norush';
+          exactDue.value=editing.due;
           livePersist(); wzFoot();
-        }, {blank:'No date', other:false})));
+        },{blank:'No date',other:false});
+        function paintQuickDueTone(){
+          quickDue.classList.remove('due-red','due-orange');
+          if(quickDue.value==='asap'||quickDue.value==='tomorrow') quickDue.classList.add('due-red');
+          else if(quickDue.value==='dayafter') quickDue.classList.add('due-orange');
+        }
+        ['asap','tomorrow'].forEach(function(k){ var o=quickDue.querySelector('option[value="'+k+'"]'); if(o)o.classList.add('due-red-option'); });
+        var dayAfterOpt=quickDue.querySelector('option[value="dayafter"]'); if(dayAfterOpt)dayAfterOpt.classList.add('due-orange-option');
+        paintQuickDueTone();
+        quickDue.addEventListener('change',function(){setTimeout(paintQuickDueTone,0);});
+        p.appendChild(wzRow('Due (optional)',quickDue));
+        p.appendChild(exactDue);
+        exactDue.onchange=function(){
+          if(exactDue.value&&!validOrderDue(exactDue.value))return;
+          editing.due=exactDue.value; editing.duePreset='';
+          editing.urgency=editing.due?(effUrgency(editing)||'norush'):'norush';
+          var k=dueQuickKey(editing.due);
+          if(k==='custom'){
+            var co=quickDue.querySelector('option[value="custom"]');
+            if(!co){ co=document.createElement('option'); co.value='custom'; quickDue.insertBefore(co,quickDue.querySelector('option[value="calendar"]')); }
+            co.textContent=dueShortLabel(editing.due); quickDue.value='custom';
+          }else quickDue.value=k;
+          livePersist(); wzFoot();
+        };
       }
 
       var nt=wzEl('textarea','wz-in'); nt.placeholder=isNote?'Write the note\u2026':'Anything else about this order\u2026'; nt.value=editing.body||'';
@@ -3752,21 +3905,56 @@
     }, !!editing.payLocked);
     syncBalance();
   }
+  function validOrderDue(value){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return false;
+    var p=value.split('-'),d=new Date(+p[0],+p[1]-1,+p[2],12);
+    return d.getFullYear()===+p[0]&&d.getMonth()===+p[1]-1&&d.getDate()===+p[2];
+  }
   function buildDueControls(){
-    var c=$('mDue'); if(!c) return;
-    var opts=[{k:'',label:'No Date',color:URGENCY.norush.color}].concat(dueChoices());
-    // match on the date itself, so an older order saved as "mon" still lands right
-    var cur='';
-    for(var i=0;i<opts.length;i++){
-      var same = opts[i].k ? (computeDue(opts[i].k)===editing.due) : !editing.due;
-      if(same){ cur=opts[i].k; break; }
+    var select=$('mDueSelect'), picker=$('mDueExact');
+    if(!select) return;
+    var cur=dueQuickKey(editing.due);
+    select.innerHTML='';
+    function addOpt(k,label,cls){
+      var o=document.createElement('option'); o.value=k; o.textContent=label;
+      if(cls) o.className=cls;
+      select.appendChild(o);
     }
-    buildWheel(c, $('dueBand'), opts, cur, function(key){
+    addOpt('','No Date');
+    dueChoices().forEach(function(d){
+      if(d.k==='calendar'&&cur==='custom') addOpt('custom',dueShortLabel(editing.due));
+      var tone=(d.k==='asap'||d.k==='tomorrow')?'due-red-option':(d.k==='dayafter'?'due-orange-option':'');
+      addOpt(d.k,d.label,tone);
+    });
+    select.value=(cur==='custom')?'custom':cur;
+    select.classList.remove('due-red','due-orange');
+    if(cur==='asap'||cur==='tomorrow')select.classList.add('due-red');
+    else if(cur==='dayafter')select.classList.add('due-orange');
+    if(picker) picker.value=validOrderDue(editing.due)?editing.due:'';
+
+    select.onchange=function(){
+      var key=select.value;
+      if(key==='calendar'){
+        select.value=(cur==='custom')?'custom':cur;
+        openDueCalendar(picker);
+        return;
+      }
+      if(key==='custom') return;
       editing.duePreset=key;
       editing.due=key?computeDue(key):'';
       editing.urgency=key?(effUrgency(editing)||'norush'):'norush';
-      livePersist();
-    });
+      if(picker) picker.value=editing.due;
+      livePersist(); buildDueControls();
+      $('dueSection').dispatchEvent(new Event('change',{bubbles:true}));
+    };
+    if(picker) picker.onchange=function(){
+      var value=picker.value;
+      if(value&&!validOrderDue(value)) return;
+      editing.due=value; editing.duePreset='';
+      editing.urgency=value?(effUrgency(editing)||'norush'):'norush';
+      livePersist(); buildDueControls();
+      $('dueSection').dispatchEvent(new Event('change',{bubbles:true}));
+    };
   }
 
   function buildPayControls(){
@@ -3809,6 +3997,7 @@
       }
       btn.onclick=function(){ sec.style.display=(sec.style.display==='none')?'':'none'; paint(); };
       sec.onclick=function(){ setTimeout(paint, 30); };   // a pick refreshes the summary
+      sec.onchange=function(){ setTimeout(paint, 0); };
       paint();
     }
     wireSection('payToggle','paySection','Payment', function(){
