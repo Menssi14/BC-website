@@ -875,6 +875,46 @@
   .dc-late-title{font:600 19px 'Teko',sans-serif;color:var(--red);}
   .dc-foot{margin-top:14px;color:var(--burgundy);opacity:.6;font:15px 'Teko',sans-serif;}
   @media(max-width:440px){.dc-scroll{padding:12px;}.dc-weekdays,.dc-grid{gap:3px;}.dc-day{min-height:53px;padding:6px 4px;}.dc-top h3{font-size:22px;}}
+
+  /* ===== Need to Buy ===== */
+  .bt-box{max-width:860px;width:min(94vw,860px);}
+  .bt-body{padding:0 18px 20px;display:flex;flex-direction:column;gap:14px;}
+  .bt-intro{font-family:'Teko',sans-serif;font-size:18px;line-height:1.15;color:var(--muted);}
+  .bt-compose{border:1.5px solid var(--line);border-radius:18px;background:var(--note);padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .bt-label{font-family:'Teko',sans-serif;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
+  .bt-order-input,.bt-line input{width:100%;min-width:0;border:1.5px solid var(--line-strong);background:var(--paper);color:var(--ink);border-radius:12px;padding:11px 12px;font-family:'Teko',sans-serif;font-size:19px;line-height:1;outline:none;}
+  .bt-order-input:focus,.bt-line input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(36,76,58,.10);}
+  .bt-lines{display:flex;flex-direction:column;gap:8px;}
+  .bt-line{display:grid;grid-template-columns:minmax(0,1.45fr) 84px minmax(0,1.8fr) 36px;gap:7px;align-items:center;}
+  .bt-line .bt-qty{text-align:center;}
+  .bt-remove{height:40px;width:36px;border:0;background:transparent;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;border-radius:10px;}
+  .bt-remove:hover{background:rgba(120,70,55,.08);color:var(--red);}
+  .bt-compose-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .bt-add-line,.bt-save,.bt-new{border:1.5px solid var(--line-strong);border-radius:12px;background:transparent;color:var(--green);font-family:'Teko',sans-serif;font-size:18px;padding:9px 13px;cursor:pointer;}
+  .bt-save{margin-left:auto;background:var(--green);color:var(--cream);border-color:var(--green);min-width:104px;}
+  .bt-new{display:none;color:var(--burgundy);}
+  .bt-cloud{margin-left:auto;font-family:'Teko',sans-serif;font-size:15px;color:var(--muted);}
+  .bt-cloud.ok{color:var(--green);}.bt-cloud.fail{color:var(--red);}
+  .bt-list{display:flex;flex-direction:column;gap:10px;}
+  .bt-empty{padding:30px 12px;text-align:center;border:1.5px dashed var(--line-strong);border-radius:16px;font-family:'Teko',sans-serif;font-size:20px;color:var(--muted);}
+  .bt-card{border:1.5px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden;}
+  .bt-card-head{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line);background:var(--note);}
+  .bt-card-title{min-width:0;flex:1;font-family:'Teko',sans-serif;font-size:22px;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bt-linked{font-family:'Teko',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--brown);opacity:.72;}
+  .bt-edit{border:0;background:transparent;color:var(--muted);font-family:'Teko',sans-serif;font-size:17px;cursor:pointer;padding:5px 7px;border-radius:8px;}
+  .bt-edit:hover{background:rgba(36,76,58,.07);color:var(--green);}
+  .bt-item{display:grid;grid-template-columns:minmax(0,1fr) auto 42px;gap:9px;align-items:center;padding:11px 13px;border-top:1px solid var(--line);}
+  .bt-item:first-child{border-top:0;}
+  .bt-item-main{min-width:0;}
+  .bt-item-name{font-family:'Teko',sans-serif;font-size:20px;color:var(--ink);line-height:1.05;overflow-wrap:anywhere;}
+  .bt-item-notes{font-family:'Teko',sans-serif;font-size:16px;color:var(--muted);line-height:1.1;margin-top:3px;overflow-wrap:anywhere;}
+  .bt-item-qty{font-family:'Teko',sans-serif;font-size:18px;color:var(--brown);white-space:nowrap;}
+  .bt-bought{width:38px;height:38px;border-radius:11px;border:1.5px solid rgba(71,121,88,.35);background:rgba(71,121,88,.08);color:var(--green);display:grid;place-items:center;cursor:pointer;}
+  .bt-bought:hover{background:rgba(71,121,88,.16);}
+  @media(max-width:620px){
+    .bt-body{padding:0 12px 16px}.bt-compose{padding:11px}.bt-line{grid-template-columns:minmax(0,1fr) 66px 36px}.bt-line .bt-notes{grid-column:1 / span 2}.bt-save{margin-left:0;flex:1}.bt-item{grid-template-columns:minmax(0,1fr) 38px}.bt-item-qty{grid-column:1;grid-row:2}.bt-bought{grid-column:2;grid-row:1 / span 2}
+  }
+
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -1249,6 +1289,10 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M8 18h3"/></svg></span>
         <span class="eo-t">Due Dates</span>
       </button>
+      <button class="edit-opt" id="needBuyOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></span>
+        <span class="eo-t">Need to Buy</span>
+      </button>
       <div class="sales-section">Office</div>
       <button class="edit-opt" id="invOpen" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path></svg></span>
@@ -1266,6 +1310,35 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></svg></span>
         <span class="eo-t">Health check</span>
       </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- NEED TO BUY -->
+<div class="overlay" id="needBuyOverlay">
+  <div class="hist-box bt-box" onclick="event.stopPropagation()">
+    <div class="hist-head">
+      <span class="hist-title">Need to Buy</span>
+      <span class="bt-cloud" id="btCloudStatus">Shared</span>
+      <button class="icon-btn" id="needBuyClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="bt-body">
+      <div class="bt-intro">A shared shopping list for blanks and supplies. Type only what you need.</div>
+      <div class="bt-compose">
+        <div>
+          <div class="bt-label">Order / customer <span style="text-transform:none;letter-spacing:0;opacity:.65">optional</span></div>
+          <input class="bt-order-input" id="btOrder" type="text" maxlength="100" placeholder="Order or customer" autocomplete="off">
+        </div>
+        <div class="bt-label">Items</div>
+        <div class="bt-lines" id="btDraftLines"></div>
+        <div class="bt-compose-actions">
+          <button class="bt-add-line" id="btAddLine" type="button">+ Add item</button>
+          <button class="bt-new" id="btNew" type="button">New list</button>
+          <button class="bt-save" id="btSave" type="button">Save</button>
+        </div>
+      </div>
+      <div class="bt-list" id="btList"></div>
     </div>
   </div>
 </div>
@@ -4666,6 +4739,101 @@
 
   $('sizesOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('dtfOverlay').classList.add('show'); });
 
+
+
+  // ── Need to Buy: tiny shared purchasing list for the sales team ─────────────
+  var BT_LOCAL='bc-need-to-buy-v1', BT_CLOUD_FILE='_office/need-to-buy.json';
+  var btState={lists:[],deleted:{}}, btReady=false, btEditId=null, btDraft=[];
+  function btStatus(text,kind){ var e=$('btCloudStatus'); if(!e)return; e.textContent=text||'Shared'; e.classList.remove('ok','fail'); if(kind)e.classList.add(kind); }
+  function btNorm(raw){
+    raw=raw&&typeof raw==='object'?raw:{}; var dels=raw.deleted&&typeof raw.deleted==='object'?raw.deleted:{};
+    var lists=(Array.isArray(raw.lists)?raw.lists:[]).filter(function(x){return x&&x.id;}).map(function(x){
+      return {id:String(x.id),orderId:x.orderId||'',label:String(x.label||''),createdAt:+x.createdAt||Date.now(),updatedAt:+x.updatedAt||0,
+        lines:(Array.isArray(x.lines)?x.lines:[]).filter(function(l){return l&&l.id;}).map(function(l){return {id:String(l.id),item:String(l.item||''),qty:String(l.qty||''),notes:String(l.notes||''),doneAt:+l.doneAt||0,updatedAt:+l.updatedAt||0};})};
+    });
+    return {lists:lists,deleted:dels};
+  }
+  function btMerge(a,b){
+    a=btNorm(a); b=btNorm(b); var del={}, map={};
+    [a.deleted,b.deleted].forEach(function(d){Object.keys(d||{}).forEach(function(id){del[id]=Math.max(+del[id]||0,+d[id]||0);});});
+    a.lists.concat(b.lists).forEach(function(x){if((del[x.id]||0)>=(x.updatedAt||0))return; var m=map[x.id]; if(!m||(x.updatedAt||0)>(m.updatedAt||0))map[x.id]=x;});
+    return {lists:Object.keys(map).map(function(k){return map[k];}).sort(function(x,y){return (y.updatedAt||0)-(x.updatedAt||0);}),deleted:del};
+  }
+  function btLocalRead(){try{return btNorm(JSON.parse(localStorage.getItem(BT_LOCAL)||'null'));}catch(_){return btNorm(null);}}
+  function btLocalWrite(){try{localStorage.setItem(BT_LOCAL,JSON.stringify(btState));}catch(_){}}
+  function btCloudRead(){
+    if(!sb)return Promise.resolve(btNorm(null));
+    return sb.storage.from(BUCKET).download(BT_CLOUD_FILE+'?t='+Date.now()).then(function(r){
+      if(!r||!r.data)return btNorm(null); return r.data.text().then(function(t){try{return btNorm(JSON.parse(t));}catch(_){return btNorm(null);}});
+    }).catch(function(){return btNorm(null);});
+  }
+  function btCloudPush(){
+    btLocalWrite(); btStatus(sb?'Saving…':'On this device'); if(!sb)return Promise.resolve(false);
+    return btCloudRead().then(function(remote){
+      btState=btMerge(remote,btState); btLocalWrite();
+      var blob=new Blob([JSON.stringify({v:1,updatedAt:Date.now(),lists:btState.lists,deleted:btState.deleted})],{type:'application/json'});
+      return sb.storage.from(BUCKET).upload(BT_CLOUD_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
+        if(r&&r.error){btStatus('Not saved','fail');return false;} btStatus('Shared','ok'); btRender(); return true;
+      }).catch(function(){btStatus('Not saved','fail');return false;});
+    });
+  }
+  function btActiveLines(list){return (list.lines||[]).filter(function(l){return !l.doneAt;});}
+  function btResetDraft(){btEditId=null;btDraft=[{item:'',qty:'',notes:''}];$('btOrder').value='';$('btNew').style.display='none';btRenderDraft();}
+  function btRenderDraft(){
+    var box=$('btDraftLines'); if(!box)return; if(!btDraft.length)btDraft=[{item:'',qty:'',notes:''}]; box.innerHTML='';
+    btDraft.forEach(function(row,i){
+      var el=document.createElement('div'); el.className='bt-line';
+      el.innerHTML='<input class="bt-item-in" type="text" maxlength="120" placeholder="Item" autocomplete="off">'+
+        '<input class="bt-qty" type="text" maxlength="30" placeholder="Qty" autocomplete="off">'+
+        '<input class="bt-notes" type="text" maxlength="240" placeholder="Notes" autocomplete="off">'+
+        '<button class="bt-remove" type="button" title="Remove" aria-label="Remove item">×</button>';
+      var ins=el.querySelectorAll('input'); ins[0].value=row.item||''; ins[1].value=row.qty||''; ins[2].value=row.notes||'';
+      ins[0].oninput=function(){row.item=this.value;}; ins[1].oninput=function(){row.qty=this.value;}; ins[2].oninput=function(){row.notes=this.value;};
+      el.querySelector('.bt-remove').onclick=function(){ if(btDraft.length===1){btDraft[0]={item:'',qty:'',notes:''};} else btDraft.splice(i,1); btRenderDraft(); };
+      box.appendChild(el);
+    });
+  }
+  function btRender(){
+    var box=$('btList'); if(!box)return; var active=btState.lists.map(function(l){return {list:l,lines:btActiveLines(l)};}).filter(function(x){return x.lines.length;});
+    if(!active.length){box.innerHTML='<div class="bt-empty">Nothing to buy right now.</div>';return;}
+    box.innerHTML=active.map(function(x){var l=x.list;
+      return '<div class="bt-card" data-bt-list="'+esc(l.id)+'"><div class="bt-card-head"><div class="bt-card-title">'+esc(l.label||'Shopping list')+'</div>'+(l.orderId?'<span class="bt-linked">Order</span>':'')+'<button class="bt-edit" type="button" data-bt-edit="'+esc(l.id)+'">Edit</button></div><div>'+x.lines.map(function(it){return '<div class="bt-item" data-bt-line="'+esc(it.id)+'"><div class="bt-item-main"><div class="bt-item-name">'+esc(it.item||'Item')+'</div>'+(it.notes?'<div class="bt-item-notes">'+esc(it.notes)+'</div>':'')+'</div>'+(it.qty?'<div class="bt-item-qty">'+esc(it.qty)+'</div>':'<div></div>')+'<button class="bt-bought" type="button" title="Bought" aria-label="Mark bought"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></button></div>';}).join('')+'</div></div>';
+    }).join('');
+  }
+  function btOpen(){
+    $('linksOverlay').classList.remove('show'); $('needBuyOverlay').classList.add('show'); btResetDraft();
+    if(btReady){btRender();return;} btState=btLocalRead();btRender();btStatus(sb?'Loading…':'On this device');
+    btCloudRead().then(function(remote){btState=btMerge(remote,btState);btLocalWrite();btReady=true;btRender();btStatus('Shared','ok'); if(JSON.stringify(btState)!==JSON.stringify(remote))btCloudPush();});
+  }
+  function btSaveDraft(){
+    var label=$('btOrder').value.trim(); var rows=btDraft.map(function(r){return {item:(r.item||'').trim(),qty:(r.qty||'').trim(),notes:(r.notes||'').trim()};}).filter(function(r){return r.item||r.qty||r.notes;});
+    if(!rows.length){toast('Add an item first');return;}
+    var now=Date.now(), old=btEditId?btState.lists.filter(function(l){return l.id===btEditId;})[0]:null;
+    var kept=old?(old.lines||[]).filter(function(l){return l.doneAt;}):[];
+    var oldActive=old?btActiveLines(old):[];
+    var fresh=rows.map(function(r,i){var prior=oldActive[i];return {id:prior&&prior.id||('bti-'+now.toString(36)+'-'+i+'-'+Math.random().toString(36).slice(2,5)),item:r.item,qty:r.qty,notes:r.notes,doneAt:0,updatedAt:now};});
+    var list={id:old&&old.id||('bt-'+now.toString(36)+'-'+Math.random().toString(36).slice(2,6)),orderId:old&&old.orderId||'',label:label,createdAt:old&&old.createdAt||now,updatedAt:now,lines:kept.concat(fresh)};
+    btState.lists=btState.lists.filter(function(l){return l.id!==list.id;});btState.lists.push(list);btState=btMerge(btNorm(null),btState);btLocalWrite();btRender();btResetDraft();btCloudPush();toast('Added to Need to Buy');
+  }
+  function btEditList(id){
+    var l=btState.lists.filter(function(x){return x.id===id;})[0];if(!l)return;var lines=btActiveLines(l);btEditId=id;$('btOrder').value=l.label||'';btDraft=lines.length?lines.map(function(x){return {item:x.item,qty:x.qty,notes:x.notes};}):[{item:'',qty:'',notes:''}];$('btNew').style.display='';btRenderDraft();$('btOrder').focus();
+  }
+  function btSyncOrderStatus(list){
+    if(!list||!list.orderId)return;var o=getOrder(list.orderId);if(!o)return;var any=btActiveLines(list).length>0;o.buyStatus=any?'needed':'bought';o.buyUpdatedAt=Date.now();o.updatedAt=Date.now();persist();
+  }
+  function btBought(listId,lineId){
+    var l=btState.lists.filter(function(x){return x.id===listId;})[0];if(!l)return;var line=(l.lines||[]).filter(function(x){return x.id===lineId;})[0];if(!line)return;var now=Date.now();line.doneAt=now;line.updatedAt=now;l.updatedAt=now;btLocalWrite();btRender();btSyncOrderStatus(l);btCloudPush();toast('Bought');
+  }
+  $('needBuyOpen').addEventListener('click',btOpen);
+  $('needBuyClose').addEventListener('click',function(){$('needBuyOverlay').classList.remove('show');});
+  $('needBuyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+  $('btAddLine').addEventListener('click',function(){btDraft.push({item:'',qty:'',notes:''});btRenderDraft();var ins=$('btDraftLines').querySelectorAll('.bt-item-in');if(ins.length)ins[ins.length-1].focus();});
+  $('btSave').addEventListener('click',btSaveDraft); $('btNew').addEventListener('click',btResetDraft);
+  $('btList').addEventListener('click',function(e){
+    var card=e.target.closest&&e.target.closest('[data-bt-list]');if(!card)return;var listId=card.getAttribute('data-bt-list');
+    var edit=e.target.closest('[data-bt-edit]');if(edit){btEditList(listId);return;}
+    var b=e.target.closest('.bt-bought');if(b){var row=b.closest('[data-bt-line]');if(row)btBought(listId,row.getAttribute('data-bt-line'));}
+  });
 
   // ── Color Codes: shared print-color reference ──────────────
   var CC_LOCAL='bc-color-codes-v1', CC_CLOUD_FILE='_office/color-codes.json';
