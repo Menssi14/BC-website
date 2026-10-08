@@ -299,6 +299,10 @@
   .qa-act.confirm{ background:var(--green); }
   .qa-act.danger{ background:var(--red); }
   .qa-act svg{ width:30px; height:30px; stroke:#fff; }
+  /* Mobile long-press should feel like an app action, never like selectable page content. */
+  .qa-box,.qa-actions,.qa-act,.qa-act *{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  .qa-act svg{ pointer-events:none; }
+  .card-imgs img{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-user-drag:none; }
 
   /* Order-only system information: hidden from the board, visible inside the opened order. */
   .order-core-meta{ display:flex; align-items:stretch; gap:8px; margin:8px 0 12px; flex-wrap:wrap; }
@@ -1639,7 +1643,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>
       </button>
       <button class="qa-act danger" id="quickOrderDelete" type="button" aria-label="Delete order">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        <svg viewBox="0 0 1200 1200" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M599.99 131.26Q648.65 131.26 678 131.32Q691.04 131.34 705.24 136.32C743.17 149.61 768.44 184.32 768.69 224.51Q768.74 231.86 768.74 280.73A.54.54 0 0 0 769.28 281.27Q857.3 281.27 955.25 281.27C973.11 281.27 987.78 292.06 992.36 309.07C996.67 325.1 990.12 341.51 976.33 350.36Q966.93 356.39 953.75 356.31Q938.84 356.22 917.35 356.28A.69.69 0 0 0 916.66 356.93Q889.02 854.51 885.8 913.75Q884.71 933.71 882.81 942.47C871.41 995.18 824.68 1031.58 771.25 1031.26Q768.41 1031.25 600.01 1031.25Q431.6 1031.25 428.77 1031.27C375.33 1031.59 328.6 995.19 317.2 942.48Q315.3 933.72 314.21 913.76Q310.99 854.52 283.33 356.94A.69.69 0 0 0 282.64 356.29Q261.15 356.23 246.24 356.32Q233.06 356.41 223.66 350.38C209.87 341.53 203.32 325.12 207.62 309.09C212.2 292.08 226.87 281.29 244.73 281.28Q342.68 281.28 430.7 281.28A.54.54 0 0 0 431.24 280.74Q431.24 231.87 431.29 224.52C431.54 184.33 456.81 149.62 494.74 136.32Q508.94 131.34 521.98 131.32Q551.33 131.26 599.99 131.26ZM600 281.28Q689.07 281.28 693.52 281.25A.21.21 0 0 0 693.73 281.04Q693.82 270.02 693.74 225.76C693.72 214.05 685.45 206.2 673.75 206.24Q664.72 206.27 600 206.27Q535.29 206.27 526.26 206.24C514.56 206.2 506.29 214.05 506.27 225.76Q506.19 270.02 506.28 281.04A.21.21 0 0 0 506.49 281.25Q510.93 281.28 600 281.28ZM600 956.28Q760.15 956.28 771.5 956.26C792.61 956.21 809.12 941.3 810.28 920.25Q813.96 853.91 841.6 356.67A.44.44 0 0 0 841.16 356.21Q807.01 356.27 599.99 356.27Q392.98 356.28 358.83 356.22A.44.44 0 0 0 358.39 356.68Q386.04 853.92 389.73 920.26C390.89 941.31 407.4 956.22 428.51 956.26Q439.85 956.29 600 956.28Z"/><g fill="currentColor"><rect x="436.95" y="435.99" width="65.56" height="442.18" rx="32.29" transform="rotate(-2 469.73 657.08)"/><rect x="567.21" y="436.08" width="65.58" height="440.32" rx="32.28"/><rect x="697.45" y="436.04" width="65.62" height="442.06" rx="32.3" transform="rotate(2 730.26 657.07)"/></g></svg>
       </button>
     </div>
   </div>
@@ -3323,7 +3327,9 @@
     function cancel(){ if(timer){clearTimeout(timer);timer=null;} }
     el.addEventListener('pointerdown',function(e){
       if(e.pointerType==='mouse'&&e.button!==0)return;
-      if(e.target.closest('[data-act],[data-stop],a,button,input,textarea,select'))return;
+      /* Photos and the lower detail pane have their own horizontal swipe gesture.
+         Never arm long-press there or it competes with the swipe on phones. */
+      if(e.target.closest('.card-imgs,.info-strip,.info-dots,[data-act],[data-stop],a,button,input,textarea,select'))return;
       cancel(); fired=false; sx=e.clientX; sy=e.clientY; pid=e.pointerId;
       timer=setTimeout(function(){ timer=null; fired=true; _quickPressConsumedUntil=Date.now()+700; openQuickOrder(el.getAttribute('data-card')); },560);
     });
@@ -3331,7 +3337,7 @@
     ['pointerup','pointercancel','pointerleave'].forEach(function(ev){ el.addEventListener(ev,function(e){ if(pid===null||e.pointerId===pid){cancel();pid=null;} }); });
     el.addEventListener('contextmenu',function(e){ if(!e.target.closest('[data-act],[data-stop],a,button,input,textarea,select'))e.preventDefault(); });
   }
-  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
+  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} if(Date.now()-lastStripScroll<340){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
 
   $('mPurchaseBtn').addEventListener('click',function(e){
     e.stopPropagation();
