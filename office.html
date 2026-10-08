@@ -286,6 +286,29 @@
   .hist-btn{ opacity:.55; } .hist-btn:hover{ opacity:1; }
   .hist-box{ background:var(--note); border-radius:16px; max-width:520px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); overflow:hidden; margin-top:6vh; animation:pop .17s ease-out; max-height:82vh; display:flex; flex-direction:column; }
   .hist-head{ display:flex; align-items:center; gap:12px; padding:16px 18px 12px; border-bottom:1px solid var(--line); }
+  .overlay .hist-head{flex:0 0 auto;}
+  /* Standard popup bodies scroll inside the popup instead of pushing the page behind it. */
+  .overlay .hist-box > .edit-opts,
+  .overlay .hist-box > .inv-list,
+  .overlay .hist-box > .health-list,
+  .overlay .hist-box > .ivm-body,
+  .overlay .hist-box > .lbl-body,
+  .overlay .hist-box > .dtf-scroll,
+  .overlay .hist-box > .paytool-body,
+  .overlay .hist-box > .hist-list,
+  .overlay .hist-box > .dc-scroll,
+  .overlay .hist-box > .goals-body,
+  .overlay .hist-box > #goalPickList,
+  .overlay .hist-box > .buy-body,
+  .overlay .hist-box > .cc-body,
+  .overlay .hist-box > .bt-body,
+  .overlay .hist-box > .so-body{
+    flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  }
+  @media(max-width:560px){
+    .overlay{padding:12px 10px;}
+    .overlay .hist-box{margin-top:0;max-height:calc(100dvh - 24px);}
+  }
   .hist-title{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase; letter-spacing:.025em; font-size:24px; font-weight:normal; line-height:1; color:var(--green); flex:1; }
   .hist-sum{ display:flex; gap:10px; padding:14px 18px; flex-wrap:wrap; }
   .hist-stat{ background:rgba(31,77,62,.08); border-radius:10px; padding:10px 14px; flex:1; min-width:120px; }
@@ -497,8 +520,9 @@
   body.view-tools #linksOverlay .hist-head{ display:none; }
   body.view-tools #linksOverlay .edit-opts{ padding:0; }
 
-  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; }
+  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
   .overlay.show{ display:flex; }
+  html.overlay-open,body.overlay-open{overflow:hidden!important;overscroll-behavior:none;}
   @media(max-width:560px){ .overlay{ padding:12px 10px; } }
 
   .chooser-box{ background:var(--note); border-radius:18px; padding:24px 22px 26px; max-width:440px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); margin-top:7vh; animation:pop .17s ease-out; }
@@ -877,10 +901,8 @@
   @media(max-width:440px){.dc-scroll{padding:12px;}.dc-weekdays,.dc-grid{gap:3px;}.dc-day{min-height:53px;padding:6px 4px;}.dc-top h3{font-size:22px;}}
 
   /* ===== Need to Buy ===== */
-  .bt-box{max-width:860px;width:min(94vw,860px);max-height:min(82vh,calc(100vh - 56px));max-height:min(82dvh,calc(100dvh - 56px));margin-top:min(6vh,24px);}
-  .bt-box > .hist-head{flex:0 0 auto;}
-  .bt-body{padding:0 18px 20px;display:flex;flex-direction:column;gap:14px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;}
-  .bt-body > *{flex-shrink:0;}
+  .bt-box{max-width:860px;width:min(94vw,860px);max-height:calc(100dvh - 56px);margin-top:0;}
+  .bt-body{padding:0 18px 20px;display:flex;flex-direction:column;gap:14px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
   .bt-intro{font-family:'Teko',sans-serif;font-size:18px;line-height:1.15;color:var(--muted);}
   .bt-compose{border:1.5px solid var(--line);border-radius:18px;background:var(--note);padding:14px;display:flex;flex-direction:column;gap:10px;}
   .bt-label{font-family:'Teko',sans-serif;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
@@ -919,12 +941,13 @@
   .bt-bought{width:38px;height:38px;border-radius:11px;border:1.5px solid rgba(71,121,88,.35);background:rgba(71,121,88,.08);color:var(--green);display:grid;place-items:center;cursor:pointer;}
   .bt-bought:hover{background:rgba(71,121,88,.16);}
   @media(max-width:620px){
+    .bt-box,.so-box{max-height:calc(100dvh - 24px);}
     .bt-body{padding:0 12px 16px}.bt-compose{padding:11px}.bt-line{grid-template-columns:minmax(0,1fr) 66px 36px}.bt-line .bt-notes{grid-column:1 / span 2}.bt-save{margin-left:0;flex:1}.bt-item{grid-template-columns:minmax(0,1fr) 38px}.bt-item-qty{grid-column:1;grid-row:2}.bt-bought{grid-column:2;grid-row:1 / span 2}
   }
 
 
   /* Smart Orders beta */
-  .so-box{max-width:760px;width:min(760px,96vw)}.so-body{padding:14px 16px 20px;display:grid;gap:12px}.so-beta{margin-left:8px;font:600 14px Teko,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--brown);background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:3px 8px}.so-note{font:400 19px Teko,sans-serif;color:var(--muted)}.so-search{margin:0!important}.so-list{display:grid;gap:10px}.so-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px;display:grid;gap:10px}.so-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}.so-name{font:600 24px Teko,sans-serif;color:var(--ink);line-height:1.05;min-width:0;overflow-wrap:anywhere}.so-id{font:500 13px Teko,sans-serif;letter-spacing:.055em;color:var(--muted);white-space:nowrap}.so-meta{font:400 17px Teko,sans-serif;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}.so-states{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.so-state{border:1px solid var(--line);border-radius:10px;padding:7px 8px;min-width:0}.so-state small{display:block;font:500 11px Teko,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.so-state b{display:block;font:600 16px Teko,sans-serif;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.so-state.good{background:#eef6ef;border-color:#bcd6c1}.so-state.bad{background:#fff0ee;border-color:#efc0ba}.so-state.warn{background:#fff6e8;border-color:#ead0a5}.so-actions{display:flex;gap:8px;flex-wrap:wrap}.so-actions button,.so-actions a{min-height:38px;border:1px solid var(--line);border-radius:10px;background:var(--cream);color:var(--ink);font:600 16px Teko,sans-serif;padding:7px 11px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.so-actions .primary{background:var(--green);border-color:var(--green);color:#fff}.so-empty{padding:24px 8px;text-align:center;font:400 20px Teko,sans-serif;color:var(--muted)}@media(max-width:560px){.so-states{grid-template-columns:repeat(2,minmax(0,1fr))}.so-box{width:100%}.so-id{font-size:12px}}
+  .so-box{max-width:760px;width:min(760px,96vw);max-height:calc(100dvh - 56px);margin-top:0}.so-body{padding:14px 16px 20px;display:grid;gap:12px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.so-beta{margin-left:8px;font:600 14px Teko,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--brown);background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:3px 8px}.so-note{font:400 19px Teko,sans-serif;color:var(--muted)}.so-search{margin:0!important}.so-list{display:grid;gap:10px}.so-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px;display:grid;gap:10px}.so-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}.so-name{font:600 24px Teko,sans-serif;color:var(--ink);line-height:1.05;min-width:0;overflow-wrap:anywhere}.so-id{font:500 13px Teko,sans-serif;letter-spacing:.055em;color:var(--muted);white-space:nowrap}.so-meta{font:400 17px Teko,sans-serif;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}.so-states{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.so-state{border:1px solid var(--line);border-radius:10px;padding:7px 8px;min-width:0}.so-state small{display:block;font:500 11px Teko,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.so-state b{display:block;font:600 16px Teko,sans-serif;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.so-state.good{background:#eef6ef;border-color:#bcd6c1}.so-state.bad{background:#fff0ee;border-color:#efc0ba}.so-state.warn{background:#fff6e8;border-color:#ead0a5}.so-actions{display:flex;gap:8px;flex-wrap:wrap}.so-actions button,.so-actions a{min-height:38px;border:1px solid var(--line);border-radius:10px;background:var(--cream);color:var(--ink);font:600 16px Teko,sans-serif;padding:7px 11px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.so-actions .primary{background:var(--green);border-color:var(--green);color:#fff}.so-empty{padding:24px 8px;text-align:center;font:400 20px Teko,sans-serif;color:var(--muted)}@media(max-width:560px){.so-states{grid-template-columns:repeat(2,minmax(0,1fr))}.so-box{width:100%;max-height:calc(100dvh - 24px)}.so-id{font-size:12px}}
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -2184,6 +2207,21 @@
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
+  /* Keep the page behind every standard popup still. The popup/overlay remains
+     the scroll surface, so mobile swipes cannot accidentally move Orders behind it. */
+  function syncOverlayScrollLock(){
+    var open=!!document.querySelector('.overlay.show');
+    document.documentElement.classList.toggle('overlay-open',open);
+    document.body.classList.toggle('overlay-open',open);
+  }
+  (function initOverlayScrollLock(){
+    var overlays=document.querySelectorAll('.overlay');
+    if(!overlays.length)return;
+    var obs=new MutationObserver(syncOverlayScrollLock);
+    overlays.forEach(function(el){obs.observe(el,{attributes:true,attributeFilter:['class']});});
+    syncOverlayScrollLock();
+  })();
+
 
   /* ===================== Smart Orders beta =====================
      The visible customer name stays the same. smartId is the business identity
@@ -2193,13 +2231,25 @@
   function smartPad(n,w){ return String(n).padStart(w||2,'0'); }
   function smartIdFor(ts){
     var d=new Date(+ts||Date.now());
-    return 'BC-'+d.getFullYear()+smartPad(d.getMonth()+1)+smartPad(d.getDate())+'-'+smartPad(d.getHours())+smartPad(d.getMinutes())+smartPad(d.getSeconds())+'-'+smartPad(d.getMilliseconds(),3);
+    return 'BC-'+d.getFullYear()+smartPad(d.getMonth()+1)+smartPad(d.getDate())+'-'+smartPad(d.getHours())+smartPad(d.getMinutes());
   }
   function smartEligible(o){ return !!(o && !o.isQuote && o.type!=='NOTE'); }
   function smartEnsure(o){
     if(!o || !smartEligible(o)) return o;
-    if(!o.smartId){ o.smartId=smartIdFor(o.createdAt||Date.now()); _smartMigrated=true; }
     if(!o.smart || typeof o.smart!=='object') o.smart={};
+    var wanted=smartIdFor(o.createdAt||Date.now());
+    /* Beta IDs originally included seconds + milliseconds. Keep the old value
+       only as a hidden alias so an already-created Square note can still match,
+       while the visible order/invoice number stays simple. */
+    if(!o.smartId){
+      o.smartId=wanted; _smartMigrated=true;
+    }else if(/^BC-\d{8}-\d{6}-\d{3}$/.test(o.smartId)){
+      if(o.smartId!==wanted){
+        if(!Array.isArray(o.smart.aliases))o.smart.aliases=[];
+        if(o.smart.aliases.indexOf(o.smartId)<0)o.smart.aliases.push(o.smartId);
+      }
+      o.smartId=wanted; _smartMigrated=true;
+    }
     o.smart.v=1;
     if(!o.smart.invoice || typeof o.smart.invoice!=='object') o.smart.invoice=null;
     if(!o.smart.payment || typeof o.smart.payment!=='object') o.smart.payment=null;
@@ -5225,7 +5275,7 @@
   function smartDueText(o){var d=dueInfo(o);return d?d.txt:'No due date';}
   function renderSmartOrders(){var q=(($('smartOrdersSearch')&&$('smartOrdersSearch').value)||'').trim().toLowerCase(),list=state.orders.filter(function(o){return smartEligible(o)&&!o.trashed;}).sort(sortOrders);if(q)list=list.filter(function(o){return ((autoTitle(o)||'')+' '+(o.smartId||'')+' '+(o.type||'')).toLowerCase().indexOf(q)>=0;});var box=$('smartOrdersList');if(!box)return;if(!list.length){box.innerHTML='<div class="so-empty">No matching orders.</div>';return;}box.innerHTML=list.map(function(o){smartEnsure(o);var inv=smartInvoiceLabel(o),pay=smartPaymentLabel(o),bought=(o.buyStatus==='bought'),qty=smartQty(o);return '<div class="so-card"><div class="so-head"><div class="so-name">'+esc(autoTitle(o)||'Order')+'</div><div class="so-id">'+esc(o.smartId)+'</div></div><div class="so-meta"><span>'+esc(o.type||'Order')+'</span><span>· '+qty+' item'+(qty===1?'':'s')+'</span><span>· '+esc(smartDueText(o))+'</span></div><div class="so-states"><div class="so-state '+(bought?'good':'bad')+'"><small>Blanks</small><b>'+(bought?'Bought':'Need buying')+'</b></div><div class="so-state"><small>Production</small><b>'+esc(o.stage||'New')+'</b></div><div class="so-state '+inv.cls+'"><small>Invoice</small><b>'+esc(inv.txt)+'</b></div><div class="so-state '+pay.cls+'"><small>Payment</small><b>'+esc(pay.txt)+'</b></div></div><div class="so-actions"><button type="button" class="primary" data-smart-act="invoice" data-id="'+esc(o.id)+'">Invoice</button><button type="button" data-smart-act="payment" data-id="'+esc(o.id)+'">Payment</button><a href="/orders.html?order='+encodeURIComponent(o.id)+'">Open Order</a></div></div>';}).join('');}
   function openSmartOrders(){$('linksOverlay').classList.remove('show');$('smartOrdersOverlay').classList.add('show');renderSmartOrders();if(!_smartPaymentsChecked){_smartPaymentsChecked=true;smartReconcilePayments();}}
-  function smartReconcilePayments(){fetch('/api/payments').then(function(r){return r.json();}).then(function(d){if(!d||!d.ok)return;var changed=false;(d.payments||[]).forEach(function(p){if(p.status!=='COMPLETED'||!p.note)return;var m=/\b(BC-\d{8}-\d{6}-\d{3})\b/.exec(p.note);if(!m)return;var o=state.orders.filter(function(x){return x&&x.smartId===m[1];})[0];if(!o)return;smartEnsure(o);var cur=o.smart.payment||{},ids=Array.isArray(cur.ids)?cur.ids:[];if(ids.indexOf(p.id)>=0)return;var base=+cur.baseCents||0;if(!base&&o.smart.invoice)base=Math.min(+o.smart.invoice.balanceCents||0,+p.amount||0);smartRecordPayment(o,base,+p.amount||0,cur.method||'square',p.id,'COMPLETED',cur.link||'');changed=true;});if(changed)renderSmartOrders();}).catch(function(){});}
+  function smartReconcilePayments(){fetch('/api/payments').then(function(r){return r.json();}).then(function(d){if(!d||!d.ok)return;var changed=false;(d.payments||[]).forEach(function(p){if(p.status!=='COMPLETED'||!p.note)return;var m=/\b(BC-\d{8}-(?:\d{4}|\d{6}-\d{3}))\b/.exec(p.note);if(!m)return;var o=state.orders.filter(function(x){return x&&(x.smartId===m[1]||(x.smart&&Array.isArray(x.smart.aliases)&&x.smart.aliases.indexOf(m[1])>=0));})[0];if(!o)return;smartEnsure(o);var cur=o.smart.payment||{},ids=Array.isArray(cur.ids)?cur.ids:[];if(ids.indexOf(p.id)>=0)return;var base=+cur.baseCents||0;if(!base&&o.smart.invoice)base=Math.min(+o.smart.invoice.balanceCents||0,+p.amount||0);smartRecordPayment(o,base,+p.amount||0,cur.method||'square',p.id,'COMPLETED',cur.link||'');changed=true;});if(changed)renderSmartOrders();}).catch(function(){});}
   $('smartOrdersOpen').addEventListener('click',openSmartOrders);$('smartOrdersClose').addEventListener('click',function(){$('smartOrdersOverlay').classList.remove('show');});$('smartOrdersOverlay').addEventListener('click',function(e){if(e.target===$('smartOrdersOverlay'))$('smartOrdersOverlay').classList.remove('show');});$('smartOrdersSearch').addEventListener('input',renderSmartOrders);$('smartOrdersList').addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-smart-act]');if(!b)return;var id=b.getAttribute('data-id'),act=b.getAttribute('data-smart-act');if(act==='invoice'){$('smartOrdersOverlay').classList.remove('show');ivmOpen();Promise.resolve(typeof ivmCloudInit==='function'?ivmCloudInit():null).then(function(){ivmUseOrder(id);});}else if(act==='payment'){$('smartOrdersOverlay').classList.remove('show');$('takePayOverlay').classList.add('show');tpReset(id);setTimeout(tpInitSquare,30);}});
 
   // ── Customer emails: pick "order ready" or "payment received" ──

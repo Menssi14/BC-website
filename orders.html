@@ -293,6 +293,29 @@
   .hist-btn{ opacity:.55; } .hist-btn:hover{ opacity:1; }
   .hist-box{ background:var(--note); border-radius:16px; max-width:520px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); overflow:hidden; margin-top:6vh; animation:pop .17s ease-out; max-height:82vh; display:flex; flex-direction:column; }
   .hist-head{ display:flex; align-items:center; gap:12px; padding:16px 18px 12px; border-bottom:1px solid var(--line); }
+  .overlay .hist-head{flex:0 0 auto;}
+  /* Standard popup bodies scroll inside the popup instead of pushing the page behind it. */
+  .overlay .hist-box > .edit-opts,
+  .overlay .hist-box > .inv-list,
+  .overlay .hist-box > .health-list,
+  .overlay .hist-box > .ivm-body,
+  .overlay .hist-box > .lbl-body,
+  .overlay .hist-box > .dtf-scroll,
+  .overlay .hist-box > .paytool-body,
+  .overlay .hist-box > .hist-list,
+  .overlay .hist-box > .dc-scroll,
+  .overlay .hist-box > .goals-body,
+  .overlay .hist-box > #goalPickList,
+  .overlay .hist-box > .buy-body,
+  .overlay .hist-box > .cc-body,
+  .overlay .hist-box > .bt-body,
+  .overlay .hist-box > .so-body{
+    flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  }
+  @media(max-width:560px){
+    .overlay{padding:12px 10px;}
+    .overlay .hist-box{margin-top:0;max-height:calc(100dvh - 24px);}
+  }
   .hist-title{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase; letter-spacing:.025em; font-size:24px; font-weight:normal; line-height:1; color:var(--green); flex:1; }
   .hist-sum{ display:flex; gap:10px; padding:14px 18px; flex-wrap:wrap; }
   .hist-stat{ background:rgba(31,77,62,.08); border-radius:10px; padding:10px 14px; flex:1; min-width:120px; }
@@ -504,8 +527,9 @@
   body.view-tools #linksOverlay .hist-head{ display:none; }
   body.view-tools #linksOverlay .edit-opts{ padding:0; }
 
-  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; }
+  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
   .overlay.show{ display:flex; }
+  html.overlay-open,body.overlay-open{overflow:hidden!important;overscroll-behavior:none;}
   @media(max-width:560px){ .overlay{ padding:12px 10px; } }
 
   .chooser-box{ background:var(--note); border-radius:18px; padding:24px 22px 26px; max-width:440px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); margin-top:7vh; animation:pop .17s ease-out; }
@@ -1989,6 +2013,59 @@
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
+  /* Keep the page behind every standard popup still. The popup/overlay remains
+     the scroll surface, so mobile swipes cannot accidentally move Orders behind it. */
+  function syncOverlayScrollLock(){
+    var open=!!document.querySelector('.overlay.show');
+    document.documentElement.classList.toggle('overlay-open',open);
+    document.body.classList.toggle('overlay-open',open);
+  }
+  (function initOverlayScrollLock(){
+    var overlays=document.querySelectorAll('.overlay');
+    if(!overlays.length)return;
+    var obs=new MutationObserver(syncOverlayScrollLock);
+    overlays.forEach(function(el){obs.observe(el,{attributes:true,attributeFilter:['class']});});
+    syncOverlayScrollLock();
+  })();
+
+
+  /* ===================== Smart Orders beta =====================
+     The visible customer name stays the same. smartId is the business identity
+     shared by invoices, payments and office tools. Quotes and notes do not get
+     a smartId until they become a real order. */
+  var _smartMigrated=false;
+  function smartPad(n,w){ return String(n).padStart(w||2,'0'); }
+  function smartIdFor(ts){
+    var d=new Date(+ts||Date.now());
+    return 'BC-'+d.getFullYear()+smartPad(d.getMonth()+1)+smartPad(d.getDate())+'-'+smartPad(d.getHours())+smartPad(d.getMinutes());
+  }
+  function smartEligible(o){ return !!(o && !o.isQuote && o.type!=='NOTE'); }
+  function smartEnsure(o){
+    if(!o || !smartEligible(o)) return o;
+    if(!o.smart || typeof o.smart!=='object') o.smart={};
+    var wanted=smartIdFor(o.createdAt||Date.now());
+    /* Beta IDs originally included seconds + milliseconds. Keep the old value
+       only as a hidden alias so an already-created Square note can still match,
+       while the visible order/invoice number stays simple. */
+    if(!o.smartId){
+      o.smartId=wanted; _smartMigrated=true;
+    }else if(/^BC-\d{8}-\d{6}-\d{3}$/.test(o.smartId)){
+      if(o.smartId!==wanted){
+        if(!Array.isArray(o.smart.aliases))o.smart.aliases=[];
+        if(o.smart.aliases.indexOf(o.smartId)<0)o.smart.aliases.push(o.smartId);
+      }
+      o.smartId=wanted; _smartMigrated=true;
+    }
+    o.smart.v=1;
+    if(!o.smart.invoice || typeof o.smart.invoice!=='object') o.smart.invoice=null;
+    if(!o.smart.payment || typeof o.smart.payment!=='object') o.smart.payment=null;
+    return o;
+  }
+  function smartQty(o){
+    return (o&&Array.isArray(o.items)?o.items:[]).filter(function(it){return !!(it&&(it.size||it.color||it.surface||it.material||it.placement||(it.name&&String(it.name).trim())));}).length;
+  }
+  function smartMoney(c){ return '$'+((Math.max(0,+c||0))/100).toFixed(2); }
+
   /* ===================== Today's goals =====================
      A short list of what you mean to get done today. Stored in the same
      orders file so the phone and the computer agree, merged task by task
@@ -2656,7 +2733,7 @@
         if(_cloudDaily){ mergeDaily(_cloudDaily); renderGoals(); }
         if(_cloudInv){ mergeInv(_cloudInv); if($('invOverlay')&&$('invOverlay').classList.contains('show')) renderInv(); }
       }
-      var blob=new Blob([JSON.stringify({v:10,orders:state.orders,daily:state.daily,inv:state.inv})],{type:'application/json'});
+      var blob=new Blob([JSON.stringify({v:11,orders:state.orders,daily:state.daily,inv:state.inv})],{type:'application/json'});
       sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
         _saving=false;
         if(r&&r.error){
@@ -2716,8 +2793,7 @@
               history.replaceState(null,'',location.pathname+location.hash);
             }
           }catch(e){}
-          if(rolled)persist();
-          if(recovered)persist();
+          if(rolled||recovered||_smartMigrated){ _smartMigrated=false; persist(); }
           startAutoRefresh();
           setTimeout(artCacheTidy, 15000);
         }catch(e){ _loaded=true; showInitialLoadError(); }
@@ -2783,6 +2859,7 @@
     if(o.payLocked===undefined)o.payLocked=(o.source==='online');
     if(o.balanceDue===undefined)o.balanceDue='';
     if(o.buyStatus===undefined)o.buyStatus='needed';
+    smartEnsure(o);
     delete o.isNew; return o;
   }
   function purgeOld(){
@@ -3042,7 +3119,7 @@
       h+=contactH+(o.type==='NOTE'?notesH:(itemsH+notesH))+tagsH+'</div>';
     }
     if(o.trashed){ h+='<div class="card-bar"><span class="lbl" data-act="restore" data-id="'+o.id+'">Restore</span><button class="icon-btn" style="margin-left:auto" data-act="forever" data-id="'+o.id+'" title="Delete forever"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
-    else if(o.isQuote){ h+='<div class="card-bar"><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
+    else if(o.isQuote){ h+='<div class="card-bar"><button class="done-btn stage-adv" data-act="acceptquote" data-id="'+o.id+'">Create Order</button><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14"/></svg></button></div>'; }
     else { var nxt=nextStageLabel(o); var isDone=(nxt==='Done'); var _bs=o.buyStatus||'needed'; var _bc=_bs==='bought'?' buy-bought':' buy-needed'; var _bt=_bs==='bought'?'Shirts bought':'Shirts not bought'; var buyBtn='<button class="icon-btn buy-mini'+_bc+'" data-act="buy" data-id="'+o.id+'" title="'+_bt+'" aria-label="'+_bt+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></button>'; h+='<div class="card-bar">'+(o.custEmail?('<button class="icon-btn'+((o.readyEmailedAt||o.paidEmailedAt)?' sent':'')+'" data-act="ready" data-id="'+o.id+'" title="Email the customer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>'):'')+buyBtn+'<button class="done-btn'+(isDone?'':' stage-adv')+'" data-act="advance" data-id="'+o.id+'">'+esc(nxt)+'</button><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
     h+='</div>'; return h;
   }
@@ -3167,7 +3244,16 @@
       if(st._side && st._side()) st.scrollLeft=st.clientWidth*st._side();
     });
   }
-  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); }); }); }
+  function acceptQuote(id){
+    var o=getOrder(id); if(!o||!o.isQuote)return;
+    if(!confirm('Turn this quote into a real order?'))return;
+    var now=Date.now();
+    o.quoteCreatedAt=o.quoteCreatedAt||o.createdAt||now; o.quoteAcceptedAt=now;
+    o.isQuote=false; o.source='quote'; o.createdAt=now; o.updatedAt=now; o.stage='New'; o.buyStatus='needed';
+    delete o.smartId; delete o.smart; smartEnsure(o);
+    render(); persist(); toast('Order created · '+o.smartId);
+  }
+  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
 
 
   // ── Small sales-only purchasing shortcut. The full list lives in Office. ──
@@ -3201,7 +3287,7 @@
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
   // the blank order every new order starts from (editor and phone screen alike)
-  function newOrderObject(type){ return { id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',buyStatus:'needed',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true,drafting:true }; }
+  function newOrderObject(type){ var now=Date.now(), o={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',buyStatus:'needed',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:now,updatedAt:now,isNew:true,drafting:true }; return smartEnsure(o); }
   function openEditorNew(type){
     editing=newOrderObject(type);
     builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
@@ -4474,6 +4560,7 @@
     var images=[]; if(src.image)images.push(src.image); if(Array.isArray(src.images))src.images.forEach(function(uu){if(images.length<3)images.push(uu);}); images=images.slice(0,3);
     var dueP=src.duePreset||''; var due=src.due||(dueP?computeDue(dueP):'');
     var o={ id:uid(),type:type,title:src.title||src.customer||'',contact:src.contact||src.phone||'',body:src.body||src.details||src.notes||'',urgency:src.urgency||'asap',designReady:!!src.designReady,stage:'New',payStatus:'',balanceDue:'',buyStatus:'needed',items:Array.isArray(src.items)?src.items:[],images:images,due:due,duePreset:dueP,trashed:false,trashedAt:null,source:'online',createdAt:Date.now(),updatedAt:Date.now() };
+    smartEnsure(o);
     state.orders.unshift(o);
     if(ui.view==='trash')ui.view='board'; render(); persist(); toast('New online order'+(src.title?' — '+src.title:''));
   }
@@ -4715,7 +4802,7 @@
         cloud.forEach(function(c){ if(!c||!c.id||_deletedIds[c.id])return; var m=mine[c.id]; if(!m){ state.orders.push(migrate(c)); pulled++; } else if(_freshness(c)>_freshness(m)){ state.orders[state.orders.indexOf(m)]=migrate(c); } });
         state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
         render();
-        var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
+        var blob=new Blob([JSON.stringify({v:11,orders:state.orders})],{type:'application/json'});
         sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(u){ _lastSync=Date.now(); cb&&cb(u&&u.error?'fail':'ok', state.orders.length, pulled); }).catch(function(){ cb&&cb('fail', state.orders.length, pulled); });
       };
       if(r&&r.data) return r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))cloud=s.orders;}catch(e){} finish(); });
