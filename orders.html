@@ -295,6 +295,8 @@
   .qa-actions{ padding:4px 14px 16px; display:flex; flex-direction:column; gap:9px; }
   .qa-act{ width:100%; min-height:50px; border:1.5px solid var(--line-strong); border-radius:13px; background:var(--note); color:var(--burgundy); font-family:'Teko',sans-serif; font-size:20px; letter-spacing:.035em; cursor:pointer; text-align:left; padding:10px 14px 8px; }
   .qa-act.primary{ background:var(--green); border-color:var(--green); color:var(--cream); }
+  .qa-act.buy-needed{ color:var(--red); border-color:rgba(var(--red-rgb),.52); background:rgba(var(--red-rgb),.06); }
+  .qa-act.buy-bought{ color:var(--cream); border-color:var(--green); background:var(--green); }
   .qa-act.danger{ color:var(--red); border-color:rgba(var(--red-rgb),.5); }
   .qa-hint{ padding:0 16px 14px; color:rgba(var(--ink-rgb),.42); font-size:12px; line-height:1.3; }
 
@@ -1139,6 +1141,7 @@
   .vw-fact .v{ flex:1; min-width:0; font-family:'Schadow','Teko',sans-serif; font-size:20px; color:var(--burgundy); word-break:break-word; }
   .vw-fact .v.tel{ color:var(--green); text-decoration:underline; text-underline-offset:4px; }
   .vw-fact.warn .v{ color:var(--red); }
+  .vw-fact.good .v{ color:var(--green); }
   .vw-del{ display:block; width:100%; margin:26px 0 6px; height:52px; border-radius:15px; cursor:pointer;
     border:1.5px solid rgba(var(--red-rgb),.45); background:transparent; color:var(--red);
     font-family:'Teko',sans-serif; font-size:20px; letter-spacing:.04em; }
@@ -1149,6 +1152,8 @@
     letter-spacing:.04em; border:1.5px solid var(--line-strong); background:transparent; color:var(--burgundy); }
   .wz-act.go{ background:rgba(31,77,62,.08); border-color:var(--green); color:var(--green); }
   .wz-act.go.fin{ background:var(--green); color:var(--cream); }
+  .wz-act.buy-needed{ color:var(--red); border-color:rgba(var(--red-rgb),.45); background:rgba(var(--red-rgb),.05); }
+  .wz-act.buy-bought{ color:var(--cream); border-color:var(--green); background:var(--green); }
   .wz-act.del{ flex:0 0 34%; color:var(--red); border-color:rgba(var(--red-rgb),.45); }
   .wz-empty{ text-align:center; padding:26px 10px; font-size:16px; color:rgba(var(--ink-rgb),.6); }
 
@@ -1624,7 +1629,7 @@
     </div>
     <div class="qa-sub" id="quickOrderSub"></div>
     <div class="qa-actions">
-      <button class="qa-act primary" id="quickOrderOpen" type="button">Open Order</button>
+      <button class="qa-act buy-needed" id="quickOrderBuy" type="button">Shirts Not Bought</button>
       <button class="qa-act" id="quickOrderStage" type="button">Next Step</button>
       <button class="qa-act danger" id="quickOrderDelete" type="button">Delete Order</button>
     </div>
@@ -3145,9 +3150,9 @@
     } else {
       h+=contactH+(o.type==='NOTE'?notesH:(itemsH+notesH))+tagsH+'</div>';
     }
+    /* Active orders and quotes intentionally have no footer bar.
+       Tap opens the order; press-and-hold exposes its quick actions. */
     if(o.trashed){ h+='<div class="card-bar"><span class="lbl" data-act="restore" data-id="'+o.id+'">Restore</span><button class="icon-btn" style="margin-left:auto" data-act="forever" data-id="'+o.id+'" title="Delete forever"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
-    else if(o.isQuote){ h+='<div class="card-bar"><button class="done-btn stage-adv" data-act="acceptquote" data-id="'+o.id+'">Create Order</button></div>'; }
-    else { var _bs=o.buyStatus||'needed'; var _bc=_bs==='bought'?' buy-bought':' buy-needed'; var _bt=_bs==='bought'?'Shirts bought':'Shirts not bought'; var buyBtn='<button class="icon-btn buy-mini'+_bc+'" data-act="buy" data-id="'+o.id+'" title="'+_bt+'" aria-label="'+_bt+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></button>'; h+='<div class="card-bar">'+(o.custEmail?('<button class="icon-btn'+((o.readyEmailedAt||o.paidEmailedAt)?' sent':'')+'" data-act="ready" data-id="'+o.id+'" title="Email the customer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>'):'')+buyBtn+'</div>'; }
     h+='</div>'; return h;
   }
 
@@ -3285,10 +3290,18 @@
   function openQuickOrder(id){
     var o=getOrder(id); if(!o||o.trashed)return;
     _quickOrderId=id;
-    var q=$('quickOrderOverlay'), sub=$('quickOrderSub'), stage=$('quickOrderStage'), open=$('quickOrderOpen');
+    var q=$('quickOrderOverlay'), sub=$('quickOrderSub'), stage=$('quickOrderStage'), buy=$('quickOrderBuy');
     if(!q)return;
     sub.textContent=(autoTitle(o)||o.custName||o.title||'Order')+(o.smartId?' · '+o.smartId:'');
-    open.textContent=o.isQuote?'Open Quote':'Open Order';
+    if(o.isQuote){
+      buy.style.display='none';
+    }else{
+      var bought=(o.buyStatus||'needed')==='bought';
+      buy.style.display='';
+      buy.textContent=bought?'Shirts Bought':'Shirts Not Bought';
+      buy.classList.toggle('buy-bought',bought);
+      buy.classList.toggle('buy-needed',!bought);
+    }
     stage.textContent=o.isQuote?'Create Order':(nextStageLabel(o)==='Done'?'Mark Done':nextStageLabel(o));
     q.classList.add('show');
   }
@@ -3310,7 +3323,7 @@
 
   $('quickOrderClose').addEventListener('click',closeQuickOrder);
   $('quickOrderOverlay').addEventListener('click',closeQuickOrder);
-  $('quickOrderOpen').addEventListener('click',function(){ var id=_quickOrderId; closeQuickOrder(); if(id)openEditor(id); });
+  $('quickOrderBuy').addEventListener('click',function(){ var id=_quickOrderId, o=id&&getOrder(id); closeQuickOrder(); if(o&&!o.isQuote)openBuyMenu(id); });
   $('quickOrderStage').addEventListener('click',function(){ var id=_quickOrderId, o=id&&getOrder(id); closeQuickOrder(); if(!o)return; if(o.isQuote)acceptQuote(id); else advanceStage(id); });
   $('quickOrderDelete').addEventListener('click',function(){ var id=_quickOrderId; closeQuickOrder(); if(id)toTrash(id,'deleted'); });
 
@@ -3471,12 +3484,22 @@
     if(o.custEmail) fact('Email', o.custEmail);
     fact('Kind', o.type==='NOTE'?'Note':o.type);
     fact('Stage', o.stage||'New');
+    if(!o.isQuote && o.type!=='NOTE'){ var shirtsBought=(o.buyStatus||'needed')==='bought'; fact('Shirts', shirtsBought?'Bought':'Not bought', shirtsBought?'good':'warn'); }
     var di=dueInfo(o); if(di) fact('Due', di.txt, di.over?'warn':'');
     var pay=''; PAYSTAGES.forEach(function(x){ if(x.k===(o.payStatus||'')) pay=x.label; });
     if(pay) fact('Payment', pay);
     if(o.balanceDue) fact('Balance', '$'+o.balanceDue);
     if(o.source==='online') fact('Came From', 'The website');
     fact('Started', orderStamp(o));
+    if(!o.isQuote && o.type!=='NOTE'){
+      var acts=wzEl('div','wz-acts');
+      var pb=(o.buyStatus||'needed')==='bought';
+      var pbtn=wzEl('button','wz-act '+(pb?'buy-bought':'buy-needed'),pb?'Shirts Bought':'Purchasing'); pbtn.type='button';
+      pbtn.addEventListener('click',function(){ var id=o.id; wzClose(); openBuyMenu(id); });
+      acts.appendChild(pbtn);
+      if(o.custEmail){ var em=wzEl('button','wz-act','Email Customer'); em.type='button'; em.addEventListener('click',function(){ var id=o.id; wzClose(); sendReadyEmail(id); }); acts.appendChild(em); }
+      b.appendChild(acts);
+    }
     var del=wzEl('button','vw-del','Delete This Order'); del.type='button';
     del.addEventListener('click',function(){ var id=o.id; wzClose(); editing=null; toTrash(id,'deleted'); });
     b.appendChild(del);
