@@ -5571,7 +5571,7 @@
   var IVM_TAX=0.0825, IVM_W=850, IVM_H=1100, IVM_M=60, IVM_R=790, IVM_EXPORT=2.4, IVM_LIMIT=1004;
   var IVM_SHOP={ city:'Edinburg, Texas', phone:'(956) 225-5859', email:'brochcustom@gmail.com', web:'brochcustom.com' };
   var IVM_SERVICES='ENGRAVING · PRINTING · EMBROIDERY';
-  var IVM_PAY=[['Check','Pay to: Carlos Broch'],['Card','Credit or debit'],['Cash App','$BrochCustom'],['Zelle','(956) 225-5859']];
+  var IVM_PAY=[['Check','Pay to: Carlos Broch',''],['Card','Credit or debit','https://brochcustom.com/#pay'],['Cash App','$BrochCustom','https://cash.app/$BrochCustom'],['Zelle','(956) 225-5859','https://brochcustom.com/#pay']];
   var IVM_SVC={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
   var IVM_GROUP={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
   var IVM_OFFER=['Embroidery','DTF','Engraving'];   // the only services offered when adding an item
@@ -5982,7 +5982,14 @@
     ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'PAYMENT OPTIONS',M,ly,1.9); ly+=24;
     IVM_PAY.forEach(function(p){
       ctx.fillStyle=C.ink; ctx.font='600 16px '+F.serif; ctx.fillText(p[0],M,ly);
-      ctx.fillStyle=C.soft; ctx.font='400 16px '+F.serif; ctx.fillText(p[1],M+96,ly); ly+=20;
+      ctx.font='400 16px '+F.serif;
+      ctx.fillStyle=p[2]?C.forest:C.soft;
+      ctx.fillText(p[1],M+96,ly);
+      if(p[2]){
+        var pw=ctx.measureText(p[1]).width;
+        ctx.strokeStyle=C.forest; ctx.lineWidth=.8; ivmLine(ctx,M+96,ly+2,M+96+pw,ly+2);
+      }
+      ly+=20;
     });
     if(plan.notes.length){
       ly+=18; ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'NOTES',M,ly,1.9); ly+=22;
@@ -5994,7 +6001,7 @@
     var C=IVM_C, F=IVM_F, M=IVM_M, R=IVM_R;
     ctx.strokeStyle=C.sand; ctx.lineWidth=1; ivmLine(ctx,M,1034,R,1034);
     ctx.fillStyle=C.caramel; ctx.font='500 11.5px '+F.label;
-    ivmSpaced(ctx,'BROCH CUSTOM  ·  EDINBURG, TEXAS  ·  BROCHCUSTOM.COM',IVM_W/2,1058,2,'center');
+    ivmSpaced(ctx,'RIO GRANDE VALLEY, TEXAS  ·  BROCHCUSTOM.COM',IVM_W/2,1058,2,'center');
     if(n>1){ ivmSpaced(ctx,String(x.no||''),M,1058,1.4); ivmSpaced(ctx,'PAGE '+(pi+1)+' OF '+n,R,1058,1.6,'right'); }
   }
   function ivmDraw(x,plan,i,k){
@@ -6021,8 +6028,23 @@
       },'image/jpeg',0.9);
     });
   }
-  function ivmPdfBlob(jpegs,title){
-    var parts=[], pos=0, offs=[], n=jpegs.length, total=3+3*n, i;
+  function ivmPdfLinks(plan){
+    var out=plan.pages.map(function(){ return []; });
+    plan.pages.forEach(function(P,pi){
+      if(P.bottomY==null) return;
+      var ly=P.bottomY+26+24;
+      IVM_PAY.forEach(function(p){
+        if(p[2]) out[pi].push({ x:IVM_M, y:ly-17, w:360, h:22, url:p[2] });
+        ly+=20;
+      });
+    });
+    return out;
+  }
+  function ivmPdfBlob(jpegs,title,linksByPage){
+    linksByPage=linksByPage||[];
+    var parts=[], pos=0, offs=[], n=jpegs.length, annTotal=0, i;
+    linksByPage.forEach(function(a){ annTotal+=(a||[]).length; });
+    var total=3+3*n+annTotal;
     function add(x){ if(typeof x==='string'){ var b=new Uint8Array(x.length); for(var j=0;j<x.length;j++) b[j]=x.charCodeAt(j)&255; x=b; } parts.push(x); pos+=x.length; }
     function obj(num,body){ offs[num]=pos; add(num+' 0 obj\n'); if(typeof body==='function') body(); else add(body); add('\nendobj\n'); }
     function str(s){ return '('+String(s).replace(/[^\x20-\x7e]/g,'').replace(/[\\()]/g,'\\$&')+')'; }
@@ -6032,13 +6054,29 @@
     obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
     obj(2,'<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+n+' >>');
     obj(3,'<< /Title '+str(title)+' /Author (BROCH CUSTOM) /Creator (BROCH CUSTOM Orders) /Producer (BROCH CUSTOM Orders) /CreationDate ('+stamp+') >>');
+    var nextAnnot=4+3*n, annRefs=[];
+    for(i=0;i<n;i++){
+      annRefs[i]=[];
+      (linksByPage[i]||[]).forEach(function(){ annRefs[i].push((nextAnnot++)+' 0 R'); });
+    }
     jpegs.forEach(function(J,k){
       var p=4+3*k, cs='q 612 0 0 792 0 0 cm /Im0 Do Q';
-      obj(p,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 '+(p+2)+' 0 R >> >> /Contents '+(p+1)+' 0 R >>');
+      var ann=annRefs[k]&&annRefs[k].length?' /Annots ['+annRefs[k].join(' ')+']':'';
+      obj(p,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 '+(p+2)+' 0 R >> >> /Contents '+(p+1)+' 0 R'+ann+' >>');
       obj(p+1,'<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream');
       obj(p+2,function(){
         add('<< /Type /XObject /Subtype /Image /Width '+J.w+' /Height '+J.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+J.bytes.length+' >>\nstream\n');
         add(J.bytes); add('\nendstream');
+      });
+    });
+    var ao=4+3*n;
+    linksByPage.forEach(function(links){
+      (links||[]).forEach(function(L){
+        var x1=L.x/IVM_W*612, x2=(L.x+L.w)/IVM_W*612;
+        var y1=792-(L.y+L.h)/IVM_H*792, y2=792-L.y/IVM_H*792;
+        obj(ao++,'<< /Type /Annot /Subtype /Link /Rect ['+
+          x1.toFixed(2)+' '+y1.toFixed(2)+' '+x2.toFixed(2)+' '+y2.toFixed(2)+
+          '] /Border [0 0 0] /A << /S /URI /URI '+str(L.url)+' >> >>');
       });
     });
     var xref=pos, s='xref\n0 '+(total+1)+'\n0000000000 65535 f \n';
@@ -6068,7 +6106,7 @@
     });
     return chain.then(function(){
       if(job!==_ivmPdfJob) return;
-      ivmPdf={ blob:ivmPdfBlob(jpegs,'Invoice '+snap.no+(snap.cust.name?' - '+snap.cust.name:'')), name:ivmFileName(snap), no:snap.no, jpegs:jpegs };
+      ivmPdf={ blob:ivmPdfBlob(jpegs,'Invoice '+snap.no+(snap.cust.name?' - '+snap.cust.name:''),ivmPdfLinks(plan)), name:ivmFileName(snap), no:snap.no, jpegs:jpegs };
       ivmButtons(true);
     }).catch(function(e){
       console.error('[invoice] pdf',e);
