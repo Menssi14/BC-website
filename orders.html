@@ -3171,9 +3171,11 @@
       h+='<div class="info-swipe"><div class="info-strip">'+
            '<div class="info-pane pane-tags">'+tagsH+notesH+contactH+'</div>'+
            '<div class="info-pane pane-items">'+itemsH+'</div>'+
-         '</div><div class="info-dots" data-stop="1"><i class="on" title="Tags"></i><i title="Sizes"></i></div></div>';
+         '</div><div class="info-dots" data-stop="1"><i class="on" title="Details"></i><i title="Sizes"></i></div></div>';
       h+='</div>';
     } else {
+      /* Desktop keeps the item / size breakdown directly on the main card.
+         Phones use the two-pane swipe above. */
       h+=contactH+(o.type==='NOTE'?notesH:(itemsH+notesH))+tagsH+'</div>';
     }
     /* Active orders and quotes intentionally have no footer bar.
@@ -3183,35 +3185,12 @@
   }
 
   // Keep the little dots under a card's photo strip in step with the swipe.
-  // Track the finger movement itself, not only the eventual scroll event. On
-  // mobile Safari a click can be emitted before the scroll event settles; that
-  // used to open the order while the user was trying to swipe the main card.
-  var lastStripScroll=0, lastStripGesture=0;
-  function markStripGesture(){ lastStripGesture=Date.now(); }
-  function wireStripGesture(strip){
-    if(!strip || strip.getAttribute('data-gesture-wired'))return;
-    strip.setAttribute('data-gesture-wired','1');
-    var sx=0, sy=0, pid=null, moved=false;
-    if(window.PointerEvent){
-      strip.addEventListener('pointerdown',function(e){ if(e.pointerType==='mouse')return; sx=e.clientX; sy=e.clientY; pid=e.pointerId; moved=false; },{passive:true});
-      strip.addEventListener('pointermove',function(e){
-        if(pid===null||e.pointerId!==pid)return;
-        var dx=Math.abs(e.clientX-sx), dy=Math.abs(e.clientY-sy);
-        if(dx>7 && dx>dy){ moved=true; markStripGesture(); lastStripScroll=Date.now(); }
-      },{passive:true});
-      ['pointerup','pointercancel'].forEach(function(ev){ strip.addEventListener(ev,function(e){ if(pid!==null&&e.pointerId===pid){ if(moved)markStripGesture(); pid=null; moved=false; } },{passive:true}); });
-    }else{
-      strip.addEventListener('touchstart',function(e){ var t=e.touches&&e.touches[0]; if(!t)return; sx=t.clientX; sy=t.clientY; moved=false; },{passive:true});
-      strip.addEventListener('touchmove',function(e){ var t=e.touches&&e.touches[0]; if(!t)return; var dx=Math.abs(t.clientX-sx),dy=Math.abs(t.clientY-sy); if(dx>7&&dx>dy){ moved=true; markStripGesture(); lastStripScroll=Date.now(); } },{passive:true});
-      strip.addEventListener('touchend',function(){ if(moved)markStripGesture(); moved=false; },{passive:true});
-    }
-  }
+  var lastStripScroll=0;
   function wireShots(root){
     (root||document).querySelectorAll('.card-shots.multi').forEach(function(box){
       if(box.getAttribute('data-wired')) return; box.setAttribute('data-wired','1');
       var strip=box.querySelector('.card-imgs'), dots=box.querySelector('.ci-dots');
       if(!strip||!dots) return;
-      wireStripGesture(strip);
       var kids=dots.querySelectorAll('i'), timer=null;
       function sync(){
         var w=strip.clientWidth||1, i=Math.round(strip.scrollLeft/w);
@@ -3297,7 +3276,6 @@
     (root||document).querySelectorAll('.info-swipe').forEach(function(box){
       if(box.getAttribute('data-wired')) return; box.setAttribute('data-wired','1');
       var strip=box.querySelector('.info-strip'), panes=strip.children, dots=box.querySelectorAll('.info-dots i');
-      wireStripGesture(strip);
       var card=box.closest('[data-card]'), id=card?card.getAttribute('data-card'):'';
       var cur=infoSide[id]?1:0, timer=null;
       function paintDots(){ for(var k=0;k<dots.length;k++) dots[k].classList.toggle('on',k===cur); }
@@ -3364,7 +3342,7 @@
       e.preventDefault();
     });
   }
-  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} var _g=Math.max(lastStripScroll,lastStripGesture); if(Date.now()-_g<520){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
+  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} if(Date.now()-lastStripScroll<340){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
 
   $('mPurchaseBtn').addEventListener('click',function(e){
     e.stopPropagation();
