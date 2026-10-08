@@ -290,8 +290,9 @@
     .card-bar .done-btn svg{display:none;}
   }
   /* Long-press quick actions: exactly two icon buttons. All order-specific info lives inside the order. */
-  .qa-box{ max-width:none; width:auto; padding:12px; margin-top:0; border-radius:18px; }
-  .qa-actions{ padding:0; display:flex; flex-direction:row; gap:12px; }
+  #quickOrderOverlay{ align-items:center; }
+  .qa-box{ max-width:220px; width:auto; padding:12px; margin-top:0; border-radius:18px; align-self:center; }
+  .qa-actions{ padding:0; display:flex; flex-direction:row; gap:12px; justify-content:center; align-items:center; }
   .qa-act{ width:68px; height:68px; min-height:68px; padding:0; border:none; border-radius:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; transition:transform .12s ease,filter .12s ease; }
   .qa-act:active{ transform:scale(.96); }
   @media(hover:hover) and (pointer:fine){ .qa-act:hover{ filter:brightness(.95); } }
@@ -1548,11 +1549,9 @@
     <div class="chooser-title">What kind of order?</div>
     <div class="chooser-grid">
       <button data-type="Embroidery"><span class="nm">Embroidery</span></button>
-      <button data-type="DTF"><span class="nm">DTF</span></button>
-      <button data-type="Sublimation"><span class="nm">Sublimation</span></button>
+      <button data-type="Printed"><span class="nm">Printed</span></button>
       <button data-type="Engraving"><span class="nm">Engraving</span></button>
-      <button data-type="Vinyl"><span class="nm">Vinyl</span></button>
-      <button data-type="NOTE"><span class="nm">Note</span></button>
+      <button data-type="Other"><span class="nm">Other</span></button>
     </div>
   </div>
 </div>
@@ -1925,10 +1924,13 @@
 
   // Progress stages per order type. Last entry is always the finish (→ trash).
   var STAGES={
+    Embroidery: ['New','Digitized','Done'],
+    Printed:    ['New','Design Ready','Printed','Done'],
+    Engraving:  ['New','Design Ready','Done'],
+    Other:      ['New','Design Ready','Done'],
+    // Legacy support for orders saved before the simplified type list.
     DTF:        ['New','Design Ready','Printed','Done'],
     Sublimation:['New','Design Ready','Done'],
-    Embroidery: ['New','Digitized','Done'],
-    Engraving:  ['New','Design Ready','Done'],
     Vinyl:      ['New','Design Ready','Done'],
     NOTE:       ['New','Done']
   };
@@ -1961,7 +1963,7 @@
     var pos=Math.min(mid.length-1, Math.round((i-1)*(mid.length-1)/Math.max(1,steps-1)));
     return mid[pos];
   }
-  var TYPES=['Embroidery','DTF','Sublimation','Engraving','Vinyl','NOTE'];
+  var TYPES=['Embroidery','Printed','Engraving','Other','DTF','Sublimation','Vinyl','NOTE'];
   var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
   var state={orders:[],daily:{date:'',tasks:[],carried:0,updatedAt:0},inv:{lines:[],updatedAt:0}}; var ui={typeFilter:'',filterOpen:false,view:'board'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
@@ -2076,28 +2078,39 @@
      a smartId until they become a real order. */
   var _smartMigrated=false;
   function smartPad(n,w){ return String(n).padStart(w||2,'0'); }
-  function smartIdFor(ts){
+  function smartTypeCode(o){
+    var t=String((o&&o.type)||'Other');
+    if(t==='Embroidery')return 'EM';
+    if(t==='Engraving')return 'EN';
+    if(t==='Printed'||t==='DTF'||t==='Print'||t==='Printing')return 'P';
+    if(t==='Multi')return 'M';
+    return 'O';
+  }
+  function smartIdFor(o,ts){
     var d=new Date(+ts||Date.now());
-    return 'BC-'+d.getFullYear()+smartPad(d.getMonth()+1)+smartPad(d.getDate())+'-'+smartPad(d.getHours())+smartPad(d.getMinutes());
+    var online=(o&&o.source==='online')?'ON-':'';
+    return online+smartTypeCode(o)+'-'+d.getFullYear()+smartPad(d.getMonth()+1)+smartPad(d.getDate())+'-'+smartPad(d.getHours())+smartPad(d.getMinutes());
   }
   function smartEligible(o){ return !!(o && !o.isQuote && o.type!=='NOTE'); }
   function smartEnsure(o){
     if(!o || !smartEligible(o)) return o;
     if(!o.smart || typeof o.smart!=='object') o.smart={};
-    var wanted=smartIdFor(o.createdAt||Date.now());
-    /* Beta IDs originally included seconds + milliseconds. Keep the old value
-       only as a hidden alias so an already-created Square note can still match,
-       while the visible order/invoice number stays simple. */
+    var wanted=smartIdFor(o,o.createdAt||Date.now());
+    /* Older beta IDs used BC- plus longer timestamps. Keep those values only
+       as hidden aliases so existing payment notes can still match. New visible
+       IDs use [ON-]TYPE-YYYYMMDD-HHMM, while o.id remains the permanent
+       internal database identity. */
+    var legacy=/^BC-\d{8}-\d{4}(?:\d{2}-\d{3})?$/.test(String(o.smartId||''));
     if(!o.smartId){
       o.smartId=wanted; _smartMigrated=true;
-    }else if(/^BC-\d{8}-\d{6}-\d{3}$/.test(o.smartId)){
+    }else if(legacy){
       if(o.smartId!==wanted){
         if(!Array.isArray(o.smart.aliases))o.smart.aliases=[];
         if(o.smart.aliases.indexOf(o.smartId)<0)o.smart.aliases.push(o.smartId);
       }
       o.smartId=wanted; _smartMigrated=true;
     }
-    o.smart.v=1;
+    o.smart.v=2;
     if(!o.smart.invoice || typeof o.smart.invoice!=='object') o.smart.invoice=null;
     if(!o.smart.payment || typeof o.smart.payment!=='object') o.smart.payment=null;
     return o;
@@ -2886,8 +2899,8 @@
   }
   function migrate(o){
     if(o.images===undefined){ o.images=o.image?[o.image]:[]; } delete o.image;
-    if(o.type===undefined){ var t=(o.types&&o.types.length)?o.types[0]:'NOTE'; if(t==='Print'||t==='Printing')t='DTF'; if(t==='Online'){t='NOTE';o.source='online';} o.type=t; } delete o.types;
-    if(o.type==='N/A')o.type='NOTE'; if(TYPES.indexOf(o.type)<0)o.type='NOTE';
+    if(o.type===undefined){ var t=(o.types&&o.types.length)?o.types[0]:'NOTE'; if(t==='Print'||t==='Printing'||t==='DTF')t='Printed'; if(t==='Online'){t='NOTE';o.source='online';} o.type=t; } delete o.types;
+    if(o.type==='DTF')o.type='Printed'; if(o.type==='N/A')o.type='NOTE'; if(TYPES.indexOf(o.type)<0)o.type='Other';
     if(o.items===undefined){ o.items=[]; if(o.sizes&&o.sizes.length){ o.sizes.forEach(function(s){ if(s&&(s.size||s.qty)){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)o.items.push({size:s.size||'',color:o.color||'',surface:'',name:''}); } }); } }
     else if(o.items.length&&o.items[0]&&o.items[0].name===undefined){ var ni=[]; o.items.forEach(function(s){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)ni.push({size:s.size||'',color:s.color||'',surface:s.surface||'',name:''}); }); o.items=ni; }
     delete o.sizes; delete o.names; delete o.color; delete o.amount; delete o.varOrder;
@@ -3015,9 +3028,9 @@
     // always the same four choices, whether or not the board has any right now
     var kinds=[
       {k:'Embroidery', label:'Embroidery', test:function(o){ return o.type==='Embroidery'; }},
-      {k:'DTF',        label:'DTF',        test:function(o){ return o.type==='DTF'; }},
+      {k:'Printed',    label:'Printed',    test:function(o){ return o.type==='Printed'||o.type==='DTF'; }},
       {k:'Engraving',  label:'Engraving',  test:function(o){ return o.type==='Engraving'; }},
-      {k:'Vinyl',      label:'Vinyl',      test:function(o){ return o.type==='Vinyl'; }},
+      {k:'Other',      label:'Other',      test:function(o){ return o.type==='Other'||o.type==='Sublimation'||o.type==='Vinyl'; }},
       {k:'@online',    label:'Online',     test:function(o){ return o.source==='online'; }}
     ];
 
@@ -3378,10 +3391,10 @@
      screen, a scroll wheel for every choice. It fills in exactly the same
      order the editor would, with the same autosave, so a half-made order is
      never lost. Opening an existing order still uses the regular editor. */
-  var wz={ open:false, type:'DTF', steps:[], i:0, b:null, pane:null, busy:0, edit:false, view:null };
+  var wz={ open:false, type:'Embroidery', steps:[], i:0, b:null, pane:null, busy:0, edit:false, view:null };
   var WZ_ROW=46;
-  var WZ_TYPES=[{k:'Embroidery',label:'Embroidery'},{k:'DTF',label:'DTF'},{k:'Sublimation',label:'Sublimation'},
-    {k:'Engraving',label:'Engraving'},{k:'Vinyl',label:'Vinyl'},{k:'NOTE',label:'Note'}];
+  var WZ_TYPES=[{k:'Embroidery',label:'Embroidery'},{k:'Printed',label:'Printed'},
+    {k:'Engraving',label:'Engraving'},{k:'Other',label:'Other'}];
   /* Each type asks only what it needs. The short lists are deliberate:
      "Other\u2026" takes anything typed, and unusual jobs go in the note.
        what   the things we work on, for this type
@@ -3390,6 +3403,10 @@
        place  ask where it prints
      A size wheel only appears for the things that come in sizes. */
   var WZ_PATH={
+    Printed:    { what:['T-Shirt','Polo','Long Sleeve','Sweatshirt'], mats:['Cotton','Poly'], color:true, place:true,
+                  whatLabel:'Garment', title:'What Are We Printing On?', where:'Where Does It Print?' },
+    Other:      { what:['T-Shirt','Polo','Cap','Tumbler'], mats:[], color:true, place:false,
+                  whatLabel:'Item', title:'What Is The Order For?' },
     DTF:        { what:['T-Shirt','Polo','Long Sleeve','Sweatshirt'], mats:['Cotton','Poly'], color:true, place:true,
                   whatLabel:'Garment', title:'What Are We Printing On?', where:'Where Does It Print?' },
     Embroidery: { what:['Cap','Polo','T-Shirt'], mats:[], color:true, place:true,
@@ -3402,7 +3419,7 @@
                   whatLabel:'Item', title:'What Are We Cutting?' }
   };
   var WZ_SIZED=/^(t-?shirt|shirt|polo|long ?sleeve|short ?sleeve|sweat ?shirt|hoodie|jacket|fishing shirt|apron)$/i;
-  function wzPath(){ return WZ_PATH[wz.type]||WZ_PATH.DTF; }
+  function wzPath(){ return WZ_PATH[wz.type]||WZ_PATH.Other; }
   function wzNeedsSize(){ return WZ_SIZED.test((wz.b.surface||'').trim()); }
   // A cap is stitched in one spot, so it never asks where.
   function wzNeedsPlace(){ return !!wzPath().place && !/cap|beanie|hat|visor/i.test(wz.b.surface||''); }
@@ -3437,7 +3454,7 @@
      Tapping an order shows it, it does not open it for editing. Two pages,
      swiped like the photos: what to make, and who it's for. Edit is a button. */
   function wzViewPages(o){
-    var pa=(WZ_PATH[o.type]||WZ_PATH.DTF);
+    var pa=(WZ_PATH[o.type]||WZ_PATH.Other);
     var pages=[];
 
     // --- page 1: the job ---
@@ -3572,7 +3589,7 @@
   function openWizard(existing, atItems){
     wz.open=true; wz.i=0; wz.busy=0; wz.edit=!!existing; wz.view=null;
     wz.b={surface:'',material:'',color:'',placement:'',size:'',qty:'1'};
-    wz.type=existing?existing.type:'DTF';       // a new order always opens on the same spot
+    wz.type=existing?existing.type:'Embroidery'; // new orders start at the most-used type
     editing=existing||null;
     if(editing){
       if(!editing.images)editing.images=[]; if(!editing.items)editing.items=[];
@@ -4339,7 +4356,7 @@
     var isSub=(editing.type==='Sublimation');
     var isVin=(editing.type==='Vinyl');
     // Same short lists the phone uses, so both sides ask the same things.
-    var pa = WZ_PATH[editing.type] || WZ_PATH.DTF;
+    var pa = WZ_PATH[editing.type] || WZ_PATH.Other;
     var surfListId = isEng?'engSurfList' : (isSub?'subSurfList':(isVin?'vinylSurfList':'surfList'));
     var matListId  = isEng?'engMatList'  : (isSub?'subMatList':'matList');
     var noPlacement = !pa.place;
@@ -4659,7 +4676,7 @@
   window.addEventListener('message',function(e){ var d=e.data; if(!d||typeof d!=='object')return; if(d.type==='BROCH_ORDER'&&d.order)ingest(d.order); else if(d.type==='BROCH_DESIGN'&&d.image)ingest({image:d.image,title:d.title||'',body:d.body||''}); });
   try{ if(window.parent&&window.parent!==window)window.parent.postMessage({type:'BROCH_ORDERS_READY'},'*'); }catch(_){}
   function ingest(src){
-    var type=src.type||(Array.isArray(src.types)&&src.types[0])||'NOTE'; if(type==='Print'||type==='Printing')type='DTF'; if(type==='N/A')type='NOTE'; if(TYPES.indexOf(type)<0)type='NOTE';
+    var type=src.type||(Array.isArray(src.types)&&src.types[0])||'Other'; if(type==='Print'||type==='Printing'||type==='DTF')type='Printed'; if(type==='N/A')type='Other'; if(TYPES.indexOf(type)<0)type='Other';
     var images=[]; if(src.image)images.push(src.image); if(Array.isArray(src.images))src.images.forEach(function(uu){if(images.length<3)images.push(uu);}); images=images.slice(0,3);
     var dueP=src.duePreset||''; var due=src.due||(dueP?computeDue(dueP):'');
     var o={ id:uid(),type:type,title:src.title||src.customer||'',contact:src.contact||src.phone||'',body:src.body||src.details||src.notes||'',urgency:src.urgency||'asap',designReady:!!src.designReady,stage:'New',payStatus:'',balanceDue:'',buyStatus:'needed',items:Array.isArray(src.items)?src.items:[],images:images,due:due,duePreset:dueP,trashed:false,trashedAt:null,source:'online',createdAt:Date.now(),updatedAt:Date.now() };
@@ -5368,9 +5385,9 @@
   var IVM_SHOP={ city:'Edinburg, Texas', phone:'(956) 225-5859', email:'brochcustom@gmail.com', web:'brochcustom.com' };
   var IVM_SERVICES='ENGRAVING · PRINTING · EMBROIDERY';
   var IVM_PAY=[['Check','Pay to: Carlos Broch'],['Card','Credit or debit'],['Cash App','$BrochCustom'],['Zelle','(956) 225-5859']];
-  var IVM_SVC={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
-  var IVM_GROUP={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
-  var IVM_OFFER=['Embroidery','DTF','Engraving'];   // the only services offered when adding an item
+  var IVM_SVC={ Printed:'Printing', DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Other:'Other', Sublimation:'Other', Vinyl:'Other' };
+  var IVM_GROUP={ Printed:'Printing', DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Other:'Other', Sublimation:'Other', Vinyl:'Other' };
+  var IVM_OFFER=['Embroidery','Printed','Engraving']; // primary services offered when adding an item
   var IVM_C={ forest:'#2c4637', ink:'#122018', soft:'#526056', brown:'#513a2c', caramel:'#b28b5b', sand:'#e3d8c6', cream:'#f7f4ec' };
   var IVM_F={ serif:'Teko, "Arial Narrow", Arial, sans-serif', label:'Teko, "Arial Narrow", Arial, sans-serif', brand:'Schadow, Teko, sans-serif' };
   var IVM_COL={ desc:IVM_M+14, qtyR:560, priceR:668, amtR:IVM_R-14, descW:420 };
