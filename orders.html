@@ -164,7 +164,8 @@
   .section-label{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.18em; font-size:14px; color:rgba(var(--ink-rgb),.5); font-weight:600; margin:4px 4px 12px; }
 
   .card{ break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:12px; border-radius:12px; background:var(--note); border:1px solid var(--line-strong); box-shadow:var(--shadow); overflow:hidden; cursor:pointer; transition:box-shadow .16s, transform .12s; position:relative; }
-  .card:hover{ box-shadow:var(--shadow-hover); transform:translateY(-1px); } .card:active{ transform:scale(.99); }
+  .card:hover{ box-shadow:var(--shadow); transform:none; } .card:active{ transform:scale(.99); }
+  .card{ -webkit-touch-callout:none; }
   .card-imgs{ display:grid; gap:2px; } .card-imgs img{ width:100%; display:block; }
   .card-imgs.n1 img{ height:auto; max-height:230px; object-fit:cover; }
   .card-imgs.n2{ grid-template-columns:1fr 1fr; } .card-imgs.n3{ grid-template-columns:1fr 1fr 1fr; }
@@ -272,8 +273,8 @@
   .tag.online{ background:rgba(244,181,176,.32); color:var(--burgundy); }
   .tag.countdown{ background:rgba(var(--ink-rgb),.10); color:rgba(var(--ink-rgb),.7); }
 
-  .card-bar{ display:flex; align-items:center; gap:2px; padding:4px 6px; border-top:1px solid var(--line); opacity:0; transition:opacity .15s; }
-  .card:hover .card-bar{ opacity:1; } @media(hover:none){ .card-bar{ opacity:1; } }
+  .card-bar{ display:flex; align-items:center; gap:4px; padding:4px 6px; border-top:1px solid var(--line); opacity:1; }
+  .card-bar:empty{ display:none; }
   .card-bar .done-btn{ display:flex; align-items:center; gap:6px; cursor:pointer; border:none; background:none; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:15px; color:var(--green); padding:8px 12px; border-radius:999px; }
   .card-bar .done-btn:hover{ background:rgba(60,140,90,.12); }
   .icon-btn{ cursor:pointer; border:none; background:none; color:var(--burgundy); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .15s; }
@@ -288,6 +289,14 @@
     .card-bar .done-btn{min-width:0;flex:1 1 auto;justify-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:7px 5px;font-size:14px;letter-spacing:.035em;gap:0;}
     .card-bar .done-btn svg{display:none;}
   }
+  /* Long-press quick actions: card stays clean until the user deliberately asks. */
+  .qa-box{ max-width:390px; }
+  .qa-sub{ padding:0 16px 10px; color:rgba(var(--ink-rgb),.58); font-size:14px; line-height:1.35; }
+  .qa-actions{ padding:4px 14px 16px; display:flex; flex-direction:column; gap:9px; }
+  .qa-act{ width:100%; min-height:50px; border:1.5px solid var(--line-strong); border-radius:13px; background:var(--note); color:var(--burgundy); font-family:'Teko',sans-serif; font-size:20px; letter-spacing:.035em; cursor:pointer; text-align:left; padding:10px 14px 8px; }
+  .qa-act.primary{ background:var(--green); border-color:var(--green); color:var(--cream); }
+  .qa-act.danger{ color:var(--red); border-color:rgba(var(--red-rgb),.5); }
+  .qa-hint{ padding:0 16px 14px; color:rgba(var(--ink-rgb),.42); font-size:12px; line-height:1.3; }
 
   .empty-state{ text-align:center; padding:84px 20px; color:rgba(var(--ink-rgb),.55); }
   .hist-btn{ opacity:.55; } .hist-btn:hover{ opacity:1; }
@@ -1604,6 +1613,24 @@
 <datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="vinylSurfList"><option>Decal</option><option>Sign</option><option>Banner</option><option>Shirt</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Front</option><option>Back</option><option>Sleeve</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
+
+
+<!-- ORDER QUICK ACTIONS: shown only after a deliberate press-and-hold -->
+<div class="overlay" id="quickOrderOverlay">
+  <div class="hist-box qa-box" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="quickOrderTitle">
+    <div class="hist-head">
+      <span class="hist-title" id="quickOrderTitle">Order Actions</span>
+      <button class="icon-btn" id="quickOrderClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="qa-sub" id="quickOrderSub"></div>
+    <div class="qa-actions">
+      <button class="qa-act primary" id="quickOrderOpen" type="button">Open Order</button>
+      <button class="qa-act" id="quickOrderStage" type="button">Next Step</button>
+      <button class="qa-act danger" id="quickOrderDelete" type="button">Delete Order</button>
+    </div>
+    <div class="qa-hint">Press and hold an order anytime to bring these actions back.</div>
+  </div>
+</div>
 
 <!-- PURCHASING SHORTCUT -->
 <div class="overlay" id="buyOverlay">
@@ -3119,8 +3146,8 @@
       h+=contactH+(o.type==='NOTE'?notesH:(itemsH+notesH))+tagsH+'</div>';
     }
     if(o.trashed){ h+='<div class="card-bar"><span class="lbl" data-act="restore" data-id="'+o.id+'">Restore</span><button class="icon-btn" style="margin-left:auto" data-act="forever" data-id="'+o.id+'" title="Delete forever"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
-    else if(o.isQuote){ h+='<div class="card-bar"><button class="done-btn stage-adv" data-act="acceptquote" data-id="'+o.id+'">Create Order</button><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14"/></svg></button></div>'; }
-    else { var nxt=nextStageLabel(o); var isDone=(nxt==='Done'); var _bs=o.buyStatus||'needed'; var _bc=_bs==='bought'?' buy-bought':' buy-needed'; var _bt=_bs==='bought'?'Shirts bought':'Shirts not bought'; var buyBtn='<button class="icon-btn buy-mini'+_bc+'" data-act="buy" data-id="'+o.id+'" title="'+_bt+'" aria-label="'+_bt+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></button>'; h+='<div class="card-bar">'+(o.custEmail?('<button class="icon-btn'+((o.readyEmailedAt||o.paidEmailedAt)?' sent':'')+'" data-act="ready" data-id="'+o.id+'" title="Email the customer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>'):'')+buyBtn+'<button class="done-btn'+(isDone?'':' stage-adv')+'" data-act="advance" data-id="'+o.id+'">'+esc(nxt)+'</button><button class="icon-btn" style="margin-left:auto" data-act="trash" data-id="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--red)" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>'; }
+    else if(o.isQuote){ h+='<div class="card-bar"><button class="done-btn stage-adv" data-act="acceptquote" data-id="'+o.id+'">Create Order</button></div>'; }
+    else { var _bs=o.buyStatus||'needed'; var _bc=_bs==='bought'?' buy-bought':' buy-needed'; var _bt=_bs==='bought'?'Shirts bought':'Shirts not bought'; var buyBtn='<button class="icon-btn buy-mini'+_bc+'" data-act="buy" data-id="'+o.id+'" title="'+_bt+'" aria-label="'+_bt+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></button>'; h+='<div class="card-bar">'+(o.custEmail?('<button class="icon-btn'+((o.readyEmailedAt||o.paidEmailedAt)?' sent':'')+'" data-act="ready" data-id="'+o.id+'" title="Email the customer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>'):'')+buyBtn+'</div>'; }
     h+='</div>'; return h;
   }
 
@@ -3253,7 +3280,39 @@
     delete o.smartId; delete o.smart; smartEnsure(o);
     render(); persist(); toast('Order created · '+o.smartId);
   }
-  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ el.addEventListener('click',function(e){ if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
+  var _quickOrderId=null, _quickPressConsumedUntil=0;
+  function closeQuickOrder(){ var q=$('quickOrderOverlay'); if(q)q.classList.remove('show'); _quickOrderId=null; }
+  function openQuickOrder(id){
+    var o=getOrder(id); if(!o||o.trashed)return;
+    _quickOrderId=id;
+    var q=$('quickOrderOverlay'), sub=$('quickOrderSub'), stage=$('quickOrderStage'), open=$('quickOrderOpen');
+    if(!q)return;
+    sub.textContent=(autoTitle(o)||o.custName||o.title||'Order')+(o.smartId?' · '+o.smartId:'');
+    open.textContent=o.isQuote?'Open Quote':'Open Order';
+    stage.textContent=o.isQuote?'Create Order':(nextStageLabel(o)==='Done'?'Mark Done':nextStageLabel(o));
+    q.classList.add('show');
+  }
+  function wireQuickPress(el){
+    if(el.getAttribute('data-longwired'))return; el.setAttribute('data-longwired','1');
+    var timer=null, sx=0, sy=0, pid=null, fired=false;
+    function cancel(){ if(timer){clearTimeout(timer);timer=null;} }
+    el.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      if(e.target.closest('[data-act],[data-stop],a,button,input,textarea,select'))return;
+      cancel(); fired=false; sx=e.clientX; sy=e.clientY; pid=e.pointerId;
+      timer=setTimeout(function(){ timer=null; fired=true; _quickPressConsumedUntil=Date.now()+700; openQuickOrder(el.getAttribute('data-card')); },560);
+    });
+    el.addEventListener('pointermove',function(e){ if(pid!==e.pointerId||!timer)return; if(Math.abs(e.clientX-sx)>10||Math.abs(e.clientY-sy)>10)cancel(); });
+    ['pointerup','pointercancel','pointerleave'].forEach(function(ev){ el.addEventListener(ev,function(e){ if(pid===null||e.pointerId===pid){cancel();pid=null;} }); });
+    el.addEventListener('contextmenu',function(e){ if(!e.target.closest('[data-act],[data-stop],a,button,input,textarea,select'))e.preventDefault(); });
+  }
+  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
+
+  $('quickOrderClose').addEventListener('click',closeQuickOrder);
+  $('quickOrderOverlay').addEventListener('click',closeQuickOrder);
+  $('quickOrderOpen').addEventListener('click',function(){ var id=_quickOrderId; closeQuickOrder(); if(id)openEditor(id); });
+  $('quickOrderStage').addEventListener('click',function(){ var id=_quickOrderId, o=id&&getOrder(id); closeQuickOrder(); if(!o)return; if(o.isQuote)acceptQuote(id); else advanceStage(id); });
+  $('quickOrderDelete').addEventListener('click',function(){ var id=_quickOrderId; closeQuickOrder(); if(id)toTrash(id,'deleted'); });
 
 
   // ── Small sales-only purchasing shortcut. The full list lives in Office. ──
