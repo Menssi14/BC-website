@@ -3150,8 +3150,17 @@
     h+=placeBlockHTML(o);
     var _ph=(o.custPhone||o.contact||''); var contactH=''; if(_ph) contactH='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     var itemsH='', notesH='';
-    if(o.type==='NOTE'){ if(o.body) notesH='<div class="ctext">'+esc(o.body)+'</div>'; }
-    else { itemsH=cardItemsHTML(o); if(o.body) notesH='<div class="ctext cnotes">'+esc(o.body)+'</div>'; }
+    /* Some older orders were accidentally left with type NOTE even though they
+       contain real garment items. The board should trust the actual item data:
+       if an order has items, always render the size/item block. A true note is
+       only treated as a note when it has no items at all. */
+    var hasRealItems=!!((o.items||[]).filter(itemHas).length);
+    if(o.type==='NOTE' && !hasRealItems){
+      if(o.body) notesH='<div class="ctext">'+esc(o.body)+'</div>';
+    }else{
+      itemsH=cardItemsHTML(o);
+      if(o.body) notesH='<div class="ctext cnotes">'+esc(o.body)+'</div>';
+    }
     var tags = '';
     if(!o.trashed && !o.isQuote && o.drafting) tags+='<span class="tag" style="background:#F2EADD;color:#7A654B">Draft</span>';
     if(!o.trashed && !o.isQuote && o.stage && o.stage!=='New') tags+='<span class="tag stage" style="background:'+stageColor(o)+'22;color:'+stageColor(o)+'">'+esc(o.stage)+'</span>';
@@ -3166,7 +3175,7 @@
     /* Phones: the lower half of the card swipes like the photos do. Tags and
        warnings (due, payment, balance, notes, phone) come first; sizes and
        names are one swipe away. The placement warning stays above, always. */
-    var swipe = phoneBoard() && !(opt&&opt.flat) && o.type!=='NOTE' && !!itemsH;
+    var swipe = phoneBoard() && !(opt&&opt.flat) && !!itemsH;
     if(swipe){
       h+='<div class="info-swipe"><div class="info-strip">'+
            '<div class="info-pane pane-tags">'+tagsH+notesH+contactH+'</div>'+
