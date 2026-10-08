@@ -1617,7 +1617,7 @@
         <div class="field-label">Due Date <span class="opt">optional</span></div>
         <div class="due-select-wrap">
           <select id="mDueSelect" class="due-select" aria-label="Order due date"></select>
-          <input type="date" id="mDueExact" class="due-calendar-input" aria-label="Choose exact order due date">
+          <input type="hidden" id="mDueExact" class="due-calendar-input">
         </div>
       </div>
     </div>
@@ -3856,8 +3856,7 @@
         p.appendChild(money);
         syncBal();
 
-        var exactDue=wzEl('input','wz-in'); exactDue.type='date';
-        exactDue.setAttribute('aria-label','Choose exact due date');
+        var exactDue=wzEl('input','wz-in'); exactDue.type='hidden';
         exactDue.value=validOrderDue(editing.due)?editing.due:'';
         exactDue.style.position='absolute'; exactDue.style.opacity='0'; exactDue.style.width='1px'; exactDue.style.height='1px'; exactDue.style.pointerEvents='none';
         var cur=dueQuickKey(editing.due);
