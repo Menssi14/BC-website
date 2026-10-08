@@ -289,16 +289,24 @@
     .card-bar .done-btn{min-width:0;flex:1 1 auto;justify-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:7px 5px;font-size:14px;letter-spacing:.035em;gap:0;}
     .card-bar .done-btn svg{display:none;}
   }
-  /* Long-press quick actions: card stays clean until the user deliberately asks. */
-  .qa-box{ max-width:390px; }
-  .qa-sub{ padding:0 16px 10px; color:rgba(var(--ink-rgb),.58); font-size:14px; line-height:1.35; }
-  .qa-actions{ padding:4px 14px 16px; display:flex; flex-direction:column; gap:9px; }
-  .qa-act{ width:100%; min-height:50px; border:1.5px solid var(--line-strong); border-radius:13px; background:var(--note); color:var(--burgundy); font-family:'Teko',sans-serif; font-size:20px; letter-spacing:.035em; cursor:pointer; text-align:left; padding:10px 14px 8px; }
-  .qa-act.primary{ background:var(--green); border-color:var(--green); color:var(--cream); }
-  .qa-act.buy-needed{ color:var(--red); border-color:rgba(var(--red-rgb),.52); background:rgba(var(--red-rgb),.06); }
-  .qa-act.buy-bought{ color:var(--cream); border-color:var(--green); background:var(--green); }
-  .qa-act.danger{ color:var(--red); border-color:rgba(var(--red-rgb),.5); }
-  .qa-hint{ padding:0 16px 14px; color:rgba(var(--ink-rgb),.42); font-size:12px; line-height:1.3; }
+  /* Long-press quick actions: exactly two icon buttons. All order-specific info lives inside the order. */
+  .qa-box{ max-width:none; width:auto; padding:12px; margin-top:0; border-radius:18px; }
+  .qa-actions{ padding:0; display:flex; flex-direction:row; gap:12px; }
+  .qa-act{ width:68px; height:68px; min-height:68px; padding:0; border:none; border-radius:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; transition:transform .12s ease,filter .12s ease; }
+  .qa-act:active{ transform:scale(.96); }
+  @media(hover:hover) and (pointer:fine){ .qa-act:hover{ filter:brightness(.95); } }
+  .qa-act.confirm{ background:var(--green); }
+  .qa-act.danger{ background:var(--red); }
+  .qa-act svg{ width:30px; height:30px; stroke:#fff; }
+
+  /* Order-only system information: hidden from the board, visible inside the opened order. */
+  .order-core-meta{ display:flex; align-items:stretch; gap:8px; margin:8px 0 12px; flex-wrap:wrap; }
+  .order-id-chip{ flex:1 1 180px; min-width:0; border:1px solid var(--line); border-radius:10px; padding:8px 11px 6px; background:rgba(31,77,62,.045); }
+  .order-id-chip .k{ display:block; font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:11px; color:rgba(var(--ink-rgb),.48); line-height:1; }
+  .order-id-chip .v{ display:block; margin-top:3px; font-family:'Teko',sans-serif; font-size:17px; letter-spacing:.035em; color:var(--green); line-height:1.1; overflow-wrap:anywhere; }
+  .order-buy-btn{ flex:0 0 auto; min-height:45px; border-radius:10px; padding:7px 12px 5px; border:1px solid var(--line-strong); font-family:'Teko',sans-serif; font-size:17px; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; }
+  .order-buy-btn.needed{ color:var(--red); border-color:rgba(var(--red-rgb),.5); background:rgba(var(--red-rgb),.07); }
+  .order-buy-btn.bought{ color:#fff; border-color:var(--green); background:var(--green); }
 
   .empty-state{ text-align:center; padding:84px 20px; color:rgba(var(--ink-rgb),.55); }
   .hist-btn{ opacity:.55; } .hist-btn:hover{ opacity:1; }
@@ -1585,6 +1593,10 @@
       </div>
       <div class="word-cap" id="wordCap"></div>
       <span class="kind-tag" id="kindTag"></span>
+      <div class="order-core-meta" id="orderCoreMeta" style="display:none">
+        <div class="order-id-chip"><span class="k">Order ID</span><span class="v" id="mOrderId"></span></div>
+        <button type="button" class="order-buy-btn needed" id="mPurchaseBtn">Shirts Not Bought</button>
+      </div>
       <div id="mBody"></div>
       <div class="sec-row" id="secRow">
         <button type="button" class="sec-toggle" id="payToggle" style="display:none"></button>
@@ -1620,20 +1632,17 @@
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
 
 
-<!-- ORDER QUICK ACTIONS: shown only after a deliberate press-and-hold -->
+<!-- ORDER QUICK ACTIONS: press-and-hold shows only advance and delete -->
 <div class="overlay" id="quickOrderOverlay">
-  <div class="hist-box qa-box" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="quickOrderTitle">
-    <div class="hist-head">
-      <span class="hist-title" id="quickOrderTitle">Order Actions</span>
-      <button class="icon-btn" id="quickOrderClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    </div>
-    <div class="qa-sub" id="quickOrderSub"></div>
+  <div class="hist-box qa-box" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Order quick actions">
     <div class="qa-actions">
-      <button class="qa-act buy-needed" id="quickOrderBuy" type="button">Shirts Not Bought</button>
-      <button class="qa-act" id="quickOrderStage" type="button">Next Step</button>
-      <button class="qa-act danger" id="quickOrderDelete" type="button">Delete Order</button>
+      <button class="qa-act confirm" id="quickOrderStage" type="button" aria-label="Advance order">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>
+      </button>
+      <button class="qa-act danger" id="quickOrderDelete" type="button" aria-label="Delete order">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+      </button>
     </div>
-    <div class="qa-hint">Press and hold an order anytime to bring these actions back.</div>
   </div>
 </div>
 
@@ -3290,19 +3299,9 @@
   function openQuickOrder(id){
     var o=getOrder(id); if(!o||o.trashed)return;
     _quickOrderId=id;
-    var q=$('quickOrderOverlay'), sub=$('quickOrderSub'), stage=$('quickOrderStage'), buy=$('quickOrderBuy');
+    var q=$('quickOrderOverlay'), stage=$('quickOrderStage');
     if(!q)return;
-    sub.textContent=(autoTitle(o)||o.custName||o.title||'Order')+(o.smartId?' · '+o.smartId:'');
-    if(o.isQuote){
-      buy.style.display='none';
-    }else{
-      var bought=(o.buyStatus||'needed')==='bought';
-      buy.style.display='';
-      buy.textContent=bought?'Shirts Bought':'Shirts Not Bought';
-      buy.classList.toggle('buy-bought',bought);
-      buy.classList.toggle('buy-needed',!bought);
-    }
-    stage.textContent=o.isQuote?'Create Order':(nextStageLabel(o)==='Done'?'Mark Done':nextStageLabel(o));
+    stage.setAttribute('aria-label',o.isQuote?'Create order':(nextStageLabel(o)==='Done'?'Mark order done':'Advance to '+nextStageLabel(o)));
     q.classList.add('show');
   }
   function wireQuickPress(el){
@@ -3321,9 +3320,17 @@
   }
   function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
 
-  $('quickOrderClose').addEventListener('click',closeQuickOrder);
+  $('mPurchaseBtn').addEventListener('click',function(e){
+    e.stopPropagation();
+    if(!editing||editing.isQuote||editing.type==='NOTE')return;
+    if(editing.isNew||editing.drafting) promoteNewOrderDraft();
+    var id=editing&&editing.id;
+    if(!id)return;
+    hideOverlay();
+    openBuyMenu(id);
+  });
+
   $('quickOrderOverlay').addEventListener('click',closeQuickOrder);
-  $('quickOrderBuy').addEventListener('click',function(){ var id=_quickOrderId, o=id&&getOrder(id); closeQuickOrder(); if(o&&!o.isQuote)openBuyMenu(id); });
   $('quickOrderStage').addEventListener('click',function(){ var id=_quickOrderId, o=id&&getOrder(id); closeQuickOrder(); if(!o)return; if(o.isQuote)acceptQuote(id); else advanceStage(id); });
   $('quickOrderDelete').addEventListener('click',function(){ var id=_quickOrderId; closeQuickOrder(); if(id)toTrash(id,'deleted'); });
 
@@ -3483,6 +3490,7 @@
     }
     if(o.custEmail) fact('Email', o.custEmail);
     fact('Kind', o.type==='NOTE'?'Note':o.type);
+    if(!o.isQuote && o.type!=='NOTE'){ smartEnsure(o); fact('Order ID', o.smartId||'—'); }
     fact('Stage', o.stage||'New');
     if(!o.isQuote && o.type!=='NOTE'){ var shirtsBought=(o.buyStatus||'needed')==='bought'; fact('Shirts', shirtsBought?'Bought':'Not bought', shirtsBought?'good':'warn'); }
     var di=dueInfo(o); if(di) fact('Due', di.txt, di.over?'warn':'');
@@ -4071,6 +4079,19 @@
     var hasName=!!(o.custName&&o.custName.trim());
     if($('custExtra'))$('custExtra').style.display=hasName?'flex':'none';
     $('kindTag').textContent=o.type;
+    var core=$('orderCoreMeta'), oid=$('mOrderId'), pbtn=$('mPurchaseBtn');
+    var showCore=!isNote&&!o.isQuote;
+    if(core) core.style.display=showCore?'flex':'none';
+    if(showCore){
+      smartEnsure(o);
+      if(oid) oid.textContent=o.smartId||'—';
+      if(pbtn){
+        var pb=(o.buyStatus||'needed')==='bought';
+        pbtn.textContent=pb?'Shirts Bought':'Shirts Not Bought';
+        pbtn.classList.toggle('bought',pb);
+        pbtn.classList.toggle('needed',!pb);
+      }
+    }
     if($('mBalance'))$('mBalance').value=o.balanceDue||'';
     if($('wordCap')){ $('wordCap').classList.remove('show'); $('wordCap').textContent=''; }
     renderImgs(); renderBody();
