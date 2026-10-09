@@ -5386,7 +5386,7 @@
     if(!holder){ var th=t.closest('.imthumb'); if(th) holder=th.parentNode; }
     if(!holder) return;
     e.stopPropagation(); e.preventDefault();
-    if(Date.now()-Math.max(lastStripScroll,lastStripGesture)<520) return;   // that was a swipe, not a tap
+    if(Date.now()-lastStripScroll<520) return;   // that was a swipe, not a tap
     var all=[].slice.call(holder.querySelectorAll('img')).filter(function(im){ return !!im.getAttribute('src'); });
     var i=all.indexOf(t); if(i<0) i=0;
     LB.open(all.map(function(im){ return im.src; }), i);
