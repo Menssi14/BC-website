@@ -191,7 +191,7 @@
   /* phones: tags on one side, sizes on the other, swiped like the photos */
   .info-strip{ display:flex; align-items:flex-start; overflow-x:auto; overflow-y:hidden; margin:0 -13px;
     scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; overscroll-behavior-x:contain;
-    transition:height .25s ease; }
+    min-height:46px; transition:height .25s ease; }
   .info-strip::-webkit-scrollbar{ display:none; }
   .info-pane{ flex:0 0 100%; width:100%; box-sizing:border-box; padding:0 13px 2px; scroll-snap-align:center; scroll-snap-stop:always; min-width:0; }
   .info-pane > :first-child{ margin-top:4px; }
@@ -827,11 +827,19 @@
   .due-select:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(var(--green-rgb),.08);}
   .due-select.due-red,.wz-sel.due-red{color:var(--red);font-weight:700;}
   .due-select.due-orange,.wz-sel.due-orange{color:#B4520F;font-weight:700;}
+  .due-select.due-yellow,.wz-sel.due-yellow{color:#A77A00;font-weight:700;}
+  .due-select.due-green,.wz-sel.due-green{color:var(--go);font-weight:700;}
   html[data-theme="dark"] .due-select.due-orange,html[data-theme="dark"] .wz-sel.due-orange{color:#F4A36B;}
+  html[data-theme="dark"] .due-select.due-yellow,html[data-theme="dark"] .wz-sel.due-yellow{color:#F0C75E;}
+  html[data-theme="dark"] .due-select.due-green,html[data-theme="dark"] .wz-sel.due-green{color:#82C99A;}
   .due-select option.due-red-option,.wz-sel option.due-red-option{color:#6D2124;font-weight:700;}
   .due-select option.due-orange-option,.wz-sel option.due-orange-option{color:#B4520F;font-weight:700;}
+  .due-select option.due-yellow-option,.wz-sel option.due-yellow-option{color:#A77A00;font-weight:700;}
+  .due-select option.due-green-option,.wz-sel option.due-green-option{color:#3C8C5A;font-weight:700;}
   html[data-theme="dark"] .due-select option.due-red-option,html[data-theme="dark"] .wz-sel option.due-red-option{color:#D9787C;}
   html[data-theme="dark"] .due-select option.due-orange-option,html[data-theme="dark"] .wz-sel option.due-orange-option{color:#F4A36B;}
+  html[data-theme="dark"] .due-select option.due-yellow-option,html[data-theme="dark"] .wz-sel option.due-yellow-option{color:#F0C75E;}
+  html[data-theme="dark"] .due-select option.due-green-option,html[data-theme="dark"] .wz-sel option.due-green-option{color:#82C99A;}
   .due-calendar-input{position:absolute;left:50%;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;}
 
   /* Exact visual language of the Office Due Dates calendar, used here only as a date picker. */
@@ -1923,8 +1931,13 @@
   }
   var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
   var _loaded=false,_saveTimer=null, _saving=false, _needsSave=false, TRASH_DAYS=10, DAY=86400000;
-  var URGENCY={ norush:{label:'On Track',color:'#96B486',cls:'green'}, priority:{label:'Soon',color:'#D98E5A',cls:'orange'}, asap:{label:'Urgent',color:'#C77A72',cls:'red'} };
-  var URANK={asap:0,priority:1,norush:2};
+  var URGENCY={
+    norush:{label:'On Track',color:'#96B486',cls:'green'},
+    soon2:{label:'Due in 2 Days',color:'#E0A82E',cls:'yellow'},
+    priority:{label:'Due Tomorrow',color:'#E8722C',cls:'orange'},
+    asap:{label:'Due Today / Overdue',color:'#6D2124',cls:'red'}
+  };
+  var URANK={asap:0,priority:1,soon2:2,norush:3};
 
   // Progress stages per order type. Last entry is always the finish (→ trash).
   var STAGES={
@@ -2090,6 +2103,11 @@
     if(t==='Multi')return 'M';
     return 'O';
   }
+  function smartDisplayCode(o){
+    if(!o || o.type==='NOTE' || o.isQuote) return '';
+    var online=(o.source==='online')?'ON-':'';
+    return online+smartTypeCode(o);
+  }
   function smartIdFor(o,ts){
     var d=new Date(+ts||Date.now());
     var online=(o&&o.source==='online')?'ON-':'';
@@ -2147,8 +2165,8 @@
     var d2=new Date(); d2.setHours(12,0,0,0); d2.setDate(d2.getDate()+2);
     return [
       {k:'asap',label:'ASAP',color:URGENCY.asap.color},
-      {k:'tomorrow',label:'Tomorrow',color:URGENCY.asap.color},
-      {k:'dayafter',label:DOW_NAMES[d2.getDay()],color:URGENCY.priority.color},
+      {k:'tomorrow',label:'Tomorrow',color:URGENCY.priority.color},
+      {k:'dayafter',label:DOW_NAMES[d2.getDay()],color:URGENCY.soon2.color},
       {k:'calendar',label:'Calendar…',color:URGENCY.norush.color}
     ];
   }
@@ -2173,6 +2191,16 @@
     if(!validOrderDue(value)) return 'Chosen Date';
     var p=value.split('-'), d=new Date(+p[0],+p[1]-1,+p[2],12);
     return MON_NAMES[d.getMonth()]+' '+d.getDate();
+  }
+  function dueToneForValue(value){
+    if(!validOrderDue(value)) return '';
+    var p=value.split('-'), d=new Date(+p[0],+p[1]-1,+p[2],12,0,0);
+    var t=new Date(); t.setHours(12,0,0,0);
+    var days=Math.round((d-t)/86400000);
+    if(days<=0) return 'red';
+    if(days===1) return 'orange';
+    if(days===2) return 'yellow';
+    return 'green';
   }
   var _duePickerTarget=null, _duePickerMonth=null, _duePickerWired=false;
   function _dueDateObj(value){
@@ -2226,14 +2254,15 @@
     $('orderDueCalendarOverlay').classList.add('show');
     _duePickerRender();
   }
-  /* One setting drives the colour: how soon it is due. Counting today as
-     day one —
-       day 1 and 2 (today, tomorrow, or already past) -> red
-       day 3 and 4                                    -> orange
-       further out, or no date at all                 -> green            */
+  /* Due-date colour is intentionally simple and exclusive:
+       overdue / today -> red
+       tomorrow        -> orange
+       in 2 days       -> yellow
+       in 3+ days      -> green                                      */
   function urgencyForDays(days){
-    if(days<=1) return 'asap';       // today, tomorrow, overdue
-    if(days<=3) return 'priority';   // the two days after that
+    if(days<=0) return 'asap';
+    if(days===1) return 'priority';
+    if(days===2) return 'soon2';
     return 'norush';
   }
   function daysUntilDue(o){
@@ -3005,8 +3034,8 @@
      priority slider says. The slider itself is left untouched. */
   function effUrgency(o){
     var d=dueInfo(o);
-    if(d) return d.level;        // a due date decides the colour
-    return o.urgency;            // no date: whatever the order already carried
+    if(d) return d.level;        // due date owns the board colour
+    return 'norush';             // no due date stays green; red is reserved for due today/overdue
   }
   function sortOrders(a,b){ var ea=effUrgency(a), eb=effUrgency(b); var r=(URANK[ea]==null?9:URANK[ea])-(URANK[eb]==null?9:URANK[eb]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
 
@@ -3145,7 +3174,10 @@
     var _t=autoTitle(o); if(_t){ var _nn=(o.type==='NOTE'?' note-name':'');
       // how many pieces the order is, right beside the title
       var _n=(o.type==='NOTE')?0:itemCount(o);
-      var _in=(_n?'<span class="h3-n" title="'+_n+(_n===1?' item':' items')+'">'+_n+'</span>':'')+'<span class="h3-t">'+esc(_t)+'</span>';
+      var _oc=smartDisplayCode(o);
+      var _nb=(_n?String(_n):'')+(_oc?((_n?' · ':'')+_oc):'');
+      var _nt=[_n?(_n+(_n===1?' item':' items')):'',_oc?('Order type '+_oc):''].filter(Boolean).join(' · ');
+      var _in=(_nb?'<span class="h3-n" title="'+esc(_nt)+'">'+esc(_nb)+'</span>':'')+'<span class="h3-t">'+esc(_t)+'</span>';
       h+= o.isQuote ? ('<h3 class="has-n'+_nn+'">'+_in+'</h3>') : ('<h3 class="tinted has-n'+_nn+'" style="background:'+u.color+'" title="'+u.label+'">'+_in+'</h3>'); }
     h+=placeBlockHTML(o);
     var _ph=(o.custPhone||o.contact||''); var contactH=''; if(_ph) contactH='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
@@ -3161,15 +3193,11 @@
       itemsH=cardItemsHTML(o);
       if(o.body) notesH='<div class="ctext cnotes">'+esc(o.body)+'</div>';
     }
+    /* Keep the main order board clean: order type is already shown beside
+       the quantity, while stage / due date / payment details live inside the
+       opened order. Trash keeps its countdown because that is a trash-only
+       control rather than order information. */
     var tags = '';
-    if(!o.trashed && !o.isQuote && o.drafting) tags+='<span class="tag" style="background:#F2EADD;color:#7A654B">Draft</span>';
-    if(!o.trashed && !o.isQuote && o.stage && o.stage!=='New') tags+='<span class="tag stage" style="background:'+stageColor(o)+'22;color:'+stageColor(o)+'">'+esc(o.stage)+'</span>';
-    if(!o.trashed && !o.isQuote){ var _di=dueInfo(o); if(_di) tags+='<span class="tag due'+(_di.over?' overdue':'')+'">'+esc(_di.txt)+'</span>'; }
-    if(!o.trashed && !o.isQuote && o.payStatus==='deposit') tags+='<span class="tag pay-dep">Deposit</span>';
-    if(!o.trashed && !o.isQuote && o.payStatus==='paid') tags+='<span class="tag pay-paid">Paid</span>';
-    if(!o.trashed && !o.isQuote && o.balanceDue) tags+='<span class="tag pay-bal">Bal $'+esc(o.balanceDue)+'</span>';
-    if(o.type&&o.type!=='NOTE') tags+='<span class="tag">'+esc(o.type)+'</span>';
-    if(o.source==='online') tags+='<span class="tag online">Online</span>';
     if(o.trashed) tags+='<span class="tag countdown">'+trashWords(o)+'</span>';
     var tagsH = tags ? '<div class="card-tags">'+tags+'</div>' : '';
     /* Phones: the lower half of the card swipes like the photos do. Tags and
@@ -3195,6 +3223,33 @@
 
   // Keep the little dots under a card's photo strip in step with the swipe.
   var lastStripScroll=0;
+  /* iOS Safari occasionally stops moving nested horizontal overflow areas after
+     the board is rebalanced or a card has a press-and-hold listener. Keep native
+     scrolling, but add a passive finger-swipe fallback so photos/details still
+     snap one page at a time. Nothing here prevents vertical page scrolling. */
+  function wireTouchSnap(strip,countFn,onSnap){
+    if(!strip || strip._touchSnapWired) return;
+    strip._touchSnapWired=true;
+    var sx=0,sy=0,start=0,armed=false;
+    strip.addEventListener('touchstart',function(e){
+      if(!e.touches || e.touches.length!==1){ armed=false; return; }
+      var t=e.touches[0], w=strip.clientWidth||1;
+      sx=t.clientX; sy=t.clientY; start=Math.round(strip.scrollLeft/w); armed=true;
+    },{passive:true});
+    strip.addEventListener('touchend',function(e){
+      if(!armed){ return; } armed=false;
+      if(!e.changedTouches || !e.changedTouches.length) return;
+      var t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+      if(Math.abs(dx)<32 || Math.abs(dx)<=Math.abs(dy)*1.15) return;
+      var count=Math.max(1,Number(countFn?countFn():1)||1);
+      var target=Math.max(0,Math.min(count-1,start+(dx<0?1:-1)));
+      lastStripScroll=Date.now();
+      var left=target*(strip.clientWidth||1);
+      try{ strip.scrollTo({left:left,behavior:'smooth'}); }catch(_){ strip.scrollLeft=left; }
+      if(onSnap) onSnap(target);
+    },{passive:true});
+    strip.addEventListener('touchcancel',function(){ armed=false; },{passive:true});
+  }
   function wireShots(root){
     (root||document).querySelectorAll('.card-shots.multi').forEach(function(box){
       if(box.getAttribute('data-wired')) return; box.setAttribute('data-wired','1');
@@ -3215,6 +3270,7 @@
         var i=Array.prototype.indexOf.call(kids,e.target); if(i<0)return;
         strip.scrollTo({left:i*strip.clientWidth,behavior:'smooth'});
       });
+      wireTouchSnap(strip,function(){ return kids.length; },function(){ setTimeout(sync,40); });
     });
   }
   /* ===== Phone board: two stacks of cards =====
@@ -3302,6 +3358,10 @@
         e.stopPropagation();
         var i=Array.prototype.indexOf.call(dots,e.target); if(i<0) return;
         strip.scrollTo({left:i*strip.clientWidth,behavior:'smooth'});
+      });
+      wireTouchSnap(strip,function(){ return panes.length; },function(i){
+        cur=i; if(id){ if(i) infoSide[id]=1; else delete infoSide[id]; }
+        paintDots(); setTimeout(fit,45);
       });
       if(window.ResizeObserver){ var ro=new ResizeObserver(function(){ fit(); }); for(var k=0;k<panes.length;k++) ro.observe(panes[k]); }
       paintDots(); fit();
@@ -3894,12 +3954,13 @@
           livePersist(); wzFoot();
         },{blank:'No date',other:false});
         function paintQuickDueTone(){
-          quickDue.classList.remove('due-red','due-orange');
-          if(quickDue.value==='asap'||quickDue.value==='tomorrow') quickDue.classList.add('due-red');
-          else if(quickDue.value==='dayafter') quickDue.classList.add('due-orange');
+          quickDue.classList.remove('due-red','due-orange','due-yellow','due-green');
+          var tone=quickDue.value==='asap'?'red':quickDue.value==='tomorrow'?'orange':quickDue.value==='dayafter'?'yellow':(quickDue.value==='custom'?dueToneForValue(exactDue.value):'');
+          if(tone) quickDue.classList.add('due-'+tone);
         }
-        ['asap','tomorrow'].forEach(function(k){ var o=quickDue.querySelector('option[value="'+k+'"]'); if(o)o.classList.add('due-red-option'); });
-        var dayAfterOpt=quickDue.querySelector('option[value="dayafter"]'); if(dayAfterOpt)dayAfterOpt.classList.add('due-orange-option');
+        var asapOpt=quickDue.querySelector('option[value="asap"]'); if(asapOpt)asapOpt.classList.add('due-red-option');
+        var tomorrowOpt=quickDue.querySelector('option[value="tomorrow"]'); if(tomorrowOpt)tomorrowOpt.classList.add('due-orange-option');
+        var dayAfterOpt=quickDue.querySelector('option[value="dayafter"]'); if(dayAfterOpt)dayAfterOpt.classList.add('due-yellow-option');
         paintQuickDueTone();
         quickDue.addEventListener('change',function(){setTimeout(paintQuickDueTone,0);});
         p.appendChild(wzRow('Due (optional)',quickDue));
@@ -4209,13 +4270,13 @@
     addOpt('','No Date');
     dueChoices().forEach(function(d){
       if(d.k==='calendar'&&cur==='custom') addOpt('custom',dueShortLabel(editing.due));
-      var tone=(d.k==='asap'||d.k==='tomorrow')?'due-red-option':(d.k==='dayafter'?'due-orange-option':'');
+      var tone=d.k==='asap'?'due-red-option':(d.k==='tomorrow'?'due-orange-option':(d.k==='dayafter'?'due-yellow-option':''));
       addOpt(d.k,d.label,tone);
     });
     select.value=(cur==='custom')?'custom':cur;
-    select.classList.remove('due-red','due-orange');
-    if(cur==='asap'||cur==='tomorrow')select.classList.add('due-red');
-    else if(cur==='dayafter')select.classList.add('due-orange');
+    select.classList.remove('due-red','due-orange','due-yellow','due-green');
+    var toneNow=cur==='asap'?'red':cur==='tomorrow'?'orange':cur==='dayafter'?'yellow':(cur==='custom'?dueToneForValue(editing.due):'');
+    if(toneNow)select.classList.add('due-'+toneNow);
     if(picker) picker.value=validOrderDue(editing.due)?editing.due:'';
 
     select.onchange=function(){
