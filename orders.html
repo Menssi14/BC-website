@@ -259,35 +259,6 @@
   .card .contact{ display:inline-flex; align-items:center; gap:5px; font-size:13px; color:var(--green); text-decoration:none; margin:1px 0 5px; }
   .card .cnotes{ margin-top:9px; padding-top:8px; border-top:1px dashed var(--line); }
   .card .ctext{ font-size:15.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; overflow-wrap:anywhere; color:rgba(var(--ink-rgb),.95); }
-
-  /* Permanent purchasing note lives on the Orders board itself — not in Office. */
-  .buy-note-card{ border-color:rgba(31,77,62,.36); }
-  .buy-note-card .buy-note-title{ margin:0; padding:10px 13px 9px; background:var(--green); color:var(--cream); font:normal 21px/1 'Schadow','Teko',sans-serif; }
-  .buy-note-preview{ display:grid; gap:9px; }
-  .buy-note-preview section{ min-width:0; }
-  .buy-note-preview .bl{ margin-bottom:3px; }
-  .buy-note-preview-line{ font:17px/1.18 'Teko',sans-serif; color:var(--burgundy); overflow-wrap:anywhere; }
-  .buy-note-preview-empty{ font:16px/1.1 'Teko',sans-serif; color:rgba(var(--ink-rgb),.46); }
-  .buy-note-more{ font:14px/1 'Teko',sans-serif; color:var(--green); margin-top:2px; }
-  .pbn-box{ max-width:620px; width:min(94vw,620px); }
-  .pbn-body{ padding:4px 16px 18px; overflow:auto; min-height:0; }
-  .pbn-sections{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .pbn-section{ border:1px solid var(--line-strong); border-radius:14px; overflow:hidden; background:var(--note); }
-  .pbn-head{ display:flex; align-items:center; gap:8px; padding:10px 11px; border-bottom:1px solid var(--line); color:var(--green); }
-  .pbn-head b{ font:600 22px/1 'Teko',sans-serif; }
-  .pbn-count{ margin-left:auto; min-width:24px; height:24px; padding:0 7px; border-radius:999px; display:grid; place-items:center; background:rgba(31,77,62,.10); font:15px 'Teko',sans-serif; }
-  .pbn-add{ display:grid; grid-template-columns:minmax(0,1fr) 42px; gap:7px; padding:9px; border-bottom:1px solid var(--line); }
-  .pbn-add input{ min-width:0; width:100%; border:1px solid var(--line-strong); border-radius:9px; padding:9px 10px; background:var(--cream); color:var(--burgundy); font:18px 'Teko',sans-serif; outline:none; }
-  .pbn-add input:focus{ border-color:var(--green); }
-  .pbn-add button{ width:42px; height:42px; border:0; border-radius:10px; background:var(--green); color:var(--cream); display:grid; place-items:center; font:28px/1 'Teko',sans-serif; cursor:pointer; }
-  .pbn-list{ display:flex; flex-direction:column; min-height:58px; }
-  .pbn-empty{ padding:16px 10px; text-align:center; color:rgba(var(--ink-rgb),.5); font:17px 'Teko',sans-serif; }
-  .pbn-row{ display:grid; grid-template-columns:minmax(0,1fr) 36px; align-items:center; gap:7px; padding:9px 9px 9px 11px; border-top:1px solid var(--line); }
-  .pbn-row:first-child{ border-top:0; }
-  .pbn-text{ min-width:0; overflow-wrap:anywhere; white-space:pre-wrap; font:19px/1.12 'Teko',sans-serif; color:var(--burgundy); }
-  .pbn-del{ width:34px; height:34px; border:0; border-radius:9px; background:transparent; color:var(--red); display:grid; place-items:center; cursor:pointer; }
-  .pbn-del svg{ width:17px; height:17px; }
-  @media(max-width:620px){ .pbn-sections{ grid-template-columns:1fr; } }
   .card-block{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); }
   .card-block .bl{ font-family:'Teko',sans-serif; text-transform:uppercase; letter-spacing:.08em; font-size:12px; color:rgba(var(--ink-rgb),.5); margin-bottom:4px; }
   .it-line{ font-size:14px; line-height:1.5; color:rgba(var(--ink-rgb),.92); display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
@@ -882,6 +853,17 @@
   @media(max-width:440px){.dc-scroll{padding:12px;}.dc-weekdays,.dc-grid{gap:3px;}.dc-day{min-height:53px;padding:6px 4px;}.dc-top h3{font-size:22px;}}
 
   /* ===== Sales purchasing shortcut ===== */
+  .icon-btn.buy-mini{position:relative;color:var(--muted);}
+  .icon-btn.buy-mini.buy-needed{color:#fff;border-color:var(--red);background:var(--red);}
+  .icon-btn.buy-mini.buy-bought{color:var(--cream);border-color:var(--green);background:var(--green);}
+  .buy-box{max-width:430px;width:min(92vw,430px);}
+  .buy-body{padding:2px 18px 20px;display:flex;flex-direction:column;gap:11px;}
+  .buy-order-title{font-family:'Teko',sans-serif;font-size:25px;color:var(--green);line-height:1.05;}
+  .buy-summary{font-family:'Teko',sans-serif;font-size:17px;color:var(--muted);line-height:1.18;white-space:pre-line;}
+  .buy-action{min-height:48px;border:1.5px solid var(--line-strong);border-radius:13px;background:var(--paper);color:var(--green);font-family:'Teko',sans-serif;font-size:20px;cursor:pointer;padding:10px 13px;text-align:left;display:flex;align-items:center;gap:9px;}
+  .buy-action.primary{background:var(--green);border-color:var(--green);color:var(--cream);}
+  .buy-action.done{color:var(--green);}
+  .buy-foot{font-family:'Teko',sans-serif;font-size:15px;color:var(--muted);line-height:1.1;padding-top:2px;}
 
 </style>
 <style>
@@ -1667,27 +1649,19 @@
   </div>
 </div>
 
-
-<!-- PERMANENT NEED-TO-BUY NOTE: stored inside Orders, not Office -->
-<div class="overlay" id="permanentBuyOverlay">
-  <div class="hist-box pbn-box" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Need to Buy note">
+<!-- PURCHASING SHORTCUT -->
+<div class="overlay" id="buyOverlay">
+  <div class="hist-box buy-box" onclick="event.stopPropagation()">
     <div class="hist-head">
-      <span class="hist-title">Need to Buy</span>
-      <button class="icon-btn" id="permanentBuyClose" type="button" aria-label="Close">&times;</button>
+      <span class="hist-title">Purchasing</span>
+      <button class="icon-btn" id="buyClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
-    <div class="pbn-body">
-      <div class="pbn-sections">
-        <section class="pbn-section">
-          <div class="pbn-head"><b>Shirts</b><span class="pbn-count" id="pbnShirtsCount">0</span></div>
-          <div class="pbn-add"><input id="pbnShirtsInput" type="text" maxlength="180" placeholder="Add shirts…" autocomplete="off"><button id="pbnShirtsAdd" type="button" aria-label="Add shirt item">+</button></div>
-          <div class="pbn-list" id="pbnShirtsList"></div>
-        </section>
-        <section class="pbn-section">
-          <div class="pbn-head"><b>Caps</b><span class="pbn-count" id="pbnCapsCount">0</span></div>
-          <div class="pbn-add"><input id="pbnCapsInput" type="text" maxlength="180" placeholder="Add caps…" autocomplete="off"><button id="pbnCapsAdd" type="button" aria-label="Add cap item">+</button></div>
-          <div class="pbn-list" id="pbnCapsList"></div>
-        </section>
-      </div>
+    <div class="buy-body">
+      <div class="buy-order-title" id="buyOrderTitle"></div>
+      <div class="buy-summary" id="buyOrderSummary"></div>
+      <button class="buy-action primary" id="buyAdd" type="button"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg>Add to Need to Buy</button>
+      <button class="buy-action done" id="buyBought" type="button"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>Shirts Bought</button>
+      <div class="buy-foot">Sales shortcut only. The full shared list lives in Office.</div>
     </div>
   </div>
 </div>
@@ -2085,34 +2059,6 @@
 
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-
-
-  var PERMANENT_BUY_NOTE_ID='permanent-need-to-buy-note';
-  function pbnNormList(list){
-    return (Array.isArray(list)?list:[]).map(function(x){
-      if(typeof x==='string')x={text:x}; x=x&&typeof x==='object'?x:{};
-      var text=String(x.text||'').trim(); if(!text)return null;
-      return {id:String(x.id||('pbn-'+Math.random().toString(36).slice(2,8))),text:text,createdAt:+x.createdAt||Date.now()};
-    }).filter(Boolean);
-  }
-  function ensurePermanentBuyNote(){
-    var o=getOrder(PERMANENT_BUY_NOTE_ID), created=false, changed=false;
-    if(!o){
-      var now=Date.now();
-      o={id:PERMANENT_BUY_NOTE_ID,type:'NOTE',title:'Need to Buy',body:'',permanentBuyNote:true,buyShirts:[],buyCaps:[],items:[],images:[],urgency:'norush',stage:'New',payStatus:'',balanceDue:'',due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:now,updatedAt:now};
-      state.orders.push(o); created=true;
-    }
-    if(!o.permanentBuyNote){o.permanentBuyNote=true;changed=true;}
-    if(o.type!=='NOTE'){o.type='NOTE';changed=true;}
-    if(o.title!=='Need to Buy'){o.title='Need to Buy';changed=true;}
-    if(o.trashed){o.trashed=false;o.trashedAt=null;changed=true;}
-    var sh=pbnNormList(o.buyShirts), cp=pbnNormList(o.buyCaps);
-    if(JSON.stringify(sh)!==JSON.stringify(o.buyShirts||[])){o.buyShirts=sh;changed=true;}
-    if(JSON.stringify(cp)!==JSON.stringify(o.buyCaps||[])){o.buyCaps=cp;changed=true;}
-    if(changed&&!created)o.updatedAt=Date.now();
-    return created||changed;
-  }
-  function pbnNote(){ return getOrder(PERMANENT_BUY_NOTE_ID); }
 
   /* Keep the page behind every standard popup still. The popup/overlay remains
      the scroll surface, so mobile swipes cannot accidentally move Orders behind it. */
@@ -2598,7 +2544,7 @@
   function openGoalPicker(){
     var box=$('goalPickList'); box.innerHTML='';
     var already={}; liveTasks().forEach(function(t){ if(t.orderId) already[t.orderId]=true; });
-    var list=state.orders.filter(function(o){ return !o.trashed && !o.drafting && !o.permanentBuyNote && !already[o.id]; })
+    var list=state.orders.filter(function(o){ return !o.trashed && !o.drafting && !already[o.id]; })
                          .sort(sortOrders).slice(0,40);
     if(!list.length){
       var p=document.createElement('div'); p.className='goals-empty';
@@ -2840,7 +2786,6 @@
             state.orders[i] = migrate(c);
           }
         });
-        ensurePermanentBuyNote();
         state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
         render();
         if(_cloudDaily){ mergeDaily(_cloudDaily); renderGoals(); }
@@ -2891,7 +2836,6 @@
           var s=JSON.parse(t);
           if(!(s&&Array.isArray(s.orders)))throw new Error('Invalid orders file');
           state.orders=s.orders.map(migrate);
-          var permanentBuyChanged=ensurePermanentBuyNote();
           state.daily=normalizeDaily(s.daily);
           state.inv=normalizeInv(s.inv);
           var rolled=rollDaily();
@@ -2907,7 +2851,7 @@
               history.replaceState(null,'',location.pathname+location.hash);
             }
           }catch(e){}
-          if(rolled||recovered||_smartMigrated||permanentBuyChanged){ _smartMigrated=false; persist(); }
+          if(rolled||recovered||_smartMigrated){ _smartMigrated=false; persist(); }
           startAutoRefresh();
           setTimeout(artCacheTidy, 15000);
         }catch(e){ _loaded=true; showInitialLoadError(); }
@@ -2938,7 +2882,7 @@
           if(s&&Array.isArray(s.orders)){
             _loadOk=true;
             var incoming=JSON.stringify(s.orders);
-            if(incoming!==JSON.stringify(state.orders)){ state.orders=s.orders.map(migrate); var pbnChanged=ensurePermanentBuyNote(); purgeOld(); render(); if(pbnChanged)persist(); }
+            if(incoming!==JSON.stringify(state.orders)){ state.orders=s.orders.map(migrate); purgeOld(); render(); }
             // goals edited on the other device show up here too
             var beforeGoals=JSON.stringify(state.daily);
             mergeDaily(s.daily);
@@ -2973,7 +2917,6 @@
     if(o.payLocked===undefined)o.payLocked=(o.source==='online');
     if(o.balanceDue===undefined)o.balanceDue='';
     if(o.buyStatus===undefined)o.buyStatus='needed';
-    if(o.id===PERMANENT_BUY_NOTE_ID){ o.permanentBuyNote=true; o.type='NOTE'; o.title='Need to Buy'; o.buyShirts=pbnNormList(o.buyShirts); o.buyCaps=pbnNormList(o.buyCaps); o.trashed=false; o.trashedAt=null; }
     smartEnsure(o);
     delete o.isNew; return o;
   }
@@ -2999,7 +2942,6 @@
      the untouched "Not paid" starting point, don't count as something. */
   function orderIsEmpty(o){
     if(!o) return false;
-    if(o.permanentBuyNote)return false;
     if((o.images||[]).length) return false;
     if((o.items||[]).some(itemHas)) return false;
     var txt=['title','custName','custPhone','custEmail','contact','body','customer','phone','notes','details'];
@@ -3045,7 +2987,7 @@
     var v=ui.view;
     setBadge($('navTrashBadge'), trashCount());
     setBadge($('navBoardBadge'), state.orders.filter(function(o){
-      return !o.trashed && !o.permanentBuyNote && !orderIsEmpty(o);
+      return !o.trashed && !orderIsEmpty(o);
     }).length);
     $('navBoard').classList.toggle('on', v==='board');
     $('navLinks').classList.remove('on');
@@ -3066,7 +3008,7 @@
     if(d) return d.level;        // a due date decides the colour
     return o.urgency;            // no date: whatever the order already carried
   }
-  function sortOrders(a,b){ if(!!a.permanentBuyNote!==!!b.permanentBuyNote)return a.permanentBuyNote?-1:1; var ea=effUrgency(a), eb=effUrgency(b); var r=(URANK[ea]==null?9:URANK[ea])-(URANK[eb]==null?9:URANK[eb]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
+  function sortOrders(a,b){ var ea=effUrgency(a), eb=effUrgency(b); var r=(URANK[ea]==null?9:URANK[ea])-(URANK[eb]==null?9:URANK[eb]); if(r)return r; return (b.createdAt||0)-(a.createdAt||0); }
 
   // tiny type filter — '' means show everything
   function typeCounts(list){
@@ -3117,7 +3059,7 @@
         '</div>';
     }
 
-    var list=active ? all.filter(function(o){return o.permanentBuyNote||active.test(o);}) : all;
+    var list=active ? all.filter(active.test) : all;
     board.innerHTML=bar+(list.length
       ? '<div class="grid">'+list.map(cardHTML).join('')+'</div>'
       : '<div class="empty-state"><div class="big">Nothing here</div><p>No '+esc(active?active.label:'')+' orders on the board right now.</p></div>');
@@ -3188,22 +3130,7 @@
     named.forEach(function(it){ h+=itemLineHTML(it,1); });
     h+='</div>'; return h;
   }
-  function permanentBuyCardHTML(o){
-    var shirts=pbnNormList(o.buyShirts), caps=pbnNormList(o.buyCaps);
-    function section(label,list){
-      var h='<section><div class="bl">'+label+'</div>';
-      if(!list.length) h+='<div class="buy-note-preview-empty">Nothing listed.</div>';
-      else{
-        list.slice(0,3).forEach(function(x){h+='<div class="buy-note-preview-line">'+esc(x.text)+'</div>';});
-        if(list.length>3)h+='<div class="buy-note-more">+'+(list.length-3)+' more</div>';
-      }
-      return h+'</section>';
-    }
-    return '<div class="card buy-note-card" data-card="'+o.id+'"><h3 class="buy-note-title">Need to Buy</h3><div class="card-pad"><div class="buy-note-preview">'+section('Shirts',shirts)+section('Caps',caps)+'</div></div></div>';
-  }
-
   function cardHTML(o,opt){
-    if(o&&o.permanentBuyNote)return permanentBuyCardHTML(o);
     var _eu=effUrgency(o); var u=URGENCY[_eu]||URGENCY.norush; var imgs=o.images||[];
     var h='<div class="card u-'+(URGENCY[_eu]?_eu:'norush')+'" data-card="'+o.id+'">';
     if(imgs.length){
@@ -3395,33 +3322,10 @@
     delete o.smartId; delete o.smart; smartEnsure(o);
     render(); persist(); toast('Order created · '+o.smartId);
   }
-
-  function pbnTrashSvg(){return '<svg viewBox="0 0 1200 1200" fill="currentColor" aria-hidden="true"><path d="M599.99 131.26Q648.65 131.26 678 131.32Q691.04 131.34 705.24 136.32C743.17 149.61 768.44 184.32 768.69 224.51Q768.74 231.86 768.74 280.73A.54.54 0 0 0 769.28 281.27Q857.3 281.27 955.25 281.27C973.11 281.27 987.78 292.06 992.36 309.07C996.67 325.1 990.12 341.51 976.33 350.36Q966.93 356.39 953.75 356.31Q938.84 356.22 917.35 356.28A.69.69 0 0 0 916.66 356.93Q889.02 854.51 885.8 913.75Q884.71 933.71 882.81 942.47C871.41 995.18 824.68 1031.58 771.25 1031.26Q768.41 1031.25 600.01 1031.25Q431.6 1031.25 428.77 1031.27C375.33 1031.59 328.6 995.19 317.2 942.48Q315.3 933.72 314.21 913.76Q310.99 854.52 283.33 356.94A.69.69 0 0 0 282.64 356.29Q261.15 356.23 246.24 356.32Q233.06 356.41 223.66 350.38C209.87 341.53 203.32 325.12 207.62 309.09C212.2 292.08 226.87 281.29 244.73 281.28Q342.68 281.28 430.7 281.28A.54.54 0 0 0 431.24 280.74Q431.24 231.87 431.29 224.52C431.54 184.33 456.81 149.62 494.74 136.32Q508.94 131.34 521.98 131.32Q551.33 131.26 599.99 131.26ZM600 281.28Q689.07 281.28 693.52 281.25A.21.21 0 0 0 693.73 281.04Q693.82 270.02 693.74 225.76C693.72 214.05 685.45 206.2 673.75 206.24Q664.72 206.27 600 206.27Q535.29 206.27 526.26 206.24C514.56 206.2 506.29 214.05 506.27 225.76Q506.19 270.02 506.28 281.04A.21.21 0 0 0 506.49 281.25Q510.93 281.28 600 281.28ZM600 956.28Q760.15 956.28 771.5 956.26C792.61 956.21 809.12 941.3 810.28 920.25Q813.96 853.91 841.6 356.67A.44.44 0 0 0 841.16 356.21Q807.01 356.27 599.99 356.27Q392.98 356.28 358.83 356.22A.44.44 0 0 0 358.39 356.68Q386.04 853.92 389.73 920.26C390.89 941.31 407.4 956.22 428.51 956.26Q439.85 956.29 600 956.28Z"/></svg>';}
-  function pbnRenderSection(kind){
-    var o=pbnNote(); if(!o)return; var list=pbnNormList(kind==='shirts'?o.buyShirts:o.buyCaps);
-    var box=$(kind==='shirts'?'pbnShirtsList':'pbnCapsList'), count=$(kind==='shirts'?'pbnShirtsCount':'pbnCapsCount');
-    if(count)count.textContent=String(list.length); if(!box)return;
-    if(!list.length){box.innerHTML='<div class="pbn-empty">Nothing listed.</div>';return;}
-    box.innerHTML=list.map(function(x){return '<div class="pbn-row" data-pbn-kind="'+kind+'" data-pbn-id="'+esc(x.id)+'"><div class="pbn-text">'+esc(x.text)+'</div><button class="pbn-del" type="button" aria-label="Remove">'+pbnTrashSvg()+'</button></div>';}).join('');
-  }
-  function pbnRender(){pbnRenderSection('shirts');pbnRenderSection('caps');}
-  function openPermanentBuyNote(){ensurePermanentBuyNote();pbnRender();$('permanentBuyOverlay').classList.add('show');setTimeout(function(){try{$('pbnShirtsInput').focus();}catch(_){}},60);}
-  function pbnAdd(kind){
-    var o=pbnNote(), input=$(kind==='shirts'?'pbnShirtsInput':'pbnCapsInput'); if(!o||!input)return;
-    var text=String(input.value||'').trim(); if(!text){input.focus();return;}
-    var key=kind==='shirts'?'buyShirts':'buyCaps', now=Date.now(); if(!Array.isArray(o[key]))o[key]=[];
-    o[key].push({id:'pbn-'+kind.charAt(0)+'-'+now.toString(36)+'-'+Math.random().toString(36).slice(2,6),text:text,createdAt:now});
-    o.updatedAt=now; input.value=''; pbnRender(); render(); persist(); input.focus();
-  }
-  function pbnDelete(kind,id){
-    var o=pbnNote(); if(!o)return; var key=kind==='shirts'?'buyShirts':'buyCaps';
-    o[key]=pbnNormList(o[key]).filter(function(x){return x.id!==id;}); o.updatedAt=Date.now(); pbnRender(); render(); persist();
-  }
-
   var _quickOrderId=null, _quickPressConsumedUntil=0;
   function closeQuickOrder(){ var q=$('quickOrderOverlay'); if(q)q.classList.remove('show'); _quickOrderId=null; }
   function openQuickOrder(id){
-    var o=getOrder(id); if(!o||o.trashed||o.permanentBuyNote)return;
+    var o=getOrder(id); if(!o||o.trashed)return;
     _quickOrderId=id;
     var q=$('quickOrderOverlay'), stage=$('quickOrderStage');
     if(!q)return;
@@ -3447,42 +3351,46 @@
       e.preventDefault();
     });
   }
-  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ var id=el.getAttribute('data-card'),o=getOrder(id); if(o&&o.permanentBuyNote){ el.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openPermanentBuyNote();}); return; } wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} if(Date.now()-lastStripScroll<340){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
-
-  function toggleShirtsBought(id){
-    var o=getOrder(id);
-    if(!o||o.isQuote||o.type==='NOTE'||o.permanentBuyNote)return;
-    var bought=(o.buyStatus||'needed')==='bought';
-    o.buyStatus=bought?'needed':'bought';
-    o.buyUpdatedAt=Date.now(); o.updatedAt=Date.now();
-    render(); persist();
-    toast(o.buyStatus==='bought'?'Shirts marked bought':'Shirts marked not bought');
-  }
+  function wireCards(){ var board=$('board'); wireInfo(board); splitBoard(); restoreInfo(board); hydrateArt(board); wireShots(board); board.querySelectorAll('[data-card]').forEach(function(el){ wireQuickPress(el); el.addEventListener('click',function(e){ if(Date.now()<_quickPressConsumedUntil){e.preventDefault();e.stopPropagation();return;} if(Date.now()-lastStripScroll<340){e.preventDefault();e.stopPropagation();return;} if(e.target.closest('[data-act]')||e.target.closest('[data-stop]'))return; openEditor(el.getAttribute('data-card')); }); }); board.querySelectorAll('[data-act]').forEach(function(el){ el.addEventListener('click',function(e){ e.stopPropagation(); var a=el.getAttribute('data-act'),id=el.getAttribute('data-id'); if(a==='advance')advanceStage(id); else if(a==='done')toTrash(id,'done'); else if(a==='trash')toTrash(id,'deleted'); else if(a==='restore')restore(id); else if(a==='forever')forever(id); else if(a==='ready')sendReadyEmail(id); else if(a==='buy')openBuyMenu(id); else if(a==='acceptquote')acceptQuote(id); }); }); }
 
   $('mPurchaseBtn').addEventListener('click',function(e){
     e.stopPropagation();
-    if(!editing||editing.isQuote||editing.type==='NOTE'||editing.permanentBuyNote)return;
+    if(!editing||editing.isQuote||editing.type==='NOTE')return;
     if(editing.isNew||editing.drafting) promoteNewOrderDraft();
-    toggleShirtsBought(editing.id);
-    var fresh=getOrder(editing.id);
-    if(fresh){ editing=fresh; fillModal(fresh); }
+    var id=editing&&editing.id;
+    if(!id)return;
+    hideOverlay();
+    openBuyMenu(id);
   });
-
-  $('permanentBuyClose').addEventListener('click',function(){$('permanentBuyOverlay').classList.remove('show');});
-  $('permanentBuyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
-  $('pbnShirtsAdd').addEventListener('click',function(){pbnAdd('shirts');});
-  $('pbnCapsAdd').addEventListener('click',function(){pbnAdd('caps');});
-  $('pbnShirtsInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();pbnAdd('shirts');}});
-  $('pbnCapsInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();pbnAdd('caps');}});
-  ['pbnShirtsList','pbnCapsList'].forEach(function(id){$(id).addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.pbn-del');if(!b)return;var row=b.closest('[data-pbn-id]');if(row)pbnDelete(row.getAttribute('data-pbn-kind'),row.getAttribute('data-pbn-id'));});});
 
   $('quickOrderOverlay').addEventListener('click',closeQuickOrder);
   $('quickOrderStage').addEventListener('click',function(){ var id=_quickOrderId, o=id&&getOrder(id); closeQuickOrder(); if(!o)return; if(o.isQuote)acceptQuote(id); else advanceStage(id); });
   $('quickOrderDelete').addEventListener('click',function(){ var id=_quickOrderId; closeQuickOrder(); if(id)toTrash(id,'deleted'); });
 
-  function toTrash(id,reason){ var o=getOrder(id); if(!o||o.permanentBuyNote)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
+
+  // ── Small sales-only purchasing shortcut. The full list lives in Office. ──
+  var BUY_LOCAL='bc-need-to-buy-v1', BUY_CLOUD_FILE='_office/need-to-buy.json', _buyOrderId=null;
+  function buyNorm(raw){raw=raw&&typeof raw==='object'?raw:{};return {lists:Array.isArray(raw.lists)?raw.lists.filter(function(x){return x&&x.id;}):[],deleted:raw.deleted&&typeof raw.deleted==='object'?raw.deleted:{}};}
+  function buyLocalRead(){try{return buyNorm(JSON.parse(localStorage.getItem(BUY_LOCAL)||'null'));}catch(_){return buyNorm(null);}}
+  function buyLocalWrite(x){try{localStorage.setItem(BUY_LOCAL,JSON.stringify(x));}catch(_){}}
+  function buyMerge(a,b){a=buyNorm(a);b=buyNorm(b);var del={},map={};[a.deleted,b.deleted].forEach(function(d){Object.keys(d||{}).forEach(function(id){del[id]=Math.max(+del[id]||0,+d[id]||0);});});a.lists.concat(b.lists).forEach(function(x){if(!x||!x.id)return;if((del[x.id]||0)>=(+x.updatedAt||0))return;var m=map[x.id];if(!m||(+x.updatedAt||0)>(+m.updatedAt||0))map[x.id]=x;});return {lists:Object.keys(map).map(function(k){return map[k];}),deleted:del};}
+  function buyCloudRead(){if(!sb)return Promise.resolve(buyLocalRead());return sb.storage.from(BUCKET).download(BUY_CLOUD_FILE+'?t='+Date.now()).then(function(r){if(!r||!r.data)return buyLocalRead();return r.data.text().then(function(t){try{return buyMerge(JSON.parse(t),buyLocalRead());}catch(_){return buyLocalRead();}});}).catch(function(){return buyLocalRead();});}
+  function buyCloudWrite(x){buyLocalWrite(x);if(!sb)return Promise.resolve(false);var blob=new Blob([JSON.stringify({v:1,updatedAt:Date.now(),lists:x.lists,deleted:x.deleted})],{type:'application/json'});return sb.storage.from(BUCKET).upload(BUY_CLOUD_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){return !(r&&r.error);}).catch(function(){return false;});}
+  function buyOrderLines(o){
+    var groups={},order=[];(o.items||[]).filter(itemHas).forEach(function(it){var item=[it.color||'',it.surface||''].filter(Boolean).join(' ').trim()||'Shirts';var key=item.toLowerCase();if(!groups[key]){groups[key]={item:item,qty:0,sizes:{}};order.push(key);}var g=groups[key];g.qty++;var s=(it.size||'').trim();if(s)g.sizes[s]=(g.sizes[s]||0)+1;});
+    var lines=order.map(function(k){var g=groups[k],sizes=Object.keys(g.sizes).map(function(s){return s+' × '+g.sizes[s];}).join(' · ');return {id:'bti-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),item:g.item,qty:String(g.qty),notes:sizes,doneAt:0,updatedAt:Date.now()};});
+    if(!lines.length)lines.push({id:'bti-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),item:'Blanks for this order',qty:'',notes:'',doneAt:0,updatedAt:Date.now()});return lines;
+  }
+  function buySummaryText(o){var lines=buyOrderLines(o);return lines.slice(0,4).map(function(l){return (l.item||'Item')+(l.qty?' · '+l.qty:'')+(l.notes?'\n'+l.notes:'');}).join('\n');}
+  function openBuyMenu(id){var o=getOrder(id);if(!o)return;_buyOrderId=id;$('buyOrderTitle').textContent=autoTitle(o)||'Order';$('buyOrderSummary').textContent=buySummaryText(o);$('buyAdd').lastChild.nodeValue='Add to Need to Buy';$('buyOverlay').classList.add('show');}
+  function buySetOrderStatus(o,status){o.buyStatus=status;o.buyUpdatedAt=Date.now();o.updatedAt=Date.now();render();persist();}
+  function buyAddOrder(){var o=getOrder(_buyOrderId);if(!o)return;$('buyAdd').disabled=true;buyCloudRead().then(function(st){var active=st.lists.some(function(l){return l.orderId===o.id&&(l.lines||[]).some(function(x){return !x.doneAt;});});if(active){$('buyOverlay').classList.remove('show');toast('Already on Need to Buy');return null;}var now=Date.now();st.lists.push({id:'bt-'+now.toString(36)+'-'+Math.random().toString(36).slice(2,6),orderId:o.id,label:autoTitle(o)||'Order',createdAt:now,updatedAt:now,lines:buyOrderLines(o)});return buyCloudWrite(st).then(function(ok){buySetOrderStatus(o,'needed');$('buyOverlay').classList.remove('show');toast(ok?'Added to Need to Buy':'Saved here — cloud unavailable');});}).finally(function(){$('buyAdd').disabled=false;});}
+  function buyMarkOrderBought(){var o=getOrder(_buyOrderId);if(!o)return;$('buyBought').disabled=true;buyCloudRead().then(function(st){var now=Date.now();st.lists.forEach(function(l){if(l.orderId!==o.id)return;var changed=false;(l.lines||[]).forEach(function(x){if(!x.doneAt){x.doneAt=now;x.updatedAt=now;changed=true;}});if(changed)l.updatedAt=now;});return buyCloudWrite(st).then(function(){buySetOrderStatus(o,'bought');$('buyOverlay').classList.remove('show');toast('Shirts marked bought');});}).finally(function(){$('buyBought').disabled=false;});}
+  $('buyClose').addEventListener('click',function(){$('buyOverlay').classList.remove('show');});$('buyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});$('buyAdd').addEventListener('click',buyAddOrder);$('buyBought').addEventListener('click',buyMarkOrderBought);
+
+  function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
   function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
-  function forever(id){ var locked=getOrder(id); if(locked&&locked.permanentBuyNote)return; var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); _deletedIds[id]=true; render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);delete _deletedIds[id];render();persist();}); }
+  function forever(id){ var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); _deletedIds[id]=true; render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);delete _deletedIds[id];render();persist();}); }
 
   /* ===== chooser + editor ===== */
   var chooser=$('chooser'), overlay=$('overlay');
@@ -3631,8 +3539,8 @@
     if(!o.isQuote && o.type!=='NOTE'){
       var acts=wzEl('div','wz-acts');
       var pb=(o.buyStatus||'needed')==='bought';
-      var pbtn=wzEl('button','wz-act '+(pb?'buy-bought':'buy-needed'),pb?'Shirts Bought':'Shirts Not Bought'); pbtn.type='button';
-      pbtn.addEventListener('click',function(){ var id=o.id; wzClose(); toggleShirtsBought(id); var fresh=getOrder(id); if(fresh)openView(fresh); });
+      var pbtn=wzEl('button','wz-act '+(pb?'buy-bought':'buy-needed'),pb?'Shirts Bought':'Purchasing'); pbtn.type='button';
+      pbtn.addEventListener('click',function(){ var id=o.id; wzClose(); openBuyMenu(id); });
       acts.appendChild(pbtn);
       if(o.custEmail){ var em=wzEl('button','wz-act','Email Customer'); em.type='button'; em.addEventListener('click',function(){ var id=o.id; wzClose(); sendReadyEmail(id); }); acts.appendChild(em); }
       b.appendChild(acts);
@@ -4193,7 +4101,6 @@
   });
 
   function openEditor(id){ var o=getOrder(id); if(!o)return;
-    if(o.permanentBuyNote){openPermanentBuyNote();return;}
     if(!o.trashed){ openView(o); return; }                       // look at it first, edit on purpose
     editing=o; if(!o.images)o.images=[]; if(!o.items)o.items=[]; builder={size:'',color:'',surface:'',material:'',placement:'',qty:1}; fillModal(o); buildBar(o); overlay.classList.add('show'); }
   function fillModal(o){
@@ -5032,7 +4939,6 @@
         var mine={}; state.orders.forEach(function(o){ mine[o.id]=o; });
         var pulled=0;
         cloud.forEach(function(c){ if(!c||!c.id||_deletedIds[c.id])return; var m=mine[c.id]; if(!m){ state.orders.push(migrate(c)); pulled++; } else if(_freshness(c)>_freshness(m)){ state.orders[state.orders.indexOf(m)]=migrate(c); } });
-        ensurePermanentBuyNote();
         state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
         render();
         var blob=new Blob([JSON.stringify({v:11,orders:state.orders})],{type:'application/json'});
