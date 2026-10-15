@@ -286,29 +286,6 @@
   .hist-btn{ opacity:.55; } .hist-btn:hover{ opacity:1; }
   .hist-box{ background:var(--note); border-radius:16px; max-width:520px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); overflow:hidden; margin-top:6vh; animation:pop .17s ease-out; max-height:82vh; display:flex; flex-direction:column; }
   .hist-head{ display:flex; align-items:center; gap:12px; padding:16px 18px 12px; border-bottom:1px solid var(--line); }
-  .overlay .hist-head{flex:0 0 auto;}
-  /* Standard popup bodies scroll inside the popup instead of pushing the page behind it. */
-  .overlay .hist-box > .edit-opts,
-  .overlay .hist-box > .inv-list,
-  .overlay .hist-box > .health-list,
-  .overlay .hist-box > .ivm-body,
-  .overlay .hist-box > .lbl-body,
-  .overlay .hist-box > .dtf-scroll,
-  .overlay .hist-box > .paytool-body,
-  .overlay .hist-box > .hist-list,
-  .overlay .hist-box > .dc-scroll,
-  .overlay .hist-box > .goals-body,
-  .overlay .hist-box > #goalPickList,
-  .overlay .hist-box > .buy-body,
-  .overlay .hist-box > .cc-body,
-  .overlay .hist-box > .bt-body,
-  .overlay .hist-box > .so-body{
-    flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
-  }
-  @media(max-width:560px){
-    .overlay{padding:12px 10px;}
-    .overlay .hist-box{margin-top:0;max-height:calc(100dvh - 24px);}
-  }
   .hist-title{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase; letter-spacing:.025em; font-size:24px; font-weight:normal; line-height:1; color:var(--green); flex:1; }
   .hist-sum{ display:flex; gap:10px; padding:14px 18px; flex-wrap:wrap; }
   .hist-stat{ background:rgba(31,77,62,.08); border-radius:10px; padding:10px 14px; flex:1; min-width:120px; }
@@ -520,9 +497,8 @@
   body.view-tools #linksOverlay .hist-head{ display:none; }
   body.view-tools #linksOverlay .edit-opts{ padding:0; }
 
-  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; }
   .overlay.show{ display:flex; }
-  html.overlay-open,body.overlay-open{overflow:hidden!important;overscroll-behavior:none;}
   @media(max-width:560px){ .overlay{ padding:12px 10px; } }
 
   .chooser-box{ background:var(--note); border-radius:18px; padding:24px 22px 26px; max-width:440px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); margin-top:7vh; animation:pop .17s ease-out; }
@@ -900,54 +876,6 @@
   .dc-foot{margin-top:14px;color:var(--burgundy);opacity:.6;font:15px 'Teko',sans-serif;}
   @media(max-width:440px){.dc-scroll{padding:12px;}.dc-weekdays,.dc-grid{gap:3px;}.dc-day{min-height:53px;padding:6px 4px;}.dc-top h3{font-size:22px;}}
 
-  /* ===== Need to Buy ===== */
-  .bt-box{max-width:860px;width:min(94vw,860px);max-height:calc(100dvh - 56px);margin-top:0;}
-  .bt-body{padding:0 18px 20px;display:flex;flex-direction:column;gap:14px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
-  .bt-intro{font-family:'Teko',sans-serif;font-size:18px;line-height:1.15;color:var(--muted);}
-  .bt-compose{border:1.5px solid var(--line);border-radius:18px;background:var(--note);padding:14px;display:flex;flex-direction:column;gap:10px;}
-  .bt-label{font-family:'Teko',sans-serif;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
-  .bt-order-input,.bt-line input{width:100%;min-width:0;border:1.5px solid var(--line-strong);background:var(--paper);color:var(--ink);border-radius:12px;padding:11px 12px;font-family:'Teko',sans-serif;font-size:19px;line-height:1;outline:none;}
-  .bt-order-input:focus,.bt-line input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(36,76,58,.10);}
-  .bt-lines{display:flex;flex-direction:column;gap:8px;}
-  .bt-line{display:grid;grid-template-columns:minmax(0,1.45fr) 84px minmax(0,1.8fr) 36px;gap:7px;align-items:center;}
-  .bt-line .bt-qty{text-align:center;}
-  .bt-remove{height:40px;width:36px;border:0;background:transparent;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;border-radius:10px;}
-  .bt-remove:hover{background:rgba(120,70,55,.08);color:var(--red);}
-  .bt-compose-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-  .bt-add-line,.bt-save,.bt-new{border:1.5px solid var(--line-strong);border-radius:12px;background:transparent;color:var(--green);font-family:'Teko',sans-serif;font-size:18px;padding:9px 13px;cursor:pointer;}
-  .bt-save{margin-left:auto;background:var(--green);color:var(--cream);border-color:var(--green);min-width:104px;}
-  .bt-new{display:none;color:var(--burgundy);}
-  .bt-cloud{margin-left:auto;font-family:'Teko',sans-serif;font-size:15px;color:var(--muted);}
-  .bt-cloud.ok{color:var(--green);}.bt-cloud.fail{color:var(--red);}
-  .bt-list{display:flex;flex-direction:column;gap:10px;}
-  .bt-empty{padding:30px 12px;text-align:center;border:1.5px dashed var(--line-strong);border-radius:16px;font-family:'Teko',sans-serif;font-size:20px;color:var(--muted);}
-  .bt-card{border:1.5px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden;}
-  .bt-card-head{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line);background:var(--note);}
-  .bt-card-title{min-width:0;flex:1;font-family:'Teko',sans-serif;font-size:22px;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .bt-linked{font-family:'Teko',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--brown);opacity:.72;}
-  .bt-edit{border:0;background:transparent;color:var(--muted);font-family:'Teko',sans-serif;font-size:17px;cursor:pointer;padding:5px 7px;border-radius:8px;}
-  .bt-edit:hover{background:rgba(36,76,58,.07);color:var(--green);}
-  .bt-delete{width:34px;height:34px;flex:0 0 34px;border:0;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;border-radius:9px;}
-  .bt-delete:hover{background:rgba(138,43,43,.08);color:var(--red);}
-  .bt-delete svg{width:17px;height:17px;}
-  .bt-all-bought{border:1px solid rgba(71,121,88,.30);border-radius:9px;background:rgba(71,121,88,.08);color:var(--green);font-family:'Teko',sans-serif;font-size:16px;line-height:1;padding:7px 9px;cursor:pointer;white-space:nowrap;}
-  .bt-all-bought:hover{background:rgba(71,121,88,.16);}
-  .bt-item{display:grid;grid-template-columns:minmax(0,1fr) auto 42px;gap:9px;align-items:center;padding:11px 13px;border-top:1px solid var(--line);}
-  .bt-item:first-child{border-top:0;}
-  .bt-item-main{min-width:0;}
-  .bt-item-name{font-family:'Teko',sans-serif;font-size:20px;color:var(--ink);line-height:1.05;overflow-wrap:anywhere;}
-  .bt-item-notes{font-family:'Teko',sans-serif;font-size:16px;color:var(--muted);line-height:1.1;margin-top:3px;overflow-wrap:anywhere;}
-  .bt-item-qty{font-family:'Teko',sans-serif;font-size:18px;color:var(--brown);white-space:nowrap;}
-  .bt-bought{width:38px;height:38px;border-radius:11px;border:1.5px solid rgba(71,121,88,.35);background:rgba(71,121,88,.08);color:var(--green);display:grid;place-items:center;cursor:pointer;}
-  .bt-bought:hover{background:rgba(71,121,88,.16);}
-  @media(max-width:620px){
-    .bt-box,.so-box{max-height:calc(100dvh - 24px);}
-    .bt-body{padding:0 12px 16px}.bt-compose{padding:11px}.bt-line{grid-template-columns:minmax(0,1fr) 66px 36px}.bt-line .bt-notes{grid-column:1 / span 2}.bt-save{margin-left:0;flex:1}.bt-item{grid-template-columns:minmax(0,1fr) 38px}.bt-item-qty{grid-column:1;grid-row:2}.bt-bought{grid-column:2;grid-row:1 / span 2}
-  }
-
-
-  /* Smart Orders beta */
-  .so-box{max-width:760px;width:min(760px,96vw);max-height:calc(100dvh - 56px);margin-top:0}.so-body{padding:14px 16px 20px;display:grid;gap:12px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.so-beta{margin-left:8px;font:600 14px Teko,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--brown);background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:3px 8px}.so-note{font:400 19px Teko,sans-serif;color:var(--muted)}.so-search{margin:0!important}.so-list{display:grid;gap:10px}.so-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px;display:grid;gap:10px}.so-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}.so-name{font:600 24px Teko,sans-serif;color:var(--ink);line-height:1.05;min-width:0;overflow-wrap:anywhere}.so-id{font:500 13px Teko,sans-serif;letter-spacing:.055em;color:var(--muted);white-space:nowrap}.so-meta{font:400 17px Teko,sans-serif;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}.so-states{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.so-state{border:1px solid var(--line);border-radius:10px;padding:7px 8px;min-width:0}.so-state small{display:block;font:500 11px Teko,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.so-state b{display:block;font:600 16px Teko,sans-serif;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.so-state.good{background:#eef6ef;border-color:#bcd6c1}.so-state.bad{background:#fff0ee;border-color:#efc0ba}.so-state.warn{background:#fff6e8;border-color:#ead0a5}.so-actions{display:flex;gap:8px;flex-wrap:wrap}.so-actions button,.so-actions a{min-height:38px;border:1px solid var(--line);border-radius:10px;background:var(--cream);color:var(--ink);font:600 16px Teko,sans-serif;padding:7px 11px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.so-actions .primary{background:var(--green);border-color:var(--green);color:#fff}.so-empty{padding:24px 8px;text-align:center;font:400 20px Teko,sans-serif;color:var(--muted)}@media(max-width:560px){.so-states{grid-template-columns:repeat(2,minmax(0,1fr))}.so-box{width:100%;max-height:calc(100dvh - 24px)}.so-id{font-size:12px}}
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -1298,10 +1226,6 @@
         </div>
       </div>
       <div class="sales-section">Sales</div>
-      <button class="edit-opt" id="smartOrdersOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v13H4z"/><path d="M8 9h8M8 12.5h5M8 16h3"/><circle cx="18" cy="16" r="2.2"/></svg></span>
-        <span class="eo-t">Smart Orders <span style="opacity:.55;text-transform:none;letter-spacing:0">Beta</span></span>
-      </button>
       <button class="edit-opt" id="invoiceOpen" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.8h8.6L19 7.2V21.2H6z"/><path d="M14.4 2.8v4.6H19"/><path d="M9 12h7M9 15.5h7M9 19h4.2"/></svg></span>
         <span class="eo-t">Invoice Maker</span>
@@ -1326,10 +1250,6 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M8 18h3"/></svg></span>
         <span class="eo-t">Due Dates</span>
       </button>
-      <button class="edit-opt" id="needBuyOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></span>
-        <span class="eo-t">Need to Buy</span>
-      </button>
       <div class="sales-section">Office</div>
       <button class="edit-opt" id="invOpen" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path></svg></span>
@@ -1347,44 +1267,6 @@
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></svg></span>
         <span class="eo-t">Health check</span>
       </button>
-    </div>
-  </div>
-</div>
-
-
-<!-- SMART ORDERS BETA -->
-<div class="overlay" id="smartOrdersOverlay">
-  <div class="hist-box so-box" onclick="event.stopPropagation()">
-    <div class="hist-head"><span class="hist-title">Smart Orders</span><span class="so-beta">Beta</span><button class="icon-btn" id="smartOrdersClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <div class="so-body"><div class="so-note">One order record connects production, blanks, invoice and payment.</div><input class="email-to so-search" id="smartOrdersSearch" type="search" placeholder="Search customer or order" autocomplete="off"><div class="so-list" id="smartOrdersList"></div></div>
-  </div>
-</div>
-
-
-<!-- NEED TO BUY -->
-<div class="overlay" id="needBuyOverlay">
-  <div class="hist-box bt-box" onclick="event.stopPropagation()">
-    <div class="hist-head">
-      <span class="hist-title">Need to Buy</span>
-      <span class="bt-cloud" id="btCloudStatus">Shared</span>
-      <button class="icon-btn" id="needBuyClose" title="Close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    </div>
-    <div class="bt-body">
-      <div class="bt-intro">A shared shopping list for blanks and supplies. Type only what you need.</div>
-      <div class="bt-compose">
-        <div>
-          <div class="bt-label">Order / customer <span style="text-transform:none;letter-spacing:0;opacity:.65">optional</span></div>
-          <input class="bt-order-input" id="btOrder" type="text" maxlength="100" placeholder="Order or customer" autocomplete="off">
-        </div>
-        <div class="bt-label">Items</div>
-        <div class="bt-lines" id="btDraftLines"></div>
-        <div class="bt-compose-actions">
-          <button class="bt-add-line" id="btAddLine" type="button">+ Add item</button>
-          <button class="bt-new" id="btNew" type="button">New list</button>
-          <button class="bt-save" id="btSave" type="button">Save</button>
-        </div>
-      </div>
-      <div class="bt-list" id="btList"></div>
     </div>
   </div>
 </div>
@@ -1682,7 +1564,6 @@
     </div>
     <div class="paytool-body">
       <div id="takePayForm">
-        <label class="ivm-f"><span class="ivm-lbl">Order <span style="text-transform:none;letter-spacing:0;opacity:.65">optional</span></span><select class="wz-sel ivm-sel" id="takePayOrder" aria-label="Link payment to an order"></select></label>
         <div class="paytool-tabs" role="group" aria-label="Payment method">
           <button class="paytool-tab on" id="takePayCardTab" type="button">Card</button>
           <button class="paytool-tab" id="takePayAchTab" type="button">ACH · Bank</button>
@@ -2206,59 +2087,6 @@
 
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-
-  /* Keep the page behind every standard popup still. The popup/overlay remains
-     the scroll surface, so mobile swipes cannot accidentally move Orders behind it. */
-  function syncOverlayScrollLock(){
-    var open=!!document.querySelector('.overlay.show');
-    document.documentElement.classList.toggle('overlay-open',open);
-    document.body.classList.toggle('overlay-open',open);
-  }
-  (function initOverlayScrollLock(){
-    var overlays=document.querySelectorAll('.overlay');
-    if(!overlays.length)return;
-    var obs=new MutationObserver(syncOverlayScrollLock);
-    overlays.forEach(function(el){obs.observe(el,{attributes:true,attributeFilter:['class']});});
-    syncOverlayScrollLock();
-  })();
-
-
-  /* ===================== Smart Orders beta =====================
-     The visible customer name stays the same. smartId is the business identity
-     shared by invoices, payments and office tools. Quotes and notes do not get
-     a smartId until they become a real order. */
-  var _smartMigrated=false;
-  function smartPad(n,w){ return String(n).padStart(w||2,'0'); }
-  function smartIdFor(ts){
-    var d=new Date(+ts||Date.now());
-    return 'BC-'+d.getFullYear()+smartPad(d.getMonth()+1)+smartPad(d.getDate())+'-'+smartPad(d.getHours())+smartPad(d.getMinutes());
-  }
-  function smartEligible(o){ return !!(o && !o.isQuote && o.type!=='NOTE'); }
-  function smartEnsure(o){
-    if(!o || !smartEligible(o)) return o;
-    if(!o.smart || typeof o.smart!=='object') o.smart={};
-    var wanted=smartIdFor(o.createdAt||Date.now());
-    /* Beta IDs originally included seconds + milliseconds. Keep the old value
-       only as a hidden alias so an already-created Square note can still match,
-       while the visible order/invoice number stays simple. */
-    if(!o.smartId){
-      o.smartId=wanted; _smartMigrated=true;
-    }else if(/^BC-\d{8}-\d{6}-\d{3}$/.test(o.smartId)){
-      if(o.smartId!==wanted){
-        if(!Array.isArray(o.smart.aliases))o.smart.aliases=[];
-        if(o.smart.aliases.indexOf(o.smartId)<0)o.smart.aliases.push(o.smartId);
-      }
-      o.smartId=wanted; _smartMigrated=true;
-    }
-    o.smart.v=1;
-    if(!o.smart.invoice || typeof o.smart.invoice!=='object') o.smart.invoice=null;
-    if(!o.smart.payment || typeof o.smart.payment!=='object') o.smart.payment=null;
-    return o;
-  }
-  function smartQty(o){
-    return (o&&Array.isArray(o.items)?o.items:[]).filter(function(it){return !!(it&&(it.size||it.color||it.surface||it.material||it.placement||(it.name&&String(it.name).trim())));}).length;
-  }
-  function smartMoney(c){ return '$'+((Math.max(0,+c||0))/100).toFixed(2); }
 
   /* ===================== Today's goals =====================
      A short list of what you mean to get done today. Stored in the same
@@ -2868,7 +2696,7 @@
         if(_cloudDaily){ mergeDaily(_cloudDaily); renderGoals(); }
         if(_cloudInv){ mergeInv(_cloudInv); if($('invOverlay')&&$('invOverlay').classList.contains('show')) renderInv(); }
       }
-      var blob=new Blob([JSON.stringify({v:11,orders:state.orders,daily:state.daily,inv:state.inv})],{type:'application/json'});
+      var blob=new Blob([JSON.stringify({v:10,orders:state.orders,daily:state.daily,inv:state.inv})],{type:'application/json'});
       sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
         _saving=false;
         if(r&&r.error){
@@ -2920,7 +2748,8 @@
           var recovered=recoverDraftsToBoard();
           render();
           wireGoals();
-          if(rolled||recovered||_smartMigrated){ _smartMigrated=false; persist(); }
+          if(rolled)persist();
+          if(recovered)persist();
           startAutoRefresh();
           setTimeout(artCacheTidy, 15000);
         }catch(e){ _loaded=true; showInitialLoadError(); }
@@ -2986,7 +2815,6 @@
     if(o.payLocked===undefined)o.payLocked=(o.source==='online');
     if(o.balanceDue===undefined)o.balanceDue='';
     if(o.buyStatus===undefined)o.buyStatus='needed';
-    smartEnsure(o);
     delete o.isNew; return o;
   }
   function purgeOld(){
@@ -3384,7 +3212,7 @@
   chooser.querySelectorAll('button[data-type]').forEach(function(b){ b.addEventListener('click',function(){ chooser.classList.remove('show'); openEditorNew(b.getAttribute('data-type')); }); });
 
   // the blank order every new order starts from (editor and phone screen alike)
-  function newOrderObject(type){ var now=Date.now(), o={ id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',buyStatus:'needed',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:now,updatedAt:now,isNew:true,drafting:true }; return smartEnsure(o); }
+  function newOrderObject(type){ return { id:uid(),type:type,title:'',custName:'',custPhone:'',custEmail:'',contact:'',body:'',urgency:'norush',designReady:false,stage:'New',payStatus:'',balanceDue:'',items:[],images:[],due:'',duePreset:'',trashed:false,trashedAt:null,source:'manual',createdAt:Date.now(),updatedAt:Date.now(),isNew:true,drafting:true }; }
   function openEditorNew(type){
     editing=newOrderObject(type);
     builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
@@ -4613,7 +4441,7 @@
   // Broch Custom page. They never need access to the Orders app.
   var TP_APP='sq0idp-H__K6WmTStJPbJoD6GowAQ', TP_LOC='L7P3B9WSYB3DY', TP_ENDPOINT='/api/manual-payment';
   var TP_CARD_RATE=.03, TP_CARD_FIXED=.30, TP_ACH_RATE=.01, TP_ACH_MIN=1, TP_ACH_MAX=5;
-  var tpMethod='card', tpPayments=null, tpCard=null, tpLoading=false, tpOrderId=null;
+  var tpMethod='card', tpPayments=null, tpCard=null, tpLoading=false;
   function tpMoney(n){ return '$'+(Math.max(0,n)||0).toFixed(2); }
   function tpBase(){ return Math.max(0,parseFloat(($('takePayAmount').value||'').replace(/[^0-9.]/g,''))||0); }
   function tpCharge(){
@@ -4642,13 +4470,11 @@
       : 'Creates a secure customer link. The customer opens it on their own device, connects their bank through Square/Plaid, and pays the amount shown here. ACH normally stays pending for about 2–3 business days.';
     $('takePayStatus').textContent='';
   }
-  function tpOrderHTML(){ var list=state.orders.filter(function(o){return smartEligible(o)&&!o.trashed;}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);}).slice(0,100),h='<option value="">No linked order</option>'; list.forEach(function(o){h+='<option value="'+esc(o.id)+'">'+esc((autoTitle(o)||'Order')+' · '+(o.smartId||'')+' · '+smartQty(o)+' items')+'</option>';}); return h; }
-  function tpBalanceForOrder(o){ if(!o)return 0; if(o.smart&&o.smart.invoice&&Number.isFinite(+o.smart.invoice.balanceCents))return Math.max(0,+o.smart.invoice.balanceCents)/100; var b=parseFloat(o.balanceDue); return isFinite(b)&&b>0?b:0; }
-  function tpUseOrder(id){ tpOrderId=id||null; var o=tpOrderId?getOrder(tpOrderId):null; $('takePayOrder').value=o?o.id:''; if(!o)return; $('takePayName').value=o.custName||''; $('takePayEmail').value=o.custEmail||''; var bal=tpBalanceForOrder(o); if(bal>0)$('takePayAmount').value=bal.toFixed(2); tpPaint(); }
-  function tpReset(orderId){ tpMethod='card'; tpOrderId=null; $('takePayAmount').value=''; $('takePayName').value=''; $('takePayEmail').value=''; $('takePayOrder').innerHTML=tpOrderHTML(); $('takePayForm').hidden=false; $('takePaySuccess').hidden=true; $('takePaySubmit').disabled=false; $('takePayLinkActions').hidden=true; $('takePayLinkActions').style.display='none'; $('takePayLink').value=''; if(orderId)tpUseOrder(orderId); else tpPaint(); }
-  function smartPaymentNote(kind){ var o=tpOrderId?getOrder(tpOrderId):null; return o?('Order '+o.smartId+' · '+kind):('Broch Custom '+kind); }
-  function smartInvoicePaidSync(o,baseCents){ try{ if(!o||!baseCents||typeof ivmRecent!=='function')return; var rec=ivmRecent().filter(function(r){return r&&r.data&&r.data.orderId===o.id;})[0]; if(!rec)return; var data=JSON.parse(JSON.stringify(rec.data)),T=ivmTotals(data),cur=ivmCents(data.paid),next=Math.min(T.total,cur+baseCents); if(next===cur)return; data.paid=(next/100).toFixed(2); data.updatedAt=Date.now(); var ent=ivmEntry(data,data.updatedAt); _ivmCloud=ivmMergeLists(_ivmCloud,[ent]); ivmLS(IVM_RECENT,ivmMergeLists(ivmLocalRecent(),[ent]).slice(0,25)); ivmCloudQueue(true,data); if(ivm&&ivm.orderId===o.id){ivm=data;ivmFill();} }catch(e){} }
-  function smartRecordPayment(o,baseCents,totalCents,method,paymentId,status,link){ if(!o)return; smartEnsure(o); var now=Date.now(),p=o.smart.payment||{},ids=Array.isArray(p.ids)?p.ids.slice():[]; if(paymentId&&ids.indexOf(paymentId)>=0)return; if(paymentId)ids.push(paymentId); var completed=(status==='COMPLETED'||status==='paid'||status==='completed'),paid=+p.paidCents||0; if(completed)paid+=Math.max(0,+baseCents||0); p={status:completed?'completed':(status||'link_created'),method:method||p.method||'',baseCents:+baseCents||+p.baseCents||0,totalCents:+totalCents||+p.totalCents||0,paidCents:paid,ids:ids,link:link||p.link||'',updatedAt:now}; o.smart.payment=p; var due=o.smart.invoice&&+o.smart.invoice.totalCents?Math.max(0,+o.smart.invoice.totalCents-paid):0; if(completed){o.payStatus=due>0?'deposit':'paid';o.balanceDue=due>0?(due/100).toFixed(2):'';smartInvoicePaidSync(o,Math.max(0,+baseCents||0));} o.updatedAt=now;persist(); }
+  function tpReset(){
+    tpMethod='card'; $('takePayAmount').value=''; $('takePayName').value=''; $('takePayEmail').value='';
+    $('takePayForm').hidden=false; $('takePaySuccess').hidden=true; $('takePaySubmit').disabled=false;
+    $('takePayLinkActions').hidden=true; $('takePayLinkActions').style.display='none'; $('takePayLink').value=''; tpPaint();
+  }
   function tpSleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
   function tpLoadSquare(forceReload){
     return new Promise(function(resolve,reject){
@@ -4708,13 +4534,12 @@
     try{
       if(tpMethod==='ach'){
         $('takePayStatus').textContent='Creating secure ACH link…';
-        var lr=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createAchLink',amountCents:Math.round(x.total*100),email:email,name:name,note:smartPaymentNote('ACH payment')})});
+        var lr=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createAchLink',amountCents:Math.round(x.total*100),email:email,name:name,note:'Broch Custom ACH payment'})});
         var ld=await lr.json(); if(!lr.ok||!ld.ok||!ld.url) throw new Error(ld.error||'Could not create ACH link.');
         $('takePayForm').hidden=true; $('takePaySuccess').hidden=false; $('takePaySuccessAmt').textContent=tpMoney(x.total);
         $('takePaySuccessTitle').textContent='ACH link ready';
         $('takePaySuccessMsg').textContent='Send this link to the customer. They will connect their bank securely through Square/Plaid on their own device.';
         $('takePayLink').value=ld.url; $('takePayLinkActions').hidden=false; $('takePayLinkActions').style.display='grid';
-        var ao=tpOrderId?getOrder(tpOrderId):null; if(ao)smartRecordPayment(ao,Math.round(x.base*100),Math.round(x.total*100),'ach','', 'link_created',ld.url);
         return;
       }
       $('takePayStatus').textContent='Processing…';
@@ -4727,12 +4552,11 @@
         billingContact:{givenName:parts[0]||'',familyName:parts.slice(1).join(' '),email:email}
       });
       if(!result||result.status!=='OK') throw new Error('Card was not accepted. Check the details and retry.');
-      var res=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceId:result.token,amountCents:Math.round(x.total*100),email:email,note:smartPaymentNote('card payment')})});
+      var res=await fetch(TP_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceId:result.token,amountCents:Math.round(x.total*100),email:email,note:'Orders app · card payment'})});
       var data=await res.json(); if(!res.ok||!data.ok) throw new Error(data.error||'Payment did not go through.');
       $('takePayForm').hidden=true; $('takePaySuccess').hidden=false; $('takePaySuccessAmt').textContent=tpMoney(x.total);
       $('takePaySuccessTitle').textContent='Payment received';
       $('takePaySuccessMsg').textContent='Square completed the payment.'+(data.receipt?' Receipt '+data.receipt+'.':'');
-      var co=tpOrderId?getOrder(tpOrderId):null; if(co)smartRecordPayment(co,Math.round(x.base*100),Math.round(x.total*100),'card',data.id||'',data.status||'COMPLETED','');
     }catch(e){ $('takePayStatus').textContent=e.message||String(e); $('takePaySubmit').disabled=false; }
   }
   async function tpCopyLink(){
@@ -4746,7 +4570,6 @@
     tpCopyLink();
   }
   $('takePayOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('takePayOverlay').classList.add('show'); tpReset(); setTimeout(tpInitSquare,30); });
-  $('takePayOrder').addEventListener('change',function(){tpUseOrder(this.value);});
   $('takePayClose').addEventListener('click',function(){ $('takePayOverlay').classList.remove('show'); });
   $('takePayOverlay').addEventListener('click',function(e){ if(e.target===$('takePayOverlay')) $('takePayOverlay').classList.remove('show'); });
   $('takePayCardTab').addEventListener('click',function(){ tpMethod='card'; tpPaint(); setTimeout(tpInitSquare,20); });
@@ -4844,116 +4667,6 @@
   $('dcToday').onclick=function(){dcMonth=new Date();dcMonth.setDate(1);dcSelection=isoToday();dcRender();};
 
   $('sizesOpen').addEventListener('click',function(){ $('linksOverlay').classList.remove('show'); $('dtfOverlay').classList.add('show'); });
-
-
-
-  // ── Need to Buy: tiny shared purchasing list for the sales team ─────────────
-  var BT_LOCAL='bc-need-to-buy-v1', BT_CLOUD_FILE='_office/need-to-buy.json';
-  var btState={lists:[],deleted:{}}, btReady=false, btEditId=null, btDraft=[];
-  function btStatus(text,kind){ var e=$('btCloudStatus'); if(!e)return; e.textContent=text||'Shared'; e.classList.remove('ok','fail'); if(kind)e.classList.add(kind); }
-  function btNorm(raw){
-    raw=raw&&typeof raw==='object'?raw:{}; var dels=raw.deleted&&typeof raw.deleted==='object'?raw.deleted:{};
-    var lists=(Array.isArray(raw.lists)?raw.lists:[]).filter(function(x){return x&&x.id;}).map(function(x){
-      return {id:String(x.id),orderId:x.orderId||'',label:String(x.label||''),createdAt:+x.createdAt||Date.now(),updatedAt:+x.updatedAt||0,
-        lines:(Array.isArray(x.lines)?x.lines:[]).filter(function(l){return l&&l.id;}).map(function(l){return {id:String(l.id),item:String(l.item||''),qty:String(l.qty||''),notes:String(l.notes||''),doneAt:+l.doneAt||0,updatedAt:+l.updatedAt||0};})};
-    });
-    return {lists:lists,deleted:dels};
-  }
-  function btMerge(a,b){
-    a=btNorm(a); b=btNorm(b); var del={}, map={};
-    [a.deleted,b.deleted].forEach(function(d){Object.keys(d||{}).forEach(function(id){del[id]=Math.max(+del[id]||0,+d[id]||0);});});
-    a.lists.concat(b.lists).forEach(function(x){if((del[x.id]||0)>=(x.updatedAt||0))return; var m=map[x.id]; if(!m||(x.updatedAt||0)>(m.updatedAt||0))map[x.id]=x;});
-    return {lists:Object.keys(map).map(function(k){return map[k];}).sort(function(x,y){return (y.updatedAt||0)-(x.updatedAt||0);}),deleted:del};
-  }
-  function btLocalRead(){try{return btNorm(JSON.parse(localStorage.getItem(BT_LOCAL)||'null'));}catch(_){return btNorm(null);}}
-  function btLocalWrite(){try{localStorage.setItem(BT_LOCAL,JSON.stringify(btState));}catch(_){}}
-  function btCloudRead(){
-    if(!sb)return Promise.resolve(btNorm(null));
-    return sb.storage.from(BUCKET).download(BT_CLOUD_FILE+'?t='+Date.now()).then(function(r){
-      if(!r||!r.data)return btNorm(null); return r.data.text().then(function(t){try{return btNorm(JSON.parse(t));}catch(_){return btNorm(null);}});
-    }).catch(function(){return btNorm(null);});
-  }
-  function btCloudPush(){
-    btLocalWrite(); btStatus(sb?'Saving…':'On this device'); if(!sb)return Promise.resolve(false);
-    return btCloudRead().then(function(remote){
-      btState=btMerge(remote,btState); btLocalWrite();
-      var blob=new Blob([JSON.stringify({v:1,updatedAt:Date.now(),lists:btState.lists,deleted:btState.deleted})],{type:'application/json'});
-      return sb.storage.from(BUCKET).upload(BT_CLOUD_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
-        if(r&&r.error){btStatus('Not saved','fail');return false;} btStatus('Shared','ok'); btRender(); return true;
-      }).catch(function(){btStatus('Not saved','fail');return false;});
-    });
-  }
-  function btActiveLines(list){return (list.lines||[]).filter(function(l){return !l.doneAt;});}
-  function btResetDraft(){btEditId=null;btDraft=[{item:'',qty:'',notes:''}];$('btOrder').value='';$('btNew').style.display='none';btRenderDraft();}
-  function btRenderDraft(){
-    var box=$('btDraftLines'); if(!box)return; if(!btDraft.length)btDraft=[{item:'',qty:'',notes:''}]; box.innerHTML='';
-    btDraft.forEach(function(row,i){
-      var el=document.createElement('div'); el.className='bt-line';
-      el.innerHTML='<input class="bt-item-in" type="text" maxlength="120" placeholder="Item" autocomplete="off">'+
-        '<input class="bt-qty" type="text" maxlength="30" placeholder="Qty" autocomplete="off">'+
-        '<input class="bt-notes" type="text" maxlength="240" placeholder="Notes" autocomplete="off">'+
-        '<button class="bt-remove" type="button" title="Remove" aria-label="Remove item">×</button>';
-      var ins=el.querySelectorAll('input'); ins[0].value=row.item||''; ins[1].value=row.qty||''; ins[2].value=row.notes||'';
-      ins[0].oninput=function(){row.item=this.value;}; ins[1].oninput=function(){row.qty=this.value;}; ins[2].oninput=function(){row.notes=this.value;};
-      el.querySelector('.bt-remove').onclick=function(){ if(btDraft.length===1){btDraft[0]={item:'',qty:'',notes:''};} else btDraft.splice(i,1); btRenderDraft(); };
-      box.appendChild(el);
-    });
-  }
-  function btRender(){
-    var box=$('btList'); if(!box)return; var active=btState.lists.map(function(l){return {list:l,lines:btActiveLines(l)};}).filter(function(x){return x.lines.length;});
-    if(!active.length){box.innerHTML='<div class="bt-empty">Nothing to buy right now.</div>';return;}
-    box.innerHTML=active.map(function(x){var l=x.list;
-      return '<div class="bt-card" data-bt-list="'+esc(l.id)+'"><div class="bt-card-head"><div class="bt-card-title">'+esc(l.label||'Shopping list')+'</div>'+(l.orderId?'<span class="bt-linked">Order</span><button class="bt-all-bought" type="button" data-bt-all-bought="'+esc(l.id)+'">Shirts Bought</button>':'')+'<button class="bt-edit" type="button" data-bt-edit="'+esc(l.id)+'">Edit</button><button class="bt-delete" type="button" data-bt-delete="'+esc(l.id)+'" title="Delete list" aria-label="Delete shopping list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div><div>'+x.lines.map(function(it){return '<div class="bt-item" data-bt-line="'+esc(it.id)+'"><div class="bt-item-main"><div class="bt-item-name">'+esc(it.item||'Item')+'</div>'+(it.notes?'<div class="bt-item-notes">'+esc(it.notes)+'</div>':'')+'</div>'+(it.qty?'<div class="bt-item-qty">'+esc(it.qty)+'</div>':'<div></div>')+'<button class="bt-bought" type="button" title="Bought" aria-label="Mark bought"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></button></div>';}).join('')+'</div></div>';
-    }).join('');
-  }
-  function btOpen(){
-    $('linksOverlay').classList.remove('show'); $('needBuyOverlay').classList.add('show'); btResetDraft();
-    if(btReady){btRender();return;} btState=btLocalRead();btRender();btStatus(sb?'Loading…':'On this device');
-    btCloudRead().then(function(remote){btState=btMerge(remote,btState);btLocalWrite();btReady=true;btRender();btStatus('Shared','ok'); if(JSON.stringify(btState)!==JSON.stringify(remote))btCloudPush();});
-  }
-  function btSaveDraft(){
-    var label=$('btOrder').value.trim(); var rows=btDraft.map(function(r){return {item:(r.item||'').trim(),qty:(r.qty||'').trim(),notes:(r.notes||'').trim()};}).filter(function(r){return r.item||r.qty||r.notes;});
-    if(!rows.length){toast('Add an item first');return;}
-    var now=Date.now(), old=btEditId?btState.lists.filter(function(l){return l.id===btEditId;})[0]:null;
-    var kept=old?(old.lines||[]).filter(function(l){return l.doneAt;}):[];
-    var oldActive=old?btActiveLines(old):[];
-    var fresh=rows.map(function(r,i){var prior=oldActive[i];return {id:prior&&prior.id||('bti-'+now.toString(36)+'-'+i+'-'+Math.random().toString(36).slice(2,5)),item:r.item,qty:r.qty,notes:r.notes,doneAt:0,updatedAt:now};});
-    var list={id:old&&old.id||('bt-'+now.toString(36)+'-'+Math.random().toString(36).slice(2,6)),orderId:old&&old.orderId||'',label:label,createdAt:old&&old.createdAt||now,updatedAt:now,lines:kept.concat(fresh)};
-    btState.lists=btState.lists.filter(function(l){return l.id!==list.id;});btState.lists.push(list);btState=btMerge(btNorm(null),btState);btLocalWrite();btRender();btResetDraft();btCloudPush();toast('Added to Need to Buy');
-  }
-  function btEditList(id){
-    var l=btState.lists.filter(function(x){return x.id===id;})[0];if(!l)return;var lines=btActiveLines(l);btEditId=id;$('btOrder').value=l.label||'';btDraft=lines.length?lines.map(function(x){return {item:x.item,qty:x.qty,notes:x.notes};}):[{item:'',qty:'',notes:''}];$('btNew').style.display='';btRenderDraft();$('btOrder').focus();
-  }
-  function btSyncOrderStatus(list){
-    if(!list||!list.orderId)return;var o=getOrder(list.orderId);if(!o)return;var any=btActiveLines(list).length>0;o.buyStatus=any?'needed':'bought';o.buyUpdatedAt=Date.now();o.updatedAt=Date.now();persist();
-  }
-  function btBought(listId,lineId){
-    var l=btState.lists.filter(function(x){return x.id===listId;})[0];if(!l)return;var line=(l.lines||[]).filter(function(x){return x.id===lineId;})[0];if(!line)return;var now=Date.now();line.doneAt=now;line.updatedAt=now;l.updatedAt=now;btLocalWrite();btRender();btSyncOrderStatus(l);btCloudPush();toast('Bought');
-  }
-  function btBoughtAll(listId){
-    var l=btState.lists.filter(function(x){return x.id===listId;})[0];if(!l)return;var now=Date.now(),changed=false;(l.lines||[]).forEach(function(line){if(!line.doneAt){line.doneAt=now;line.updatedAt=now;changed=true;}});if(!changed)return;l.updatedAt=now;btLocalWrite();btRender();btSyncOrderStatus(l);btCloudPush();toast('Shirts marked bought');
-  }
-  function btDeleteList(listId){
-    var l=btState.lists.filter(function(x){return x.id===listId;})[0];if(!l)return;
-    if(!confirm('Delete this Need to Buy list?'))return;
-    var now=Date.now();
-    btState.deleted[listId]=Math.max(+btState.deleted[listId]||0,now);
-    btState.lists=btState.lists.filter(function(x){return x.id!==listId;});
-    if(btEditId===listId)btResetDraft();
-    btLocalWrite();btRender();btCloudPush();toast('List deleted');
-  }
-  $('needBuyOpen').addEventListener('click',btOpen);
-  $('needBuyClose').addEventListener('click',function(){$('needBuyOverlay').classList.remove('show');});
-  $('needBuyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
-  $('btAddLine').addEventListener('click',function(){btDraft.push({item:'',qty:'',notes:''});btRenderDraft();var ins=$('btDraftLines').querySelectorAll('.bt-item-in');if(ins.length)ins[ins.length-1].focus();});
-  $('btSave').addEventListener('click',btSaveDraft); $('btNew').addEventListener('click',btResetDraft);
-  $('btList').addEventListener('click',function(e){
-    var card=e.target.closest&&e.target.closest('[data-bt-list]');if(!card)return;var listId=card.getAttribute('data-bt-list');
-    var all=e.target.closest('[data-bt-all-bought]');if(all){btBoughtAll(listId);return;}
-    var edit=e.target.closest('[data-bt-edit]');if(edit){btEditList(listId);return;}
-    var del=e.target.closest('[data-bt-delete]');if(del){btDeleteList(listId);return;}
-    var b=e.target.closest('.bt-bought');if(b){var row=b.closest('[data-bt-line]');if(row)btBought(listId,row.getAttribute('data-bt-line'));}
-  });
 
   // ── Color Codes: shared print-color reference ──────────────
   var CC_LOCAL='bc-color-codes-v1', CC_CLOUD_FILE='_office/color-codes.json';
@@ -5098,7 +4811,7 @@
         cloud.forEach(function(c){ if(!c||!c.id||_deletedIds[c.id])return; var m=mine[c.id]; if(!m){ state.orders.push(migrate(c)); pulled++; } else if(_freshness(c)>_freshness(m)){ state.orders[state.orders.indexOf(m)]=migrate(c); } });
         state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
         render();
-        var blob=new Blob([JSON.stringify({v:11,orders:state.orders})],{type:'application/json'});
+        var blob=new Blob([JSON.stringify({v:10,orders:state.orders})],{type:'application/json'});
         sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(u){ _lastSync=Date.now(); cb&&cb(u&&u.error?'fail':'ok', state.orders.length, pulled); }).catch(function(){ cb&&cb('fail', state.orders.length, pulled); });
       };
       if(r&&r.data) return r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))cloud=s.orders;}catch(e){} finish(); });
@@ -5267,16 +4980,6 @@
 
   $('healthClose').addEventListener('click',function(){ $('healthOverlay').classList.remove('show'); });
   $('healthOverlay').addEventListener('click',function(e){ if(e.target===$('healthOverlay')) $('healthOverlay').classList.remove('show'); });
-
-  // ── Smart Orders beta: one record, many tools ─────────────────
-  var _smartPaymentsChecked=false;
-  function smartInvoiceLabel(o){var i=o.smart&&o.smart.invoice;if(!i)return {txt:'No invoice',cls:'warn'};if(i.status==='paid'||(+i.balanceCents===0&&+i.totalCents>0))return {txt:'Invoice paid',cls:'good'};return {txt:'Invoice '+smartMoney(i.balanceCents||0),cls:'warn'};}
-  function smartPaymentLabel(o){if(o.payStatus==='paid')return {txt:'Paid',cls:'good'};if(o.payStatus==='deposit')return {txt:'Partial',cls:'warn'};var p=o.smart&&o.smart.payment;if(p&&p.status==='link_created')return {txt:'ACH link sent',cls:'warn'};return {txt:'Unpaid',cls:'bad'};}
-  function smartDueText(o){var d=dueInfo(o);return d?d.txt:'No due date';}
-  function renderSmartOrders(){var q=(($('smartOrdersSearch')&&$('smartOrdersSearch').value)||'').trim().toLowerCase(),list=state.orders.filter(function(o){return smartEligible(o)&&!o.trashed;}).sort(sortOrders);if(q)list=list.filter(function(o){return ((autoTitle(o)||'')+' '+(o.smartId||'')+' '+(o.type||'')).toLowerCase().indexOf(q)>=0;});var box=$('smartOrdersList');if(!box)return;if(!list.length){box.innerHTML='<div class="so-empty">No matching orders.</div>';return;}box.innerHTML=list.map(function(o){smartEnsure(o);var inv=smartInvoiceLabel(o),pay=smartPaymentLabel(o),bought=(o.buyStatus==='bought'),qty=smartQty(o);return '<div class="so-card"><div class="so-head"><div class="so-name">'+esc(autoTitle(o)||'Order')+'</div><div class="so-id">'+esc(o.smartId)+'</div></div><div class="so-meta"><span>'+esc(o.type||'Order')+'</span><span>· '+qty+' item'+(qty===1?'':'s')+'</span><span>· '+esc(smartDueText(o))+'</span></div><div class="so-states"><div class="so-state '+(bought?'good':'bad')+'"><small>Blanks</small><b>'+(bought?'Bought':'Need buying')+'</b></div><div class="so-state"><small>Production</small><b>'+esc(o.stage||'New')+'</b></div><div class="so-state '+inv.cls+'"><small>Invoice</small><b>'+esc(inv.txt)+'</b></div><div class="so-state '+pay.cls+'"><small>Payment</small><b>'+esc(pay.txt)+'</b></div></div><div class="so-actions"><button type="button" class="primary" data-smart-act="invoice" data-id="'+esc(o.id)+'">Invoice</button><button type="button" data-smart-act="payment" data-id="'+esc(o.id)+'">Payment</button><a href="/orders.html?order='+encodeURIComponent(o.id)+'">Open Order</a></div></div>';}).join('');}
-  function openSmartOrders(){$('linksOverlay').classList.remove('show');$('smartOrdersOverlay').classList.add('show');renderSmartOrders();if(!_smartPaymentsChecked){_smartPaymentsChecked=true;smartReconcilePayments();}}
-  function smartReconcilePayments(){fetch('/api/payments').then(function(r){return r.json();}).then(function(d){if(!d||!d.ok)return;var changed=false;(d.payments||[]).forEach(function(p){if(p.status!=='COMPLETED'||!p.note)return;var m=/\b(BC-\d{8}-(?:\d{4}|\d{6}-\d{3}))\b/.exec(p.note);if(!m)return;var o=state.orders.filter(function(x){return x&&(x.smartId===m[1]||(x.smart&&Array.isArray(x.smart.aliases)&&x.smart.aliases.indexOf(m[1])>=0));})[0];if(!o)return;smartEnsure(o);var cur=o.smart.payment||{},ids=Array.isArray(cur.ids)?cur.ids:[];if(ids.indexOf(p.id)>=0)return;var base=+cur.baseCents||0;if(!base&&o.smart.invoice)base=Math.min(+o.smart.invoice.balanceCents||0,+p.amount||0);smartRecordPayment(o,base,+p.amount||0,cur.method||'square',p.id,'COMPLETED',cur.link||'');changed=true;});if(changed)renderSmartOrders();}).catch(function(){});}
-  $('smartOrdersOpen').addEventListener('click',openSmartOrders);$('smartOrdersClose').addEventListener('click',function(){$('smartOrdersOverlay').classList.remove('show');});$('smartOrdersOverlay').addEventListener('click',function(e){if(e.target===$('smartOrdersOverlay'))$('smartOrdersOverlay').classList.remove('show');});$('smartOrdersSearch').addEventListener('input',renderSmartOrders);$('smartOrdersList').addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-smart-act]');if(!b)return;var id=b.getAttribute('data-id'),act=b.getAttribute('data-smart-act');if(act==='invoice'){$('smartOrdersOverlay').classList.remove('show');ivmOpen();Promise.resolve(typeof ivmCloudInit==='function'?ivmCloudInit():null).then(function(){ivmUseOrder(id);});}else if(act==='payment'){$('smartOrdersOverlay').classList.remove('show');$('takePayOverlay').classList.add('show');tpReset(id);setTimeout(tpInitSquare,30);}});
 
   // ── Customer emails: pick "order ready" or "payment received" ──
   var _emailOrderId=null;
@@ -5571,7 +5274,7 @@
   var IVM_TAX=0.0825, IVM_W=850, IVM_H=1100, IVM_M=60, IVM_R=790, IVM_EXPORT=2.4, IVM_LIMIT=1004;
   var IVM_SHOP={ city:'Edinburg, Texas', phone:'(956) 225-5859', email:'brochcustom@gmail.com', web:'brochcustom.com' };
   var IVM_SERVICES='ENGRAVING · PRINTING · EMBROIDERY';
-  var IVM_PAY=[['Check','Pay to: Carlos Broch',''],['Card','Credit or debit','https://brochcustom.com/#pay'],['Cash App','$BrochCustom','https://cash.app/$BrochCustom'],['Zelle','(956) 225-5859','https://brochcustom.com/#pay']];
+  var IVM_PAY=[['Check','Pay to: Carlos Broch'],['Card','Credit or debit'],['Cash App','$BrochCustom'],['Zelle','(956) 225-5859']];
   var IVM_SVC={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
   var IVM_GROUP={ DTF:'Printing', Embroidery:'Embroidery', Engraving:'Engraving', Sublimation:'Sublimation', Vinyl:'Vinyl' };
   var IVM_OFFER=['Embroidery','DTF','Engraving'];   // the only services offered when adding an item
@@ -5634,7 +5337,7 @@
   function ivmEntry(data,stamp){
     data=JSON.parse(JSON.stringify(data||{}));
     var at=stamp||data.updatedAt||Date.now(); data.updatedAt=at;
-    return { no:data.no||'', orderId:data.orderId||null, name:(data.cust&&data.cust.name||'').trim(), total:ivmTotals(data).total, at:at, data:data };
+    return { no:data.no||'', name:(data.cust&&data.cust.name||'').trim(), total:ivmTotals(data).total, at:at, data:data };
   }
   function ivmMergeLists(){
     var by={}, out=[];
@@ -5713,19 +5416,17 @@
     clearTimeout(_ivmSaveT);
     _ivmSaveT=setTimeout(function(){ if(ivm){ ivm.updatedAt=Date.now(); ivmLS(IVM_DRAFT,ivm); ivmCloudQueue(false); } },250);
   }
-  function smartLinkInvoice(data,saveOrder){ if(!data||!data.orderId)return; var o=getOrder(data.orderId); if(!o)return; smartEnsure(o); var T=ivmTotals(data),now=Date.now(); o.smart.invoice={no:data.no,totalCents:T.total,balanceCents:T.bal,paidCents:T.paid,status:T.bal<=0&&T.total>0?'paid':'open',updatedAt:now}; o.balanceDue=T.bal>0?(T.bal/100).toFixed(2):''; if(T.total>0){if(T.bal<=0)o.payStatus='paid';else if(T.paid>0)o.payStatus='deposit';else if(o.payStatus==='paid'||o.payStatus==='deposit')o.payStatus='unpaid';} o.updatedAt=now; if(saveOrder)persist(); }
   function ivmKeep(){
     if(!ivm||!ivmHasContent(ivm)) return;
     var stamp=Date.now(); ivm.updatedAt=stamp;
     var list=ivmMergeLists(ivmLocalRecent(),[ivmEntry(ivm,stamp)]);
     ivmLS(IVM_RECENT,list.slice(0,25));
     _ivmCloud=ivmMergeLists(_ivmCloud,list); ivmCloudQueue(true,JSON.parse(JSON.stringify(ivm)));
-    smartLinkInvoice(ivm,true);
   }
 
   // ── choices for the dropdowns ──
   function ivmOrderList(){
-    return state.orders.filter(function(o){ return smartEligible(o)&&!o.trashed&&(itemCount(o)||((o.custName||'').trim())); })
+    return state.orders.filter(function(o){ return o&&!o.trashed&&o.type!=='NOTE'&&(itemCount(o)||((o.custName||'').trim())); })
       .sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); }).slice(0,40);
   }
   function ivmOrderHTML(){
@@ -5733,7 +5434,7 @@
     var h='<option value="">'+(list.length?'Fill from an order…':'No orders to fill from yet')+'</option>';
     list.forEach(function(o){
       var n=itemCount(o);
-      h+='<option value="'+esc(o.id)+'">'+esc((autoTitle(o)||'Order')+' · '+(o.smartId||'')+' · '+(IVM_GROUP[o.type]||o.type||'Order')+(n?' · '+n+(n>1?' items':' item'):''))+'</option>';
+      h+='<option value="'+esc(o.id)+'">'+esc((autoTitle(o)||'Order')+' · '+(IVM_GROUP[o.type]||o.type||'Order')+(n?' · '+n+(n>1?' items':' item'):''))+'</option>';
     });
     return h;
   }
@@ -5769,7 +5470,6 @@
                   ['ivmNo',null,'no'],['ivmDate',null,'date'],['ivmTerms',null,'terms'],['ivmDiscount',null,'discount'],['ivmPaid',null,'paid'],['ivmNotes',null,'notes']];
   function ivmFill(){
     IVM_FIELDS.forEach(function(f){ var o=f[1]?ivm[f[1]]:ivm; $(f[0]).value=o[f[2]]||''; });
-    $('ivmNo').readOnly=!!ivm.orderId; $('ivmNo').title=ivm.orderId?'This invoice number is the Smart Order ID':'';
     if(!$('ivmTerms').value) $('ivmTerms').value='receipt';
     $('ivmTax').checked=!!ivm.tax;
     $('ivmRecent').innerHTML=ivmRecentHTML();
@@ -5982,14 +5682,7 @@
     ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'PAYMENT OPTIONS',M,ly,1.9); ly+=24;
     IVM_PAY.forEach(function(p){
       ctx.fillStyle=C.ink; ctx.font='600 16px '+F.serif; ctx.fillText(p[0],M,ly);
-      ctx.font='400 16px '+F.serif;
-      ctx.fillStyle=p[2]?C.forest:C.soft;
-      ctx.fillText(p[1],M+96,ly);
-      if(p[2]){
-        var pw=ctx.measureText(p[1]).width;
-        ctx.strokeStyle=C.forest; ctx.lineWidth=.8; ivmLine(ctx,M+96,ly+2,M+96+pw,ly+2);
-      }
-      ly+=20;
+      ctx.fillStyle=C.soft; ctx.font='400 16px '+F.serif; ctx.fillText(p[1],M+96,ly); ly+=20;
     });
     if(plan.notes.length){
       ly+=18; ctx.fillStyle=C.brown; ctx.font='500 12px '+F.label; ivmSpaced(ctx,'NOTES',M,ly,1.9); ly+=22;
@@ -6001,7 +5694,7 @@
     var C=IVM_C, F=IVM_F, M=IVM_M, R=IVM_R;
     ctx.strokeStyle=C.sand; ctx.lineWidth=1; ivmLine(ctx,M,1034,R,1034);
     ctx.fillStyle=C.caramel; ctx.font='500 11.5px '+F.label;
-    ivmSpaced(ctx,'RIO GRANDE VALLEY, TEXAS  ·  BROCHCUSTOM.COM',IVM_W/2,1058,2,'center');
+    ivmSpaced(ctx,'BROCH CUSTOM  ·  EDINBURG, TEXAS  ·  BROCHCUSTOM.COM',IVM_W/2,1058,2,'center');
     if(n>1){ ivmSpaced(ctx,String(x.no||''),M,1058,1.4); ivmSpaced(ctx,'PAGE '+(pi+1)+' OF '+n,R,1058,1.6,'right'); }
   }
   function ivmDraw(x,plan,i,k){
@@ -6028,23 +5721,8 @@
       },'image/jpeg',0.9);
     });
   }
-  function ivmPdfLinks(plan){
-    var out=plan.pages.map(function(){ return []; });
-    plan.pages.forEach(function(P,pi){
-      if(P.bottomY==null) return;
-      var ly=P.bottomY+26+24;
-      IVM_PAY.forEach(function(p){
-        if(p[2]) out[pi].push({ x:IVM_M, y:ly-17, w:360, h:22, url:p[2] });
-        ly+=20;
-      });
-    });
-    return out;
-  }
-  function ivmPdfBlob(jpegs,title,linksByPage){
-    linksByPage=linksByPage||[];
-    var parts=[], pos=0, offs=[], n=jpegs.length, annTotal=0, i;
-    linksByPage.forEach(function(a){ annTotal+=(a||[]).length; });
-    var total=3+3*n+annTotal;
+  function ivmPdfBlob(jpegs,title){
+    var parts=[], pos=0, offs=[], n=jpegs.length, total=3+3*n, i;
     function add(x){ if(typeof x==='string'){ var b=new Uint8Array(x.length); for(var j=0;j<x.length;j++) b[j]=x.charCodeAt(j)&255; x=b; } parts.push(x); pos+=x.length; }
     function obj(num,body){ offs[num]=pos; add(num+' 0 obj\n'); if(typeof body==='function') body(); else add(body); add('\nendobj\n'); }
     function str(s){ return '('+String(s).replace(/[^\x20-\x7e]/g,'').replace(/[\\()]/g,'\\$&')+')'; }
@@ -6054,29 +5732,13 @@
     obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
     obj(2,'<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+n+' >>');
     obj(3,'<< /Title '+str(title)+' /Author (BROCH CUSTOM) /Creator (BROCH CUSTOM Orders) /Producer (BROCH CUSTOM Orders) /CreationDate ('+stamp+') >>');
-    var nextAnnot=4+3*n, annRefs=[];
-    for(i=0;i<n;i++){
-      annRefs[i]=[];
-      (linksByPage[i]||[]).forEach(function(){ annRefs[i].push((nextAnnot++)+' 0 R'); });
-    }
     jpegs.forEach(function(J,k){
       var p=4+3*k, cs='q 612 0 0 792 0 0 cm /Im0 Do Q';
-      var ann=annRefs[k]&&annRefs[k].length?' /Annots ['+annRefs[k].join(' ')+']':'';
-      obj(p,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 '+(p+2)+' 0 R >> >> /Contents '+(p+1)+' 0 R'+ann+' >>');
+      obj(p,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 '+(p+2)+' 0 R >> >> /Contents '+(p+1)+' 0 R >>');
       obj(p+1,'<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream');
       obj(p+2,function(){
         add('<< /Type /XObject /Subtype /Image /Width '+J.w+' /Height '+J.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+J.bytes.length+' >>\nstream\n');
         add(J.bytes); add('\nendstream');
-      });
-    });
-    var ao=4+3*n;
-    linksByPage.forEach(function(links){
-      (links||[]).forEach(function(L){
-        var x1=L.x/IVM_W*612, x2=(L.x+L.w)/IVM_W*612;
-        var y1=792-(L.y+L.h)/IVM_H*792, y2=792-L.y/IVM_H*792;
-        obj(ao++,'<< /Type /Annot /Subtype /Link /Rect ['+
-          x1.toFixed(2)+' '+y1.toFixed(2)+' '+x2.toFixed(2)+' '+y2.toFixed(2)+
-          '] /Border [0 0 0] /A << /S /URI /URI '+str(L.url)+' >> >>');
       });
     });
     var xref=pos, s='xref\n0 '+(total+1)+'\n0000000000 65535 f \n';
@@ -6106,7 +5768,7 @@
     });
     return chain.then(function(){
       if(job!==_ivmPdfJob) return;
-      ivmPdf={ blob:ivmPdfBlob(jpegs,'Invoice '+snap.no+(snap.cust.name?' - '+snap.cust.name:''),ivmPdfLinks(plan)), name:ivmFileName(snap), no:snap.no, jpegs:jpegs };
+      ivmPdf={ blob:ivmPdfBlob(jpegs,'Invoice '+snap.no+(snap.cust.name?' - '+snap.cust.name:'')), name:ivmFileName(snap), no:snap.no, jpegs:jpegs };
       ivmButtons(true);
     }).catch(function(e){
       console.error('[invoice] pdf',e);
@@ -6175,8 +5837,21 @@
     var desc=b.getAttribute('data-ivm-desc')||'', price=b.hasAttribute('data-ivm-price')?b.getAttribute('data-ivm-price'):null;
     ivmAddLine(desc,price,false);
   });
-  function ivmUseOrder(id){ if(!id)return; var o=getOrder(id); if(!o||!smartEligible(o))return; smartEnsure(o); var existing=ivmRecent().filter(function(r){return r&&r.data&&r.data.orderId===o.id;})[0]; if(existing&&existing.data){ if(ivm&&ivmHasContent(ivm)&&ivm.orderId!==o.id)ivmKeep(); ivm=JSON.parse(JSON.stringify(existing.data));ivm.no=o.smartId;ivm.orderId=o.id;ivmFill();ivmChanged();ivmTab('edit');toast('Opened '+o.smartId);return;} var items=ivmFromOrder(o); if(items.length&&ivm.items.some(ivmItemHas)&&!confirm('Replace the items on this invoice with the ones from that order?'))return; var sameName=((o.custName||'').trim().toLowerCase()===(ivm.cust.name||'').trim().toLowerCase()); ivm.cust.name=o.custName||'';ivm.cust.phone=o.custPhone||'';ivm.cust.email=o.custEmail||''; if(!sameName){ivm.cust.company='';ivm.cust.addr='';} var a=parseShipTo(o.body); if(a&&(a.street||a.city))ivm.cust.addr=[a.street,a.city,[a.state,a.zip].filter(Boolean).join(' ')].filter(Boolean).join(', '); if(items.length)ivm.items=items; ivm.orderId=o.id;ivm.no=o.smartId;ivmFill();ivmChanged();smartLinkInvoice(ivm,false);toast(items.length?'Smart invoice ready — add prices if needed':'Customer linked to '+o.smartId); }
-  $('ivmFromOrder').addEventListener('change',function(){var id=this.value;this.value='';ivmUseOrder(id);});
+  $('ivmFromOrder').addEventListener('change',function(){
+    var id=this.value; this.value=''; if(!id) return;
+    var o=getOrder(id); if(!o) return;
+    var items=ivmFromOrder(o);
+    if(items.length&&ivm.items.some(ivmItemHas)&&!confirm('Replace the items on this invoice with the ones from that order?')) return;
+    var sameName=((o.custName||'').trim().toLowerCase()===(ivm.cust.name||'').trim().toLowerCase());
+    ivm.cust.name=o.custName||''; ivm.cust.phone=o.custPhone||''; ivm.cust.email=o.custEmail||'';
+    if(!sameName){ ivm.cust.company=''; ivm.cust.addr=''; }
+    var a=parseShipTo(o.body);
+    if(a&&(a.street||a.city)) ivm.cust.addr=[a.street,a.city,[a.state,a.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+    if(items.length) ivm.items=items;
+    ivm.orderId=o.id;
+    ivmFill(); ivmChanged();
+    toast(items.length?'Filled from the order — now add the prices':'Customer filled from the order');
+  });
   $('ivmRecent').addEventListener('change',function(){
     var no=this.value; this.value=''; if(!no) return;
     var r=ivmRecent().filter(function(x){ return x.no===no; })[0]; if(!r||!r.data) return;
@@ -6192,7 +5867,7 @@
   });
   $('ivmTabEdit').addEventListener('click',function(){ ivmTab('edit'); });
   $('ivmTabPreview').addEventListener('click',function(){ ivmTab('preview'); });
-  $('ivmGoPreview').addEventListener('click',function(){ smartLinkInvoice(ivm,true); ivmTab('preview'); $('ivmPreviewPane').scrollTop=0; });
+  $('ivmGoPreview').addEventListener('click',function(){ ivmTab('preview'); $('ivmPreviewPane').scrollTop=0; });
   function ivmBlobDataUrl(blob){
     return new Promise(function(resolve,reject){ var r=new FileReader(); r.onload=function(){ resolve(String(r.result||'')); }; r.onerror=function(){ reject(new Error('Could not read the invoice PDF.')); }; r.readAsDataURL(blob); });
   }
