@@ -286,6 +286,29 @@
   .hist-btn{ opacity:.55; } .hist-btn:hover{ opacity:1; }
   .hist-box{ background:var(--note); border-radius:16px; max-width:520px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); overflow:hidden; margin-top:6vh; animation:pop .17s ease-out; max-height:82vh; display:flex; flex-direction:column; }
   .hist-head{ display:flex; align-items:center; gap:12px; padding:16px 18px 12px; border-bottom:1px solid var(--line); }
+  .overlay .hist-head{flex:0 0 auto;}
+  /* Standard popup bodies scroll inside the popup instead of moving the Office page behind them. */
+  .overlay .hist-box > .edit-opts,
+  .overlay .hist-box > .inv-list,
+  .overlay .hist-box > .health-list,
+  .overlay .hist-box > .ivm-body,
+  .overlay .hist-box > .lbl-body,
+  .overlay .hist-box > .dtf-scroll,
+  .overlay .hist-box > .paytool-body,
+  .overlay .hist-box > .hist-list,
+  .overlay .hist-box > .dc-scroll,
+  .overlay .hist-box > .goals-body,
+  .overlay .hist-box > #goalPickList,
+  .overlay .hist-box > .buy-body,
+  .overlay .hist-box > .cc-body,
+  .overlay .hist-box > .bt-body,
+  .overlay .hist-box > .so-body{
+    flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  }
+  @media(max-width:560px){
+    .overlay{padding:12px 10px;}
+    .overlay .hist-box{margin-top:0;max-height:calc(100dvh - 24px);}
+  }
   .hist-title{ font-family:'Schadow','Teko',sans-serif; text-transform:uppercase; letter-spacing:.025em; font-size:24px; font-weight:normal; line-height:1; color:var(--green); flex:1; }
   .hist-sum{ display:flex; gap:10px; padding:14px 18px; flex-wrap:wrap; }
   .hist-stat{ background:rgba(31,77,62,.08); border-radius:10px; padding:10px 14px; flex:1; min-width:120px; }
@@ -497,8 +520,9 @@
   body.view-tools #linksOverlay .hist-head{ display:none; }
   body.view-tools #linksOverlay .edit-opts{ padding:0; }
 
-  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; }
+  .overlay{ position:fixed; inset:0; z-index:90; background:rgba(31,33,28,.46); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:28px 14px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
   .overlay.show{ display:flex; }
+  html.overlay-open,body.overlay-open{overflow:hidden!important;overscroll-behavior:none;}
   @media(max-width:560px){ .overlay{ padding:12px 10px; } }
 
   .chooser-box{ background:var(--note); border-radius:18px; padding:24px 22px 26px; max-width:440px; width:100%; box-shadow:0 16px 60px rgba(0,0,0,.32); border:1px solid var(--line-strong); margin-top:7vh; animation:pop .17s ease-out; }
@@ -878,7 +902,7 @@
 
   /* ===== Need to Buy ===== */
   .bt-box{max-width:860px;width:min(94vw,860px);}
-  .bt-body{padding:0 18px 20px;display:flex;flex-direction:column;gap:14px;}
+  .bt-body{padding:0 18px 20px;display:flex;flex-direction:column;gap:14px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
   .bt-intro{font-family:'Teko',sans-serif;font-size:18px;line-height:1.15;color:var(--muted);}
   .bt-compose{border:1.5px solid var(--line);border-radius:18px;background:var(--note);padding:14px;display:flex;flex-direction:column;gap:10px;}
   .bt-label{font-family:'Teko',sans-serif;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
@@ -2177,6 +2201,20 @@
 
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+  /* Keep the Office page behind every popup still; the popup body is the scroll surface. */
+  function syncOverlayScrollLock(){
+    var open=!!document.querySelector('.overlay.show');
+    document.documentElement.classList.toggle('overlay-open',open);
+    document.body.classList.toggle('overlay-open',open);
+  }
+  (function initOverlayScrollLock(){
+    var overlays=document.querySelectorAll('.overlay');
+    if(!overlays.length)return;
+    var obs=new MutationObserver(syncOverlayScrollLock);
+    overlays.forEach(function(el){obs.observe(el,{attributes:true,attributeFilter:['class']});});
+    syncOverlayScrollLock();
+  })();
 
   /* ===================== Today's goals =====================
      A short list of what you mean to get done today. Stored in the same
