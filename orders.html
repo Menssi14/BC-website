@@ -1068,6 +1068,21 @@
   .wz-tiles{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .wz-sizes{ grid-template-columns:repeat(3,1fr); gap:8px; }
   .wz-sizes .wz-tile{ min-height:54px; font-size:19px; }
+  .wz-size-groups{ display:flex; flex-direction:column; gap:8px; width:100%; }
+  .wz-size-group{ border:1.5px solid var(--line-strong); border-radius:16px; background:var(--note); overflow:hidden; }
+  .wz-size-head{ width:100%; min-height:58px; padding:12px 16px; border:0; background:transparent; color:var(--burgundy); cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:12px; font-family:'Teko',sans-serif; font-size:21px; letter-spacing:.03em; text-align:left; }
+  .wz-size-head svg{ flex:none; width:18px; height:18px; transition:transform .16s ease; color:var(--green); }
+  .wz-size-group.open .wz-size-head svg{ transform:rotate(180deg); }
+  .wz-size-panel{ display:none; padding:0 10px 10px; }
+  .wz-size-group.open .wz-size-panel{ display:block; }
+  .wz-size-panel .wz-sizes{ margin:0; }
+  @media(max-width:560px){
+    .wz-size-head{ min-height:54px; font-size:20px; padding:10px 14px; }
+    .wz-size-panel{ padding:0 8px 8px; }
+    .wz-size-panel .wz-sizes{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+    .wz-size-panel .wz-tile{ min-height:50px; font-size:18px; padding-left:5px; padding-right:5px; }
+  }
   .wz-tile{ position:relative; min-height:66px; border-radius:16px; border:1.5px solid var(--line-strong); background:var(--note);
     color:var(--burgundy); font-family:'Teko',sans-serif; font-size:22px; letter-spacing:.02em; cursor:pointer;
     display:flex; align-items:center; justify-content:center; gap:8px; padding:8px; -webkit-tap-highlight-color:transparent;
@@ -1637,7 +1652,7 @@
   </div>
 </div>
 
-<datalist id="sizeList"><option>Adult S</option><option>Adult M</option><option>Adult L</option><option>Adult XL</option><option>Adult 2XL</option><option>Adult 3XL</option><option>Youth S</option><option>Youth M</option><option>Youth L</option><option>One Size</option></datalist>
+<datalist id="sizeList"><option>Adult XS</option><option>Adult S</option><option>Adult M</option><option>Adult L</option><option>Adult XL</option><option>Adult 2XL</option><option>Adult 3XL</option><option>Adult 4XL</option><option>Adult 5XL</option><option>Youth XS</option><option>Youth S</option><option>Youth M</option><option>Youth L</option><option>Youth XL</option><option>Toddler 2T</option><option>Toddler 3T</option><option>Toddler 4T</option><option>Toddler 5T</option><option>One Size</option></datalist>
 <datalist id="surfList"><option>Polo</option><option>Shirt</option><option>Fishing shirt</option><option>Long sleeve</option><option>Short sleeve</option><option>Hoodie</option><option>Jacket</option><option>Cap</option><option>Beanie</option><option>Tote bag</option><option>Koozie</option><option>Tumbler</option><option>Mug</option><option>Apron</option></datalist><datalist id="matList"><option>Cotton</option><option>Polyester</option><option>Blend</option><option>Tri-blend</option><option>Dri-fit</option></datalist><datalist id="subSurfList"><option>Mug</option><option>Tumbler</option><option>Keychain</option><option>Award</option><option>Pin</option><option>Slate</option><option>Panel</option><option>Coaster</option><option>Mouse pad</option><option>Puzzle</option><option>Ornament</option><option>License plate</option><option>Phone case</option><option>Shirt</option><option>Tote bag</option><option>Flag</option></datalist><datalist id="subMatList"><option>Ceramic</option><option>Stainless</option><option>Aluminum</option><option>Polyester</option><option>Hardboard</option><option>Slate</option><option>Acrylic</option><option>Neoprene</option></datalist><datalist id="engSurfList"><option>Tumbler</option><option>Cup</option><option>Plaque</option><option>Cutting board</option><option>Keychain</option><option>Sign</option><option>Ornament</option><option>Coaster</option><option>Glass</option><option>Flask</option><option>Pen</option><option>Award</option></datalist><datalist id="vinylSurfList"><option>Decal</option><option>Sign</option><option>Banner</option><option>Shirt</option></datalist><datalist id="engMatList"><option>Wood</option><option>Acrylic</option><option>Metal</option><option>Stainless</option><option>Slate</option><option>Glass</option><option>Leather</option><option>Bamboo</option></datalist><datalist id="capPlaceList"><option>Front</option><option>Left side</option><option>Right side</option><option>Back</option></datalist><datalist id="placeList"><option>Left chest</option><option>Front</option><option>Back</option><option>Sleeve</option></datalist>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAction" style="display:none"></button></div>
@@ -1933,9 +1948,9 @@
   var _loaded=false,_saveTimer=null, _saving=false, _needsSave=false, TRASH_DAYS=10, DAY=86400000;
   var URGENCY={
     norush:{label:'On Track',color:'#96B486',cls:'green'},
-    soon2:{label:'Due in 2 Days',color:'#E0A82E',cls:'yellow'},
-    priority:{label:'Due Tomorrow',color:'#E8722C',cls:'orange'},
-    asap:{label:'Due Today / Overdue',color:'#6D2124',cls:'red'}
+    soon2:{label:'Due in 2 Days',color:'#D8B957',cls:'yellow'},
+    priority:{label:'Due Tomorrow',color:'#D98E5A',cls:'orange'},
+    asap:{label:'Due Today / Overdue',color:'#C77A72',cls:'red'}
   };
   var URANK={asap:0,priority:1,soon2:2,norush:3};
 
@@ -4042,22 +4057,46 @@
         if(sizes.length>1) add.textContent='Add '+q+' \u00d7 '+sizes.length+' Sizes ('+(q*sizes.length)+')';
         else add.textContent='Add '+q+' \u00d7 '+(sizes[0]||wz.b.surface||'Item');
       }
-      // sizes: tap as many as you need, then add them all in one go
+      // Sizes: one accordion is open at a time. Adult starts open, but
+      // switching to Youth/Toddler does not clear sizes already selected.
       if(wzNeedsSize()){
-        var slist=wzSizeList(), sgrid=wzEl('div','wz-tiles wz-sizes');
-        slist.forEach(function(v){
-          var t=wzEl('button','wz-tile'); t.type='button';
-          t.innerHTML='<span>'+esc(v)+'</span><span class="tick">\u2713</span>';
-          function paintS(){ t.classList.toggle('on', wzSizes().some(function(x){ return x.toLowerCase()===v.toLowerCase(); })); }
-          t.addEventListener('click',function(){
-            var sel=wzSizes(), ix=-1; sel.forEach(function(x,i){ if(x.toLowerCase()===v.toLowerCase()) ix=i; });
-            if(ix>=0) sel.splice(ix,1); else sel.push(v);
-            sel.sort(function(a,b){ return slist.indexOf(a)-slist.indexOf(b); });
-            wz.b.size=sel.join(', '); paintS(); label(); wzFoot();
+        var sizeGroups=[
+          {name:'Adult', sizes:['Adult XS','Adult S','Adult M','Adult L','Adult XL','Adult 2XL','Adult 3XL','Adult 4XL','Adult 5XL']},
+          {name:'Youth', sizes:['Youth XS','Youth S','Youth M','Youth L','Youth XL']},
+          {name:'Toddler', sizes:['Toddler 2T','Toddler 3T','Toddler 4T','Toddler 5T']}
+        ];
+        var slist=[]; sizeGroups.forEach(function(g){ slist=slist.concat(g.sizes); });
+        var groupsWrap=wzEl('div','wz-size-groups');
+        function openOnly(groupEl){
+          Array.prototype.forEach.call(groupsWrap.querySelectorAll('.wz-size-group'),function(g){ g.classList.toggle('open',g===groupEl); });
+        }
+        sizeGroups.forEach(function(group,gi){
+          var box=wzEl('div','wz-size-group'+(gi===0?' open':''));
+          var head=wzEl('button','wz-size-head'); head.type='button';
+          head.innerHTML='<span>'+esc(group.name)+'</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+          head.setAttribute('aria-expanded',gi===0?'true':'false');
+          head.addEventListener('click',function(){
+            openOnly(box);
+            Array.prototype.forEach.call(groupsWrap.querySelectorAll('.wz-size-head'),function(h){ h.setAttribute('aria-expanded',h===head?'true':'false'); });
           });
-          paintS(); sgrid.appendChild(t);
+          box.appendChild(head);
+          var panel=wzEl('div','wz-size-panel');
+          var sgrid=wzEl('div','wz-tiles wz-sizes');
+          group.sizes.forEach(function(v){
+            var t=wzEl('button','wz-tile'); t.type='button';
+            t.innerHTML='<span>'+esc(v)+'</span><span class="tick">\u2713</span>';
+            function paintS(){ t.classList.toggle('on', wzSizes().some(function(x){ return x.toLowerCase()===v.toLowerCase(); })); }
+            t.addEventListener('click',function(){
+              var sel=wzSizes(), ix=-1; sel.forEach(function(x,i){ if(x.toLowerCase()===v.toLowerCase()) ix=i; });
+              if(ix>=0) sel.splice(ix,1); else sel.push(v);
+              sel.sort(function(a,b){ return slist.indexOf(a)-slist.indexOf(b); });
+              wz.b.size=sel.join(', '); paintS(); label(); wzFoot();
+            });
+            paintS(); sgrid.appendChild(t);
+          });
+          panel.appendChild(sgrid); box.appendChild(panel); groupsWrap.appendChild(box);
         });
-        p.appendChild(wzRow('Size', sgrid, 'Tap every size you need'));
+        p.appendChild(wzRow('Size', groupsWrap, 'Tap every size you need'));
       }
       p.appendChild(wzRow('How Many', wzNum(Math.max(1,parseInt(wz.b.qty,10)||1), function(v){ wz.b.qty=String(v); label(); wzFoot(); }), wzNeedsSize()?'Of each size':''));
       label(); p.appendChild(add);
