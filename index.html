@@ -320,26 +320,6 @@
   .qr-wrap { display: block; padding: 20px; background: #fff; border-radius: 10px; border: 0.5px solid rgba(31,77,62,0.2); text-align: center; }
   .qr-wrap svg { width: 190px; height: auto; display: inline-block; }
 
-  /* FACEBOOK OVERLAY MODAL */
-  dialog#fb-dialog { max-width: 580px; max-height: 86vh; width: calc(100% - 32px); height: 86vh; padding: 0; border: none; border-radius: 10px; background: #F0F2F5; overflow: hidden; box-shadow: 0 28px 80px rgba(0,0,0,0.4); }
-  dialog#fb-dialog::backdrop { background: rgba(22,56,41,0.55); backdrop-filter: blur(2px); }
-  @keyframes fb-slide-up { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  dialog#fb-dialog[open] { animation: fb-slide-up 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
-  .fb-shell { display: flex; flex-direction: column; height: 100%; background: #F0F2F5; }
-  .fb-bar { background: var(--green); color: var(--cream); padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; box-shadow: 0 2px 14px rgba(0,0,0,0.12); position: relative; z-index: 2; border-radius: 10px 10px 0 0; }
-  .fb-bar::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='fbn'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='1' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 0.04 0 0 0 0 0.1 0 0 0 0 0.07 0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23fbn)'/></svg>"); background-size: 120px 120px; opacity: 0.5; border-radius: 10px 10px 0 0; }
-  .fb-bar > * { position: relative; z-index: 1; }
-  .fb-back { background: transparent; border: none; color: var(--pink); font-family: 'Schadow', 'Teko', sans-serif; font-size: 16px; font-style: italic; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; transition: color 0.2s; }
-  .fb-back:hover { color: var(--cream); }
-  .fb-back i { font-size: 22px; transition: transform 0.2s; }
-  .fb-back:hover i { transform: translateX(-4px); }
-  .fb-bar-title { font-family: 'Schadow', 'Teko', sans-serif; font-size: 15px; font-style: italic; color: var(--cream); opacity: 0.9; letter-spacing: 0.02em; }
-  .fb-close-x { background: transparent; border: none; color: var(--pink); font-size: 22px; cursor: pointer; padding: 6px 10px; line-height: 1; display: inline-flex; align-items: center; transition: color 0.2s, transform 0.2s; }
-  .fb-close-x:hover { color: var(--cream); transform: rotate(90deg); }
-  /* Facebook owns the only scrollbar. The popup shell itself never scrolls. */
-  .fb-scroll { flex: 1; min-height: 0; overflow: hidden; display: flex; justify-content: center; padding: 16px 12px 18px; overscroll-behavior: contain; }
-  .fb-scroll iframe { width: 100%; max-width: 500px; height: 100%; min-height: 0; border: none; display: block; background: transparent; }
-
   /* REVEAL */
   .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
   .reveal.in { opacity: 1; transform: none; }
@@ -359,12 +339,6 @@
     .svc-num { margin-bottom: 2px; }
     .splash-logo { width: 142px; height: 142px; }
     .splash-name { font-size: 35px; }
-    dialog#fb-dialog { max-height: 90vh; height: 90vh; max-width: 100vw; width: calc(100% - 16px); }
-    .fb-bar { padding: 11px 14px; }
-    .fb-bar-title { display: none; }
-    .fb-back { font-size: 15px; }
-    .fb-scroll { padding: 10px 0 20px; }
-    .fb-scroll iframe { max-width: 100%; }
   }
   .nav-pay { background: transparent; border: 0.5px solid rgba(242,234,221,0.4); color: var(--cream); padding: 10px 18px; border-radius: 999px; font-family: 'Teko', 'Oswald', sans-serif; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, border-color 0.2s; font-weight: 500; }
   .nav-pay:hover { background: rgba(242,234,221,0.14) !important; border-color: var(--cream) !important; }
@@ -828,7 +802,7 @@
       line-height: 1.45;
     }
 
-    dialog:not(#fb-dialog) {
+    dialog {
       width: calc(100% - 20px);
       max-width: calc(100vw - 20px);
       margin-left: auto;
@@ -913,8 +887,6 @@ h1, h2, .svc-name, .dialog-title, .pay-success-title {
 .sq-demo,
 .sq-status,
 .pay-success-msg,
-.fb-back,
-.fb-bar-title,
 .pay-tile-note,
 .contact-row,
 .qf-in,
@@ -1745,7 +1717,6 @@ body.brand-refresh :is(button, a, input, textarea):focus-visible {
 }
 
 body.brand-refresh .dialog-close,
-body.brand-refresh .fb-close-x,
 body.brand-refresh .footer-social :is(a, button) {
   min-width: 44px;
   min-height: 44px;
@@ -2693,7 +2664,7 @@ html.splash-seen body.site-loading { overflow: visible; }
     <h1 data-es="<span class='hero-main-copy'>Bordado personalizado, estampado en ropa y artículos de marca</span> <span class='hero-order-copy'>&mdash; <em>hecho a la orden</em> en el Valle del Río Grande.</span>"><span class="hero-main-copy">Custom embroidery, printing on apparel, and branded items</span> <span class="hero-order-copy">&mdash; <em>made to order</em> in the RGV.</span></h1>
     <div class="cta-row">
       <button class="btn-solid" data-es="Contáctanos" onclick="document.getElementById('contact-dialog').showModal()">Contact us</button>
-      <a class="btn-link" href="https://www.facebook.com/BrochCustom" target="_blank" rel="noopener" onclick="return openFacebookFeed(event)" data-es="Ve nuestro trabajo &rarr;">See our work &rarr;</a>
+      <a class="btn-link" href="https://www.facebook.com/BrochCustom" target="_blank" rel="noopener noreferrer" data-es="Ve nuestro trabajo &rarr;">See our work &rarr;</a>
     </div>
   </div>
   <div class="hero-logo-panel">
@@ -6017,66 +5988,6 @@ html.splash-seen body.site-loading { overflow: visible; }
     });
     dlgObserver.observe(dlg, { attributes: true, attributeFilter: ['open'] });
   })();
-</script>
-
-<dialog id="fb-dialog">
-  <div class="fb-shell">
-    <div class="fb-bar">
-      <button class="fb-back" onclick="closeFacebookFeed()" aria-label="Back to homepage">
-        <i class="ti ti-arrow-left" aria-hidden="true"></i>
-        Back to site
-      </button>
-      <span class="fb-bar-title">Broch Custom on Facebook</span>
-      <button class="fb-close-x" onclick="closeFacebookFeed()" aria-label="Close">
-        <i class="ti ti-x" aria-hidden="true"></i>
-      </button>
-    </div>
-    <div class="fb-scroll">
-      <iframe id="fb-iframe"
-        data-src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FBrochCustom&amp;tabs=timeline&amp;width=500&amp;height=2400&amp;small_header=true&amp;adapt_container_width=true&amp;hide_cover=false&amp;show_facepile=false"
-        src="about:blank"
-        scrolling="yes"
-        frameborder="0"
-        allowfullscreen="true"
-        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        title="Broch Custom on Facebook"
-      ></iframe>
-    </div>
-  </div>
-</dialog>
-
-<script>
-  function openFacebookFeed(e) {
-    e.preventDefault();
-    const iframe = document.getElementById('fb-iframe');
-    const dialog = document.getElementById('fb-dialog');
-    // Pick the FB plugin width to match the actual viewport
-    // Mobile: viewport minus dialog margin (16) and scroll padding (16) = vw - 32
-    // Desktop: full 500
-    const vw = window.innerWidth;
-    const fbWidth = vw > 720 ? 500 : Math.min(500, Math.max(180, vw - 32));
-    // Match Facebook's requested plugin height to the visible feed area so the
-    // plugin supplies the one scrollbar instead of nesting inside our own scroller.
-    const dialogRatio = vw > 720 ? 0.86 : 0.90;
-    const fbHeight = Math.max(360, Math.floor(window.innerHeight * dialogRatio) - (vw > 720 ? 86 : 72));
-    const targetSrc = iframe.dataset.src
-      .replace(/width=\d+/, 'width=' + fbWidth)
-      .replace(/height=\d+/, 'height=' + fbHeight);
-    iframe.style.height = fbHeight + 'px';
-    if (iframe.src !== targetSrc) {
-      iframe.src = targetSrc;
-    }
-    dialog.showModal();
-    document.body.style.overflow = 'hidden';
-    return false;
-  }
-  function closeFacebookFeed() {
-    document.getElementById('fb-dialog').close();
-    document.body.style.overflow = '';
-  }
-  document.getElementById('fb-dialog').addEventListener('close', () => {
-    document.body.style.overflow = '';
-  });
 </script>
 
 <script>
