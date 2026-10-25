@@ -2764,6 +2764,33 @@
   }
   var _manualSaveBusy=false;
   var _deletedIds = {};
+  // Only upload/artwork keys go to cleanup. Inline data: photos are untouched.
+  var ART_CLEANUP_LOCAL = 'bc-order-art-cleanup-v1';
+  var _artCleanup = [];
+  try { _artCleanup = JSON.parse(localStorage.getItem(ART_CLEANUP_LOCAL) || '[]');
+    if (!Array.isArray(_artCleanup)) _artCleanup = [];
+  } catch (_) { _artCleanup = []; }
+  var _artCleanupBusy = false;
+  function queueArtCleanup(v) {
+    if (typeof v !== 'string' || v.indexOf(ART_PREFIX) !== 0) return;
+    if (_artCleanup.indexOf(v) < 0) _artCleanup.push(v);
+    try { localStorage.setItem(ART_CLEANUP_LOCAL, JSON.stringify(_artCleanup)); } catch (_) {}
+  }
+  function queueOrderPhotos(o) { (o && o.images || []).forEach(queueArtCleanup); }
+  function flushArtCleanup() {
+    if (_artCleanupBusy || !_artCleanup.length) return;
+    _artCleanupBusy = true;
+    var keys = _artCleanup.slice(0, 20);
+    nasCall({ action:'cleanup-unused', keys:keys, supabaseKey: SUPABASE_KEY })
+      .then(function(d){
+        var done = (d.results || []).filter(function(x){return x.status === 'deleted' || x.status === 'not-found';}).map(function(x){return x.key;});
+        _artCleanup = _artCleanup.filter(function(k){return done.indexOf(k)<0;});
+        try { localStorage.setItem(ART_CLEANUP_LOCAL, JSON.stringify(_artCleanup)); } catch (_) {}
+      })
+      .catch(function(e){try{console.warn('[storage] Cleanup deferred:',e.message);}catch(_){}})
+      .finally(function(){_artCleanupBusy=false;});
+  }
+
   // (deleted ids kept in _deletedIds so a merge can't resurrect them)
   // A time more than a day ahead can only come from a device with the wrong
   // date; it is ignored so it can't make one copy win every merge forever.
@@ -2835,6 +2862,7 @@
           _needsSave=false;
           syncShow('✓ Saved — safe to close app','ok');
           if(done)done(true);
+          flushArtCleanup();
         }
       }).catch(function(){
         _saving=false; _needsSave=true;
@@ -2876,6 +2904,9 @@
           var recovered=recoverDraftsToBoard();
           render();
           wireGoals();
+          // Retry previously verified-clean candidates when this device reopens.
+          // The server checks live references again before every deletion.
+          if (_artCleanup.length) flushArtCleanup();
           if(rolled)persist();
           if(recovered)persist();
           startAutoRefresh();
@@ -2958,7 +2989,7 @@
       // has touched it for 10 minutes, so an order someone is still typing
       // on another device is left alone.
       if(!kill && orderIsEmpty(o) && !(editing&&editing.id===o.id) && now-Math.max(o.updatedAt||0,o.createdAt||0)>10*60000) kill=true;
-      if(kill)_deletedIds[o.id]=true; return !kill; });
+      if(kill){ _deletedIds[o.id]=true; queueOrderPhotos(o); } return !kill; });
     if(state.orders.length!==b||fixed)persist();
   }
   /* "Absolutely nothing" is judged by what a card would actually show: a
@@ -3331,7 +3362,10 @@
 
   function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
   function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
-  function forever(id){ var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); _deletedIds[id]=true; render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);delete _deletedIds[id];render();persist();}); }
+  function forever(id){ var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); _deletedIds[id]=true; render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);delete _deletedIds[id];render();persist();});
+    // The Undo toast lasts 4.5 seconds; never delete art during that window.
+    setTimeout(function(){if(_deletedIds[id] && !getOrder(id)){queueOrderPhotos(rm);persist();}}, 6500);
+  }
 
   /* ===== chooser + editor ===== */
   var chooser=$('chooser'), overlay=$('overlay');
@@ -3664,7 +3698,7 @@
       clearNewDraft(editing.type);
       if(!editing.isNew){
         for(var i=state.orders.length-1;i>=0;i--){ if(state.orders[i].id===id){ state.orders.splice(i,1); break; } }
-        _deletedIds[id]=true; persist();
+        _deletedIds[id]=true; queueOrderPhotos(editing); persist();
       }
       editing=null;
     }
@@ -3829,7 +3863,7 @@
         (editing.images||[]).forEach(function(src,i){
           var t=wzEl('div','wz-th'); t.innerHTML='<img '+artImgSrc(src)+' alt="">';
           var x=wzEl('button','x','\u00d7'); x.type='button'; x.setAttribute('aria-label','Remove photo');
-          x.addEventListener('click',function(){ editing.images.splice(i,1); livePersist(); wz.paintPhotos(); wzFoot(); });
+          x.addEventListener('click',function(){ var old=editing.images.splice(i,1)[0]; queueArtCleanup(old); livePersist(); wz.paintPhotos(); wzFoot(); });
           t.appendChild(x); th.appendChild(t);
         });
         for(var b=0;b<wz.busy;b++) th.appendChild(wzEl('div','wz-th busy'));
@@ -4104,7 +4138,7 @@
   function renderImgs(){
     var c=$('mImgs'); c.innerHTML=''; var imgs=editing.images||[];
     setTimeout(function(){ hydrateArt(c); },0);
-    imgs.forEach(function(uu,i){ var d=document.createElement('div'); d.className='imthumb'; d.innerHTML='<img '+artImgSrc(uu)+'><span class="x">&times;</span>'; d.querySelector('.x').onclick=function(){ editing.images.splice(i,1); renderImgs(); livePersist(); }; c.appendChild(d); });
+    imgs.forEach(function(uu,i){ var d=document.createElement('div'); d.className='imthumb'; d.innerHTML='<img '+artImgSrc(uu)+'><span class="x">&times;</span>'; d.querySelector('.x').onclick=function(){ var old=editing.images.splice(i,1)[0]; queueArtCleanup(old); renderImgs(); livePersist(); }; c.appendChild(d); });
     if(imgs.length<3){ var add=document.createElement('div'); add.className='addimg'; add.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Photo'; add.onclick=function(){ $('fileInput').click(); }; c.appendChild(add); }
   }
 
@@ -5106,6 +5140,7 @@
   ];
   var HEALTH_SUBS={ ok:'working', fail:'PROBLEM', off:'not set up', wait:'checking\u2026' };
   function _allFail(){ var o={}; HEALTH_GROUPS.forEach(function(g){ g[1].forEach(function(p){ o[p[0]]='fail'; }); }); return o; }
+  var _nasUsageMsg = 'NAS files: checking...';
   function paintHealth(state){
     var h='';
     HEALTH_GROUPS.forEach(function(g){
@@ -5115,7 +5150,9 @@
         h+='<div class="health-row"><span class="health-dot '+v+'"></span>'+pair[1]+'<span class="health-sub">'+HEALTH_SUBS[v]+'</span></div>';
       });
     });
+    h+='<div class="health-group">NAS storage</div><div class="health-row" id="nasUsageRow"></div>';
     $('healthList').innerHTML=h;
+    var usage=$('nasUsageRow'); if(usage) usage.textContent=_nasUsageMsg;
   }
   // ── "Are we up to date?" — a real two-way sync you can trigger from the health check.
   // Pulls in anything this device is missing AND pushes up anything only this device has
@@ -5156,7 +5193,19 @@
     $('linksOverlay').classList.remove('show');
     $('healthOverlay').classList.add('show');
     runSyncCheck();
+    _nasUsageMsg = 'NAS files: checking...';
     paintHealth(null);
+    // This counts current MinIO objects, not older versions or NAS snapshots.
+    fetch('/api/minio-file', {method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'storage-stats'})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d.ok) throw new Error(d.error || 'Storage unavailable');
+        var mb=(Number(d.bytes||0)/1048576).toFixed(1);
+        _nasUsageMsg='Current NAS files: '+mb+' MB in '+Number(d.files||0).toLocaleString()+' files'+
+          (d.complete?'':' (partial scan)')+' · excludes versions/snapshots';
+        var row=$('nasUsageRow'); if(row)row.textContent=_nasUsageMsg;
+      }).catch(function(){_nasUsageMsg='NAS storage usage unavailable';
+        var row=$('nasUsageRow'); if(row)row.textContent=_nasUsageMsg;});
     fetch('/api/health').then(function(r){ return r.json(); }).then(function(d){
       paintHealth((d&&d.services)||_allFail());
     }).catch(function(){

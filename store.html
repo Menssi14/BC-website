@@ -1874,7 +1874,7 @@
         if (!error && data) {
           const text = await data.text();
           const parsed = JSON.parse(text);
-          if (Array.isArray(parsed)) { products = parsed; renderProducts(); primeProductPhotos(); return; }
+          if (Array.isArray(parsed)) { products = parsed; renderProducts(); primeProductPhotos(); flushStoreCleanup(); return; }
         }
       } catch (e) { /* fall through to file */ }
     }
@@ -1888,7 +1888,33 @@
   }
 
   // ── Save products to Supabase (instant, no push) ────────
-  function saveProductsToCloud() {
+  const STORE_CLEANUP_KEY = 'bc-store-storage-cleanup-v1';
+  let storeCleanupQueue = [];
+  try { storeCleanupQueue = JSON.parse(localStorage.getItem(STORE_CLEANUP_KEY) || '[]');
+    if (!Array.isArray(storeCleanupQueue)) storeCleanupQueue = [];
+  } catch (_) { storeCleanupQueue = []; }
+  let storeCleanupBusy = false;
+  function rememberStoreCleanup(keys) {
+    (keys || []).forEach(k => {
+      if (typeof k === 'string' && (k.startsWith('_store/art/') || k.startsWith('_designs/')) && !storeCleanupQueue.includes(k))
+        storeCleanupQueue.push(k);
+    });
+    try { localStorage.setItem(STORE_CLEANUP_KEY, JSON.stringify(storeCleanupQueue)); } catch (_) {}
+  }
+  function flushStoreCleanup() {
+    if (storeCleanupBusy || !storeCleanupQueue.length) return;
+    storeCleanupBusy = true;
+    const keys = storeCleanupQueue.slice(0,20);
+    nasCall({ action:'cleanup-unused', keys, supabaseKey: SUPABASE_KEY })
+      .then(d => {
+        const done = (d.results || []).filter(x => x.status === 'deleted' || x.status === 'not-found').map(x => x.key);
+        storeCleanupQueue = storeCleanupQueue.filter(k => !done.includes(k));
+        try { localStorage.setItem(STORE_CLEANUP_KEY, JSON.stringify(storeCleanupQueue)); } catch (_) {}
+      })
+      .catch(e => console.warn('[storage] Store cleanup deferred safely:', e))
+      .finally(() => { storeCleanupBusy = false; });
+  }
+  function saveProductsToCloud(cleanupKeys = []) {
     if (!sb) { alert('Cloud not connected — changes not saved.'); return; }
     const badge = $('save-badge');
     if (badge) { badge.textContent = 'Saving…'; badge.hidden = false; }
@@ -1900,6 +1926,13 @@
           setTimeout(() => { badge.hidden = true; }, 2000);
         }
         if (r && r.error) console.error('[store] save failed:', r.error);
+        // Release replaced/deleted photos ONLY once products.json is saved.
+        // The API re-reads the cloud catalog, store collections and orders, and
+        // refuses to delete artwork that any current record still references.
+        if (r && !r.error) {
+          rememberStoreCleanup(cleanupKeys);
+          flushStoreCleanup();
+        }
       })
       .catch(e => { if (badge) badge.textContent = 'Save failed'; console.error(e); });
   }
@@ -2835,10 +2868,11 @@
   }
 
   function deleteProduct(id) {
-    if (!confirm('Delete this product?')) return;
+    const doomed = products.find(p => p.id === id);
+    if (!doomed || !confirm('Delete this product?')) return;
     products = products.filter(p => p.id !== id);
     renderProducts();
-    saveProductsToCloud();
+    saveProductsToCloud([doomed.photo]);
   }
 
   async function saveProduct() {
@@ -2855,6 +2889,7 @@
     let photo = null;
     let mock3dState = null;
     const existing = editingId ? products.find(p => p.id === editingId) : null;
+    const previousPhoto = existing && existing.photo;
     if (existing) { photo = existing.photo; mock3dState = existing.mock3dState || null; }
     const file = $('prod-photo').files[0];
     if (file) photo = await compressImage(file);
@@ -2882,7 +2917,7 @@
     }
     $('product-dialog').close();
     renderProducts();
-    saveProductsToCloud();
+    saveProductsToCloud(previousPhoto && previousPhoto !== photo ? [previousPhoto] : []);
     primeProductPhotos();
   }
 
@@ -3971,7 +4006,7 @@
     dropSpin = requestAnimationFrame(step);
   }
 
-  async function saveDrop(quiet) {
+  async function saveDrop(quiet, cleanupKeys = []) {
     const st = quiet ? null : $('drop-admin-status');
     if (!sb) { if (st) st.textContent = 'No cloud connection \u2014 not saved.'; return; }
     if (st) st.textContent = 'Saving\u2026';
@@ -3981,6 +4016,8 @@
       const { error } = await sb.storage.from(PRODUCTS_BUCKET).upload(collFile(coll().id), blob, { upsert: true });
       if (error) throw error;
       if (st) st.textContent = 'Saved.';
+      rememberStoreCleanup(cleanupKeys);
+      flushStoreCleanup();
     } catch (e) { if (st) st.textContent = 'Couldn\u2019t save \u2014 try again.'; }
   }
 
@@ -4008,7 +4045,7 @@
     if (!confirm('Remove \u201c' + d.name + '\u201d from the UTRGV carousel?')) return;
     dropList.splice(dropIdx, 1);
     dropIdx = Math.max(0, Math.min(dropIdx, dropList.length - 1));
-    buildDropTrack(); dropApply(true, 1); saveDrop();
+    buildDropTrack(); dropApply(true, 1); saveDrop(false, [d.src]);
   }
   function moveDropDesign(step) {
     const j = dropIdx + step;
@@ -4229,9 +4266,18 @@
     const c = coll();
     if (collections.length < 2) { alert('Keep at least one collection.'); return; }
     if (!confirm('Delete the “' + c.name + '” collection and its design list?')) return;
+    // Collection files can reference NAS designs even after catalog removal.
+    const previous = collDesigns.get(c.id) || await collLoadDesigns(c);
+    const candidates = (previous || []).map(d => d.src);
     collections.splice(collIdx, 1); collDesigns.delete(c.id);
-    if (sb) { try { await sb.storage.from(PRODUCTS_BUCKET).remove([collFile(c.id)]); } catch (_) {} }
+    if (sb) { try { const r = await sb.storage.from(PRODUCTS_BUCKET).remove([collFile(c.id)]);
+      if (r && r.error) throw r.error;
+    } catch (err) { console.warn('[store] Could not delete collection manifest:', err); } }
     await saveCollections(true);
+    // Cleanup checks every current cloud manifest; if either save failed,
+    // the design still referenced by that file cannot be deleted.
+    rememberStoreCleanup(candidates);
+    flushStoreCleanup();
     setCollection(Math.max(0, collIdx - 1));
   }
   function collColorsDialog() {
