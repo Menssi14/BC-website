@@ -2040,17 +2040,25 @@
           return Promise.all(missing.map(function(k){
             var url=artUrl[k];
             if(!url){ arr.forEach(function(e){ if(e.getAttribute('data-nas-art')===k) artGone(e); }); return; }
-            return artFetchKeep(k,url).then(function(u){
-              if(u==='gone'){ arr.forEach(function(e){ if(e.getAttribute('data-nas-art')===k) artGone(e); }); return; }
+            // Show the signed image URL immediately. Previously we waited for a
+            // separate cross-origin fetch to download/cache the whole image
+            // before assigning img.src. On mobile networks that fetch can hang
+            // (or be rejected by CORS) even when the image itself is readable,
+            // leaving the card visually empty. Display must never wait on cache.
+            show(k, url);
+            // Best-effort offline cache only: do not let an unrelated download
+            // block or replace the image that is already loading on screen.
+            // If CORS fails, the regular <img> can still succeed; its own error
+            // event handles a genuinely missing or inaccessible photo.
+            artFetchKeep(k,url).then(function(u){
               if(u==='blocked'){
-                // if the plain link works, the NAS is up and only refused this
-                // way of downloading: stop trying it for a day
-                arr.forEach(function(e){ if(e.getAttribute('data-nas-art')===k)
-                  e.addEventListener('load', artFetchOff, {once:true}); });
-                u=null;
+                arr.forEach(function(e){
+                  if(e.getAttribute('data-nas-art')===k)
+                    e.addEventListener('load', artFetchOff, {once:true});
+                });
               }
-              show(k, u||url);
-            });
+            }).catch(function(){});
+            return Promise.resolve();
           }));
         });
       }).catch(function(err){
