@@ -1918,30 +1918,39 @@
     var key=ART_PREFIX+(orderId||'x')+'-'+Date.now().toString(36)+
             Math.random().toString(36).slice(2,8)+'.'+extFor(blob.type);
     var mime=blob.type||'application/octet-stream';
-    // A successful HTTP PUT alone is not proof an image reached storage.
-    // The same-origin API verifies the actual object size through MinIO HEAD.
-    // Newer MinIO APIs support a dedicated HEAD verification action.
-    // Older deployments return "Unknown action" to verify-photo even after a
-    // presigned PUT succeeds. Their existing list action can verify the exact
-    // key AND number of stored bytes without pretending an upload succeeded.
-    function verifyByList(){
+    // Check the saved image through a signed GET link in the browser. This is
+    // intentionally independent of Vercel -> NAS HEAD, which can time out even
+    // when the image is safely stored and accessible through Tailscale Funnel.
+    // A fresh random key makes an old cached image impossible for new uploads.
+    function verifyFromBrowser(){
       return photoFetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'list',prefix:key})},12000)
-        .then(photoReply).then(function(d){
-          var files=Array.isArray(d.files)?d.files:[];
-          var found=files.filter(function(f){return f && f.key===key;})[0];
-          if(!found) throw new Error('NAS did not retain the photo (file not found)');
-          if(Number(found.size)!==blob.size) throw new Error('NAS photo size did not match the upload');
-        });
-    }
-    function verify(){
-      return photoFetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'verify-photo',key:key,bytes:blob.size})},10000)
-        .then(photoReply).then(function(d){
-          if(Number(d.bytes)!==blob.size) throw new Error('Storage did not retain the complete photo');
-        }).catch(function(err){
-          if(/unknown action/i.test(String(err&&err.message||''))) return verifyByList();
-          throw err;
+        body:JSON.stringify({action:'view-urls',keys:[key]})},12000)
+        .then(photoReply)
+        .then(function(d){
+          var url=d.urls&&d.urls[key];
+          if(!url) throw new Error('Could not get a photo viewing link');
+          return new Promise(function(resolve,reject){
+            var img=new Image(), finished=false;
+            var timer=setTimeout(function(){
+              settle(new Error('Photo could not be confirmed from this device (timed out)'));
+            },15000);
+            function settle(err){
+              if(finished) return;
+              finished=true;
+              clearTimeout(timer);
+              img.onload=null; img.onerror=null;
+              if(err) reject(err);
+              else { artUrl[key]=url; resolve(); }
+            }
+            img.onload=function(){
+              if(img.naturalWidth>0 && img.naturalHeight>0) settle();
+              else settle(new Error('NAS returned an unreadable image'));
+            };
+            img.onerror=function(){
+              settle(new Error('Uploaded photo cannot be opened from NAS'));
+            };
+            img.src=url;
+          });
         });
     }
     function directUpload(){
@@ -1949,23 +1958,29 @@
         body:JSON.stringify({action:'upload-url',key:key,contentType:mime})},12000)
         .then(photoReply)
         .then(function(d){
-          if(!d.url)throw new Error('NAS upload link unavailable');
+          if(!d.url) throw new Error('NAS upload link unavailable');
           return photoFetch(d.url,{method:'PUT',headers:{'Content-Type':mime},body:blob},25000);
         })
-        .then(function(r){if(!r.ok)throw new Error('NAS refused the photo (HTTP '+r.status+')');});
+        .then(function(r){if(!r.ok) throw new Error('NAS refused the photo (HTTP '+r.status+')');});
     }
-    return photoFetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'upload-photo',key:key,data:dataUrl})},30000)
-      .then(photoReply)
-      .catch(function(err){
-        // Direct-to-NAS is an alternate route, not a reason to mark a failed
-        // upload successful. Verify either route before storing a reference.
-        try{console.warn('[photo] Server upload failed; trying NAS:',err.message);}catch(_){}
-        return directUpload().catch(function(directErr){
-          throw new Error('Server: '+err.message+'; Direct: '+directErr.message);
+    function serverUpload(){
+      return photoFetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'upload-photo',key:key,data:dataUrl})},30000)
+        .then(photoReply);
+    }
+    // Prefer the direct browser PUT while Vercel's outbound MinIO connection is
+    // unreliable. Only fall back to a Vercel upload when the direct path fails.
+    // Before reporting BOTH paths failed, check once more: Vercel may have put
+    // the photo successfully before its final HEAD confirmation timed out.
+    return directUpload().catch(function(directErr){
+      try{console.warn('[photo] Direct NAS upload failed; trying website:',directErr.message);}catch(_){}
+      return serverUpload().catch(function(serverErr){
+        return verifyFromBrowser().catch(function(verifyErr){
+          throw new Error('Direct: '+directErr.message+'; Server: '+serverErr.message+
+            '; Storage check: '+verifyErr.message);
         });
-      })
-      .then(verify)
+      });
+    }).then(verifyFromBrowser)
       .then(function(){artCachePut(key,blob); return key;});
   }
   // Attach a verified NAS photo to both the current editor and the current
