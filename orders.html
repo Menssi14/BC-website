@@ -1920,11 +1920,28 @@
     var mime=blob.type||'application/octet-stream';
     // A successful HTTP PUT alone is not proof an image reached storage.
     // The same-origin API verifies the actual object size through MinIO HEAD.
+    // Newer MinIO APIs support a dedicated HEAD verification action.
+    // Older deployments return "Unknown action" to verify-photo even after a
+    // presigned PUT succeeds. Their existing list action can verify the exact
+    // key AND number of stored bytes without pretending an upload succeeded.
+    function verifyByList(){
+      return photoFetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'list',prefix:key})},12000)
+        .then(photoReply).then(function(d){
+          var files=Array.isArray(d.files)?d.files:[];
+          var found=files.filter(function(f){return f && f.key===key;})[0];
+          if(!found) throw new Error('NAS did not retain the photo (file not found)');
+          if(Number(found.size)!==blob.size) throw new Error('NAS photo size did not match the upload');
+        });
+    }
     function verify(){
       return photoFetch(NAS_API,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'verify-photo',key:key,bytes:blob.size})},10000)
         .then(photoReply).then(function(d){
-          if(d.bytes!==blob.size) throw new Error('Storage did not retain the complete photo');
+          if(Number(d.bytes)!==blob.size) throw new Error('Storage did not retain the complete photo');
+        }).catch(function(err){
+          if(/unknown action/i.test(String(err&&err.message||''))) return verifyByList();
+          throw err;
         });
     }
     function directUpload(){
@@ -5225,13 +5242,14 @@
   // ── Health check: read-only pokes at every service ──
   var HEALTH_GROUPS=[
     ['Services', [['payments','Payments \u00b7 Square'],['email','Email \u00b7 Gmail'],['shipping_key','Shipping \u00b7 EasyPost']]],
-    ['Cloud storage', [['sb_orders','Orders & quotes'],['sb_catalog','Design catalog'],['sb_files','File sharing']]],
+    ['Cloud storage', [['sb_orders','Orders & quotes'],['sb_catalog','Design catalog'],['sb_files','File sharing'],['minio_nas','NAS endpoint (reachability only)']]],
     ['Backends', [['fn_pay','Checkout'],['fn_quote','Quote intake'],['fn_notify','Customer emails'],['fn_shipping','Shipping rates']]],
     ['Pages', [['page_shop','The shop'],['page_tools','The tools app']]]
   ];
   var HEALTH_SUBS={ ok:'working', fail:'PROBLEM', off:'not set up', wait:'checking\u2026' };
   function _allFail(){ var o={}; HEALTH_GROUPS.forEach(function(g){ g[1].forEach(function(p){ o[p[0]]='fail'; }); }); return o; }
   var _nasUsageMsg = 'NAS files: checking...';
+  var _nasPhotoMsg = 'Photo upload API: checking...';
   function paintHealth(state){
     var h='';
     HEALTH_GROUPS.forEach(function(g){
@@ -5241,9 +5259,11 @@
         h+='<div class="health-row"><span class="health-dot '+v+'"></span>'+pair[1]+'<span class="health-sub">'+HEALTH_SUBS[v]+'</span></div>';
       });
     });
-    h+='<div class="health-group">NAS storage</div><div class="health-row" id="nasUsageRow"></div>';
+    h+='<div class="health-group">NAS storage</div><div class="health-row" id="nasUsageRow"></div>'+
+       '<div class="health-row" id="nasPhotoRow"></div>';
     $('healthList').innerHTML=h;
     var usage=$('nasUsageRow'); if(usage) usage.textContent=_nasUsageMsg;
+    var photo=$('nasPhotoRow'); if(photo) photo.textContent=_nasPhotoMsg;
   }
   // ── "Are we up to date?" — a real two-way sync you can trigger from the health check.
   // Pulls in anything this device is missing AND pushes up anything only this device has
@@ -5285,18 +5305,77 @@
     $('healthOverlay').classList.add('show');
     runSyncCheck();
     _nasUsageMsg = 'NAS files: checking...';
+    _nasPhotoMsg = 'Photo upload API: checking...';
     paintHealth(null);
-    // This counts current MinIO objects, not older versions or NAS snapshots.
-    fetch('/api/minio-file', {method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'storage-stats'})})
-      .then(function(r){return r.json();}).then(function(d){
-        if(!d.ok) throw new Error(d.error || 'Storage unavailable');
+    // Read-only diagnostics: no credentials are sent from the browser and no
+    // files are uploaded, changed or deleted by either request.
+    function updateNasRow(id, message){
+      var el=$(id); if(el) el.textContent=message;
+    }
+    function readNasAction(body, timeoutMs){
+      var ctrl=typeof AbortController==='function'?new AbortController():null;
+      var timeout=ctrl?setTimeout(function(){ctrl.abort();}, timeoutMs):null;
+      var opts={method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(body),cache:'no-store'};
+      if(ctrl) opts.signal=ctrl.signal;
+      return fetch('/api/minio-file',opts).then(function(resp){
+        return resp.text().then(function(raw){
+          var data;
+          try { data=JSON.parse(raw); } catch(_) {data=null;}
+          return {status:resp.status,ok:resp.ok,data:data,nonJson:!data};
+        });
+      }).then(function(result){if(timeout)clearTimeout(timeout);return result;},
+        function(err){if(timeout)clearTimeout(timeout);throw err;});
+    }
+    function nasErr(result){
+      var d=result.data||{};
+      var message=String(d.error||d.message||('HTTP '+result.status));
+      return message.replace(/https?:\/\/\S+/g,'[endpoint]').slice(0,120);
+    }
+    // Listing requires a separate MinIO permission from uploading photos.
+    readNasAction({action:'storage-stats'},15000).then(function(result){
+      var d=result.data||{};
+      if(result.ok && d.ok){
         var mb=(Number(d.bytes||0)/1048576).toFixed(1);
         _nasUsageMsg='Current NAS files: '+mb+' MB in '+Number(d.files||0).toLocaleString()+' files'+
           (d.complete?'':' (partial scan)')+' · excludes versions/snapshots';
-        var row=$('nasUsageRow'); if(row)row.textContent=_nasUsageMsg;
-      }).catch(function(){_nasUsageMsg='NAS storage usage unavailable';
-        var row=$('nasUsageRow'); if(row)row.textContent=_nasUsageMsg;});
+      }else{
+        var err=nasErr(result);
+        if(/unknown action/i.test(err)){
+          _nasUsageMsg='NAS statistics: WEBSITE API OUTDATED (storage-stats unsupported).';
+        }else if(/accessdenied|access denied|not authorized|forbidden/i.test(err) || result.status===403){
+          _nasUsageMsg='NAS statistics: permission denied. Check MinIO ListBucket access.';
+        }else if(/missing required environment/i.test(err)||d.step==='environment-variables'){
+          _nasUsageMsg='NAS statistics: MinIO environment variables missing in Vercel.';
+        }else if(result.nonJson){
+          _nasUsageMsg='NAS statistics: API returned HTTP '+result.status+' instead of a JSON response.';
+        }else{
+          _nasUsageMsg='NAS statistics failed (HTTP '+result.status+'): '+err;
+        }
+      }
+      updateNasRow('nasUsageRow',_nasUsageMsg);
+    }).catch(function(err){
+      _nasUsageMsg='NAS statistics: '+((err&&err.name)==='AbortError'?'connection timed out':'request failed: '+String(err&&err.message||err).slice(0,100));
+      updateNasRow('nasUsageRow',_nasUsageMsg);
+    });
+    // Invalid key is intentional: this tests which deployed API version
+    // handles upload-photo WITHOUT writing a file or sending an image.
+    readNasAction({action:'upload-photo',key:'invalid-key',data:''},10000).then(function(result){
+      var d=result.data||{},err=nasErr(result);
+      if(/unknown action/i.test(err)){
+        _nasPhotoMsg='Photo upload API: OUTDATED. upload-photo action missing on this website.';
+      }else if(result.status===400 && /invalid order photo key/i.test(err)){
+        _nasPhotoMsg='Photo upload API: installed (actual photo transfer not tested).';
+      }else if(d.step==='environment-variables'||/missing required environment/i.test(err)){
+        _nasPhotoMsg='Photo upload API: Vercel MinIO configuration missing.';
+      }else{
+        _nasPhotoMsg='Photo upload API: HTTP '+result.status+' — '+err;
+      }
+      updateNasRow('nasPhotoRow',_nasPhotoMsg);
+    }).catch(function(err){
+      _nasPhotoMsg='Photo upload API: '+((err&&err.name)==='AbortError'?'request timed out':'request failed');
+      updateNasRow('nasPhotoRow',_nasPhotoMsg);
+    });
     fetch('/api/health').then(function(r){ return r.json(); }).then(function(d){
       paintHealth((d&&d.services)||_allFail());
     }).catch(function(){
