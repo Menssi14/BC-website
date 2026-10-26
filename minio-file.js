@@ -219,6 +219,70 @@ export default async function handler(req, res) {
   const action = body && body.action;
 
   try {
+    // Compact order photos can upload through Vercel. This avoids CORS and
+    // direct MinIO network problems on iPhones while keeping the artwork on NAS.
+    // Restrict the route to small image objects and the order-photo prefix.
+    if (action === 'upload-photo') {
+      const key = body.key;
+      if (badKey(key) || !/^_orders\/art\/[a-zA-Z0-9._-]{6,120}\.(webp|jpg|jpeg|png)$/.test(key)) {
+        return res.status(400).json({ ok: false, error: 'Invalid order photo key.' });
+      }
+      const data = body.data;
+      if (typeof data !== 'string' || data.length > 3000100) {
+        return res.status(413).json({ ok: false, error: 'Photo is too large for website upload.' });
+      }
+      const match = /^data:(image\/(?:webp|jpeg|png));base64,/.exec(data);
+      if (!match) return res.status(400).json({ ok: false, error: 'Unsupported order photo type.' });
+      const encoded = data.slice(match[0].length);
+      if (!encoded || encoded.length > 3000000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(encoded) || encoded.length % 4 !== 0) {
+        return res.status(400).json({ ok: false, error: 'Invalid photo encoding.' });
+      }
+      const raw = Buffer.from(encoded, 'base64');
+      if (!raw.length || raw.length > 2250000) {
+        return res.status(413).json({ ok: false, error: 'Photo is too large.' });
+      }
+      const mime = match[1];
+      const validImage = mime === 'image/jpeg'
+        ? raw[0] === 0xff && raw[1] === 0xd8 && raw[2] === 0xff
+        : mime === 'image/png'
+          ? raw.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]))
+          : raw.subarray(0, 4).toString('ascii') === 'RIFF' && raw.subarray(8, 12).toString('ascii') === 'WEBP';
+      if (!validImage) return res.status(400).json({ ok: false, error: 'Invalid image data.' });
+      await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: raw,
+        ContentType: mime }));
+      const confirm = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+      if (Number(confirm.ContentLength || 0) !== raw.length) {
+        return res.status(502).json({ ok: false, error: 'NAS did not retain the complete photo.' });
+      }
+      return res.status(200).json({ ok: true, key, bytes: raw.length });
+    }
+
+    // This checks an actual stored object, not merely whether MinIO responds
+    // to a health request. The Orders app saves a photo reference only after
+    // this verification confirms its complete byte count.
+    if (action === 'verify-photo') {
+      const key = body.key;
+      const expected = Number(body.bytes);
+      if (badKey(key) || !/^_orders\/art\/[a-zA-Z0-9._-]{6,120}\.(webp|jpg|jpeg|png)$/.test(key) ||
+          !Number.isInteger(expected) || expected < 1 || expected > 2250000) {
+        return res.status(400).json({ ok: false, error: 'Invalid photo verification request.' });
+      }
+      let size;
+      try {
+        const info = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+        size = Number(info.ContentLength || 0);
+      } catch (err) {
+        if (err?.$metadata?.httpStatusCode === 404 || err?.name === 'NotFound') {
+          return res.status(404).json({ ok: false, error: 'Photo does not exist on NAS.' });
+        }
+        throw err;
+      }
+      if (size !== expected) {
+        return res.status(409).json({ ok: false, error: 'Uploaded photo size mismatch.' });
+      }
+      return res.status(200).json({ ok: true, key, bytes: size });
+    }
+
     if (action === 'upload-url') {
       const key = body.key;
       if (badKey(key)) {
@@ -362,7 +426,7 @@ export default async function handler(req, res) {
     return res.status(400).json({
       ok: false,
       error: 'Unknown action.',
-      allowed: ['upload-url', 'view-urls', 'list', 'delete', 'cleanup-unused', 'storage-stats'],
+      allowed: ['upload-photo', 'verify-photo', 'upload-url', 'view-urls', 'list', 'delete', 'cleanup-unused', 'storage-stats'],
     });
   } catch (err) {
     return res.status(500).json({
