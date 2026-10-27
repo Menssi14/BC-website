@@ -780,6 +780,22 @@
   html[data-theme="dark"] .vw-place .place-odd{ color:#F7B07E; background:rgba(232,114,44,.16); }
 
 
+  /* SWIPE/WHEEL REGRESSION GUARD: the inline tools home must not inherit
+     popup scroll containment. An overflow:auto child with overscroll:contain
+     can swallow swipes/wheel input even when it has no scroll range, leaving
+     only the page scrollbar usable. Let gestures reach the document here;
+     keep containment on real floating popups and their scrollable bodies. */
+  body.sales-app #linksOverlay,
+  body.view-tools #linksOverlay,
+  body.sales-app #linksOverlay .hist-box,
+  body.view-tools #linksOverlay .hist-box,
+  body.sales-app #linksOverlay .hist-box > .edit-opts,
+  body.view-tools #linksOverlay .hist-box > .edit-opts{
+    overflow:visible !important;
+    overscroll-behavior:auto;
+    touch-action:auto;
+  }
+
   /* ===== Sales Office shell ===== */
   .sales-app{ background:#F7F1EC; color:#4A3424; }
   .sales-app .wrap{ display:none !important; }
@@ -2202,9 +2218,18 @@
   function $(id){return document.getElementById(id);}
   function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
-  /* Keep the Office page behind every popup still; the popup body is the scroll surface. */
+  /* SCROLL REGRESSION GUARD (2026-10-27): #linksOverlay is the inline
+     Office/tools page (position:static), NOT a popup, even with .show.
+     Never lock html/body merely because '.overlay.show' exists: doing so
+     freezes the Office page. Only visible, viewport-fixed popups own a lock.
+     Keep each popup's inner body scrollable (min-height:0; overflow-y:auto).
+     Check: scroll Office on phone/desktop; open/close a tool and nested popup;
+     confirm Office scroll returns after the last floating popup closes. */
   function syncOverlayScrollLock(){
-    var open=!!document.querySelector('.overlay.show');
+    var open=Array.prototype.some.call(document.querySelectorAll('.overlay.show'),function(el){
+      var css=window.getComputedStyle(el);
+      return css.position==='fixed' && css.display!=='none' && css.visibility!=='hidden';
+    });
     document.documentElement.classList.toggle('overlay-open',open);
     document.body.classList.toggle('overlay-open',open);
   }
