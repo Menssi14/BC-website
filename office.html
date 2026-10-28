@@ -2125,7 +2125,13 @@
     var pos=Math.min(mid.length-1, Math.round((i-1)*(mid.length-1)/Math.max(1,steps-1)));
     return mid[pos];
   }
-  var TYPES=['Embroidery','DTF','Sublimation','Engraving','Vinyl','NOTE'];
+  /* SHARED ORDER SCHEMA — DO NOT REDUCE THIS LIST TO OFFICE'S MENU OPTIONS.
+     Orders and Office both save _orders/orders.json. Orders uses Printed and
+     Other; omitting either here previously made migrate() rewrite it to NOTE,
+     then Office saved that destructive conversion back to the shared file.
+     Retain legacy DTF/Sublimation/Vinyl too. Unknown future types must survive
+     round trips unchanged; a UI fallback must NEVER overwrite stored type. */
+  var TYPES=['Embroidery','Printed','Engraving','Other','DTF','Sublimation','Vinyl','NOTE'];
   var COLORS=[{n:'Black',h:'#1d1d1d'},{n:'Grey',h:'#9aa0a6'},{n:'White',h:'#ffffff'},{n:'Beige',h:'#e6d2a8'},{n:'Brown',h:'#6b4a2f'},{n:'Dark Blue',h:'#22304f'},{n:'Blue',h:'#2b5fd0'},{n:'Green',h:'#3c8c5a'},{n:'Yellow',h:'#e8c93c'},{n:'Orange',h:'#e8732a'},{n:'Red',h:'#c62828'},{n:'Pink',h:'#e58aa6'},{n:'Purple',h:'#6b4a9e'},{n:'Gold',h:'#c9a24b'}];
   function colorHex(name){ for(var i=0;i<COLORS.length;i++)if(COLORS[i].n===name)return COLORS[i].h; return '#cccccc'; }
   var state={orders:[],daily:{date:'',tasks:[],carried:0,updatedAt:0},inv:{lines:[],updatedAt:0}}; var ui={typeFilter:'',filterOpen:false,view:'tools'}; var editing=null; var builder={size:'',color:'',surface:'',material:'',placement:'',qty:1};
@@ -2986,7 +2992,10 @@
   function migrate(o){
     if(o.images===undefined){ o.images=o.image?[o.image]:[]; } delete o.image;
     if(o.type===undefined){ var t=(o.types&&o.types.length)?o.types[0]:'NOTE'; if(t==='Print'||t==='Printing')t='DTF'; if(t==='Online'){t='NOTE';o.source='online';} o.type=t; } delete o.types;
-    if(o.type==='N/A')o.type='NOTE'; if(TYPES.indexOf(o.type)<0)o.type='NOTE';
+    if(o.type==='N/A')o.type='NOTE';
+    // Preserve unfamiliar service types from newer apps instead of turning
+    // real orders into notes. Rendering may use a fallback, storage may not.
+    if(TYPES.indexOf(o.type)<0)o.typeNeedsReview=true;
     if(o.items===undefined){ o.items=[]; if(o.sizes&&o.sizes.length){ o.sizes.forEach(function(s){ if(s&&(s.size||s.qty)){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)o.items.push({size:s.size||'',color:o.color||'',surface:'',name:''}); } }); } }
     else if(o.items.length&&o.items[0]&&o.items[0].name===undefined){ var ni=[]; o.items.forEach(function(s){ var q=parseInt(s.qty,10); q=(isNaN(q)||q<1)?1:q; for(var k=0;k<q;k++)ni.push({size:s.size||'',color:s.color||'',surface:s.surface||'',name:''}); }); o.items=ni; }
     delete o.sizes; delete o.names; delete o.color; delete o.amount; delete o.varOrder;
