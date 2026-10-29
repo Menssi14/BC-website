@@ -873,6 +873,38 @@
   .buy-action.done{color:var(--green);}
   .buy-foot{font-family:'Teko',sans-serif;font-size:15px;color:var(--muted);line-height:1.1;padding-top:2px;}
 
+  /* Every select uses the shared branded dropdown. Never re-enable native
+     selects on phone: that restores the operating system's popup picker. */
+  select.bc-select-source{display:none!important;}
+  .bc-dropdown{display:block;position:relative;min-width:0;width:100%;flex:1 1 auto;}
+  .bc-dropdown[hidden]{display:none;}
+  .bc-select-button{display:block;width:100%;min-height:46px;box-sizing:border-box;text-align:left;
+    padding:12px 40px 12px 14px;border:1.5px solid var(--line-strong);border-radius:14px;
+    background-color:var(--note);color:var(--burgundy);font-family:'Teko',sans-serif;font-size:21px;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%231F4D3E' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 15px center;white-space:normal;overflow-wrap:anywhere;}
+  .bc-select-button:disabled{opacity:.5;cursor:default;}
+  .bc-dropdown-menu{box-sizing:border-box;width:100%;margin-top:6px;padding:5px;border:1.5px solid var(--line-strong);
+    border-radius:14px;background:var(--note);max-height:250px;overflow-y:auto;touch-action:pan-y;
+    -webkit-overflow-scrolling:touch;box-shadow:0 5px 14px rgba(0,0,0,.09);}
+  .bc-dropdown-menu[hidden]{display:none;}
+  .bc-dropdown-option{display:block;width:100%;min-height:46px;box-sizing:border-box;padding:10px 12px;
+    border:0;border-radius:9px;background:transparent;color:var(--burgundy);font-family:'Teko',sans-serif;
+    font-size:21px;text-align:left;white-space:normal;overflow-wrap:anywhere;cursor:pointer;}
+  .bc-dropdown-option:hover,.bc-dropdown-option.chosen{background:rgba(var(--ink-rgb),.08);}
+  .bc-dropdown-option.chosen::after{content:' ✓';color:var(--green);}
+  .bc-dropdown-option:disabled{opacity:.45;cursor:default;}
+  .bc-select-button:focus-visible,.bc-dropdown-option:focus-visible{outline:2px solid var(--green);outline-offset:-3px;}
+  .bc-dropdown-empty{padding:12px;color:var(--burgundy);font-family:'Teko',sans-serif;font-size:18px;}
+  .bc-input-dropdown{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:0;}
+  .bc-input-dropdown>input{min-width:0;width:100%;box-sizing:border-box;}
+  .bc-input-dropdown>.bc-select-button{padding:10px;background-image:none;border-radius:0 14px 14px 0;
+    background:var(--burgundy);color:var(--note);}
+  .bc-input-dropdown>.bc-dropdown-menu{grid-column:1 / -1;}
+  html[data-theme="dark"] .bc-select-button{background-color:var(--note);color:var(--burgundy);}
+  html[data-theme="dark"] .bc-input-dropdown>.bc-select-button{background:#EFE6D4;color:#0E1F19;}
+
+
 </style>
 <style>
   /* Phone: the filter pill was 23px tall — too small to hit. */
@@ -6477,6 +6509,150 @@
 
   load(); checkHash();
 })();
+</script>
+<script id="app-dropdowns">
+/* APP-WIDE DROPDOWN RULE: native selects are data controls only. Never expose
+   them on mobile: iOS/Android replace them with a system popup. This adapter
+   covers existing AND dynamically-created selects and datalist suggestions.
+   Keep the original controls/options/events so payments, invoice loading,
+   due-date calendars and saved service types continue to use their own code. */
+(function(){
+  'use strict';
+  var enhanced=new WeakMap(), nextId=0;
+  function el(tag,cls){ var n=document.createElement(tag); if(cls)n.className=cls; return n; }
+  function closeAll(except){
+    document.querySelectorAll('.bc-dropdown').forEach(function(w){ if(w!==except&&w._bcClose)w._bcClose(); });
+    if(!except || !except.closest('.wz-pick-wrap')){
+      document.querySelectorAll('.wz-pick-wrap').forEach(function(w){
+        var menu=w.querySelector('.wz-pick-menu'), b=w.querySelector('.wz-pick-button');
+        if(menu)menu.hidden=true; if(b)b.setAttribute('aria-expanded','false');
+      });
+    }
+  }
+  function labelFor(source){
+    if(source.getAttribute('aria-label'))return source.getAttribute('aria-label');
+    var label=source.labels&&source.labels[0], heading=label&&label.querySelector('.wz-rlbl,.ivm-lbl,.field-label');
+    return heading?heading.textContent.trim():(source.getAttribute('placeholder')||'Choose an option');
+  }
+  function enhance(source){
+    if(enhanced.has(source)||!source.parentNode)return;
+    var choosing=false;
+    var isSelect=source.tagName==='SELECT', listId=!isSelect&&source.getAttribute('list');
+    if(!isSelect&&!listId)return;
+    var wrap=el('div','bc-dropdown'), button=el('button','bc-select-button'), menu=el('div','bc-dropdown-menu');
+    button.type='button'; menu.id='bc-options-'+(++nextId); menu.hidden=true;
+    menu.setAttribute('role','listbox'); menu.setAttribute('aria-label',labelFor(source));
+    button.setAttribute('aria-haspopup','listbox'); button.setAttribute('aria-controls',menu.id); button.setAttribute('aria-expanded','false');
+    source.parentNode.insertBefore(wrap,source); wrap.appendChild(source); wrap.appendChild(button); wrap.appendChild(menu);
+    enhanced.set(source,wrap);
+    if(isSelect){ source.classList.add('bc-select-source'); source.setAttribute('tabindex','-1'); source.setAttribute('aria-hidden','true'); }
+    else{
+      // Existing chips still work; typed suggestions also use our own list.
+      source.removeAttribute('list'); source.dataset.bcList=listId;
+      wrap.classList.add('bc-input-dropdown'); button.textContent='Pick';
+    }
+    function close(){ menu.hidden=true; button.setAttribute('aria-expanded','false'); if(!isSelect)source.setAttribute('aria-expanded','false'); }
+    wrap._bcClose=close;
+    wrap._bcSync=sync;
+    function options(){
+      var base=isSelect?source:document.getElementById(listId);
+      return base?Array.prototype.slice.call(base.querySelectorAll('option')):[];
+    }
+    function sync(){
+      if(isSelect){
+        button.className='bc-select-button '+source.className.replace(/\bbc-select-source\b/g,'');
+        var selected=source.options[source.selectedIndex];
+        button.textContent=selected?(selected.label||selected.textContent):'Choose';
+        button.disabled=source.disabled;
+        button.setAttribute('aria-label',labelFor(source)+': '+button.textContent);
+        wrap.hidden=source.hidden;
+      }else button.disabled=source.disabled||source.readOnly;
+    }
+    function build(){
+      menu.textContent=''; var count=0;
+      options().forEach(function(o){
+        if(o.hidden)return;
+        var b=el('button','bc-dropdown-option '+o.className); b.type='button'; b.tabIndex=-1;
+        b.setAttribute('role','option'); b.dataset.value=o.value; b.textContent=o.label||o.textContent||'None';
+        var group=o.parentElement, disabled=o.disabled||(group&&group.tagName==='OPTGROUP'&&group.disabled);
+        b.disabled=!!disabled;
+        var selected=isSelect?o.selected:source.value===o.value;
+        b.setAttribute('aria-selected',selected?'true':'false'); b.classList.toggle('chosen',!!selected);
+        b.addEventListener('click',function(e){
+          e.preventDefault(); e.stopPropagation();
+          if(isSelect&&source.multiple){ o.selected=!o.selected; }
+          else source.value=o.value;
+          if(!source.multiple)close();
+          sync();
+          // Focus before callbacks: choosing a service can rebuild the editor.
+          button.focus({preventScroll:true});
+          choosing=true;
+          try{
+            source.dispatchEvent(new Event('input',{bubbles:true}));
+            source.dispatchEvent(new Event('change',{bubbles:true}));
+          }finally{choosing=false;}
+          sync(); if(source.multiple)build();
+        });
+        menu.appendChild(b); count++;
+      });
+      if(!count){ var empty=el('div','bc-dropdown-empty'); empty.textContent='No choices available'; menu.appendChild(empty); }
+    }
+    function open(focus){
+      if(button.disabled)return;
+      closeAll(wrap); sync(); build(); menu.hidden=false; button.setAttribute('aria-expanded','true');
+      if(!isSelect)source.setAttribute('aria-expanded','true');
+      if(focus){ var first=menu.querySelector('.chosen:not(:disabled)')||menu.querySelector('button:not(:disabled)'); if(first)first.focus({preventScroll:true}); }
+    }
+    button.addEventListener('click',function(e){ e.preventDefault(); if(menu.hidden)open(false);else close(); });
+    button.addEventListener('keydown',function(e){ if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault();open(true); } });
+    wrap.addEventListener('keydown',function(e){
+      if(menu.hidden)return;
+      if(e.key==='Escape'){ e.preventDefault();e.stopPropagation();close();button.focus({preventScroll:true});return; }
+      if(!menu.contains(e.target))return;
+      var choices=Array.prototype.slice.call(menu.querySelectorAll('button:not(:disabled)')), at=choices.indexOf(e.target), index=-1;
+      if(e.key==='ArrowDown')index=(at+1)%choices.length;
+      if(e.key==='ArrowUp')index=(at-1+choices.length)%choices.length;
+      if(e.key==='Home')index=0;
+      if(e.key==='End')index=choices.length-1;
+      if(e.key.length===1 && !e.ctrlKey && !e.metaKey){
+        for(var n=1;n<=choices.length;n++){ var j=(at+n)%choices.length;if(choices[j].textContent.toLowerCase().indexOf(e.key.toLowerCase())===0){index=j;break;} }
+      }
+      if(index>=0&&choices[index]){e.preventDefault();choices[index].focus();}
+    });
+    wrap.addEventListener('focusout',function(e){ if(!wrap.contains(e.relatedTarget))close(); });
+    source.addEventListener('change',sync);
+    if(isSelect){
+      // .value and .selectedIndex are assigned directly throughout the app.
+      // Reflect those writes without firing an extra save/change event.
+      ['value','selectedIndex'].forEach(function(key){
+        var descriptor=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,key);
+        if(descriptor&&descriptor.get&&descriptor.set)Object.defineProperty(source,key,{
+          configurable:true,get:function(){return descriptor.get.call(this);},set:function(value){descriptor.set.call(this,value);sync();}
+        });
+      });
+      new MutationObserver(function(){ sync();if(!menu.hidden)build(); }).observe(source,{subtree:true,childList:true,characterData:true,attributes:true});
+    }else{
+      source.setAttribute('aria-controls',menu.id); source.setAttribute('aria-expanded','false');
+      source.addEventListener('input',function(){ if(choosing)return; if(source.value.trim())open(false); else close(); });
+      source.addEventListener('keydown',function(e){if(e.key==='ArrowDown'){e.preventDefault();open(true);}});
+    }
+    sync();
+  }
+  function scan(root){
+    if(root.nodeType!==1&&root.nodeType!==9)return;
+    if(root.matches&&root.matches('select,input[list]'))enhance(root);
+    root.querySelectorAll('select,input[list]').forEach(enhance);
+  }
+  document.addEventListener('click',function(e){
+    var inside=e.target.closest('.bc-dropdown');
+    document.querySelectorAll('.bc-dropdown').forEach(function(w){if(w!==inside&&w._bcClose)w._bcClose();});
+  });
+  document.addEventListener('reset',function(){setTimeout(function(){document.querySelectorAll('.bc-dropdown').forEach(function(w){if(w._bcSync)w._bcSync();});},0);});
+  // New controls are enhanced before the next user interaction.
+  new MutationObserver(function(records){records.forEach(function(r){r.addedNodes.forEach(scan);});}).observe(document.body,{childList:true,subtree:true});
+  scan(document);
+})();
+
 </script>
 </body>
 </html>
