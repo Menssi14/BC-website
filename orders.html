@@ -1036,6 +1036,22 @@
   html[data-theme="dark"] .wz-csel option{ color:#EFE6D4; background:#16302A; }
   html[data-theme="dark"] .wz-dot{ border-color:rgba(239,230,212,.45); }
   .wz-csel:focus{ outline:none; }
+  /* Branded garment/material/color dropdowns, including touch scrolling. */
+  .wz-pick-button{ flex:0 0 26%; min-width:76px; border:0; border-left:1.5px solid var(--line-strong);
+    background:var(--burgundy); color:var(--note); font-family:'Teko',sans-serif; font-size:21px; cursor:pointer; }
+  .wz-pick-button::after{ content:'⌄'; margin-left:10px; }
+  .wz-pick-button[aria-expanded="true"]::after{ content:'⌃'; }
+  .wz-pick-menu{ margin-top:6px; padding:5px; border:1.5px solid var(--line-strong); border-radius:14px;
+    background:var(--note); max-height:240px; overflow-y:auto; touch-action:pan-y; -webkit-overflow-scrolling:touch; }
+  .wz-pick-menu[hidden]{ display:none; }
+  .wz-pick-option{ display:flex; align-items:center; gap:10px; width:100%; min-height:46px; padding:10px 12px;
+    border:0; border-radius:9px; background:transparent; color:var(--burgundy); text-align:left;
+    font-family:'Teko',sans-serif; font-size:21px; cursor:pointer; }
+  .wz-pick-option:hover,.wz-pick-option.chosen{ background:rgba(var(--ink-rgb),.08); }
+  .wz-pick-option.chosen::after{ content:'✓'; margin-left:auto; color:var(--green); }
+  .wz-pick-button:focus-visible,.wz-pick-option:focus-visible{ outline:2px solid var(--green); outline-offset:-3px; }
+  .wz-pick-swatch{ flex:none; width:20px; height:20px; border:1px solid var(--line-strong); border-radius:50%; }
+  html[data-theme="dark"] .wz-pick-button{ background:#EFE6D4; color:#0E1F19; }
   .wz-num{ display:flex; align-items:stretch; gap:8px; }
   .wz-num button{ flex:none; width:54px; border-radius:14px; border:1.5px solid var(--line-strong);
     background:var(--note); color:var(--green); font-size:22px; cursor:pointer; }
@@ -2850,6 +2866,7 @@
   function saveAndStay(){
     if(!editing||_manualSaveBusy)return;
 
+    if(itemHas(builder) && !itemSizeValid(builder)) return;
     editing.items=(editing.items||[]).filter(itemHas);
     if(editing.type!=='NOTE')editing.title=autoTitle(editing);
 
@@ -3386,7 +3403,7 @@
     h+='<div class="card-pad">';
     var _t=autoTitle(o); if(_t){ var _nn=(o.type==='NOTE'?' note-name':'');
       // how many pieces the order is, right beside the title
-      var _n=(o.type==='NOTE')?0:itemCount(o);
+      var _n=itemCount(o);
       var _oc=smartDisplayCode(o);
       var _nb=(_n?String(_n):'')+(_oc?((_n?' · ':'')+_oc):'');
       var _nt=[_n?(_n+(_n===1?' item':' items')):'',_oc?('Order type '+_oc):''].filter(Boolean).join(' · ');
@@ -3395,17 +3412,14 @@
     h+=placeBlockHTML(o);
     var _ph=(o.custPhone||o.contact||''); var contactH=''; if(_ph) contactH='<a class="contact" href="tel:'+esc(_ph).replace(/[^0-9+]/g,'')+'" data-stop="1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>'+esc(o.contact)+'</a>';
     var itemsH='', notesH='';
-    /* Some older orders were accidentally left with type NOTE even though they
-       contain real garment items. The board should trust the actual item data:
-       if an order has items, always render the size/item block. A true note is
-       only treated as a note when it has no items at all. */
-    var hasRealItems=!!((o.items||[]).filter(itemHas).length);
-    if(o.type==='NOTE' && !hasRealItems){
-      if(o.body) notesH='<div class="ctext">'+esc(o.body)+'</div>';
-    }else{
-      itemsH=cardItemsHTML(o);
-      if(o.body) notesH='<div class="ctext cnotes">'+esc(o.body)+'</div>';
-    }
+    /* SIZE DISPLAY REGRESSION GUARD: type describes the service, not whether
+       item data exists. NOTE records can retain real garment sizes/quantities.
+       Always render those rows through cardItemsHTML, exactly like orders:
+       desktop shows them inline; phone puts them on the second swipe pane.
+       Do not hide sizes or the item count based on o.type, and do not change
+       the saved type just to make its sizes visible. */
+    itemsH=cardItemsHTML(o);
+    if(o.body) notesH='<div class="ctext'+(itemsH?' cnotes':'')+'">'+esc(o.body)+'</div>';
     /* Keep the main order board clean: order type is already shown beside
        the quantity, while stage / due date / payment details live inside the
        opened order. Trash keeps its countdown because that is a trash-only
@@ -3426,7 +3440,7 @@
     } else {
       /* Desktop keeps the item / size breakdown directly on the main card.
          Phones use the two-pane swipe above. */
-      h+=contactH+(o.type==='NOTE'?notesH:(itemsH+notesH))+tagsH+'</div>';
+      h+=contactH+itemsH+notesH+tagsH+'</div>';
     }
     /* Active orders and quotes intentionally have no footer bar.
        Tap opens the order; press-and-hold exposes its quick actions. */
@@ -3699,13 +3713,13 @@
        place  ask where it prints
      A size wheel only appears for the things that come in sizes. */
   var WZ_PATH={
-    Printed:    { what:['T-Shirt','Polo','Long Sleeve','Sweatshirt'], mats:['Cotton','Poly'], color:true, place:true,
+    Printed:    { what:['T-Shirt','Polo','Long Sleeve'], mats:['Cotton','Poly'], color:true, place:true,
                   whatLabel:'Garment', title:'What Are We Printing On?', where:'Where Does It Print?' },
     Other:      { what:['T-Shirt','Polo','Cap','Tumbler'], mats:[], color:true, place:false,
                   whatLabel:'Item', title:'What Is The Order For?' },
-    DTF:        { what:['T-Shirt','Polo','Long Sleeve','Sweatshirt'], mats:['Cotton','Poly'], color:true, place:true,
+    DTF:        { what:['T-Shirt','Polo','Long Sleeve'], mats:['Cotton','Poly'], color:true, place:true,
                   whatLabel:'Garment', title:'What Are We Printing On?', where:'Where Does It Print?' },
-    Embroidery: { what:['Cap','Polo','T-Shirt'], mats:[], color:true, place:true,
+    Embroidery: { what:['Cap','Polo','T-Shirt','Long Sleeve'], mats:[], color:true, place:true,
                   whatLabel:'Garment', title:'What Are We Embroidering On?', where:'Where Does It Go?' },
     Sublimation:{ what:['Mug','Tumbler','T-Shirt'], mats:[], color:false, place:false,
                   whatLabel:'Item', title:'What Are We Sublimating?' },
@@ -3716,7 +3730,17 @@
   };
   var WZ_SIZED=/^(t-?shirt|shirt|polo|long ?sleeve|short ?sleeve|sweat ?shirt|hoodie|jacket|fishing shirt|apron)$/i;
   function wzPath(){ return WZ_PATH[wz.type]||WZ_PATH.Other; }
-  function wzNeedsSize(){ return WZ_SIZED.test((wz.b.surface||'').trim()); }
+  // REQUIRED SIZE: validate the selected item, never the order service type.
+  // Keep Add, Next and Save guarded together. Caps/hats and tumblers are
+  // intentionally exempt; do not require sizes for every embroidery item.
+  function itemNeedsSize(it){ return WZ_SIZED.test(String(it.surface||'').trim()); }
+  function itemSizeValid(it){
+    if(itemNeedsSize(it) && !String(it.size||'').trim()){
+      toast('Choose a size for the '+it.surface+' before adding it'); return false;
+    }
+    return true;
+  }
+  function wzNeedsSize(){ return itemNeedsSize(wz.b); }
   // A cap is stitched in one spot, so it never asks where.
   function wzNeedsPlace(){ return !!wzPath().place && !/cap|beanie|hat|visor/i.test(wz.b.surface||''); }
   var WZ_ARROW='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
@@ -3938,7 +3962,7 @@
   function wzNext(){
     if(!wz.open) return;
     var key=wz.steps[wz.i];
-    if(key==='items') wzAutoAdd();
+    if(key==='items' && wzAutoAdd()===false) return;
     if(wz.i>=wz.steps.length-1){ wzFinish(); return; }
     wzShow(wz.i+1,1);
   }
@@ -3960,6 +3984,7 @@
   }
   function wzAdd(){
     var sizes=wzNeedsSize()?wzSizes():[''];
+    if(!itemSizeValid(wz.b)) return 0;
     if(!sizes.length) sizes=[''];
     if(!itemHas(wzItem(sizes[0]))){ toast('Pick a size or a garment first'); return 0; }
     var n=Math.max(1,parseInt(wz.b.qty,10)||1), made=0;
@@ -3974,15 +3999,18 @@
   }
   // Picked a size but went straight to Next without tapping Add: add it.
   function wzAutoAdd(){
-    if(!editing || (editing.items||[]).some(itemHas)) return;
-    if(!itemHas(wzItem())) return;
+    if(!editing || (editing.items||[]).some(itemHas)) return true;
+    if(!itemHas(wzItem())) return true;
+    if(!itemSizeValid(wz.b)) return false;
     var n=wzAdd(); if(n) toast('Added '+n+' item'+(n===1?'':'s'));
+    return !!n;
   }
 
   function wzFinish(){
     if(wz.busy){ toast('Photo is still uploading — please wait'); return; }
     if(wz.pendingPhotos.some(function(p){return p.failed;})){ toast('A photo failed to upload. Tap Retry or remove the failed photo before saving.'); return; }
     if(!editing){ wzClose(); return; }
+    if(wzAutoAdd()===false) return;
     if(wz.edit){ var _id=editing.id; wzClose(); commitOrClose(); wzAfterEdit(_id); return; }
     editing.items=(editing.items||[]).filter(itemHas);
     if(editing.type!=='NOTE') editing.title=autoTitle(editing);
@@ -4058,38 +4086,71 @@
     sel.addEventListener('change',function(){ onPick(sel.value); });
     return sel;
   }
-  // a dropdown that turns into a text box when "Other…" is picked
-  /* One row: type it on the left, or tap the brown button on the right and
-     pick from the list. Picking fills the box, so both ends stay in step. */
+  // Keep these pickers in the page: native <select> opens a phone system
+  // sheet instead of the branded dropdown. The expanded list stays in normal
+  // flow so it cannot be clipped by the wizard's scrolling panels.
+  function wzClosePicks(except){
+    document.querySelectorAll('.wz-pick-wrap').forEach(function(w){
+      if(w===except) return;
+      var menu=w.querySelector('.wz-pick-menu'), button=w.querySelector('.wz-pick-button');
+      if(menu) menu.hidden=true;
+      if(button) button.setAttribute('aria-expanded','false');
+    });
+  }
+  document.addEventListener('click',function(e){ if(!e.target.closest('.wz-pick-wrap')) wzClosePicks(); });
+  var wzPickSeq=0;
   function wzPick(label, list, field, onChange, hint, swatch){
+    var root=wzEl('div','wz-pick-wrap');
     var wrap=wzEl('div','wz-combo');
     var dot=null;
-    if(swatch){
-      dot=wzEl('span','wz-dot'); wrap.appendChild(dot);
-      wrap.classList.add('has-dot');
-    }
+    if(swatch){ dot=wzEl('span','wz-dot'); wrap.appendChild(dot); wrap.classList.add('has-dot'); }
     function paintDot(){
       if(!dot) return;
       var hex=swatch(wz.b[field]||'');
-      dot.style.background=hex||'transparent';
-      dot.style.borderStyle=hex?'solid':'dashed';
+      dot.style.background=hex||'transparent'; dot.style.borderStyle=hex?'solid':'dashed';
     }
     var box=wzEl('input','wz-cin');
     box.placeholder=label; box.autocapitalize='words'; box.autocomplete='off'; box.value=wz.b[field]||'';
-    box.addEventListener('input',function(){ wz.b[field]=box.value.trim(); sync(); paintDot(); if(onChange)onChange(); wzFoot(); });
-    var sel=document.createElement('select'); sel.className='wz-csel'; sel.setAttribute('aria-label',label);
-    var ph=document.createElement('option'); ph.value=''; ph.textContent=''; sel.appendChild(ph);
-    list.forEach(function(v){ var o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
-    // the button always reads "Pick"; what you chose shows in the box beside it
-    function sync(){ sel.value=''; }
-    sel.addEventListener('change',function(){
-      if(!sel.value) return;
-      wz.b[field]=sel.value; box.value=sel.value; sel.value='';
-      paintDot(); if(onChange)onChange(); wzFoot();
+    var button=wzEl('button','wz-pick-button','Pick'); button.type='button';
+    button.setAttribute('aria-label','Choose '+label.toLowerCase());
+    button.setAttribute('aria-expanded','false');
+    var menu=wzEl('div','wz-pick-menu'); menu.id='wz-pick-'+(++wzPickSeq); menu.hidden=true;
+    menu.setAttribute('role','group'); menu.setAttribute('aria-label',label+' choices');
+    button.setAttribute('aria-controls',menu.id);
+    function close(){ menu.hidden=true; button.setAttribute('aria-expanded','false'); }
+    function paint(){
+      menu.querySelectorAll('button').forEach(function(o){
+        var chosen=o.dataset.value.toLowerCase()===String(wz.b[field]||'').toLowerCase();
+        o.classList.toggle('chosen',chosen); o.setAttribute('aria-pressed',chosen?'true':'false');
+      });
+    }
+    function open(){ wzClosePicks(root); paint(); menu.hidden=false; button.setAttribute('aria-expanded','true'); }
+    button.addEventListener('click',function(){ if(menu.hidden)open(); else close(); });
+    button.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'){ e.preventDefault(); open(); var first=menu.querySelector('.chosen')||menu.querySelector('button'); if(first)first.focus(); }
     });
-    sync(); paintDot();
-    wrap.appendChild(box); wrap.appendChild(sel);
-    return wzRow(label, wrap, hint);
+    box.addEventListener('input',function(){ wz.b[field]=box.value.trim(); paint(); paintDot(); if(onChange)onChange(); wzFoot(); });
+    list.forEach(function(v){
+      var option=wzEl('button','wz-pick-option'); option.type='button'; option.dataset.value=v;
+      if(swatch){ var chip=wzEl('span','wz-pick-swatch'); chip.style.background=swatch(v)||'transparent'; chip.setAttribute('aria-hidden','true'); option.appendChild(chip); }
+      option.appendChild(wzEl('span',null,v));
+      option.addEventListener('click',function(){
+        wz.b[field]=v; box.value=v; close(); paint(); paintDot(); button.focus();
+        if(onChange)onChange(); wzFoot();
+      });
+      menu.appendChild(option);
+    });
+    root.addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&!menu.hidden){ e.preventDefault(); e.stopPropagation(); close(); button.focus(); }
+      if(!menu.hidden && menu.contains(e.target) && ['ArrowDown','ArrowUp','Home','End'].indexOf(e.key)>=0){
+        e.preventDefault(); var choices=Array.prototype.slice.call(menu.querySelectorAll('button')), at=choices.indexOf(e.target);
+        var next=e.key==='Home'?0:e.key==='End'?choices.length-1:(at+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;
+        if(choices[next])choices[next].focus();
+      }
+    });
+    root.addEventListener('focusout',function(e){ if(!root.contains(e.relatedTarget))close(); });
+    paint(); paintDot(); wrap.appendChild(box); wrap.appendChild(button); root.appendChild(wrap); root.appendChild(menu);
+    return wzRow(label, root, hint);
   }
   function wzNum(value, onChange){
     var w=wzEl('div','wz-num');
@@ -4819,7 +4880,7 @@
     albl.onclick = function(){ bld.style.display = (bld.style.display==='none') ? '' : 'none'; paintAlbl(); };
     c.appendChild(albl); paintAlbl();
     c.appendChild(bld);
-    addB.onclick=function(){ var n=Math.max(1,builder.qty||1); for(var i=0;i<n;i++)editing.items.push({size:builder.size,color:builder.color,surface:builder.surface,material:builder.material,placement:builder.placement,name:''}); fillGen(list); livePersist(); toast('Added '+n+(n>1?' items':' item')); };
+    addB.onclick=function(){ if(!itemSizeValid(builder)) return; var n=Math.max(1,builder.qty||1); for(var i=0;i<n;i++)editing.items.push({size:builder.size,color:builder.color,surface:builder.surface,material:builder.material,placement:builder.placement,name:''}); fillGen(list); livePersist(); toast('Added '+n+(n>1?' items':' item')); };
   }
 
   function colorStrip(getC,setC){
