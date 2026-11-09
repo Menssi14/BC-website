@@ -2247,6 +2247,10 @@
       if(!d||!d.editing||!draftHasContent(d.editing))return;
 
       var incoming=d.editing;
+      var lifecycle=incoming.id&&_orderLife[incoming.id];
+      if(incoming.id&&(_deletedIds[incoming.id]||(lifecycle&&lifecycle.action==='trash'))){clearNewDraft(type);return;}
+      if(incoming.id&&getOrder(incoming.id)&&getOrder(incoming.id).trashed){clearNewDraft(type);return;}
+      lifeApply(incoming);
       incoming.isNew=false;
       incoming.drafting=true;
       if(!incoming.id)incoming.id=uid();
@@ -2957,6 +2961,134 @@
   }
   var _manualSaveBusy=false;
   var _deletedIds = {};
+  /* TRASH SYNC SAFETY (shared by Orders and Office): content updatedAt MUST
+     NEVER act as a Restore command. Explicit lifecycle actions have their own
+     append-only cloud records, outside orders.json, so whole-file saves and
+     other writers cannot erase deletion history. Keep every load/save/sync
+     path below connected to this journal. Never prune permanent-delete events. */
+  var LIFE_DIR='_orders/lifecycle-v1', LIFE_CACHE='bc-order-life-cache-v1', LIFE_PENDING='bc-order-life-pending-v1:';
+  var _orderLife=Object.create(null), _lifePending=Object.create(null), _lifeReadJob=null, _lifeLastHead=null, _lifeSaveJobs=[], _lifeSaving=false;
+  function lifeNewer(a,b){ return !b || a.at>b.at || (a.at===b.at && a.key>b.key); }
+  function lifeRemember(e){
+    if(!e || typeof e.id!=='string' || !e.id || !isFinite(e.at) || e.at<=0 || typeof e.key!=='string' || ['trash','restore','delete'].indexOf(e.action)<0)return;
+    if(lifeNewer(e,_orderLife[e.id]))_orderLife[e.id]=e;
+    var current=_orderLife[e.id];
+    if(current.action==='delete')_deletedIds[e.id]=true; else delete _deletedIds[e.id];
+  }
+  function lifeLocalRead(){
+    try{var cached=JSON.parse(localStorage.getItem(LIFE_CACHE)||'{}');Object.keys(cached).forEach(function(id){lifeRemember(cached[id]);});}catch(_){}
+    try{for(var i=0;i<localStorage.length;i++){var key=localStorage.key(i);if(key&&key.indexOf(LIFE_PENDING)===0){var e=JSON.parse(localStorage.getItem(key));if(e&&e.key){_lifePending[e.key]=e;lifeRemember(e);_needsSave=true;}}}}catch(_){}
+  }
+  function lifeCache(){try{localStorage.setItem(LIFE_CACHE,JSON.stringify(_orderLife));}catch(_){} }
+  function lifeClearDraft(id){
+    TYPES.forEach(function(type){try{var d=JSON.parse(localStorage.getItem(draftKey(type))||'null');if(d&&d.editing&&d.editing.id===id)localStorage.removeItem(draftKey(type));}catch(_){} });
+  }
+  function lifeAction(id,action,order){
+    lifeLocalRead();
+    var prev=_orderLife[id], at=Math.max(Date.now(),prev?prev.at+1:0);
+    var nonce=(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID().replace(/-/g,''):Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+    var key=encodeURIComponent(id)+'--'+at+'-'+nonce+'.json';
+    var e={v:1,id:id,action:action,at:at,key:key,trashReason:order&&order.trashReason||'deleted',trashedAt:action==='trash'?(order&&order.trashedAt||Date.now()):null};
+    _lifePending[key]=e;lifeRemember(e);lifeCache();lifeClearDraft(id);_needsSave=true;
+    try{localStorage.setItem(LIFE_PENDING+key,JSON.stringify(e));}catch(_){}
+    if(order)lifeApply(order);
+    return e;
+  }
+  function lifeApply(o){
+    if(!o)return o;var e=_orderLife[o.id];if(!e)return o;
+    o.lifecycleAt=e.at;o.lifecycleAction=e.action;o.lifecycleKey=e.key;
+    if(e.action==='trash'){o.trashed=true;o.trashedAt=e.trashedAt||e.at;o.trashReason=e.trashReason;}
+    else if(e.action==='restore'){o.trashed=false;o.trashedAt=null;delete o.trashReason;}
+    return o;
+  }
+  function lifeApplyState(){
+    var before=JSON.stringify(state.orders);
+    state.orders=state.orders.filter(function(o){if(_deletedIds[o.id])return false;lifeApply(o);return true;});
+    if(editing){
+      if(_deletedIds[editing.id]){lifeClearDraft(editing.id);if(wz&&wz.open&&typeof wzClose==='function')wzClose();if(overlay&&typeof hideOverlay==='function')hideOverlay();editing=null;toast('This order has been deleted.');}
+      else lifeApply(editing);
+    }
+    return before!==JSON.stringify(state.orders);
+  }
+  function lifeMergeOrder(m,c){
+    var winner=_freshness(c)>_freshness(m)?migrate(c):m;
+    if(_orderLife[winner.id])return lifeApply(winner);
+    // Legacy records have no action journal yet. Trash wins over content edits;
+    // only the explicit Restore/Undo controls create a restoring journal event.
+    if(m.trashed||c.trashed){var t=m.trashed&&(!c.trashed||(m.trashedAt||0)>=(c.trashedAt||0))?m:c;
+      winner.trashed=true;winner.trashedAt=t.trashedAt;winner.trashReason=t.trashReason;}
+    return winner;
+  }
+  function lifeBatches(list,work){
+    var chain=Promise.resolve();for(var i=0;i<list.length;i+=8)(function(batch){chain=chain.then(function(){return Promise.all(batch.map(work));});})(list.slice(i,i+8));return chain;
+  }
+  function lifeFlush(){
+    lifeLocalRead();var pending=Object.keys(_lifePending).map(function(k){return _lifePending[k];});
+    if(!pending.length)return Promise.resolve();
+    if(!sb)return Promise.reject(new Error('Cloud unavailable'));
+    return lifeBatches(pending,function(e){
+      return sb.storage.from(BUCKET).upload(LIFE_DIR+'/'+e.key,new Blob([JSON.stringify(e)],{type:'application/json'}),{upsert:false,cacheControl:'0'}).then(function(r){
+        if(!r)throw new Error('Could not save trash history');
+        if(r&&r.error&&String(r.error.statusCode||r.error.status)!=='409')throw r.error;
+        _lifeLastHead=null;delete _lifePending[e.key];try{localStorage.removeItem(LIFE_PENDING+e.key);}catch(_){}
+      });
+    }).then(function(){lifeCache();if(Object.keys(_lifePending).length)return lifeFlush();});
+  }
+  function lifeRead(){
+    if(_lifeReadJob)return _lifeReadJob;
+    lifeLocalRead();
+    if(!sb)return Promise.reject(new Error('Cloud unavailable'));
+    var files=[];
+    function page(offset){return sb.storage.from(BUCKET).list(LIFE_DIR,{limit:1000,offset:offset,sortBy:{column:'name',order:'asc'}}).then(function(r){
+      if(!r||r.error||!Array.isArray(r.data))throw new Error('Could not read trash history');
+      files=files.concat(r.data);if(r.data.length===1000)return page(offset+1000);
+    });}
+    // One small metadata request when nothing changed; scan the journal only
+    // after a new immutable event arrives, keeping idle-device bandwidth small.
+    var headTag=null;
+    _lifeReadJob=sb.storage.from(BUCKET).list(LIFE_DIR,{limit:1,sortBy:{column:'created_at',order:'desc'}}).then(function(r){
+      if(!r||r.error||!Array.isArray(r.data))throw new Error('Could not read trash history');
+      var f=r.data[0];headTag=f?[f.name,f.created_at||'',f.updated_at||''].join('|'):'empty';
+      if(headTag===_lifeLastHead)return false;
+      return page(0).then(function(){return true;});
+    }).then(function(changed){
+      if(!changed)return;
+      var wanted=files.filter(function(f){
+        var match=typeof f.name==='string'&&f.name.match(/^(.+)--(\d{10,16})-([a-z0-9]+)\.json$/);
+        if(!match)return false;var id;try{id=decodeURIComponent(match[1]);}catch(_){return false;}
+        return lifeNewer({at:Number(match[2]),key:f.name},_orderLife[id]);
+      });
+      return lifeBatches(wanted,function(f){return sb.storage.from(BUCKET).download(LIFE_DIR+'/'+f.name).then(function(r){
+        if(!r||r.error||!r.data)throw new Error('Could not load trash history');
+        return r.data.text().then(function(t){var e=JSON.parse(t);if(!e||typeof e.id!=='string'||!e.id||!Number.isFinite(e.at)||e.at<=0||['trash','restore','delete'].indexOf(e.action)<0||e.key!==f.name||encodeURIComponent(e.id)+'--'+e.at+'-'!==f.name.slice(0,f.name.lastIndexOf('-')+1))throw new Error('Invalid trash history');lifeRemember(e);});
+      });});
+    }).then(function(){_lifeLastHead=headTag;lifeCache();}).finally(function(){_lifeReadJob=null;});
+    return _lifeReadJob;
+  }
+  function downloadOrdersWithLifecycle(){return lifeRead().then(function(){return sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now());});}
+  // Serialize this device's saves. Journal writes must succeed before we tell
+  // the user their deletion is saved or upload an order snapshot based on it.
+  function saveNow(done){
+    _saveTimer=null;_lifeSaveJobs.push(done);_saving=true;
+    if(!_lifeSaving)lifeRunSave();
+  }
+  function lifeRunSave(){
+    if(!_lifeSaveJobs.length){_lifeSaving=false;_saving=false;return;}
+    _lifeSaving=true;_saving=true;var done=_lifeSaveJobs.shift();
+    function fail(){_saving=false;_needsSave=true;syncShow('⚠ Not saved — keep app open','fail');if(done)done(false);lifeRunSave();}
+    function attempt(){
+      _saving=true;
+      lifeFlush().then(function(){
+        _saveOrdersNow(function(ok){
+          if(ok&&Object.keys(_lifePending).length){attempt();return;}
+          if(done)done(ok);lifeRunSave();
+        });
+      }).catch(fail);
+    }
+    attempt();
+  }
+  lifeLocalRead();
+
   // Only upload/artwork keys go to cleanup. Inline data: photos are untouched.
   var ART_CLEANUP_LOCAL = 'bc-order-art-cleanup-v1';
   var _artCleanup = [];
@@ -2994,25 +3126,27 @@
   // a paid online order (or another device's edit) may have landed since we loaded.
   // 1) re-download the cloud copy   2) keep anything we don't have
   // 3) per order, keep whichever side was touched most recently   4) upload the union
-  function saveNow(done){
-    if(!sb) return;
+  function _saveOrdersNow(done){
+    if(!sb){ if(done)done(false); return; }
     _saveTimer=null;   // the debounce window is over — clear the flag so refreshes aren't blocked forever
     _saving=true;      // a real save is now in flight; pause cloud pulls until it finishes
-    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
+    downloadOrdersWithLifecycle().then(function(r){
+      if(!r||r.error||!r.data){_saving=false;_needsSave=true;syncShow('⚠ Not saved — keep app open','fail');if(done)done(false);return;}
       var cloud = [];
       _cloudDaily = null;
       if(r && r.data) return r.data.text().then(function(t){
         try{
           var s=JSON.parse(t);
-          if(s && Array.isArray(s.orders)) cloud=s.orders;
+          if(!s||!Array.isArray(s.orders))throw new Error('Invalid orders file');
+          cloud=s.orders;
           if(s && s.daily) _cloudDaily=s.daily;
           if(s && s.inv) _cloudInv=s.inv;
           _loadOk=true;
-        }catch(e){}
+        }catch(e){_saving=false;_needsSave=true;syncShow('⚠ Not saved — keep app open','fail');if(done)done(false);return;}
         _mergeAndUpload(cloud,done);
       });
       _mergeAndUpload(cloud,done);   // no cloud file yet — just write ours
-    }).catch(function(){ _mergeAndUpload(null,done); });
+    }).catch(function(){_saving=false;_needsSave=true;syncShow('⚠ Not saved — keep app open','fail');if(done)done(false);});
   }
   var _cloudDaily=null, _cloudInv=null;
   function _mergeAndUpload(cloud,done){
@@ -3034,16 +3168,14 @@
           if(_deletedIds[c.id]) return;                       // we deleted it on purpose
           var m = mine[c.id];
           if(!m){ state.orders.push(migrate(c)); return; }    // new to us (e.g. online order) — keep it
-          if(_freshness(c) > _freshness(m)){                  // theirs is newer — take theirs
-            var i = state.orders.indexOf(m);
-            state.orders[i] = migrate(c);
-          }
+          state.orders[state.orders.indexOf(m)]=lifeMergeOrder(m,c);
         });
         state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
         render();
         if(_cloudDaily){ mergeDaily(_cloudDaily); renderGoals(); }
         if(_cloudInv){ mergeInv(_cloudInv); if($('invOverlay')&&$('invOverlay').classList.contains('show')) renderInv(); }
       }
+      if(lifeApplyState())render();
       var blob=new Blob([JSON.stringify({v:11,orders:state.orders,daily:state.daily,inv:state.inv})],{type:'application/json'});
       sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(r){
         _saving=false;
@@ -3083,13 +3215,13 @@
     _loaded=false;
     showInitialLoading();
     if(!sb){ _loaded=true; showInitialLoadError(); return; }
-    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
+    downloadOrdersWithLifecycle().then(function(r){
       if(!(r&&r.data)){ _loaded=true; showInitialLoadError(); return; }
       r.data.text().then(function(t){
         try{
           var s=JSON.parse(t);
           if(!(s&&Array.isArray(s.orders)))throw new Error('Invalid orders file');
-          state.orders=s.orders.map(migrate);
+          state.orders=s.orders.map(migrate); lifeApplyState();
           state.daily=normalizeDaily(s.daily);
           state.inv=normalizeInv(s.inv);
           var rolled=rollDaily();
@@ -3109,6 +3241,7 @@
             }
           }catch(e){}
           if(rolled||recovered||_smartMigrated){ _smartMigrated=false; persist(); }
+          if(Object.keys(_lifePending).length)persist();
           startAutoRefresh();
           setTimeout(artCacheTidy, 15000);
         }catch(e){ _loaded=true; showInitialLoadError(); }
@@ -3128,18 +3261,20 @@
     sb.storage.from(BUCKET).list('_orders', { limit: 100 }).then(function(res){
       var tag = null;
       if(res && res.data){ for(var i=0;i<res.data.length;i++){ var f=res.data[i]; if(f && f.name==='orders.json'){ tag=(f.updated_at||'')+'|'+((f.metadata&&(f.metadata.eTag||f.metadata.size))||''); break; } } }
-      if(tag && _remoteTag && tag===_remoteTag && !force){ _lastRefresh=Date.now(); return; }  // unchanged → skip the big download
+      if(tag && _remoteTag && tag===_remoteTag && !force){ _lastRefresh=Date.now(); lifeRead().then(function(){if(!_saveTimer&&!_saving&&!(overlay&&overlay.classList.contains('show'))&&!(wz&&wz.open)&&lifeApplyState())render();}).catch(function(){}); return; }  // unchanged → skip the big download
       _pullFull(tag);
     }).catch(function(){ _pullFull(null); });   // metadata check unavailable → fall back to a full download (never worse than before)
   }
   function _pullFull(tag){
-    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
+    downloadOrdersWithLifecycle().then(function(r){
       if(r&&r.data){ r.data.text().then(function(t){
+        if(_saveTimer||_saving||(overlay&&overlay.classList.contains('show'))||(wz&&wz.open))return;
         try{ var s=JSON.parse(t);
           if(s&&Array.isArray(s.orders)){
             _loadOk=true;
             var incoming=JSON.stringify(s.orders);
-            if(incoming!==JSON.stringify(state.orders)){ state.orders=s.orders.map(migrate); purgeOld(); render(); }
+            if(incoming!==JSON.stringify(state.orders)){ state.orders=s.orders.map(migrate); lifeApplyState(); purgeOld(); render(); }
+            if(lifeApplyState())render();
             // goals edited on the other device show up here too
             var beforeGoals=JSON.stringify(state.daily);
             mergeDaily(s.daily);
@@ -3190,7 +3325,7 @@
       // has touched it for 10 minutes, so an order someone is still typing
       // on another device is left alone.
       if(!kill && orderIsEmpty(o) && !(editing&&editing.id===o.id) && now-Math.max(o.updatedAt||0,o.createdAt||0)>10*60000) kill=true;
-      if(kill){ _deletedIds[o.id]=true; queueOrderPhotos(o); } return !kill; });
+      if(kill){ lifeAction(o.id,'delete'); queueOrderPhotos(o); } return !kill; });
     if(state.orders.length!==b||fixed)persist();
   }
   /* "Absolutely nothing" is judged by what a card would actually show: a
@@ -3707,11 +3842,25 @@
   function buyMarkOrderBought(){var o=getOrder(_buyOrderId);if(!o)return;$('buyBought').disabled=true;buyCloudRead().then(function(st){var now=Date.now();st.lists.forEach(function(l){if(l.orderId!==o.id)return;var changed=false;(l.lines||[]).forEach(function(x){if(!x.doneAt){x.doneAt=now;x.updatedAt=now;changed=true;}});if(changed)l.updatedAt=now;});return buyCloudWrite(st).then(function(){buySetOrderStatus(o,'bought');$('buyOverlay').classList.remove('show');toast('Shirts marked bought');});}).finally(function(){$('buyBought').disabled=false;});}
   $('buyClose').addEventListener('click',function(){$('buyOverlay').classList.remove('show');});$('buyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});$('buyAdd').addEventListener('click',buyAddOrder);$('buyBought').addEventListener('click',buyMarkOrderBought);
 
-  function toTrash(id,reason){ var o=getOrder(id); if(!o)return; o.trashed=true; o.trashedAt=Date.now(); o.trashReason=reason; o.updatedAt=Date.now(); render(); persist(); toast(reason==='done'?'Marked done — moved to trash':'Moved to trash', function(){ o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); }); }
-  function restore(id){ var o=getOrder(id); if(!o)return; o.trashed=false; o.trashedAt=null; o.updatedAt=Date.now(); render(); persist(); toast('Restored to your board'); }
-  function forever(id){ var idx=-1,rm=null; for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;} if(idx<0)return; state.orders.splice(idx,1); _deletedIds[id]=true; render(); persist(); toast('Deleted forever',function(){state.orders.splice(idx,0,rm);delete _deletedIds[id];render();persist();});
+  function toTrash(id,reason){
+    var o=getOrder(id);if(!o)return;
+    o.trashed=true;o.trashedAt=Date.now();o.trashReason=reason;o.updatedAt=Date.now();
+    lifeAction(id,'trash',o);render();persist();
+    toast(reason==='done'?'Marked done — moved to trash':'Moved to trash',function(){restore(id);});
+  }
+  function restore(id){
+    var o=getOrder(id);if(!o)return;
+    lifeAction(id,'restore',o);o.updatedAt=Date.now();render();persist();toast('Restored to your board');
+  }
+  function forever(id){
+    var idx=-1,rm=null;for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id){idx=i;rm=state.orders[i];break;}
+    if(idx<0)return;state.orders.splice(idx,1);lifeAction(id,'delete');render();persist();
+    toast('Deleted forever',function(){
+      if(!getOrder(id))state.orders.splice(Math.min(idx,state.orders.length),0,rm);
+      lifeAction(id,rm.trashed?'trash':'restore',rm);rm.updatedAt=Date.now();render();persist();
+    });
     // The Undo toast lasts 4.5 seconds; never delete art during that window.
-    setTimeout(function(){if(_deletedIds[id] && !getOrder(id)){queueOrderPhotos(rm);persist();}}, 6500);
+    setTimeout(function(){if(_deletedIds[id]&&!getOrder(id)){queueOrderPhotos(rm);persist();}},6500);
   }
 
   /* ===== chooser + editor ===== */
@@ -4078,7 +4227,7 @@
       clearNewDraft(editing.type);
       if(!editing.isNew){
         for(var i=state.orders.length-1;i>=0;i--){ if(state.orders[i].id===id){ state.orders.splice(i,1); break; } }
-        _deletedIds[id]=true; queueOrderPhotos(editing); persist();
+        lifeAction(id,'delete'); queueOrderPhotos(editing); persist();
       }
       editing=null;
     }
@@ -5063,7 +5212,7 @@
       for(var i=state.orders.length-1;i>=0;i--){
         if(state.orders[i].id===id){ state.orders.splice(i,1); break; }
       }
-      _deletedIds[id]=true;
+      lifeAction(id,'delete');
       persist();
     }
 
@@ -5091,7 +5240,7 @@
       var eid=editing.id;
       clearNewDraft(editing.type);
       for(var ei=state.orders.length-1;ei>=0;ei--){ if(state.orders[ei].id===eid){ state.orders.splice(ei,1); break; } }
-      _deletedIds[eid]=true;
+      lifeAction(eid,'delete');
       persist();
       hideOverlay();
       render();
@@ -5390,21 +5539,11 @@
     el.innerHTML='<span class="health-dot '+dotClass+'"></span><span class="ss-txt"><span>'+main+'</span>'+(sub?'<span class="ss-sub">'+sub+'</span>':'')+'</span>';
   }
   function reconcileNow(cb){
-    if(!sb){ cb&&cb('off',state.orders.length,0); return; }
-    sb.storage.from(BUCKET).download(ORDERS_FILE+'?t='+Date.now()).then(function(r){
-      var cloud=[];
-      var finish=function(){
-        var mine={}; state.orders.forEach(function(o){ mine[o.id]=o; });
-        var pulled=0;
-        cloud.forEach(function(c){ if(!c||!c.id||_deletedIds[c.id])return; var m=mine[c.id]; if(!m){ state.orders.push(migrate(c)); pulled++; } else if(_freshness(c)>_freshness(m)){ state.orders[state.orders.indexOf(m)]=migrate(c); } });
-        state.orders.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
-        render();
-        var blob=new Blob([JSON.stringify({v:11,orders:state.orders})],{type:'application/json'});
-        sb.storage.from(BUCKET).upload(ORDERS_FILE,blob,{upsert:true,cacheControl:'0'}).then(function(u){ _lastSync=Date.now(); cb&&cb(u&&u.error?'fail':'ok', state.orders.length, pulled); }).catch(function(){ cb&&cb('fail', state.orders.length, pulled); });
-      };
-      if(r&&r.data) return r.data.text().then(function(t){ try{var s=JSON.parse(t); if(s&&Array.isArray(s.orders))cloud=s.orders;}catch(e){} finish(); });
-      finish();
-    }).catch(function(){ cb&&cb('fail', state.orders.length, 0); });
+    if(!sb){if(cb)cb('off',state.orders.length,0);return;}
+    var before=Object.create(null);state.orders.forEach(function(o){before[o.id]=true;});
+    saveNow(function(ok){var pulled=state.orders.filter(function(o){return !before[o.id];}).length;
+      if(ok)_lastSync=Date.now();if(cb)cb(ok?'ok':'fail',state.orders.length,pulled);
+    });
   }
   function runSyncCheck(){
     paintSync('wait','Checking this device\u2026','making sure you\u2019re seeing every order');
