@@ -289,14 +289,15 @@
     .card-bar .done-btn{min-width:0;flex:1 1 auto;justify-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:7px 5px;font-size:14px;letter-spacing:.035em;gap:0;}
     .card-bar .done-btn svg{display:none;}
   }
-  /* Long-press quick actions: exactly two icon buttons. All order-specific info lives inside the order. */
+  /* Long-press quick actions: advance to the named next step, or delete. */
   #quickOrderOverlay{ align-items:center; }
   .qa-box{ max-width:220px; width:auto; padding:12px; margin-top:0; border-radius:18px; align-self:center; }
   .qa-actions{ padding:0; display:flex; flex-direction:row; gap:12px; justify-content:center; align-items:center; }
   .qa-act{ width:68px; height:68px; min-height:68px; padding:0; border:none; border-radius:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; transition:transform .12s ease,filter .12s ease; }
   .qa-act:active{ transform:scale(.96); }
   @media(hover:hover) and (pointer:fine){ .qa-act:hover{ filter:brightness(.95); } }
-  .qa-act.confirm{ background:var(--green); }
+  .qa-act.confirm{ background:var(--green); width:auto; min-width:108px; max-width:140px; box-sizing:border-box; padding:8px 12px; flex-direction:column; gap:3px; }
+  .qa-act.confirm span{ font:17px/1.05 'Teko',sans-serif; text-align:center; }
   .qa-act.danger{ background:var(--red); }
   .qa-act svg{ width:30px; height:30px; stroke:#fff; }
   /* Mobile long-press should feel like an app action, never like selectable page content. */
@@ -1204,7 +1205,18 @@
   .wz-preview .card{ margin:0; break-inside:auto; }
   /* looking at an order (not editing it) */
   .wz.viewing .wz-prog{ display:none; }
-  .wz.viewing .wz-top{ justify-content:flex-end; }
+  .wz.viewing .wz-top{ justify-content:flex-end; gap:8px; padding-bottom:0; }
+  .wz.viewing #wzBack{ display:none; }
+  .wz.viewing .wz-head{ padding-top:4px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+  .wz.viewing .wz-title{ overflow-wrap:anywhere; }
+  .wz-edit-top{ display:none; }
+  .wz.viewing .wz-edit-top{ display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    min-height:42px; padding:0 12px; border:1px solid var(--line-strong); border-radius:13px;
+    background:transparent; color:var(--green); font:20px 'Teko',sans-serif; cursor:pointer; }
+  .wz-edit-top svg{ width:17px; height:17px; flex:none; }
+  .wz-edit-top:hover{ background:var(--note); }
+  .wz-edit-top:focus-visible{ outline:2px solid var(--green); outline-offset:3px; }
+  .wz.viewing .wz-foot{ display:none; }
   .vw-pane{ padding:0; overflow:hidden; display:flex; flex-direction:column; }
   .vw-wrap{ flex:1; display:flex; flex-direction:column; min-height:0; }
   .vw-strip{ flex:1; display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory;
@@ -1244,8 +1256,6 @@
   .vw-del{ display:block; width:100%; margin:26px 0 6px; height:52px; border-radius:15px; cursor:pointer;
     border:1.5px solid rgba(var(--red-rgb),.45); background:transparent; color:var(--red);
     font-family:'Teko',sans-serif; font-size:20px; letter-spacing:.04em; }
-  .wz.viewing .wz-foot .wz-next{ font-size:22px; }
-  .wz.viewing .wz-foot .vw-edit{ flex:0 0 38%; }
   .wz-acts{ display:flex; gap:10px; margin-top:18px; }
   .wz-act{ flex:1; height:54px; border-radius:15px; cursor:pointer; font-family:'Teko',sans-serif; font-size:20px;
     letter-spacing:.04em; border:1.5px solid var(--line-strong); background:transparent; color:var(--burgundy); }
@@ -1652,6 +1662,7 @@
   <div class="wz-top">
     <button class="wz-ib" id="wzBack" type="button" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
     <div class="wz-prog"><div class="wz-bar" id="wzBar"></div></div>
+    <button class="wz-edit-top" id="wzEditTop" type="button" aria-label="Edit order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z"/><path d="m14 5 5 5"/></svg><span>Edit</span></button>
     <button class="wz-ib" id="wzX" type="button" aria-label="Close"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div class="wz-head"><div class="wz-no" id="wzNo"></div><h2 class="wz-title" id="wzTitle"></h2></div>
@@ -1727,6 +1738,7 @@
     <div class="qa-actions">
       <button class="qa-act confirm" id="quickOrderStage" type="button" aria-label="Advance order">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>
+      <span id="quickOrderStageLabel">Next Step</span>
       </button>
       <button class="qa-act danger" id="quickOrderDelete" type="button" aria-label="Delete order">
         <svg viewBox="0 0 1200 1200" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M599.99 131.26Q648.65 131.26 678 131.32Q691.04 131.34 705.24 136.32C743.17 149.61 768.44 184.32 768.69 224.51Q768.74 231.86 768.74 280.73A.54.54 0 0 0 769.28 281.27Q857.3 281.27 955.25 281.27C973.11 281.27 987.78 292.06 992.36 309.07C996.67 325.1 990.12 341.51 976.33 350.36Q966.93 356.39 953.75 356.31Q938.84 356.22 917.35 356.28A.69.69 0 0 0 916.66 356.93Q889.02 854.51 885.8 913.75Q884.71 933.71 882.81 942.47C871.41 995.18 824.68 1031.58 771.25 1031.26Q768.41 1031.25 600.01 1031.25Q431.6 1031.25 428.77 1031.27C375.33 1031.59 328.6 995.19 317.2 942.48Q315.3 933.72 314.21 913.76Q310.99 854.52 283.33 356.94A.69.69 0 0 0 282.64 356.29Q261.15 356.23 246.24 356.32Q233.06 356.41 223.66 350.38C209.87 341.53 203.32 325.12 207.62 309.09C212.2 292.08 226.87 281.29 244.73 281.28Q342.68 281.28 430.7 281.28A.54.54 0 0 0 431.24 280.74Q431.24 231.87 431.29 224.52C431.54 184.33 456.81 149.62 494.74 136.32Q508.94 131.34 521.98 131.32Q551.33 131.26 599.99 131.26ZM600 281.28Q689.07 281.28 693.52 281.25A.21.21 0 0 0 693.73 281.04Q693.82 270.02 693.74 225.76C693.72 214.05 685.45 206.2 673.75 206.24Q664.72 206.27 600 206.27Q535.29 206.27 526.26 206.24C514.56 206.2 506.29 214.05 506.27 225.76Q506.19 270.02 506.28 281.04A.21.21 0 0 0 506.49 281.25Q510.93 281.28 600 281.28ZM600 956.28Q760.15 956.28 771.5 956.26C792.61 956.21 809.12 941.3 810.28 920.25Q813.96 853.91 841.6 356.67A.44.44 0 0 0 841.16 356.21Q807.01 356.27 599.99 356.27Q392.98 356.28 358.83 356.22A.44.44 0 0 0 358.39 356.68Q386.04 853.92 389.73 920.26C390.89 941.31 407.4 956.22 428.51 956.26Q439.85 956.29 600 956.28Z"/><g fill="currentColor"><rect x="436.95" y="435.99" width="65.56" height="442.18" rx="32.29" transform="rotate(-2 469.73 657.08)"/><rect x="567.21" y="436.08" width="65.58" height="440.32" rx="32.28"/><rect x="697.45" y="436.04" width="65.62" height="442.06" rx="32.3" transform="rotate(2 730.26 657.07)"/></g></svg>
@@ -3811,7 +3823,11 @@
     _quickOrderId=id;
     var q=$('quickOrderOverlay'), stage=$('quickOrderStage');
     if(!q)return;
-    stage.setAttribute('aria-label',o.isQuote?'Create order':(nextStageLabel(o)==='Done'?'Mark order done':'Advance to '+nextStageLabel(o)));
+    var next=o.isQuote?'Create Order':nextStageLabel(o);
+    var label=o.isQuote?next:(next==='Done'?'Mark Done':'Next: '+next);
+    $('quickOrderStageLabel').textContent=label;
+    stage.setAttribute('aria-label',label);
+    stage.title=label;
     q.classList.add('show');
   }
   function wireQuickPress(el){
@@ -4107,16 +4123,14 @@
     var pane=wzEl('div','wz-pane vw-pane'); pane.appendChild(wrap);
     $('wzBody').appendChild(pane); wz.pane=pane;
     hydrateArt(pane);
-    // footer: move it along, or open it for editing
-    var foot=$('wzFoot'); foot.innerHTML='';
-    var nx=nextStageLabel(o), isDone=(nx==='Done');
-    var adv=wzEl('button','wz-next'+(isDone?'':' soft')); adv.type='button';
-    adv.textContent=nx;
-    adv.addEventListener('click',function(){ var id=o.id; wzClose(); advanceStage(id); });
-    var ed=wzEl('button','wz-next vw-edit'); ed.type='button'; ed.textContent='Edit';
-    ed.addEventListener('click',function(){ var id=o.id; wzClose(); openWizard(getOrder(id),true); });
-    foot.appendChild(adv); foot.appendChild(ed);
   }
+  $('wzEditTop').addEventListener('click',function(){
+    var o=wz.view;
+    if(!o)return;
+    var id=o.id; wzClose();
+    var current=getOrder(id); if(current)openWizard(current,true);
+  });
+
   function openWizard(existing, atItems){
     wz.open=true; wz.i=0; wz.busy=0; wz.pendingPhotos=[]; wz.edit=!!existing; wz.view=null;
     wz.b={surface:'',material:'',color:'',placement:'',size:'',qty:'1'};
@@ -4654,12 +4668,9 @@
   };
   function wzEditActions(){
     var acts=wzEl('div','wz-acts');
-    var nx=nextStageLabel(editing), isDone=(nx==='Done');
-    var adv=wzEl('button','wz-act go'+(isDone?' fin':'')); adv.type='button'; adv.textContent=nx;
-    adv.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; advanceStage(id); });
     var del=wzEl('button','wz-act del'); del.type='button'; del.textContent='Delete';
     del.addEventListener('click',function(){ var id=editing.id; wzClose(); editing=null; toTrash(id,'deleted'); });
-    acts.appendChild(adv); acts.appendChild(del);
+    acts.appendChild(del);
     return acts;
   }
 
@@ -5224,15 +5235,7 @@
     else if(o.trashed){ var fv=document.createElement('button'); fv.className='m-forever'; fv.textContent='Delete forever'; fv.onclick=function(){var id=o.id;hideOverlay();forever(id);}; bar.appendChild(fv); var rs=document.createElement('button'); rs.className='m-restore spacer'; rs.textContent='Restore'; rs.onclick=function(){var id=o.id;hideOverlay();restore(id);}; bar.appendChild(rs); }
     else {
       var tr=document.createElement('button'); tr.className='m-delete'; tr.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete'; tr.onclick=function(){var id=o.id;hideOverlay();toTrash(id,'deleted');}; bar.appendChild(tr);
-      // Same control as the one on the card: shows the actual next stage
-      // (Digitized, Design Ready, Printed…) and only reads "Done" at the finish.
-      var nxt=nextStageLabel(o), isDone=(nxt==='Done');
-      var dn=document.createElement('button');
-      dn.className='done-btn spacer'+(isDone?'':' stage-adv');
-      dn.textContent=nxt;
-      dn.onclick=function(){ var id=o.id; hideOverlay(); advanceStage(id); };
-      bar.appendChild(dn);
-      var cl=document.createElement('button'); cl.className='m-close'; cl.textContent='Save & close'; cl.onclick=commitOrClose; bar.appendChild(cl);
+      var cl=document.createElement('button'); cl.className='m-close spacer'; cl.textContent='Save & close'; cl.onclick=commitOrClose; bar.appendChild(cl);
     }
   }
   function hideOverlay(){ overlay.classList.remove('show'); editing=null; }
