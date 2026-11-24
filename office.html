@@ -1282,6 +1282,26 @@
   .card.wz-new{ animation:wznew 1.6s ease; }
   @keyframes wznew{ 0%,30%{ box-shadow:0 0 0 4px var(--go); } 100%{ box-shadow:var(--shadow); } }
 </style>
+
+<style id="office-categories">
+  .sales-app #linksOverlay .edit-opts{ align-items:start; gap:18px; }
+  .sales-app .sales-hero{ padding:2px 2px 6px; }
+  .office-category{ box-sizing:border-box; min-width:0; padding:18px; border:1px solid var(--line-strong);
+    border-radius:18px; background:var(--note); }
+  .office-category h2{ margin:0 0 12px; font:400 24px/1.1 'Schadow','Teko',sans-serif;
+    color:var(--green); overflow-wrap:anywhere; }
+  .office-tools{ display:grid; gap:8px; }
+  .sales-app #linksOverlay .office-category .edit-opt{ box-sizing:border-box; width:100%; min-width:0;
+    min-height:60px; margin:0; padding:12px 14px; border-radius:12px; background:transparent; box-shadow:none; }
+  .sales-app #linksOverlay .office-category .edit-opt:hover{ background:var(--cream); }
+  .office-category .eo-t{ min-width:0; overflow-wrap:anywhere; }
+  .office-category .edit-opt:focus-visible{ outline:2px solid var(--green); outline-offset:2px; }
+  @media(max-width:680px){
+    .sales-app #linksOverlay .edit-opts{ grid-template-columns:minmax(0,1fr); gap:14px; }
+    .office-category{ padding:16px; }
+    .office-category h2{ font-size:22px; }
+  }
+</style>
 </head>
 <body class="sales-app">
 
@@ -1312,55 +1332,73 @@
       <div class="sales-hero">
         <div class="sales-brand">
           <svg class="sales-tree" viewBox="250 190 760 770" aria-hidden="true"><path fill="currentColor" d="M 629.47 278.98 A 0.25 0.24 48.4 0 0 629.00 278.95 Q 626.34 286.12 622.17 293.93 C 603.39 329.12 577.94 359.82 547.94 385.68 Q 541.29 391.42 528.34 401.83 Q 526.55 403.27 524.45 404.58 A 0.40 0.40 0.0 0 0 524.68 405.32 C 545.66 404.88 561.90 402.48 586.77 398.45 C 598.22 396.60 606.16 403.24 604.45 415.50 C 603.71 420.79 599.81 429.05 596.42 434.81 Q 587.06 450.69 575.41 464.17 C 556.80 485.71 536.21 503.77 512.56 521.08 Q 496.86 532.56 483.43 540.91 Q 458.32 556.52 449.51 561.26 Q 421.78 576.16 417.11 578.58 Q 416.02 579.15 415.38 579.85 A 0.62 0.62 0.0 0 0 415.72 580.88 C 422.28 582.14 429.07 583.54 436.17 583.89 Q 454.19 584.77 470.50 583.53 C 493.21 581.80 512.05 578.88 537.12 574.86 C 550.21 572.76 561.19 579.17 558.91 594.19 Q 558.39 597.60 554.61 605.63 Q 551.25 612.78 546.30 620.56 Q 534.40 639.26 516.94 657.94 Q 494.61 681.84 464.12 705.61 Q 442.94 722.12 423.12 734.59 Q 386.36 757.72 353.75 773.97 Q 333.59 784.02 317.13 791.63 Q 313.72 793.21 310.74 795.63 A 0.54 0.54 0.0 0 0 310.81 796.51 Q 315.97 799.54 322.71 801.04 Q 337.97 804.41 356.01 803.44 C 386.35 801.81 416.50 794.30 446.10 784.63 Q 462.51 779.27 481.37 771.86 C 501.46 763.97 517.48 757.47 534.22 751.99 C 547.28 747.70 564.03 744.57 577.00 747.81 C 607.50 755.44 616.41 790.58 616.01 817.73 C 615.45 856.98 602.60 896.22 576.15 925.61 Q 566.80 935.99 555.62 941.71 Q 546.14 946.56 539.15 939.83 C 533.91 934.79 535.38 926.01 541.26 921.70 Q 565.77 903.75 577.65 875.67 Q 587.97 851.27 589.61 823.76 Q 590.46 809.42 586.84 793.45 C 584.54 783.31 578.81 772.73 567.63 770.89 C 563.28 770.18 557.64 770.35 553.12 771.23 Q 538.92 773.98 526.69 779.21 Q 488.90 795.35 469.11 803.31 Q 438.23 815.73 407.02 823.25 Q 377.06 830.46 346.80 830.67 C 332.97 830.77 315.28 828.31 302.87 823.43 C 296.26 820.83 288.13 816.21 283.74 809.89 C 277.87 801.44 277.57 791.85 283.24 783.41 C 288.38 775.77 299.17 770.48 307.25 766.52 Q 326.16 757.26 349.11 745.60 C 402.85 718.31 453.67 685.07 495.78 642.79 Q 513.51 624.99 526.61 606.12 Q 529.19 602.39 531.15 598.46 A 0.66 0.66 0.0 0 0 530.43 597.51 Q 511.87 601.20 490.57 604.32 C 463.54 608.28 437.24 609.66 410.78 604.97 Q 402.62 603.52 394.13 599.26 C 379.47 591.91 378.51 575.87 391.27 566.27 Q 395.75 562.91 403.88 558.38 Q 431.56 542.98 451.56 531.29 Q 477.07 516.37 502.53 497.78 Q 530.25 477.55 552.14 454.64 Q 567.27 438.79 579.34 420.60 Q 579.62 420.18 579.64 419.98 A 0.54 0.54 0.0 0 0 579.00 419.41 C 574.45 420.29 571.00 420.70 567.36 421.54 Q 545.84 426.50 522.48 427.61 Q 513.96 428.02 507.02 427.30 C 499.73 426.54 493.32 425.11 489.30 418.57 C 485.88 413.00 487.73 405.83 491.67 400.90 Q 493.26 398.91 498.71 394.45 Q 506.06 388.43 506.13 388.38 Q 534.60 366.24 555.64 343.90 C 583.84 313.95 605.44 278.94 617.09 239.39 C 618.65 234.09 619.37 229.24 620.70 224.21 Q 623.00 215.50 630.64 213.16 C 637.35 211.11 644.41 215.06 647.22 221.72 Q 648.24 224.15 648.49 229.98 C 649.43 251.47 652.68 272.26 659.96 291.98 Q 666.16 308.78 675.41 323.15 C 699.14 360.00 738.05 386.88 777.05 405.69 Q 793.24 413.50 797.21 415.77 Q 807.93 421.88 807.67 433.10 C 807.52 439.34 804.00 445.77 799.36 449.61 C 774.04 470.59 733.82 470.33 703.84 461.22 A 0.34 0.33 82.5 0 0 703.46 461.72 Q 707.00 467.42 711.84 472.90 Q 735.15 499.23 765.19 520.05 Q 792.95 539.29 822.21 553.29 Q 838.37 561.02 862.02 570.28 C 870.98 573.79 881.46 576.71 890.61 580.39 Q 899.88 584.12 904.64 590.18 C 911.35 598.72 910.41 610.55 903.91 619.43 Q 898.31 627.06 888.29 632.29 Q 874.83 639.32 857.67 642.62 C 831.62 647.62 805.54 646.81 779.11 641.60 Q 757.69 637.38 736.97 630.06 A 0.41 0.41 0.0 0 0 736.50 630.69 Q 741.07 636.93 745.65 642.23 Q 758.53 657.13 771.42 668.82 Q 821.69 714.41 883.17 745.97 Q 892.78 750.90 908.48 757.59 Q 928.18 765.98 934.29 767.94 Q 949.54 772.85 961.43 778.31 C 977.62 785.73 983.80 803.11 972.67 818.00 C 964.71 828.65 951.28 835.53 938.46 840.03 Q 906.69 851.18 871.75 851.85 Q 845.66 852.34 824.02 848.98 Q 777.26 841.72 737.25 821.48 C 725.22 815.39 709.72 804.88 695.39 812.61 Q 687.94 816.63 682.92 824.85 C 675.38 837.18 672.55 850.38 671.62 864.63 C 670.21 886.14 677.67 908.01 690.96 924.75 C 694.39 929.08 697.71 931.81 702.32 935.10 C 708.77 939.71 704.19 947.75 696.95 946.31 C 688.61 944.65 680.31 939.79 673.27 934.39 Q 666.74 929.37 661.47 921.99 Q 645.14 899.15 646.38 870.73 Q 647.74 839.68 666.51 814.51 Q 673.12 805.64 681.54 799.85 Q 699.73 787.33 721.26 791.52 C 727.81 792.79 734.10 794.58 740.89 797.20 Q 758.34 803.95 776.03 809.97 Q 797.68 817.35 822.23 821.53 Q 862.19 828.35 901.13 822.13 C 914.89 819.93 928.64 816.09 940.33 810.07 Q 944.49 807.93 947.18 804.71 A 2.20 2.20 0.0 0 0 947.35 802.10 Q 946.10 800.16 943.31 799.19 Q 925.78 793.10 916.55 789.70 Q 886.01 778.46 859.12 763.59 Q 844.38 755.44 825.72 743.28 Q 782.62 715.19 747.21 680.04 Q 735.49 668.42 727.42 658.40 C 718.68 647.56 710.30 635.43 705.06 622.50 C 703.08 617.60 702.44 612.31 704.79 607.82 C 707.41 602.79 713.10 600.60 718.50 600.89 Q 721.94 601.08 727.72 603.08 Q 738.41 606.77 752.50 610.97 Q 788.87 621.80 825.75 621.56 C 843.50 621.45 865.25 618.42 879.19 608.19 Q 880.99 606.87 882.14 605.09 A 1.42 1.41 34.3 0 0 881.77 603.17 Q 878.65 600.92 875.35 599.90 Q 873.09 599.20 858.72 594.24 Q 824.79 582.52 794.72 566.76 C 764.11 550.70 734.20 529.96 709.36 504.90 Q 694.12 489.53 682.88 471.64 Q 676.84 462.03 673.62 452.66 C 670.83 444.53 675.05 435.56 684.25 435.31 Q 688.51 435.19 691.77 436.21 Q 700.77 439.02 709.04 441.12 C 726.25 445.50 746.44 446.47 764.15 442.14 C 770.44 440.61 777.24 438.27 781.66 433.65 A 0.90 0.90 0.0 0 0 781.47 432.26 Q 779.24 430.93 776.35 429.65 Q 762.05 423.30 749.52 416.97 Q 717.94 401.02 690.92 378.33 Q 684.77 373.16 675.30 363.21 Q 651.50 338.19 637.75 305.54 C 634.15 297.00 631.53 287.72 629.47 278.98 Z"/></svg>
-          <div><h1 class="sales-title">Office</h1><p class="sales-sub">Invoices, payments and office tools. Orders stay in the Orders app.</p></div>
+          <div><h1 class="sales-title">Office</h1></div>
         </div>
       </div>
-      <div class="sales-section">Sales</div>
-      <button class="edit-opt" id="invoiceOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.8h8.6L19 7.2V21.2H6z"/><path d="M14.4 2.8v4.6H19"/><path d="M9 12h7M9 15.5h7M9 19h4.2"/></svg></span>
-        <span class="eo-t">Invoice Maker</span>
-      </button>
-      <button class="edit-opt" id="takePayOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9h19M7 15h3"/></svg></span>
-        <span class="eo-t">Take Payment</span>
-      </button>
-      <button class="edit-opt" id="linkEmail" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
-        <span class="eo-t">Email a customer</span>
-      </button>
-      <button class="edit-opt" id="histOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
-        <span class="eo-t">Payment history</span>
-      </button>
-      <button class="edit-opt" id="linkLabel" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 7h13v10H3zM16 10h3.2l1.8 3v4h-5"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></span>
-        <span class="eo-t">Shipping label</span>
-      </button>
-      <button class="edit-opt" id="dueCalendarOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M8 18h3"/></svg></span>
-        <span class="eo-t">Due Dates</span>
-      </button>
-      <button class="edit-opt" id="needBuyOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></span>
-        <span class="eo-t">Need to Buy</span>
-      </button>
-      <div class="sales-section">Office</div>
-      <button class="edit-opt" id="invOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path></svg></span>
-        <span class="eo-t">Shirt Stock <span id="invCount" style="opacity:.55;text-transform:none;letter-spacing:0"></span></span>
-      </button>
-      <button class="edit-opt" id="sizesOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M7 8v3M12 8v4M17 8v3"/></svg></span>
-        <span class="eo-t">Sizes</span>
-      </button>
-      <button class="edit-opt" id="colorCodesOpen" type="button">
+      <section class="office-category" aria-labelledby="office-category-0">
+        <h2 id="office-category-0">Design</h2>
+        <div class="office-tools">
+<button class="edit-opt" id="colorCodesOpen" type="button">
         <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 0-4.4h-.8a1.7 1.7 0 0 1 0-3.4H15a6 6 0 0 0 6-6C21 4.9 17 3 12 3z"/><circle cx="7.5" cy="9" r="1"/><circle cx="10.3" cy="6.8" r="1"/><circle cx="14" cy="6.4" r="1"/><circle cx="17" cy="8.4" r="1"/></svg></span>
         <span class="eo-t">Color Codes</span>
       </button>
-      <button class="edit-opt" id="healthOpen" type="button">
-        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></svg></span>
-        <span class="eo-t">Health check</span>
+<button class="edit-opt" id="sizesOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M7 8v3M12 8v4M17 8v3"/></svg></span>
+        <span class="eo-t">Sizes</span>
       </button>
+        </div>
+      </section>
+      <section class="office-category" aria-labelledby="office-category-1">
+        <h2 id="office-category-1">Admin</h2>
+        <div class="office-tools">
+<button class="edit-opt" id="healthOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></svg></span>
+        <span class="eo-t">Health Check</span>
+      </button>
+        </div>
+      </section>
+      <section class="office-category" aria-labelledby="office-category-2">
+        <h2 id="office-category-2">Order Fulfillment</h2>
+        <div class="office-tools">
+<button class="edit-opt" id="dueCalendarOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M8 18h3"/></svg></span>
+        <span class="eo-t">Due Dates</span>
+      </button>
+<button class="edit-opt" id="linkEmail" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+        <span class="eo-t">Email</span>
+      </button>
+<button class="edit-opt" id="needBuyOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6"/></svg></span>
+        <span class="eo-t">Need to Buy</span>
+      </button>
+<button class="edit-opt" id="invOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path></svg></span>
+        <span class="eo-t">Shirt Stock <span id="invCount" style="opacity:.55;text-transform:none;letter-spacing:0"></span></span>
+      </button>
+        </div>
+      </section>
+      <section class="office-category" aria-labelledby="office-category-3">
+        <h2 id="office-category-3">Money</h2>
+        <div class="office-tools">
+<button class="edit-opt" id="invoiceOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.8h8.6L19 7.2V21.2H6z"/><path d="M14.4 2.8v4.6H19"/><path d="M9 12h7M9 15.5h7M9 19h4.2"/></svg></span>
+        <span class="eo-t">Invoice</span>
+      </button>
+<button class="edit-opt" id="takePayOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9h19M7 15h3"/></svg></span>
+        <span class="eo-t">Payment</span>
+      </button>
+<button class="edit-opt" id="histOpen" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <span class="eo-t">Payment History</span>
+      </button>
+        </div>
+      </section>
+      <div hidden><button class="edit-opt" id="linkLabel" type="button">
+        <span class="eo-ico"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 7h13v10H3zM16 10h3.2l1.8 3v4h-5"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></span>
+        <span class="eo-t">Shipping label</span>
+      </button></div>
     </div>
   </div>
 </div>
